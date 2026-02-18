@@ -1,26 +1,247 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+html,
+body,
+:root {
+    @apply h-full;
+}
+
+/*
+  --- AI Sign Language Translator Theme ---
+  Brand: "Tech with a Heart"
+  Palette:
+    Deep Ocean   #00008B  → Primary / Focus
+    Tech Teal    #40E0D0  → Secondary / Accent / Success
+    Warm Sun     #FFC845  → Warning / Accent Badge
+    Bright Lemon #F3E44D  → Highlight (sparingly)
+    Soft Sky     #ADD8E6  → Surface Tertiary / Info
+    Steel Grey   #C0C2C9  → Neutral / Border / Disabled
+    Soft Red     #E63946  → Danger / Error (added per recommendation)
+*/
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* BACKGROUND: Clean White/Grey (#F8F9FA) */
+  --background: oklch(98.5% 0.002 260);
+  --foreground: oklch(20% 0.05 273);
+
+  /* PRIMARY: Deep Ocean Blue (#00008B) */
+  --primary: oklch(32.3% 0.23 273.7);
+  --primary-foreground: oklch(100% 0 0);
+
+  /* SECONDARY: Tech Teal (#40E0D0) */
+  --secondary: oklch(90% 0.08 190.5);
+  --secondary-foreground: oklch(25% 0.1 190.5);
+
+  /* ACCENT: Tech Teal (#40E0D0) — active states, rings, highlights */
+  --accent: oklch(80.5% 0.154 190.5);
+  --accent-foreground: oklch(20% 0.05 273);
+
+  /* SURFACE: Pure White */
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(20% 0.05 273);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(20% 0.05 273);
+
+  /* SURFACE TERTIARY: Soft Sky (#ADD8E6) */
+  --surface-tertiary: oklch(88% 0.08 230);
+  --surface-tertiary-foreground: oklch(20% 0.05 273);
+
+  /* MUTED: Light Steel */
+  --muted: oklch(92% 0.01 260);
+  --muted-foreground: oklch(65% 0.01 260);
+
+  /* BORDER / INPUT: Steel Grey (#C0C2C9) */
+  --border: oklch(80% 0.01 260);
+  --input: oklch(80% 0.01 260);
+
+  /* RING: Deep Ocean Blue (focus ring) */
+  --ring: oklch(32.3% 0.23 273.7);
+
+  /* DANGER / ERROR: Soft Red (#E63946) */
+  --destructive: oklch(58% 0.22 25);
+  --destructive-foreground: oklch(100% 0 0);
+
+  /* WARNING: Warm Sun (#FFC845) */
+  --warning: oklch(84.6% 0.16 85.3);
+  --warning-foreground: oklch(20% 0.05 273);
+
+  /* SUCCESS: Tech Teal (#40E0D0) */
+  --success: oklch(80.5% 0.154 190.5);
+  --success-foreground: oklch(20% 0.05 273);
+
+  /* HIGHLIGHT: Bright Lemon (#F3E44D) — sparingly */
+  --highlight: oklch(91% 0.18 98);
+  --highlight-foreground: oklch(20% 0.05 273);
+
+  /* RADIUS */
+  --radius: 0.5rem;
+
+  /* CHART COLORS */
+  --chart-1: oklch(32.3% 0.23 273.7);   /* Deep Ocean Blue */
+  --chart-2: oklch(80.5% 0.154 190.5);  /* Tech Teal */
+  --chart-3: oklch(84.6% 0.16 85.3);    /* Warm Sun Yellow */
+  --chart-4: oklch(88% 0.08 230);       /* Soft Sky */
+  --chart-5: oklch(60% 0.15 273);       /* Mid Blue */
+
+  /* SIDEBAR */
+  --sidebar: oklch(100% 0 0);
+  --sidebar-foreground: oklch(20% 0.05 273);
+  --sidebar-primary: oklch(32.3% 0.23 273.7);
+  --sidebar-primary-foreground: oklch(100% 0 0);
+  --sidebar-accent: oklch(90% 0.08 190.5);
+  --sidebar-accent-foreground: oklch(25% 0.1 190.5);
+  --sidebar-border: oklch(80% 0.01 260);
+  --sidebar-ring: oklch(32.3% 0.23 273.7);
+
+  --font-sans: var(--font-inter);
+}
+
+.dark {
+  /* BACKGROUND: Deep Navy */
+  --background: oklch(15% 0.05 273);
+  --foreground: oklch(98% 0.01 260);
+
+  /* PRIMARY: Lighter Blue for dark bg visibility */
+  --primary: oklch(60% 0.2 273);
+  --primary-foreground: oklch(100% 0 0);
+
+  /* SECONDARY: Dark Teal */
+  --secondary: oklch(25% 0.1 190.5);
+  --secondary-foreground: oklch(90% 0.05 190.5);
+
+  /* ACCENT: Tech Teal (vibrant on dark) */
+  --accent: oklch(80.5% 0.154 190.5);
+  --accent-foreground: oklch(15% 0.05 273);
+
+  /* SURFACE: Dark Navy Card */
+  --card: oklch(22% 0.05 273);
+  --card-foreground: oklch(99% 0 0);
+  --popover: oklch(22% 0.05 273);
+  --popover-foreground: oklch(99% 0 0);
+
+  /* SURFACE TERTIARY: Dark */
+  --surface-tertiary: oklch(30% 0.05 273);
+  --surface-tertiary-foreground: oklch(99% 0 0);
+
+  /* MUTED: Dark Navy Muted */
+  --muted: oklch(30% 0.05 273);
+  --muted-foreground: oklch(60% 0.05 273);
+
+  /* BORDER / INPUT: Dark Blue Grey */
+  --border: oklch(30% 0.05 273);
+  --input: oklch(30% 0.05 273);
+
+  /* RING */
+  --ring: oklch(60% 0.2 273);
+
+  /* DANGER */
+  --destructive: oklch(55% 0.2 25);
+  --destructive-foreground: oklch(100% 0 0);
+
+  /* WARNING: Warm Sun (unchanged — works on dark) */
+  --warning: oklch(84.6% 0.16 85.3);
+  --warning-foreground: oklch(20% 0.05 273);
+
+  /* SUCCESS: Tech Teal */
+  --success: oklch(80.5% 0.154 190.5);
+  --success-foreground: oklch(20% 0.05 273);
+
+  /* HIGHLIGHT: Bright Lemon */
+  --highlight: oklch(91% 0.18 98);
+  --highlight-foreground: oklch(20% 0.05 273);
+
+  /* CHART COLORS */
+  --chart-1: oklch(60% 0.2 273);
+  --chart-2: oklch(80.5% 0.154 190.5);
+  --chart-3: oklch(84.6% 0.16 85.3);
+  --chart-4: oklch(60% 0.15 230);
+  --chart-5: oklch(70% 0.15 273);
+
+  /* SIDEBAR */
+  --sidebar: oklch(22% 0.05 273);
+  --sidebar-foreground: oklch(98% 0.01 260);
+  --sidebar-primary: oklch(60% 0.2 273);
+  --sidebar-primary-foreground: oklch(100% 0 0);
+  --sidebar-accent: oklch(25% 0.1 190.5);
+  --sidebar-accent-foreground: oklch(90% 0.05 190.5);
+  --sidebar-border: oklch(30% 0.05 273);
+  --sidebar-ring: oklch(60% 0.2 273);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background:             var(--background);
+  --color-foreground:             var(--foreground);
+
+  --color-card:                   var(--card);
+  --color-card-foreground:        var(--card-foreground);
+
+  --color-popover:                var(--popover);
+  --color-popover-foreground:     var(--popover-foreground);
+
+  --color-primary:                var(--primary);
+  --color-primary-foreground:     var(--primary-foreground);
+
+  --color-secondary:              var(--secondary);
+  --color-secondary-foreground:   var(--secondary-foreground);
+
+  --color-muted:                  var(--muted);
+  --color-muted-foreground:       var(--muted-foreground);
+
+  --color-accent:                 var(--accent);
+  --color-accent-foreground:      var(--accent-foreground);
+
+  --color-destructive:            var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-warning:                var(--warning);
+  --color-warning-foreground:     var(--warning-foreground);
+
+  --color-success:                var(--success);
+  --color-success-foreground:     var(--success-foreground);
+
+  --color-highlight:              var(--highlight);
+  --color-highlight-foreground:   var(--highlight-foreground);
+
+  --color-surface-tertiary:             var(--surface-tertiary);
+  --color-surface-tertiary-foreground:  var(--surface-tertiary-foreground);
+
+  --color-border:                 var(--border);
+  --color-input:                  var(--input);
+  --color-ring:                   var(--ring);
+
+  --color-chart-1:                var(--chart-1);
+  --color-chart-2:                var(--chart-2);
+  --color-chart-3:                var(--chart-3);
+  --color-chart-4:                var(--chart-4);
+  --color-chart-5:                var(--chart-5);
+
+  --color-sidebar:                        var(--sidebar);
+  --color-sidebar-foreground:             var(--sidebar-foreground);
+  --color-sidebar-primary:                var(--sidebar-primary);
+  --color-sidebar-primary-foreground:     var(--sidebar-primary-foreground);
+  --color-sidebar-accent:                 var(--sidebar-accent);
+  --color-sidebar-accent-foreground:      var(--sidebar-accent-foreground);
+  --color-sidebar-border:                 var(--sidebar-border);
+  --color-sidebar-ring:                   var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
 }

@@ -1,5 +1,3 @@
-### 📁 **Signify-AI Monorepo Structure**
-```
 signify-ai/
 │
 ├── .github/
@@ -16,7 +14,7 @@ signify-ai/
 │   └── pull_request_template.md
 │
 ├── apps/
-│   ├── frontend/                          # Next.js Frontend
+│   ├── frontend/
 │   │   ├── .next/
 │   │   ├── public/
 │   │   │   ├── icons/
@@ -24,63 +22,68 @@ signify-ai/
 │   │   │   └── locales/
 │   │   │       ├── en/
 │   │   │       └── id/
-│   │   ├── src/
-│   │   │   ├── app/                  # Next.js 13+ App Router
-│   │   │   │   ├── (auth)/
-│   │   │   │   │   ├── login/
-│   │   │   │   │   └── register/
-│   │   │   │   ├── (dashboard)/
-│   │   │   │   │   ├── history/
-│   │   │   │   │   ├── settings/
-│   │   │   │   │   └── translate/
-│   │   │   │   ├── api/              # Next.js API Routes (optional BFF)
-│   │   │   │   │   └── health/
-│   │   │   │   ├── layout.tsx
-│   │   │   │   ├── page.tsx
-│   │   │   │   └── globals.css
-│   │   │   ├── components/
-│   │   │   │   ├── ui/               # shadcn/ui components
-│   │   │   │   │   ├── button.tsx
-│   │   │   │   │   ├── card.tsx
-│   │   │   │   │   └── ...
-│   │   │   │   ├── features/
-│   │   │   │   │   ├── auth/
-│   │   │   │   │   │   ├── LoginForm.tsx
-│   │   │   │   │   │   └── RegisterForm.tsx
-│   │   │   │   │   ├── translation/
-│   │   │   │   │   │   ├── WebcamCapture.tsx
-│   │   │   │   │   │   ├── PredictionDisplay.tsx
-│   │   │   │   │   │   └── TTSControls.tsx
-│   │   │   │   │   └── dashboard/
-│   │   │   │   │       └── HistoryTable.tsx
-│   │   │   │   └── layouts/
-│   │   │   │       ├── AppLayout.tsx
-│   │   │   │       └── AuthLayout.tsx
-│   │   │   ├── lib/
-│   │   │   │   ├── api/              # API client
-│   │   │   │   │   ├── client.ts
-│   │   │   │   │   └── endpoints/
-│   │   │   │   │       ├── auth.ts
-│   │   │   │   │       ├── translation.ts
-│   │   │   │   │       └── user.ts
-│   │   │   │   ├── hooks/
-│   │   │   │   │   ├── useAuth.ts
-│   │   │   │   │   ├── useWebcam.ts
-│   │   │   │   │   └── useWebSocket.ts
-│   │   │   │   ├── stores/
-│   │   │   │   │   └── authStore.ts
-│   │   │   │   ├── utils/
-│   │   │   │   │   ├── validators.ts
-│   │   │   │   │   └── formatters.ts
-│   │   │   │   └── types/
-│   │   │   │       └── index.ts
-│   │   │   └── styles/
-│   │   │       └── themes/
+│   │   │
+│   │   ├── app/
+│   │   │   ├── (auth)/
+│   │   │   │   ├── login/
+│   │   │   │   └── register/
+│   │   │   ├── (dashboard)/
+│   │   │   │   ├── history/
+│   │   │   │   ├── settings/
+│   │   │   │   └── translate/
+│   │   │   ├── api/
+│   │   │   │   └── health/
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── globals.css
+│   │   │
+│   │   ├── components/
+│   │   │   ├── ui/
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── card.tsx
+│   │   │   │   └── ...
+│   │   │   ├── features/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── LoginForm.tsx
+│   │   │   │   │   └── RegisterForm.tsx
+│   │   │   │   ├── translation/
+│   │   │   │   │   ├── WebcamCapture.tsx
+│   │   │   │   │   ├── PredictionDisplay.tsx
+│   │   │   │   │   └── TTSControls.tsx
+│   │   │   │   └── dashboard/
+│   │   │   │       └── HistoryTable.tsx
+│   │   │   └── layouts/
+│   │   │       ├── AppLayout.tsx
+│   │   │       └── AuthLayout.tsx
+│   │   │
+│   │   ├── lib/
+│   │   │   ├── api/
+│   │   │   │   ├── client.ts
+│   │   │   │   └── endpoints/
+│   │   │   │       ├── auth.ts
+│   │   │   │       ├── translation.ts
+│   │   │   │       └── user.ts
+│   │   │   ├── hooks/
+│   │   │   │   ├── useAuth.ts
+│   │   │   │   ├── useWebcam.ts
+│   │   │   │   └── useWebSocket.ts
+│   │   │   ├── stores/
+│   │   │   │   └── authStore.ts
+│   │   │   ├── utils/
+│   │   │   │   ├── validators.ts
+│   │   │   │   └── formatters.ts
+│   │   │   └── types/
+│   │   │       └── index.ts
+│   │   │
+│   │   ├── styles/
+│   │   │   └── themes/
+│   │   │
 │   │   ├── tests/
 │   │   │   ├── e2e/
 │   │   │   │   └── translation.spec.ts
 │   │   │   ├── integration/
 │   │   │   └── unit/
+│   │   │
 │   │   ├── .env.example
 │   │   ├── .env.local
 │   │   ├── .eslintrc.json
@@ -90,21 +93,21 @@ signify-ai/
 │   │   ├── tsconfig.json
 │   │   └── tailwind.config.ts
 │   │
-│   └── backend/                          # FastAPI Backend
-│       ├── alembic/                  # Database migrations
+│   └── backend/
+│       ├── alembic/
 │       │   ├── versions/
 │       │   ├── env.py
 │       │   └── alembic.ini
 │       ├── app/
 │       │   ├── __init__.py
-│       │   ├── main.py               # FastAPI app entry
+│       │   ├── main.py
 │       │   ├── config/
 │       │   │   ├── __init__.py
-│       │   │   ├── settings.py       # Pydantic Settings
+│       │   │   ├── settings.py
 │       │   │   └── database.py
 │       │   ├── api/
 │       │   │   ├── __init__.py
-│       │   │   ├── deps.py           # Dependencies (auth, db)
+│       │   │   ├── deps.py
 │       │   │   └── v1/
 │       │   │       ├── __init__.py
 │       │   │       ├── router.py
@@ -116,15 +119,15 @@ signify-ai/
 │       │   │           └── health.py
 │       │   ├── core/
 │       │   │   ├── __init__.py
-│       │   │   ├── security.py       # JWT, password hashing
+│       │   │   ├── security.py
 │       │   │   ├── exceptions.py
 │       │   │   └── middleware.py
-│       │   ├── models/               # SQLAlchemy models
+│       │   ├── models/
 │       │   │   ├── __init__.py
 │       │   │   ├── user.py
 │       │   │   ├── prediction.py
 │       │   │   └── session.py
-│       │   ├── schemas/              # Pydantic schemas
+│       │   ├── schemas/
 │       │   │   ├── __init__.py
 │       │   │   ├── user.py
 │       │   │   ├── auth.py
@@ -133,8 +136,8 @@ signify-ai/
 │       │   │   ├── __init__.py
 │       │   │   ├── auth_service.py
 │       │   │   ├── user_service.py
-│       │   │   └── ml_service.py     # ML inference
-│       │   ├── repositories/         # Data access layer
+│       │   │   └── ml_service.py
+│       │   ├── repositories/
 │       │   │   ├── __init__.py
 │       │   │   ├── user_repository.py
 │       │   │   └── prediction_repository.py
@@ -153,20 +156,19 @@ signify-ai/
 │       │   └── seed_data.py
 │       ├── .env.example
 │       ├── .env
-│       ├── pyproject.toml            # Poetry config
+│       ├── pyproject.toml
 │       ├── poetry.lock
 │       ├── requirements.txt
 │       ├── Dockerfile
 │       └── pytest.ini
 │
-├── packages/                         # Shared code
-│   ├── types/                        # Shared TypeScript types
-│   │   ├── src/
-│   │   │   └── index.ts
+├── packages/
+│   ├── types/
+│   │   ├── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   ├── ml/                           # ML Training & Inference
+│   ├── ml/
 │   │   ├── data/
 │   │   │   ├── __init__.py
 │   │   │   ├── dataset.py
@@ -202,7 +204,7 @@ signify-ai/
 │   │   ├── pyproject.toml
 │   │   └── requirements.txt
 │   │
-│   └── config/                       # Shared configs
+│   └── config/
 │       ├── eslint/
 │       │   └── index.js
 │       └── tsconfig/
@@ -210,7 +212,7 @@ signify-ai/
 │           ├── nextjs.json
 │           └── react.json
 │
-├── data/                             # Dataset storage (gitignored)
+├── data/
 │   ├── raw/
 │   │   ├── asl_alphabet/
 │   │   └── wlasl/
@@ -223,7 +225,7 @@ signify-ai/
 │       ├── class_labels.json
 │       └── dataset_stats.json
 │
-├── models/                           # Trained models (gitignored)
+├── models/
 │   ├── checkpoints/
 │   │   └── model_epoch_50.pth
 │   ├── production/
@@ -232,18 +234,18 @@ signify-ai/
 │   └── experiments/
 │       └── wandb/
 │
-├── infrastructure/                   # IaC & deployment
+├── infrastructure/
 │   ├── docker/
 │   │   ├── frontend.Dockerfile
 │   │   ├── backend.Dockerfile
 │   │   └── ml.Dockerfile
 │   ├── docker-compose.yml
 │   ├── docker-compose.prod.yml
-│   ├── kubernetes/                   # K8s manifests (optional)
+│   ├── kubernetes/
 │   │   ├── deployments/
 │   │   ├── services/
 │   │   └── ingress/
-│   ├── terraform/                    # IaC (optional)
+│   ├── terraform/
 │   │   ├── main.tf
 │   │   └── variables.tf
 │   └── monitoring/
@@ -252,26 +254,26 @@ signify-ai/
 │       └── grafana/
 │           └── dashboards/
 │
-├── docs/                             # Documentation
+├── docs/
 │   ├── api/
 │   │   └── openapi.yaml
 │   ├── architecture/
 │   │   ├── diagrams/
 │   │   └── decisions/
-│   │       └── 001-tech-stack.md    # ADR (Architecture Decision Records)
+│   │       └── 001-tech-stack.md
 │   ├── setup/
 │   │   ├── development.md
 │   │   └── production.md
 │   ├── user-guide/
 │   └── CONTRIBUTING.md
 │
-├── scripts/                          # Utility scripts
+├── scripts/
 │   ├── setup-dev.sh
 │   ├── migrate-db.sh
 │   ├── backup-db.sh
 │   └── deploy.sh
 │
-├── .dvcignore                        # DVC (data versioning)
+├── .dvcignore
 ├── .dvc/
 ├── .gitignore
 ├── .gitattributes
@@ -281,9 +283,9 @@ signify-ai/
 ├── .dockerignore
 ├── .env.example
 ├── docker-compose.yml
-├── Makefile                          # Common commands
-├── package.json                      # Root package.json (monorepo)
-├── pnpm-workspace.yaml               # PNPM workspace config
-├── turbo.json                        # Turborepo config
+├── Makefile
+├── package.json
+├── pnpm-workspace.yaml
+├── turbo.json
 ├── LICENSE
 └── README.md
