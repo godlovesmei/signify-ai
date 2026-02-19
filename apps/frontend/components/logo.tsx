@@ -43,7 +43,7 @@ function LogoContent({
       {/* Wordmark */}
       {showWordmark && (
         <span className={`font-bold tracking-tight text-foreground ${text}`}>
-          Signify<span className="text-primary">.ai</span>
+          Signify<span className="text-primary">AI</span>
         </span>
       )}
     </span>
