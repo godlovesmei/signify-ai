@@ -145,7 +145,7 @@ function Navbar() {
             : 'bg-transparent',
         ].join(' ')}
       >
-        <div className="container flex h-20 items-center justify-between px-6 md:px-10">
+        <div className="w-full flex h-20 items-center justify-between px-6 md:px-10">
           <Logo size="lg" />
 
           {/* Primary nav — purpose-driven links */}
@@ -153,7 +153,7 @@ function Navbar() {
             {[
               { label: 'How It Works', href: '/how-it-works' },
               { label: 'Who It\'s For', href: '#who-its-for' },
-              { label: 'Learn Sign Language', href: '/learn' },
+              { label: 'Research', href: '/research' },
               { label: 'About', href: '/about' },
             ].map(({ label, href }) => (
               <Link
