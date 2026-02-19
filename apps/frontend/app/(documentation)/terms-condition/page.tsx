@@ -1,35 +1,156 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Hand } from 'lucide-react';
+import { Logo } from '@/components/logo';
+import { ChevronRight, FileText, Mail } from 'lucide-react';
 
-/* ─── Navbar ──────────────────────────────────────────────────────── */
-function Navbar() {
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATION HOOK — respects prefers-reduced-motion
+   ───────────────────────────────────────────────────────────────────────────── */
+function useIntersectionReveal(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) { setVisible(true); return; }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  className = '',
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const { ref, visible } = useIntersectionReveal();
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/90 backdrop-blur">
-      <div className="container flex h-16 items-center justify-between px-6 md:px-10">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary transition-transform group-hover:scale-105">
-            <Hand className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-foreground">
-            Signify<span className="text-primary">.ai</span>
-          </span>
-        </Link>
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link href="/how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Documentation
-          </Link>
-        </nav>
-        <Button variant="outline" size="sm" className="rounded-xl border-border/60" asChild>
-          <Link href="/login">Sign In</Link>
-        </Button>
-      </div>
-    </header>
+    <div
+      ref={ref}
+      className={[
+        'transition-all duration-700',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
+        className,
+      ].join(' ')}
+      style={{ transitionDelay: visible ? `${delay}ms` : '0ms' }}
+    >
+      {children}
+    </div>
   );
 }
 
-/* ─── Sections data ───────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACTIVE SECTION TRACKING — highlights ToC on scroll
+   ───────────────────────────────────────────────────────────────────────────── */
+function useActiveSection(ids: string[]) {
+  const [activeId, setActiveId] = useState<string>(ids[0] ?? '');
+
+  useEffect(() => {
+    const observers = ids.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveId(id); },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
+      );
+      observer.observe(el);
+      return observer;
+    });
+
+    return () => observers.forEach((o) => o?.disconnect());
+  }, [ids]);
+
+  return activeId;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   NAVBAR — consistent with homepage
+   ───────────────────────────────────────────────────────────────────────────── */
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  return (
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:left-4 focus:top-4 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-primary-foreground"
+      >
+        Skip to main content
+      </a>
+      <header
+        role="banner"
+        className={[
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+          scrolled
+            ? 'border-b border-border/40 bg-background/80 backdrop-blur-md shadow-sm'
+            : 'border-b border-border/30 bg-background/95 backdrop-blur-sm',
+        ].join(' ')}
+      >
+        <div className="container flex h-20 items-center justify-between px-6 md:px-10">
+          <Logo size="lg" />
+
+          <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
+            {[
+              { label: 'How It Works', href: '/how-it-works' },
+              { label: "Who It's For", href: '/#who-its-for' },
+              { label: 'Learn Sign Language', href: '/learn' },
+              { label: 'About', href: '/about' },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm px-1"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="default" className="hidden text-sm text-muted-foreground hover:text-foreground md:inline-flex" asChild>
+              <Link href="/login">Sign In</Link>
+            </Button>
+            <Button
+              size="default"
+              className="rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-px"
+              asChild
+            >
+              <Link href="/register">Try Free</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DATA
+   ───────────────────────────────────────────────────────────────────────────── */
 const sections = [
   {
     id: 'acceptance',
@@ -64,7 +185,7 @@ const sections = [
   {
     id: 'disclaimer',
     title: '7. Disclaimer of Warranties',
-    content: `The Service is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, either express or implied. Signify AI does not warrant that the Service will be uninterrupted, error-free, or completely accurate. Translation accuracy may vary based on lighting, camera quality, and signing speed. The Service is not intended as a substitute for professional interpretation services in critical or legal contexts.`,
+    content: `The Service is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, either express or implied. Signify AI does not warrant that the Service will be uninterrupted, error-free, or completely accurate. Translation accuracy may vary based on lighting conditions, camera quality, and signing speed. The Service is not intended as a substitute for professional interpretation services in critical or legal contexts.`,
   },
   {
     id: 'liability',
@@ -79,103 +200,213 @@ const sections = [
   {
     id: 'contact',
     title: '10. Contact Us',
-    content: `If you have any questions about these Terms and Conditions, please contact us at legal@signify.ai or write to: Signify AI Legal Team, [Company Address]. We aim to respond to all inquiries within 5 business days.`,
+    content: `If you have any questions about these Terms and Conditions, please contact us at legal@signify.ai. We aim to respond to all inquiries within 5 business days.`,
   },
 ];
 
-/* ─── Page ────────────────────────────────────────────────────────── */
+const sectionIds = sections.map((s) => s.id);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TABLE OF CONTENTS COMPONENT
+   ───────────────────────────────────────────────────────────────────────────── */
+function TableOfContents() {
+  const activeId = useActiveSection(sectionIds);
+
+  return (
+    <aside aria-label="Table of contents" className="hidden lg:block lg:w-64 shrink-0">
+      <div className="sticky top-28">
+        <div className="mb-5 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            On this page
+          </p>
+        </div>
+        <nav aria-label="Section navigation">
+          <ul className="space-y-0.5" role="list">
+            {sections.map(({ id, title }) => (
+              <li key={id}>
+                <a
+                  href={`#${id}`}
+                  className={[
+                    'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-all duration-150',
+                    activeId === id
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                  ].join(' ')}
+                  aria-current={activeId === id ? 'location' : undefined}
+                >
+                  {activeId === id && (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                  )}
+                  <span className={activeId === id ? '' : 'ml-3.5'}>{title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </aside>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PAGE
+   ───────────────────────────────────────────────────────────────────────────── */
 export default function TermsConditionPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      {/* Page Hero */}
-      <section className="border-b border-border/50 bg-gradient-to-b from-[var(--surface-tertiary)]/30 to-background py-16">
+      {/* ── Page Hero ─────────────────────────────────────────────── */}
+      <section
+        id="main-content"
+        aria-labelledby="page-heading"
+        className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-background pt-40 pb-16"
+      >
         <div className="container px-6 md:px-10">
-          <Badge className="mb-5 bg-accent/15 text-accent hover:bg-accent/20 border-0">
+          <Badge className="mb-5 bg-muted text-muted-foreground hover:bg-muted border-0 text-xs font-semibold uppercase tracking-wider">
             Legal
           </Badge>
-          <h1 className="max-w-2xl text-5xl font-bold leading-tight text-foreground">
+          <h1
+            id="page-heading"
+            className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl"
+          >
             Terms &amp; Conditions
           </h1>
-          <p className="mt-4 text-muted-foreground">
-            Last updated: <span className="text-foreground font-medium">February 18, 2026</span>
-          </p>
-          <p className="mt-3 max-w-xl text-lg text-muted-foreground">
-            Please read these terms carefully before using Signify.ai. By using our service,
-            you agree to these conditions.
-          </p>
+
+          {/* Metadata row */}
+          <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
+            <span>
+              Last updated:{' '}
+              <time dateTime="2026-02-18" className="font-semibold text-foreground">
+                February 18, 2026
+              </time>
+            </span>
+            <span className="hidden md:block h-1 w-1 rounded-full bg-border" aria-hidden="true" />
+            <span>{sections.length} sections</span>
+            <span className="hidden md:block h-1 w-1 rounded-full bg-border" aria-hidden="true" />
+            <span>~5 min read</span>
+          </div>
+
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="text-foreground font-medium">Terms &amp; Conditions</span>
+          </nav>
         </div>
       </section>
 
-      {/* Content */}
+      {/* ── Content ───────────────────────────────────────────────── */}
       <div className="container px-6 py-16 md:px-10">
-        <div className="flex flex-col gap-10 lg:flex-row">
+        <div className="flex flex-col gap-12 lg:flex-row lg:gap-16">
 
-          {/* Sticky Table of Contents */}
-          <aside className="hidden lg:block lg:w-64 shrink-0">
-            <div className="sticky top-24">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                On this page
-              </p>
-              <nav className="space-y-1">
-                {sections.map(({ id, title }) => (
-                  <a
-                    key={id}
-                    href={`#${id}`}
-                    className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary"
-                  >
-                    {title}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </aside>
+          <TableOfContents />
 
           {/* Main content */}
-          <main className="flex-1 max-w-3xl">
-            {/* Intro box */}
-            <div className="mb-10 rounded-2xl border border-accent/30 bg-accent/5 p-6 text-sm leading-relaxed text-muted-foreground">
-              <strong className="text-foreground">Summary:</strong> Signify.ai is an
-              accessibility-focused translation tool. We don't store your video, we respect
-              your privacy, and we aim to be transparent. The full legal details are below.
-            </div>
+          <main className="flex-1 min-w-0">
 
-            <div className="space-y-12">
-              {sections.map(({ id, title, content }) => (
-                <section key={id} id={id} className="scroll-mt-24">
-                  <h2 className="mb-4 text-xl font-semibold text-foreground">{title}</h2>
-                  <p className="leading-relaxed text-muted-foreground">{content}</p>
-                  <div className="mt-6 h-px bg-border/50" />
-                </section>
+            {/* Plain-language summary box */}
+            <Reveal>
+              <div className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-7">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-primary">
+                  Plain-Language Summary
+                </p>
+                <p className="text-sm leading-relaxed text-foreground">
+                  Signify.ai is an accessibility tool. We don&apos;t store your video. We respect your
+                  privacy by design, not just by policy. We&apos;re honest about what the service
+                  can and can&apos;t do. The full legal terms are below — but if something is
+                  unclear, please reach out and we&apos;ll explain it in plain language.
+                </p>
+              </div>
+            </Reveal>
+
+            {/* Section articles */}
+            <div className="space-y-0">
+              {sections.map(({ id, title, content }, i) => (
+                <Reveal key={id} delay={i * 30}>
+                  <article
+                    id={id}
+                    className="scroll-mt-28 border-b border-border/40 py-10 last:border-0"
+                  >
+                    <h2 className="mb-4 text-xl font-bold text-foreground">{title}</h2>
+                    <p className="text-base leading-relaxed text-muted-foreground">{content}</p>
+
+                    {/* Contextual callout for privacy section */}
+                    {id === 'privacy' && (
+                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:text-emerald-400">
+                        <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500 mt-1.5" aria-hidden="true" />
+                        <p>
+                          This is a foundational commitment, not just a legal statement. All video
+                          processing is architecturally designed to stay local.{' '}
+                          <Link href="/privacy" className="font-semibold underline underline-offset-2 hover:no-underline">
+                            Read our full Privacy Policy.
+                          </Link>
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Contextual callout for disclaimer section */}
+                    {id === 'disclaimer' && (
+                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-700 dark:text-amber-400">
+                        <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-500 mt-1.5" aria-hidden="true" />
+                        <p>
+                          Signify is a communication aid, not a certified interpreter. For legal,
+                          medical, or official contexts, a qualified human interpreter remains the
+                          appropriate choice.{' '}
+                          <Link href="/how-it-works#limitations" className="font-semibold underline underline-offset-2 hover:no-underline">
+                            See our limitations documentation.
+                          </Link>
+                        </p>
+                      </div>
+                    )}
+                  </article>
+                </Reveal>
               ))}
             </div>
 
-            {/* Bottom contact */}
-            <div className="mt-14 rounded-2xl border border-border/60 bg-card p-8 text-center">
-              <h3 className="mb-2 text-lg font-semibold text-foreground">
-                Questions about our terms?
-              </h3>
-              <p className="mb-5 text-sm text-muted-foreground">
-                Our team is happy to clarify anything in plain language.
-              </p>
-              <Button
-                className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                asChild
-              >
-                <Link href="mailto:legal@signify.ai">Contact Legal Team</Link>
-              </Button>
-            </div>
+            {/* Contact card */}
+            <Reveal delay={80}>
+              <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-border/50 bg-card p-10 text-center md:flex-row md:text-left">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                  <Mail className="h-6 w-6 text-primary" aria-hidden="true" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="mb-1 text-lg font-bold text-foreground">
+                    Questions about these terms?
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    We&apos;re happy to explain anything in plain language. No legal jargon in our replies.
+                  </p>
+                </div>
+                <Button
+                  className="shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 transition-all duration-200 hover:-translate-y-px hover:shadow-md hover:shadow-primary/20"
+                  asChild
+                >
+                  <Link href="mailto:legal@signify.ai">
+                    Contact Legal Team
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Reveal>
           </main>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">
-        &copy; 2026 Signify AI. All rights reserved. &middot;{' '}
-        <Link href="/how-it-works" className="hover:text-primary transition-colors">
-          Documentation
-        </Link>
+      {/* ── Footer ────────────────────────────────────────────────── */}
+      <footer className="border-t border-border/50 bg-muted/20">
+        <div className="container px-6 py-10 md:px-10">
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
+            <p>&copy; 2026 Signify AI. All rights reserved.</p>
+            <div className="flex items-center gap-5">
+              <Link href="/" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Home</Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Privacy Policy</Link>
+              <Link href="/how-it-works" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">How It Works</Link>
+              <Link href="/accessibility" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Accessibility Statement</Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
