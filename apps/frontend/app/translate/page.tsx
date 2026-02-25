@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button';
 import {
   Camera,
@@ -23,9 +23,6 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TYPES
-   ───────────────────────────────────────────────────────────────────────────── */
 type AppState =
   | 'idle'
   | 'requesting'
@@ -45,16 +42,13 @@ interface TranscriptEntry {
 
 type Language = 'ASL' | 'BISINDO';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   CONSTANTS
-   ───────────────────────────────────────────────────────────────────────────── */
 const SIMULATED_PHRASES: Array<{ text: string; confidence: number }> = [
   { text: 'Hello, my name is Maya.',          confidence: 0.97 },
-  { text: 'I need help with my order.',        confidence: 0.93 },
-  { text: 'Thank you for understanding.',      confidence: 0.98 },
-  { text: 'Can you please speak slowly?',      confidence: 0.91 },
-  { text: 'Where is the nearest exit?',        confidence: 0.95 },
-  { text: 'I would like to place an order.',   confidence: 0.89 },
+  { text: 'I need help with my order.',       confidence: 0.93 },
+  { text: 'Thank you for understanding.',     confidence: 0.98 },
+  { text: 'Can you please speak slowly?',     confidence: 0.91 },
+  { text: 'Where is the nearest exit?',       confidence: 0.95 },
+  { text: 'I would like to place an order.',  confidence: 0.89 },
 ];
 
 const MODEL_INIT_DURATION_MS = 2400;
@@ -63,10 +57,6 @@ const DETECTION_INTERVAL_MS  = 3200;
 let _idCounter = 0;
 function uid() { return `entry-${Date.now()}-${++_idCounter}`; }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   CONFIDENCE BADGE
-   Softer saturation, pill shape, semibold weight
-   ───────────────────────────────────────────────────────────────────────────── */
 function ConfidenceBadge({ value }: { value: number }) {
   const pct  = Math.round(value * 100);
   const high = value >= 0.92;
@@ -87,10 +77,6 @@ function ConfidenceBadge({ value }: { value: number }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SCAN OVERLAY
-   White corner marks (not primary-colored), subtle sweep line
-   ───────────────────────────────────────────────────────────────────────────── */
 function ScanOverlay() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10">
@@ -101,19 +87,16 @@ function ScanOverlay() {
             'absolute h-6 w-6 border-white/60',
             pos === 'tl' ? 'top-5 left-5 border-t border-l rounded-tl-md'
           : pos === 'tr' ? 'top-5 right-5 border-t border-r rounded-tr-md'
-          : pos === 'bl' ? 'bottom-[5.5rem] left-5 border-b border-l rounded-bl-md'
-          :                'bottom-[5.5rem] right-5 border-b border-r rounded-br-md',
+          : pos === 'bl' ? 'bottom-22 left-5 border-b border-l rounded-bl-md'
+          :                'bottom-22 right-5 border-b border-r rounded-br-md',
           ].join(' ')}
         />
       ))}
-      <span className="absolute left-5 right-5 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[scanline_2.8s_ease-in-out_infinite]" />
+      <span className="absolute left-5 right-5 h-px bg-linear-to-r from-transparent via-white/20 to-transparent animate-[scanline_2.8s_ease-in-out_infinite]" />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   LIVE DOT — compact, less aggressive than the previous PulseRing
-   ───────────────────────────────────────────────────────────────────────────── */
 function LiveDot() {
   return (
     <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
@@ -123,10 +106,6 @@ function LiveDot() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TRANSCRIPT LINE
-   No border on card — uses ring instead. Softer latest highlight.
-   ───────────────────────────────────────────────────────────────────────────── */
 function TranscriptLine({ entry, isLatest }: { entry: TranscriptEntry; isLatest: boolean }) {
   const time = entry.timestamp.toLocaleTimeString([], {
     hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -137,7 +116,7 @@ function TranscriptLine({ entry, isLatest }: { entry: TranscriptEntry; isLatest:
       className={[
         'flex flex-col gap-1 rounded-xl px-3.5 py-3 transition-colors duration-150',
         isLatest
-          ? 'bg-primary/[0.06] ring-1 ring-inset ring-primary/20'
+          ? 'bg-primary/6 ring-1 ring-inset ring-primary/20'
           : 'ring-1 ring-inset ring-border/40 hover:bg-muted/40',
       ].join(' ')}
     >
@@ -164,10 +143,6 @@ function TranscriptLine({ entry, isLatest }: { entry: TranscriptEntry; isLatest:
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SETTINGS PANEL
-   Tighter header, smaller toggle thumb, lighter backdrop
-   ───────────────────────────────────────────────────────────────────────────── */
 interface SettingsPanelProps {
   language: Language;
   onLanguageChange: (l: Language) => void;
@@ -195,20 +170,17 @@ function SettingsPanel({
       aria-label="Detection settings"
       className="absolute inset-0 z-30 flex items-end justify-center md:items-center"
     >
-      {/* Backdrop — lighter */}
       <div
         className="absolute inset-0 bg-black/15 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Sheet */}
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="relative z-10 w-full max-w-[360px] rounded-t-2xl border border-border/40 bg-card shadow-xl shadow-black/8 focus:outline-none md:rounded-2xl animate-[slideUp_0.22s_ease]"
+        className="relative z-10 w-full max-w-90 rounded-t-2xl border border-border/40 bg-card shadow-xl shadow-black/8 focus:outline-none md:rounded-2xl animate-[slideUp_0.22s_ease]"
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-border/30 px-5 py-4">
           <h2 className="text-sm font-semibold text-foreground">Settings</h2>
           <button
@@ -221,7 +193,6 @@ function SettingsPanel({
         </div>
 
         <div className="space-y-4 p-5">
-          {/* Language */}
           <div>
             <label
               htmlFor="lang-select"
@@ -246,13 +217,12 @@ function SettingsPanel({
             </div>
           </div>
 
-          {/* Voice toggle */}
           <div className="flex items-center justify-between rounded-xl bg-muted/40 px-4 py-3">
             <div>
               <p className="text-sm font-medium text-foreground">Voice Output</p>
               <p className="mt-0.5 text-xs text-muted-foreground">Speak translations aloud</p>
             </div>
-            <button
+            <Button
               role="switch"
               aria-checked={voiceEnabled}
               onClick={onVoiceToggle}
@@ -268,10 +238,9 @@ function SettingsPanel({
                   voiceEnabled ? 'translate-x-4' : 'translate-x-0.5',
                 ].join(' ')}
               />
-            </button>
+            </Button>
           </div>
 
-          {/* Limitation note */}
           <div className="rounded-xl border border-amber-200/50 bg-amber-50/50 px-4 py-3 dark:border-amber-500/15 dark:bg-amber-500/5">
             <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
               Best results in well-lit conditions.{' '}
@@ -289,10 +258,6 @@ function SettingsPanel({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   ERROR STATE
-   More breathing room, icon softer, instructions cleaner
-   ───────────────────────────────────────────────────────────────────────────── */
 function ErrorState({
   type, onRetry,
 }: {
@@ -334,14 +299,9 @@ function ErrorState({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   IDLE PROMPT
-   Consistent spacing scale, tips using dots not bullet circles
-   ───────────────────────────────────────────────────────────────────────────── */
 function IdlePrompt({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-7 px-8 py-12 text-center">
-      {/* Icon */}
       <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 ring-1 ring-primary/15">
         <Camera className="h-7 w-7 text-primary" aria-hidden="true" />
         <span
@@ -350,7 +310,6 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
         />
       </div>
 
-      {/* Copy */}
       <div>
         <h3 className="mb-2 text-lg font-semibold text-foreground">Start Translating</h3>
         <p className="text-sm leading-relaxed text-muted-foreground">
@@ -359,7 +318,6 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
         </p>
       </div>
 
-      {/* Tips */}
       <ul
         className="w-full space-y-2.5 text-left"
         role="list"
@@ -377,7 +335,6 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
         ))}
       </ul>
 
-      {/* CTA */}
       <button
         onClick={onStart}
         className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:-translate-y-px hover:shadow-lg hover:shadow-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -399,10 +356,6 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   LOADING STATE
-   More compact, progress percentage right-aligned
-   ───────────────────────────────────────────────────────────────────────────── */
 function LoadingState() {
   const [progress, setProgress] = useState(0);
 
@@ -445,10 +398,6 @@ function LoadingState() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   EMPTY TRANSCRIPT
-   Shorter messages, lower icon opacity, consistent sizing
-   ───────────────────────────────────────────────────────────────────────────── */
 function EmptyTranscript({ appState }: { appState: AppState }) {
   const messages: Partial<Record<AppState, { icon: React.ReactNode; text: string }>> = {
     idle:               { icon: <CameraOff className="h-4 w-4" />,                          text: 'Enable your camera to begin.' },
@@ -464,16 +413,13 @@ function EmptyTranscript({ appState }: { appState: AppState }) {
   if (!msg) return null;
 
   return (
-    <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-3 text-center">
+    <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
       <span className="text-muted-foreground/35">{msg.icon}</span>
-      <p className="max-w-[160px] text-xs leading-relaxed text-muted-foreground/60">{msg.text}</p>
+      <p className="max-w-40 text-xs leading-relaxed text-muted-foreground/60">{msg.text}</p>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   ICON BUTTON — shared ghost + overlay variants
-   ───────────────────────────────────────────────────────────────────────────── */
 function IconBtn({
   onClick,
   disabled,
@@ -510,9 +456,6 @@ function IconBtn({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAIN PAGE
-   ───────────────────────────────────────────────────────────────────────────── */
 export default function TranslatePage() {
   const [appState, setAppState]                     = useState<AppState>('idle');
   const [transcript, setTranscript]                 = useState<TranscriptEntry[]>([]);
@@ -528,14 +471,12 @@ export default function TranslatePage() {
   const transcriptEnd  = useRef<HTMLDivElement>(null);
   const phraseIndex    = useRef(0);
 
-  /* Auto-scroll */
   useEffect(() => {
     if (transcript.length > 0) {
       transcriptEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [transcript]);
 
-  /* Camera count */
   useEffect(() => {
     if (typeof navigator === 'undefined') return;
     navigator.mediaDevices?.enumerateDevices()
@@ -543,7 +484,6 @@ export default function TranslatePage() {
       .catch(() => {});
   }, []);
 
-  /* Cleanup */
   useEffect(() => {
     return () => {
       stopStream();
@@ -620,15 +560,11 @@ export default function TranslatePage() {
     startCamera(next);
   }, [facingMode, stopDetection, startCamera]);
 
-  /* Derived */
   const isLive      = appState === 'ready' || appState === 'detecting';
   const isDetecting = appState === 'detecting';
   const isError     = appState === 'error-permission' || appState === 'error-device';
   const latestEntry = transcript[transcript.length - 1] ?? null;
 
-  /* ────────────────────────────────────────────────────────────────────────
-     RENDER
-     ─────────────────────────────────────────────────────────────────────── */
   return (
     <>
       <style>{`
@@ -653,25 +589,14 @@ export default function TranslatePage() {
         .entry-enter { animation: entryIn 0.22s ease forwards; }
       `}</style>
 
-      {/* Skip link */}
-      <a
-        href="#translate-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:left-4 focus:top-4 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-primary-foreground"
-      >
-        Skip to translation interface
-      </a>
-
       <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
 
-        {/* ── TOP BAR ───────────────────────────────────────────── */}
         <header
           role="banner"
           className="flex h-14 shrink-0 items-center justify-between border-b border-border/30 bg-background px-4 md:px-5"
         >
-          {/* Logo — renders its own <Link> internally; no wrapper <Link> to avoid nested <a> */}
           <Logo size="sm" />
 
-          {/* Title */}
           <div className="flex items-center gap-2">
             {isDetecting && <LiveDot />}
             <h1 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
@@ -684,7 +609,6 @@ export default function TranslatePage() {
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-0.5">
             <IconBtn
               onClick={() => setVoiceEnabled((v) => !v)}
@@ -705,14 +629,12 @@ export default function TranslatePage() {
           </div>
         </header>
 
-        {/* ── MAIN ──────────────────────────────────────────────── */}
         <main
           id="translate-main"
           className="flex flex-1 flex-col overflow-hidden md:flex-row"
           style={{ minHeight: 0 }}
         >
 
-          {/* ── CAMERA PANEL ──────────────────────────────────── */}
           <section
             aria-label="Camera feed"
             className="relative flex flex-col bg-neutral-950 md:flex-1"
@@ -733,7 +655,6 @@ export default function TranslatePage() {
 
             {isDetecting && <ScanOverlay />}
 
-            {/* Overlay states */}
             {!isLive && (
               <div className="absolute inset-0 flex items-center justify-center bg-background">
                 {appState === 'idle' && (
@@ -751,7 +672,6 @@ export default function TranslatePage() {
               </div>
             )}
 
-            {/* Camera toolbar */}
             {isLive && (
               <div
                 role="toolbar"
@@ -762,8 +682,7 @@ export default function TranslatePage() {
                   <RotateCcw className="h-4 w-4" />
                 </IconBtn>
 
-                {/* Primary detect button */}
-                <button
+                <Button
                   onClick={isDetecting ? stopDetection : startDetection}
                   aria-label={isDetecting ? 'Stop detection' : 'Start detection'}
                   aria-pressed={isDetecting}
@@ -779,7 +698,7 @@ export default function TranslatePage() {
                     ? <Square className="h-4 w-4 fill-white text-white" aria-hidden="true" />
                     : <Hand   className="h-5 w-5 text-white" aria-hidden="true" />
                   }
-                </button>
+                </Button>
 
                 <IconBtn
                   onClick={flipCamera}
@@ -792,7 +711,6 @@ export default function TranslatePage() {
               </div>
             )}
 
-            {/* Language badge */}
             {isLive && (
               <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-semibold text-white/85 backdrop-blur-sm">
                 <Hand className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
@@ -800,7 +718,6 @@ export default function TranslatePage() {
               </div>
             )}
 
-            {/* Voice indicator */}
             {isLive && voiceEnabled && (
               <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-medium text-white/85 backdrop-blur-sm">
                 <Mic className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
@@ -809,7 +726,6 @@ export default function TranslatePage() {
             )}
           </section>
 
-          {/* ── TRANSCRIPT PANEL ──────────────────────────────── */}
           <section
             aria-label="Translation transcript"
             aria-live="polite"
@@ -818,10 +734,8 @@ export default function TranslatePage() {
             className="flex flex-col border-t border-border/30 bg-background md:w-[360px] md:border-t-0 md:border-l"
             style={{ minHeight: 0 }}
           >
-            {/* Panel header */}
             <div className="flex shrink-0 items-center justify-between border-b border-border/30 px-5 py-3.5">
               <div className="flex items-center gap-2">
-                {/* Inline SVG keeps no extra import */}
                 <svg
                   width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -847,7 +761,6 @@ export default function TranslatePage() {
               )}
             </div>
 
-            {/* Scroll area */}
             <div
               className="flex-1 overflow-y-auto px-4 py-3"
               role="log"
@@ -870,7 +783,6 @@ export default function TranslatePage() {
               )}
             </div>
 
-            {/* Latest — pinned bottom, layout-stable placeholder when empty */}
             <div className="shrink-0 border-t border-border/30 bg-card/50 px-5 py-4">
               {latestEntry ? (
                 <>
@@ -882,7 +794,6 @@ export default function TranslatePage() {
                   </p>
                 </>
               ) : (
-                /* Invisible placeholder keeps panel stable height */
                 <div aria-hidden="true" className="select-none opacity-0">
                   <p className="text-[10px]">&nbsp;</p>
                   <p className="text-base">&nbsp;</p>
@@ -893,7 +804,6 @@ export default function TranslatePage() {
         </main>
       </div>
 
-      {/* Settings dialog */}
       {showSettings && (
         <SettingsPanel
           language={language}

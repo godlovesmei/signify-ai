@@ -5,22 +5,17 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Logo } from '@/components/logo';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import {
   ArrowRight,
-  Zap,
   Sun,
   Globe,
   Shield,
-  Volume2,
-  BarChart3,
   Play,
   Camera,
   Hand,
   MessageSquare,
-  Lock,
-  AlertCircle,
   ChevronRight,
   Eye,
   Server,
@@ -114,81 +109,7 @@ function TypewriterTranscript() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   NAVBAR
-   ───────────────────────────────────────────────────────────────────────────── */
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  return (
-    <>
-      {/* Skip to main content — first focusable element */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:left-4 focus:top-4 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-primary-foreground"
-      >
-        Skip to main content
-      </a>
-
-      <header
-        role="banner"
-        className={[
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-          scrolled
-            ? 'border-b border-border/40 bg-background/80 backdrop-blur-md shadow-sm'
-            : 'bg-transparent',
-        ].join(' ')}
-      >
-        <div className="w-full flex h-20 items-center justify-between px-6 md:px-10">
-          <Logo size="lg" />
-
-          {/* Primary nav — purpose-driven links */}
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
-            {[
-              { label: 'How It Works', href: '/how-it-works' },
-              { label: 'Who It\'s For', href: '#who-its-for' },
-              { label: 'Research', href: '/research' },
-              { label: 'About', href: '/about' },
-            ].map(({ label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm px-1"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* CTA — new visitors aren't signed in; lead with value */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="default"
-              className="hidden text-sm text-muted-foreground hover:text-foreground md:inline-flex"
-              asChild
-            >
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button
-              size="default"
-              className="rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-px"
-              asChild
-            >
-              <Link href="/register">Try Free</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-    </>
-  );
-}
+    <Navbar />
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SECTION REVEAL WRAPPER
@@ -241,7 +162,7 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/15" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-transparent" />
 
-      <div className="relative container flex min-h-screen flex-col justify-center px-6 pb-24 pt-36 md:px-10">
+      <div className="relative w-full flex min-h-screen flex-col justify-center px-6 pb-24 pt-36 md:px-10">
         <div className="max-w-[580px]">
 
           {/* Eyebrow — problem-framing stat, not product boast */}
@@ -339,7 +260,7 @@ const HOW_IT_WORKS_STEPS = [
 function HowItWorksSection() {
   return (
     <section aria-labelledby="how-heading" className="py-28 bg-background">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           {/* Direct heading — no badge decoration */}
           <h2
@@ -388,7 +309,7 @@ function HowItWorksSection() {
 function DemoPreviewSection() {
   return (
     <section aria-labelledby="demo-heading" className="py-24 bg-muted/20 border-y border-border/40">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center mb-12">
             <h2
@@ -507,7 +428,7 @@ const AUDIENCES = [
 function WhoItsForSection() {
   return (
     <section id="who-its-for" aria-labelledby="audience-heading" className="py-28 bg-background">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="mb-14">
             <Badge className="mb-4 bg-accent/12 text-accent hover:bg-accent/18 border-0 text-xs font-semibold uppercase tracking-wider">
@@ -601,7 +522,7 @@ const FEATURE_ROWS = [
 function FeatureDeepDiveSection() {
   return (
     <section aria-labelledby="features-heading" className="py-28 bg-muted/10 border-y border-border/30">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="mb-16">
             <Badge className="mb-4 bg-primary/12 text-primary hover:bg-primary/18 border-0 text-xs font-semibold uppercase tracking-wider">
@@ -686,7 +607,7 @@ const TRUST_PILLARS = [
 function TrustSection() {
   return (
     <section aria-labelledby="trust-heading" className="py-28 bg-background">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="mb-14 max-w-lg">
             <h2
@@ -725,7 +646,7 @@ function TrustSection() {
 function CommunityVoicesSection() {
   return (
     <section aria-labelledby="voices-heading" className="py-28 bg-muted/20 border-y border-border/30">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <h2
             id="voices-heading"
@@ -789,7 +710,7 @@ function CommunityVoicesSection() {
 function CtaSection() {
   return (
     <section aria-labelledby="cta-heading" className="py-28 bg-background">
-      <div className="container px-6 md:px-10">
+      <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl bg-primary px-10 py-20 text-center md:px-24">
             {/* Subtle decorative glow — not flashy */}
@@ -834,93 +755,7 @@ function CtaSection() {
     </section>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   FOOTER
-   ───────────────────────────────────────────────────────────────────────────── */
-function Footer() {
-  return (
-    <footer className="border-t border-border/50 bg-muted/20">
-      <div className="container px-6 py-16 md:px-10">
-        <div className="grid gap-12 md:grid-cols-5">
-          {/* Brand */}
-          <div className="md:col-span-2">
-            <Logo size="md" className="mb-4" />
-            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Breaking communication barriers with AI-powered sign language translation.
-              Built with and for the Deaf and Hard of Hearing community.
-            </p>
-          </div>
-
-          {/* Links */}
-          {[
-            {
-              heading: 'Product',
-              links: [
-                { label: 'How It Works', href: '/how-it-works' },
-                { label: 'Who It\'s For', href: '#who-its-for' },
-                { label: 'Learn Sign Language', href: '/learn' },
-                { label: 'Pricing', href: '/pricing' },
-              ],
-            },
-            {
-              heading: 'Company',
-              links: [
-                { label: 'About', href: '/about' },
-                { label: 'Blog', href: '/blog' },
-                { label: 'Careers', href: '/careers' },
-              ],
-            },
-            {
-              heading: 'Legal & Access',
-              links: [
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms-condition' },
-                { label: 'Accessibility Statement', href: '/accessibility' },
-                { label: 'Contact', href: '/contact' },
-              ],
-            },
-          ].map(({ heading, links }) => (
-            <div key={heading}>
-              <h4 className="mb-5 text-xs font-bold uppercase tracking-wider text-foreground">
-                {heading}
-              </h4>
-              <ul className="space-y-3.5">
-                {links.map(({ label, href }) => (
-                  <li key={label}>
-                    <Link
-                      href={href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom bar */}
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 text-sm text-muted-foreground md:flex-row">
-          <p>&copy; 2026 Signify AI. All rights reserved.</p>
-          <div className="flex items-center gap-5">
-            <Link
-              href="/accessibility"
-              className="hover:text-foreground transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
-            >
-              Accessibility Statement
-            </Link>
-            <span className="flex items-center gap-1.5 rounded-full border border-border/50 bg-background/60 px-3 py-1 text-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              WCAG 2.1 AA
-            </span>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
+<Footer />
 
 /* ─────────────────────────────────────────────────────────────────────────────
    ROOT PAGE

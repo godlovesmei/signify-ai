@@ -1,0 +1,4 @@
+# Ignore the raw and processed data directories
+data/raw/
+data/processed/bisindo_v1/
+data/augmented/

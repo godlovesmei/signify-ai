@@ -1,0 +1,20 @@
+# Core dependencies
+tensorflow>=2.13.0
+numpy>=1.24.0
+pillow>=10.0.0
+pyyaml>=6.0
+
+# Image / video processing (optional, untuk preprocessing lanjutan)
+opencv-python>=4.8.0
+
+# Hand tracking (untuk real-time keypoints)
+mediapipe>=0.10.0
+
+# Format serialization (untuk menyimpan label map, dll)
+json5>=0.9.0
+
+# Testing & development
+pytest>=7.4.0
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.5.0

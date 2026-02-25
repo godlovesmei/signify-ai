@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Logo } from '@/components/logo';
+import Header from '@/components/Navbar'; 
+import Footer from '@/components/Footer';
+
 import {
   Camera,
   Cpu,
@@ -66,77 +69,6 @@ function Reveal({
     >
       {children}
     </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   NAVBAR — consistent with homepage
-   ───────────────────────────────────────────────────────────────────────────── */
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  return (
-    <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:left-4 focus:top-4 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-primary-foreground"
-      >
-        Skip to main content
-      </a>
-      <header
-        role="banner"
-        className={[
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-          scrolled
-            ? 'border-b border-border/40 bg-background/80 backdrop-blur-md shadow-sm'
-            : 'border-b border-border/30 bg-background/95 backdrop-blur-sm',
-        ].join(' ')}
-      >
-        <div className="container flex h-20 items-center justify-between px-6 md:px-10">
-          <Logo size="lg" />
-
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
-            {[
-              { label: 'How It Works', href: '/how-it-works', active: true },
-              { label: "Who It's For", href: '/#who-its-for' },
-              { label: 'Learn Sign Language', href: '/learn' },
-              { label: 'About', href: '/about' },
-            ].map(({ label, href, active }) => (
-              <Link
-                key={label}
-                href={href}
-                className={[
-                  'text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm px-1',
-                  active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                ].join(' ')}
-                aria-current={active ? 'page' : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="default" className="hidden text-sm text-muted-foreground hover:text-foreground md:inline-flex" asChild>
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button
-              size="default"
-              className="rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-px"
-              asChild
-            >
-              <Link href="/register">Try Free</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-    </>
   );
 }
 
@@ -257,7 +189,7 @@ const limitations = [
 export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
+      <Header />
 
       {/* ── Page Hero ─────────────────────────────────────────────── */}
       <section
@@ -265,7 +197,7 @@ export default function HowItWorksPage() {
         aria-labelledby="page-heading"
         className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-background pt-40 pb-20"
       >
-        <div className="container px-6 md:px-10">
+        <div className="w-full px-6 md:px-10">
           <Badge className="mb-5 bg-accent/12 text-accent hover:bg-accent/18 border-0 text-xs font-semibold uppercase tracking-wider">
             How It Works
           </Badge>
@@ -295,7 +227,7 @@ export default function HowItWorksPage() {
       <main>
         {/* ── Steps ─────────────────────────────────────────────────── */}
         <section aria-labelledby="steps-heading" className="py-28">
-          <div className="container px-6 md:px-10">
+          <div className="w-full px-6 md:px-10">
             <Reveal>
               <h2 id="steps-heading" className="mb-14 text-3xl font-bold text-foreground md:text-4xl">
                 The Four Steps
@@ -364,7 +296,7 @@ export default function HowItWorksPage() {
           aria-labelledby="limitations-heading"
           className="border-y border-border/40 bg-muted/15 py-24"
         >
-          <div className="container px-6 md:px-10">
+          <div className="w-full px-6 md:px-10">
             <Reveal>
               <div className="mb-12 max-w-lg">
                 <Badge className="mb-4 bg-amber-500/12 text-amber-600 hover:bg-amber-500/18 border-0 text-xs font-semibold uppercase tracking-wider">
@@ -397,7 +329,7 @@ export default function HowItWorksPage() {
 
         {/* ── Performance Benchmarks ────────────────────────────────── */}
         <section aria-labelledby="benchmarks-heading" className="py-24">
-          <div className="container px-6 md:px-10">
+          <div className="w-full px-6 md:px-10">
             <Reveal>
               <div className="mb-12">
                 <h2 id="benchmarks-heading" className="text-3xl font-bold text-foreground md:text-4xl">
@@ -438,7 +370,7 @@ export default function HowItWorksPage() {
           aria-labelledby="faq-heading"
           className="border-t border-border/40 bg-muted/15 py-24"
         >
-          <div className="container px-6 md:px-10">
+          <div className="w-full px-6 md:px-10">
             <Reveal>
               <div className="mb-12 max-w-lg">
                 <Badge className="mb-4 bg-primary/12 text-primary hover:bg-primary/18 border-0 text-xs font-semibold uppercase tracking-wider">
@@ -475,7 +407,7 @@ export default function HowItWorksPage() {
 
         {/* ── CTA ───────────────────────────────────────────────────── */}
         <section aria-labelledby="cta-heading" className="py-24">
-          <div className="container px-6 md:px-10">
+          <div className="w-full px-6 md:px-10">
             <Reveal>
               <div className="relative overflow-hidden rounded-3xl bg-primary px-10 py-20 text-center md:px-24">
                 <div
@@ -514,20 +446,7 @@ export default function HowItWorksPage() {
         </section>
       </main>
 
-      {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="border-t border-border/50 bg-muted/20">
-        <div className="container px-6 py-10 md:px-10">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-            <p>&copy; 2026 Signify AI. All rights reserved.</p>
-            <div className="flex items-center gap-5">
-              <Link href="/" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Home</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Privacy</Link>
-              <Link href="/terms-condition" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Terms</Link>
-              <Link href="/accessibility" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Accessibility Statement</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

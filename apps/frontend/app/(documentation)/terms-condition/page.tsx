@@ -4,12 +4,10 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Logo } from '@/components/logo';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { ChevronRight, FileText, Mail } from 'lucide-react';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   ANIMATION HOOK — respects prefers-reduced-motion
-   ───────────────────────────────────────────────────────────────────────────── */
 function useIntersectionReveal(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -56,9 +54,6 @@ function Reveal({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   ACTIVE SECTION TRACKING — highlights ToC on scroll
-   ───────────────────────────────────────────────────────────────────────────── */
 function useActiveSection(ids: string[]) {
   const [activeId, setActiveId] = useState<string>(ids[0] ?? '');
 
@@ -81,76 +76,6 @@ function useActiveSection(ids: string[]) {
   return activeId;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   NAVBAR — consistent with homepage
-   ───────────────────────────────────────────────────────────────────────────── */
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  return (
-    <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:left-4 focus:top-4 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-primary-foreground"
-      >
-        Skip to main content
-      </a>
-      <header
-        role="banner"
-        className={[
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-          scrolled
-            ? 'border-b border-border/40 bg-background/80 backdrop-blur-md shadow-sm'
-            : 'border-b border-border/30 bg-background/95 backdrop-blur-sm',
-        ].join(' ')}
-      >
-        <div className="container flex h-20 items-center justify-between px-6 md:px-10">
-          <Logo size="lg" />
-
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
-            {[
-              { label: 'How It Works', href: '/how-it-works' },
-              { label: "Who It's For", href: '/#who-its-for' },
-              { label: 'Learn Sign Language', href: '/learn' },
-              { label: 'About', href: '/about' },
-            ].map(({ label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm px-1"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="default" className="hidden text-sm text-muted-foreground hover:text-foreground md:inline-flex" asChild>
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button
-              size="default"
-              className="rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-px"
-              asChild
-            >
-              <Link href="/register">Try Free</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-    </>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   DATA
-   ───────────────────────────────────────────────────────────────────────────── */
 const sections = [
   {
     id: 'acceptance',
@@ -206,9 +131,6 @@ const sections = [
 
 const sectionIds = sections.map((s) => s.id);
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TABLE OF CONTENTS COMPONENT
-   ───────────────────────────────────────────────────────────────────────────── */
 function TableOfContents() {
   const activeId = useActiveSection(sectionIds);
 
@@ -249,21 +171,17 @@ function TableOfContents() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   PAGE
-   ───────────────────────────────────────────────────────────────────────────── */
 export default function TermsConditionPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      {/* ── Page Hero ─────────────────────────────────────────────── */}
       <section
         id="main-content"
         aria-labelledby="page-heading"
         className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-background pt-40 pb-16"
       >
-        <div className="container px-6 md:px-10">
+        <div className="w-full px-6 md:px-10">
           <Badge className="mb-5 bg-muted text-muted-foreground hover:bg-muted border-0 text-xs font-semibold uppercase tracking-wider">
             Legal
           </Badge>
@@ -274,7 +192,6 @@ export default function TermsConditionPage() {
             Terms &amp; Conditions
           </h1>
 
-          {/* Metadata row */}
           <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
             <span>
               Last updated:{' '}
@@ -288,7 +205,6 @@ export default function TermsConditionPage() {
             <span>~5 min read</span>
           </div>
 
-          {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
             <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -297,16 +213,13 @@ export default function TermsConditionPage() {
         </div>
       </section>
 
-      {/* ── Content ───────────────────────────────────────────────── */}
-      <div className="container px-6 py-16 md:px-10">
+      <div className="w-full px-6 py-16 md:px-10">
         <div className="flex flex-col gap-12 lg:flex-row lg:gap-16">
 
           <TableOfContents />
 
-          {/* Main content */}
           <main className="flex-1 min-w-0">
 
-            {/* Plain-language summary box */}
             <Reveal>
               <div className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-7">
                 <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-primary">
@@ -321,7 +234,6 @@ export default function TermsConditionPage() {
               </div>
             </Reveal>
 
-            {/* Section articles */}
             <div className="space-y-0">
               {sections.map(({ id, title, content }, i) => (
                 <Reveal key={id} delay={i * 30}>
@@ -332,7 +244,6 @@ export default function TermsConditionPage() {
                     <h2 className="mb-4 text-xl font-bold text-foreground">{title}</h2>
                     <p className="text-base leading-relaxed text-muted-foreground">{content}</p>
 
-                    {/* Contextual callout for privacy section */}
                     {id === 'privacy' && (
                       <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:text-emerald-400">
                         <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500 mt-1.5" aria-hidden="true" />
@@ -346,7 +257,6 @@ export default function TermsConditionPage() {
                       </div>
                     )}
 
-                    {/* Contextual callout for disclaimer section */}
                     {id === 'disclaimer' && (
                       <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-700 dark:text-amber-400">
                         <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-500 mt-1.5" aria-hidden="true" />
@@ -365,7 +275,6 @@ export default function TermsConditionPage() {
               ))}
             </div>
 
-            {/* Contact card */}
             <Reveal delay={80}>
               <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-border/50 bg-card p-10 text-center md:flex-row md:text-left">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
@@ -393,21 +302,7 @@ export default function TermsConditionPage() {
           </main>
         </div>
       </div>
-
-      {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="border-t border-border/50 bg-muted/20">
-        <div className="container px-6 py-10 md:px-10">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-            <p>&copy; 2026 Signify AI. All rights reserved.</p>
-            <div className="flex items-center gap-5">
-              <Link href="/" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Home</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Privacy Policy</Link>
-              <Link href="/how-it-works" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">How It Works</Link>
-              <Link href="/accessibility" className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">Accessibility Statement</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
