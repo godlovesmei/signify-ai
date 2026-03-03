@@ -1,0 +1,21 @@
+name: signify-ml
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - matplotlib
+  - opencv
+  - scikit-learn
+  - pillow
+  - tqdm
+  - pyyaml
+  - pip
+  - pip:
+    - tensorflow[and-cuda]==2.16.2
+    - protobuf==4.25.3
+    - absl-py
+    - pycocotools
+    - wandb

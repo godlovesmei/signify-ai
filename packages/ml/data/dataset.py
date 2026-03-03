@@ -1,3 +1,12 @@
+# packages/ml/data/dataset.py
+"""
+Build tf.data.Dataset pipelines from manifest CSVs produced by prepare_bisindo.py.
+
+Manifest CSV format: filepath, label
+  - filepath : absolute path to a cropped JPEG image
+  - label    : class name string (e.g. "A", "B", …)
+"""
+
 import csv
 import logging
 from pathlib import Path
@@ -7,8 +16,7 @@ import tensorflow as tf
 
 from ml.data.preprocessing import TARGET_SIZE, tf_augment, tf_normalize
 
-logger = logging.getLogger(__name__)
-
+logger   = logging.getLogger(__name__)
 AUTOTUNE = tf.data.AUTOTUNE
 
 
@@ -17,8 +25,7 @@ AUTOTUNE = tf.data.AUTOTUNE
 def get_label_map(train_csv: str) -> Dict[str, int]:
     """
     Build a sorted, deterministic {class_name: int_index} map
-    from the training manifest. Always derive the map from train only
-    so val/test indices stay consistent.
+    from the training manifest only (so val/test indices stay consistent).
     """
     labels = set()
     with open(train_csv, newline="", encoding="utf-8") as f:
@@ -30,7 +37,7 @@ def get_label_map(train_csv: str) -> Dict[str, int]:
 
 
 def save_label_map(label_map: Dict[str, int], output_path: str) -> None:
-    """Persist label map as a simple CSV for use during inference."""
+    """Persist label map as CSV for use during inference."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", newline="", encoding="utf-8") as f:
@@ -71,19 +78,26 @@ def _read_manifest(csv_path: str, label_map: Dict[str, int]) -> Tuple[List[str],
 # ── Image loading ─────────────────────────────────────────────────────────────
 
 def _load_image(filepath: tf.Tensor, label: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-    """Read a JPEG from disk and decode to float32 [0, 1] tensor."""
-    raw     = tf.io.read_file(filepath)
-    image   = tf.image.decode_jpeg(raw, channels=3)
-    image   = tf.image.resize(image, TARGET_SIZE)
-    image   = tf.cast(image, tf.float32) / 255.0
+    """
+    Read a JPEG from disk and decode to a float32 [0, 1] tensor.
+
+    Decodes as 3-channel RGB even though the source images are grayscale
+    (R=G=B). This keeps the tensor shape consistent with MobileNetV2's
+    expected (224, 224, 3) input.
+    """
+    raw   = tf.io.read_file(filepath)
+    image = tf.image.decode_jpeg(raw, channels=3)
+    image = tf.image.resize(image, TARGET_SIZE)
+    image = tf.cast(image, tf.float32) / 255.0   # → [0, 1]
     return image, label
 
 
-def _augment_and_normalize(image: tf.Tensor, label: tf.Tensor,
-                            augment: bool) -> Tuple[tf.Tensor, tf.Tensor]:
+def _augment_and_normalize(
+    image: tf.Tensor, label: tf.Tensor, augment: bool
+) -> Tuple[tf.Tensor, tf.Tensor]:
     if augment:
-        image = tf_augment(image)
-    image = tf_normalize(image)
+        image = tf_augment(image)          # operates on [0, 1]
+    image = tf_normalize(image)            # [0, 1] → [-1, 1]
     return image, label
 
 
@@ -101,19 +115,26 @@ def build_dataset(
     """
     Build a single tf.data.Dataset from a manifest CSV.
 
+    Pipeline order:
+        from_tensor_slices → [shuffle] → map(load) → [cache] → map(augment+norm) → batch → [repeat] → prefetch
+
+    Caching after load (before augmentation) means:
+      - Images are decoded from disk only once (fast subsequent epochs)
+      - Augmentation is still re-applied randomly on each epoch
+
     Args:
         csv_path:   Path to the manifest CSV.
         label_map:  {class_name: int_index} dict.
         batch_size: Mini-batch size.
         augment:    Apply random augmentation (train only).
         shuffle:    Shuffle before each epoch (train only).
-        cache:      Cache decoded images in memory after first epoch.
-        repeat:     Repeat indefinitely (for use with fit()).
+        cache:      Cache decoded images in RAM after first epoch.
+        repeat:     Repeat indefinitely (for use with Model.fit + steps_per_epoch).
 
     Returns:
-        Batched, prefetched tf.data.Dataset yielding (image, label) pairs
-        where image shape is (batch, 224, 224, 3) float32 and
-        label shape is (batch,) int32.
+        Batched, prefetched tf.data.Dataset yielding (image, label) pairs.
+        image shape : (batch, 224, 224, 3) float32  range [-1, 1]
+        label shape : (batch,)             int32
     """
     filepaths, labels = _read_manifest(csv_path, label_map)
     n = len(filepaths)
@@ -155,8 +176,8 @@ def build_datasets(
     cache: bool = True,
 ) -> Tuple[tf.data.Dataset, tf.data.Dataset, Optional[tf.data.Dataset]]:
     """
-    Convenience function to build train, val, and optionally test datasets.
-    If label_map is None it is derived from train_csv automatically.
+    Convenience wrapper: build train, val, and optionally test datasets.
+    Label map is derived from train_csv if not provided.
 
     Returns:
         (train_ds, val_ds, test_ds)  — test_ds is None if test_csv is None.
@@ -188,9 +209,9 @@ def build_datasets(
 def dataset_info(csv_path: str, label_map: Dict[str, int]) -> Dict:
     """Return per-class sample counts for a manifest CSV."""
     _, labels = _read_manifest(csv_path, label_map)
-    reverse = {v: k for k, v in label_map.items()}
-    counts = {}
+    reverse   = {v: k for k, v in label_map.items()}
+    counts    = {}
     for idx in labels:
-        name = reverse[idx]
+        name         = reverse[idx]
         counts[name] = counts.get(name, 0) + 1
     return {"total": len(labels), "per_class": counts}

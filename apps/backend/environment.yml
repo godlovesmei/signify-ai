@@ -1,0 +1,15 @@
+name: signify-backend
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - tensorflow==2.16.2
+      - fastapi
+      - uvicorn[standard]
+      - python-multipart
+      - pillow
+      - numpy
+      - opencv-python-headless

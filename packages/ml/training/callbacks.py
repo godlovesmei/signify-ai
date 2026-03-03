@@ -1,12 +1,12 @@
+# packages/ml/training/callbacks.py
 """
-callbacks.py
-------------
-Reusable Keras callbacks for training. Called by trainer.py.
+Keras callbacks untuk training BISINDO MobileNetV2.
+
+build_callbacks() dipanggil di trainer.py untuk setiap phase.
 """
 
 import logging
 from pathlib import Path
-from typing import List
 
 import tensorflow as tf
 
@@ -15,55 +15,91 @@ logger = logging.getLogger(__name__)
 
 def build_callbacks(
     output_dir: str,
-    phase: str = "phase1",
+    phase: str,
     monitor: str = "val_accuracy",
-    patience: int = 7,
-) -> List[tf.keras.callbacks.Callback]:
+) -> list:
     """
-    Returns a list of callbacks:
-    - ModelCheckpoint  : saves the best model weights
-    - EarlyStopping    : stops if val_accuracy plateaus
-    - ReduceLROnPlateau: halves LR on plateau (phase 2 especially)
-    - TensorBoard      : logs for optional visualization
-    - CSVLogger        : plain-text training log
+    Buat daftar Keras callbacks untuk satu training phase.
+
+    Args:
+        output_dir : direktori tempat checkpoint dan log disimpan
+        phase      : label phase, e.g. "phase1" atau "phase2"
+        monitor    : metrik yang diawasi untuk ModelCheckpoint & EarlyStopping
+
+    Returns:
+        List of tf.keras.callbacks.Callback
     """
     output_dir = Path(output_dir)
-    log_dir    = output_dir / "logs" / phase
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(
-        filepath=str(output_dir / f"best_{phase}.keras"),
-        monitor=monitor,
-        save_best_only=True,
-        save_weights_only=False,
-        mode="max",
-        verbose=1,
+    callbacks = []
+
+    # ── 1. ModelCheckpoint ────────────────────────────────────────────────────
+    # Simpan bobot terbaik berdasarkan val_accuracy.
+    # save_weights_only=True lebih cepat dan hemat disk saat fine-tuning.
+    checkpoint_path = str(output_dir / f"{phase}_best.weights.h5")
+    callbacks.append(
+        tf.keras.callbacks.ModelCheckpoint(
+            filepath        = checkpoint_path,
+            monitor         = monitor,
+            mode            = "max",
+            save_best_only  = True,
+            save_weights_only = True,
+            verbose         = 1,
+        )
+    )
+    logger.info("ModelCheckpoint → %s", checkpoint_path)
+
+    # ── 2. EarlyStopping ──────────────────────────────────────────────────────
+    # Hentikan training jika val_accuracy tidak naik selama `patience` epoch.
+    # restore_best_weights memastikan model kembali ke bobot terbaik.
+    patience = 7 if phase == "phase1" else 10
+    callbacks.append(
+        tf.keras.callbacks.EarlyStopping(
+            monitor              = monitor,
+            mode                 = "max",
+            patience             = patience,
+            restore_best_weights = True,
+            verbose              = 1,
+        )
     )
 
-    early_stop = tf.keras.callbacks.EarlyStopping(
-        monitor=monitor,
-        patience=patience,
-        restore_best_weights=True,
-        mode="max",
-        verbose=1,
+    # ── 3. ReduceLROnPlateau ──────────────────────────────────────────────────
+    # Turunkan LR jika val_accuracy stagnan. Berguna terutama di phase 2.
+    callbacks.append(
+        tf.keras.callbacks.ReduceLROnPlateau(
+            monitor   = monitor,
+            mode      = "max",
+            factor    = 0.5,       # LR baru = LR lama * 0.5
+            patience  = 3,
+            min_lr    = 1e-7,
+            verbose   = 1,
+        )
     )
 
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-        monitor="val_loss",
-        factor=0.5,
-        patience=3,
-        min_lr=1e-7,
-        verbose=1,
+    # ── 4. CSVLogger ─────────────────────────────────────────────────────────
+    # Simpan history tiap epoch ke CSV — berguna untuk analisis post-training.
+    log_path = str(output_dir / f"{phase}_history.csv")
+    callbacks.append(
+        tf.keras.callbacks.CSVLogger(
+            filename = log_path,
+            append   = False,
+        )
     )
+    logger.info("CSVLogger → %s", log_path)
 
-    tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir=str(log_dir),
-        histogram_freq=0,
-        update_freq="epoch",
+    # ── 5. TensorBoard ────────────────────────────────────────────────────────
+    # Opsional tapi berguna: jalankan `tensorboard --logdir <log_dir>` untuk
+    # visualisasi loss/accuracy curve secara real-time.
+    tb_log_dir = str(output_dir / "tensorboard" / phase)
+    callbacks.append(
+        tf.keras.callbacks.TensorBoard(
+            log_dir          = tb_log_dir,
+            histogram_freq   = 0,       # set 1 untuk weight histograms (lambat)
+            write_graph      = False,
+            update_freq      = "epoch",
+        )
     )
+    logger.info("TensorBoard logs → %s", tb_log_dir)
 
-    csv_logger = tf.keras.callbacks.CSVLogger(
-        filename=str(output_dir / f"training_log_{phase}.csv"),
-        append=False,
-    )
-
-    return [checkpoint, early_stop, reduce_lr, tensorboard, csv_logger]
+    return callbacks
