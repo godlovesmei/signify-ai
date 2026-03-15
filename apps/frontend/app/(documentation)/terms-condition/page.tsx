@@ -138,8 +138,8 @@ function TableOfContents() {
     <aside aria-label="Table of contents" className="hidden lg:block lg:w-64 shrink-0">
       <div className="sticky top-28">
         <div className="mb-5 flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <FileText className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" aria-hidden="true" />
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             On this page
           </p>
         </div>
@@ -152,13 +152,13 @@ function TableOfContents() {
                   className={[
                     'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-all duration-150',
                     activeId === id
-                      ? 'bg-primary/10 text-primary font-semibold'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                      ? 'bg-primary/10 text-primary font-semibold dark:bg-primary/20 dark:text-primary'
+                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:text-muted-foreground dark:hover:bg-muted/40 dark:hover:text-foreground',
                   ].join(' ')}
                   aria-current={activeId === id ? 'location' : undefined}
                 >
                   {activeId === id && (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary dark:bg-primary" aria-hidden="true" />
                   )}
                   <span className={activeId === id ? '' : 'ml-3.5'}>{title}</span>
                 </a>
@@ -173,47 +173,47 @@ function TableOfContents() {
 
 export default function TermsConditionPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground dark:bg-background dark:text-foreground">
       <Navbar />
 
       <section
         id="main-content"
         aria-labelledby="page-heading"
-        className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-background pt-40 pb-16"
+        className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-background pt-40 pb-16 dark:from-muted/20 dark:to-background"
       >
         <div className="w-full px-6 md:px-10">
-          <Badge className="mb-5 bg-muted text-muted-foreground hover:bg-muted border-0 text-xs font-semibold uppercase tracking-wider">
+          <Badge className="mb-5 bg-muted text-muted-foreground hover:bg-muted border-0 text-xs font-semibold uppercase tracking-wider dark:bg-muted/50 dark:text-muted-foreground dark:hover:bg-muted/60">
             Legal
           </Badge>
           <h1
             id="page-heading"
-            className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl"
+            className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl dark:text-foreground"
           >
             Terms &amp; Conditions
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
+          <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground dark:text-muted-foreground">
             <span>
               Last updated:{' '}
-              <time dateTime="2026-02-18" className="font-semibold text-foreground">
+              <time dateTime="2026-02-18" className="font-semibold text-foreground dark:text-foreground">
                 February 18, 2026
               </time>
             </span>
-            <span className="hidden md:block h-1 w-1 rounded-full bg-border" aria-hidden="true" />
+            <span className="hidden md:block h-1 w-1 rounded-full bg-border dark:bg-border" aria-hidden="true" />
             <span>{sections.length} sections</span>
-            <span className="hidden md:block h-1 w-1 rounded-full bg-border" aria-hidden="true" />
+            <span className="hidden md:block h-1 w-1 rounded-full bg-border dark:bg-border" aria-hidden="true" />
             <span>~5 min read</span>
           </div>
 
-          <nav aria-label="Breadcrumb" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+          <nav aria-label="Breadcrumb" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
+            <Link href="/" className="hover:text-foreground transition-colors dark:hover:text-foreground">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="text-foreground font-medium">Terms &amp; Conditions</span>
+            <span className="text-foreground font-medium dark:text-foreground">Terms &amp; Conditions</span>
           </nav>
         </div>
       </section>
 
-      <div className="w-full px-6 py-16 md:px-10">
+      <div className="w-full px-6 py-16 md:px-10 bg-background dark:bg-background">
         <div className="flex flex-col gap-12 lg:flex-row lg:gap-16">
 
           <TableOfContents />
@@ -221,11 +221,11 @@ export default function TermsConditionPage() {
           <main className="flex-1 min-w-0">
 
             <Reveal>
-              <div className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-7">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-primary">
+              <div className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-7 dark:border-primary/30 dark:bg-primary/10">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary">
                   Plain-Language Summary
                 </p>
-                <p className="text-sm leading-relaxed text-foreground">
+                <p className="text-sm leading-relaxed text-foreground dark:text-foreground">
                   Signify.ai is an accessibility tool. We don&apos;t store your video. We respect your
                   privacy by design, not just by policy. We&apos;re honest about what the service
                   can and can&apos;t do. The full legal terms are below — but if something is
@@ -239,18 +239,18 @@ export default function TermsConditionPage() {
                 <Reveal key={id} delay={i * 30}>
                   <article
                     id={id}
-                    className="scroll-mt-28 border-b border-border/40 py-10 last:border-0"
+                    className="scroll-mt-28 border-b border-border/40 py-10 last:border-0 dark:border-border/30"
                   >
-                    <h2 className="mb-4 text-xl font-bold text-foreground">{title}</h2>
-                    <p className="text-base leading-relaxed text-muted-foreground">{content}</p>
+                    <h2 className="mb-4 text-xl font-bold text-foreground dark:text-foreground">{title}</h2>
+                    <p className="text-base leading-relaxed text-muted-foreground dark:text-muted-foreground">{content}</p>
 
                     {id === 'privacy' && (
-                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:text-emerald-400">
-                        <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500 mt-1.5" aria-hidden="true" />
+                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400" aria-hidden="true" />
                         <p>
                           This is a foundational commitment, not just a legal statement. All video
                           processing is architecturally designed to stay local.{' '}
-                          <Link href="/privacy" className="font-semibold underline underline-offset-2 hover:no-underline">
+                          <Link href="/privacy" className="font-semibold underline underline-offset-2 hover:no-underline dark:text-emerald-400">
                             Read our full Privacy Policy.
                           </Link>
                         </p>
@@ -258,13 +258,13 @@ export default function TermsConditionPage() {
                     )}
 
                     {id === 'disclaimer' && (
-                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-700 dark:text-amber-400">
-                        <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-500 mt-1.5" aria-hidden="true" />
+                      <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500 dark:bg-amber-400" aria-hidden="true" />
                         <p>
                           Signify is a communication aid, not a certified interpreter. For legal,
                           medical, or official contexts, a qualified human interpreter remains the
                           appropriate choice.{' '}
-                          <Link href="/how-it-works#limitations" className="font-semibold underline underline-offset-2 hover:no-underline">
+                          <Link href="/how-it-works#limitations" className="font-semibold underline underline-offset-2 hover:no-underline dark:text-amber-400">
                             See our limitations documentation.
                           </Link>
                         </p>
@@ -276,20 +276,20 @@ export default function TermsConditionPage() {
             </div>
 
             <Reveal delay={80}>
-              <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-border/50 bg-card p-10 text-center md:flex-row md:text-left">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
-                  <Mail className="h-6 w-6 text-primary" aria-hidden="true" />
+              <div className="mt-12 flex flex-col items-center gap-6 rounded-2xl border border-border/50 bg-card p-10 text-center md:flex-row md:text-left dark:border-border/40 dark:bg-card">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 dark:bg-primary/15">
+                  <Mail className="h-6 w-6 text-primary dark:text-primary" aria-hidden="true" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="mb-1 text-lg font-bold text-foreground">
+                  <h3 className="mb-1 text-lg font-bold text-foreground dark:text-foreground">
                     Questions about these terms?
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                     We&apos;re happy to explain anything in plain language. No legal jargon in our replies.
                   </p>
                 </div>
                 <Button
-                  className="shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 transition-all duration-200 hover:-translate-y-px hover:shadow-md hover:shadow-primary/20"
+                  className="shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 transition-all duration-200 hover:-translate-y-px hover:shadow-md hover:shadow-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/80"
                   asChild
                 >
                   <Link href="mailto:legal@signify.ai">
