@@ -1,39 +1,45 @@
 # apps/backend/app/config/settings.py
 from functools import lru_cache
-from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # ── App ───────────────────────────────────────────────────────────────────
-    APP_NAME:    str = "Signify AI — BISINDO Inference API"
-    APP_VERSION: str = "1.0.0"
+    # App
+    APP_NAME:    str  = "Signify AI — BISINDO Inference API"
+    APP_VERSION: str  = "1.0.0"
     DEBUG:       bool = False
 
-    # ── CORS ──────────────────────────────────────────────────────────────────
-    # Comma-separated list of allowed origins
+    # CORS
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]
 
-    # ── Model ─────────────────────────────────────────────────────────────────
-    # Path relatif dari repo root (signify-ai/)
+    # Model paths
     SAVED_MODEL_PATH: str = "models/exports/bisindo_v1/saved_model"
     LABEL_MAP_PATH:   str = "models/exports/bisindo_v1/label_map.json"
 
-    # SavedModel signature keys — didapat dari export_model.py
-    # Cek ulang dengan: python -c "import tf; m=tf.saved_model.load(...); print(m.signatures['serving_default'].structured_input_signature)"
-    MODEL_INPUT_KEY:  str = "keras_tensor_154"
-    MODEL_OUTPUT_KEY: str = "output_0"
+    # SavedModel signature keys.
+    # These are auto-generated at export time and WILL change when the
+    # backbone changes. After running export_model.py, verify with:
+    #
+    #   python - <<'EOF'
+    #   import tensorflow as tf
+    #   m = tf.saved_model.load("models/exports/bisindo_v1/saved_model")
+    #   f = m.signatures["serving_default"]
+    #   print("INPUT :", list(f.structured_input_signature[1].keys()))
+    #   print("OUTPUT:", list(f.structured_outputs.keys()))
+    #   EOF
+    #
+    # Then update the two values below to match.
+    MODEL_INPUT_KEY:  str = "keras_tensor_154"  # verified from bisindo_v1 SavedModel
+    MODEL_OUTPUT_KEY: str = "output_0"          # verified from bisindo_v1 SavedModel
 
-    # ── Inference ─────────────────────────────────────────────────────────────
-    INPUT_SIZE: int = 224      # MobileNetV2 input resolution
-    TOP_K:      int = 3        # jumlah top prediksi yang dikembalikan
-
-    # Confidence threshold — prediksi di bawah ini dianggap "tidak yakin"
+    # Inference
+    INPUT_SIZE:           int   = 224
+    TOP_K:                int   = 3
     CONFIDENCE_THRESHOLD: float = 0.5
 
     class Config:
@@ -43,5 +49,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Singleton settings — di-cache setelah pertama kali dipanggil."""
     return Settings()
