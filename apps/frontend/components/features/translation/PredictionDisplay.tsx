@@ -1,21 +1,8 @@
 'use client';
 
-/**
- * PredictionDisplay.tsx
- * The right-hand transcript panel.
- *
- * Responsibilities:
- *  - Renders the scrollable list of past translations (TranscriptEntry[])
- *  - Shows the latest prediction prominently at the bottom
- *  - Displays context-sensitive empty states based on app state
- *  - Human-readable confidence indicator (no raw percentages for non-technical users)
- */
-
 import { useEffect, useRef } from 'react';
 import { CameraOff, Hand, Loader2, ShieldAlert, Trash2 } from 'lucide-react';
 import type { CameraState } from './WebcamCapture';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface TranscriptEntry {
   id: string;
@@ -31,13 +18,6 @@ export interface PredictionDisplayProps {
   onClearTranscript: () => void;
 }
 
-// ── Confidence label helper ───────────────────────────────────────────────────
-
-/**
- * Convert a raw confidence score into a label and style that is
- * meaningful to non-technical users (deaf users, learners, general public).
- * We deliberately avoid showing raw percentages by default.
- */
 function getConfidenceLabel(value: number): {
   label: string;
   dotClass: string;
@@ -46,25 +26,23 @@ function getConfidenceLabel(value: number): {
   if (value >= 0.92) {
     return {
       label:     'High confidence',
-      dotClass:  'bg-emerald-400',
-      pillClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+      dotClass:  'bg-success',
+      pillClass: 'bg-success/10 text-success',
     };
   }
   if (value >= 0.65) {
     return {
       label:     'Likely correct',
-      dotClass:  'bg-amber-400',
-      pillClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+      dotClass:  'bg-warning',
+      pillClass: 'bg-warning/10 text-warning-foreground',
     };
   }
   return {
     label:     'Uncertain',
-    dotClass:  'bg-rose-400',
-    pillClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    dotClass:  'bg-destructive',
+    pillClass: 'bg-destructive/10 text-destructive',
   };
 }
-
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 function ConfidencePill({ value }: { value: number }) {
   const { label, dotClass, pillClass } = getConfidenceLabel(value);
@@ -123,9 +101,7 @@ function TranscriptLine({
         >
           {time}
         </time>
-        <span className="text-[11px] text-muted-foreground/30" aria-hidden="true">
-          ·
-        </span>
+        <span className="text-[11px] text-muted-foreground/30" aria-hidden="true">·</span>
         <span className="text-[11px] text-muted-foreground/50">{entry.language}</span>
       </div>
     </div>
@@ -155,11 +131,11 @@ function EmptyState({ appState }: { appState: CameraState }) {
       text: 'Show a hand sign in front of your camera…',
     },
     'error-permission': {
-      icon: <ShieldAlert className="h-4 w-4 text-rose-500" />,
+      icon: <ShieldAlert className="h-4 w-4 text-destructive" />,
       text: 'Camera permission is required.',
     },
     'error-device': {
-      icon: <ShieldAlert className="h-4 w-4 text-rose-500" />,
+      icon: <ShieldAlert className="h-4 w-4 text-destructive" />,
       text: 'No camera was detected.',
     },
   };
@@ -175,8 +151,6 @@ function EmptyState({ appState }: { appState: CameraState }) {
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
-
 export default function PredictionDisplay({
   transcript,
   appState,
@@ -184,7 +158,6 @@ export default function PredictionDisplay({
 }: PredictionDisplayProps) {
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to latest entry
   useEffect(() => {
     if (transcript.length > 0) {
       scrollEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -198,23 +171,21 @@ export default function PredictionDisplay({
       aria-label="Translation transcript"
       aria-live="polite"
       aria-atomic="false"
-      className="flex flex-col border-t border-border/30 bg-background md:w-[360px] md:border-t-0 md:border-l"
+      className={[
+        'flex flex-col border-t border-border/30 bg-background',
+        // ↓ was md:w-[360px] — too narrow for prediction badge + sentence builder + transcript
+        'md:w-[420px] md:border-t-0 md:border-l',
+      ].join(' ')}
       style={{ minHeight: 0 }}
     >
       {/* Panel header */}
       <div className="flex shrink-0 items-center justify-between border-b border-border/30 px-5 py-3.5">
         <div className="flex items-center gap-2">
           <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="shrink-0 text-muted-foreground"
-            aria-hidden="true"
+            width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2.5"
+            strokeLinecap="round" strokeLinejoin="round"
+            className="shrink-0 text-muted-foreground" aria-hidden="true"
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
@@ -251,16 +222,18 @@ export default function PredictionDisplay({
         ) : (
           <div className="space-y-2">
             {transcript.map((entry, i) => (
-              <div key={entry.id} className="entry-enter">
-                <TranscriptLine entry={entry} isLatest={i === transcript.length - 1} />
-              </div>
+              <TranscriptLine
+                key={entry.id}
+                entry={entry}
+                isLatest={i === transcript.length - 1}
+              />
             ))}
             <div ref={scrollEndRef} aria-hidden="true" />
           </div>
         )}
       </div>
 
-      {/* Latest prediction footer — sticky at bottom */}
+      {/* Latest prediction footer */}
       <div className="shrink-0 border-t border-border/30 bg-card/50 px-5 py-4">
         {latest ? (
           <>
@@ -270,7 +243,6 @@ export default function PredictionDisplay({
             <p className="text-base font-semibold leading-snug">{latest.text}</p>
           </>
         ) : (
-          // Invisible placeholder preserves layout height
           <div aria-hidden="true" className="select-none opacity-0">
             <p className="text-[10px]">&nbsp;</p>
             <p className="text-base">&nbsp;</p>

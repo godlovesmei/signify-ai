@@ -5,243 +5,445 @@
 html,
 body,
 :root {
-    @apply h-full;
+  @apply h-full;
 }
 
 /*
-  --- AI Sign Language Translator Theme ---
-  Brand: "Tech with a Heart"
+  ═══════════════════════════════════════════════════════════════
+  BISINDO Sign Language Recognition App — Design System v1.1
+  ═══════════════════════════════════════════════════════════════
+  Design Philosophy: "Clarity over decoration — every pixel earns its place."
+
   Palette:
-    Deep Ocean   #00008B  → Primary / Focus
-    Tech Teal    #40E0D0  → Secondary / Accent / Success
-    Warm Sun     #FFC845  → Warning / Accent Badge
-    Bright Lemon #F3E44D  → Highlight (sparingly)
-    Soft Sky     #ADD8E6  → Surface Tertiary / Info
-    Steel Grey   #C0C2C9  → Neutral / Border / Disabled
-    Soft Red     #E63946  → Danger / Error (added per recommendation)
+    Brand Green   #22c566  → Primary / Success / Active detection
+    Amber         #f59e0b  → Warning / Medium confidence
+    Soft Red      #ef4444  → Error / Low confidence / Stop state
+    Ocean Blue    #3b82f6  → Info / FPS counter / Developer panel
+    Neutral slate           → Surfaces, borders, text
+
+  Fonts (register via next/font in layout.tsx):
+    Display  → Sora                          → var(--font-sora)
+    Body     → Atkinson Hyperlegible Next    → var(--font-atkinson-hyperlegible-next)
+    Mono     → JetBrains Mono     → var(--font-jetbrains-mono)
+  ═══════════════════════════════════════════════════════════════
 */
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─────────────────────────────────────────────
+   LIGHT MODE
+   All values use oklch for perceptual uniformity.
+   Hex reference kept in comments for dev tools.
+───────────────────────────────────────────── */
 :root {
-  /* BACKGROUND: Clean White/Grey (#F8F9FA) */
-  --background: oklch(98.5% 0.002 260);
-  --foreground: oklch(20% 0.05 273);
+  /* ── Backgrounds ─────────────────────────────── */
+  --background:          oklch(98.5% 0.002 145); /* #f8fafc tinted green — neutral-50   */
+  --foreground:          oklch(13%   0.03  260);  /* #0f172a — neutral-900               */
 
-  /* PRIMARY: Deep Ocean Blue (#00008B) */
-  --primary: oklch(32.3% 0.23 273.7);
-  --primary-foreground: oklch(100% 0 0);
+  /* ── Primary: Brand Green (#22c566) ─────────── */
+  --primary:             oklch(72%   0.185 145);  /* #22c566 — primary-500               */
+  --primary-foreground:  oklch(100%  0     0);    /* #ffffff                             */
 
-  /* SECONDARY: Tech Teal (#40E0D0) */
-  --secondary: oklch(90% 0.08 190.5);
-  --secondary-foreground: oklch(25% 0.1 190.5);
+  /* ── Secondary: Light green tint ────────────── */
+  --secondary:           oklch(94%   0.05  145);  /* #d5f5e3 — primary-100               */
+  --secondary-foreground:oklch(24%   0.08  145);  /* #0a3d1e — primary-900               */
 
-  /* ACCENT: Tech Teal (#40E0D0) — active states, rings, highlights */
-  --accent: oklch(80.5% 0.154 190.5);
-  --accent-foreground: oklch(20% 0.05 273);
+  /* ── Accent: Mid green (#4dd68f) ─────────────── */
+  --accent:              oklch(79%   0.16  145);  /* #4dd68f — primary-400               */
+  --accent-foreground:   oklch(24%   0.08  145);  /* #0a3d1e — primary-900               */
 
-  /* SURFACE: Pure White */
-  --card: oklch(100% 0 0);
-  --card-foreground: oklch(20% 0.05 273);
-  --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(20% 0.05 273);
+  /* ── Card / Popover surfaces ─────────────────── */
+  --card:                oklch(100%  0     0);    /* #ffffff                             */
+  --card-foreground:     oklch(22%   0.035 260);  /* #1e293b — neutral-800               */
+  --popover:             oklch(100%  0     0);    /* #ffffff                             */
+  --popover-foreground:  oklch(22%   0.035 260);  /* #1e293b — neutral-800               */
 
-  /* SURFACE TERTIARY: Soft Sky (#ADD8E6) */
-  --surface-tertiary: oklch(88% 0.08 230);
-  --surface-tertiary-foreground: oklch(20% 0.05 273);
+  /* ── Surface tertiary: primary-50 tint ──────── */
+  --surface-tertiary:             oklch(98%   0.015 145); /* #eefbf4 — primary-50        */
+  --surface-tertiary-foreground:  oklch(22%   0.035 260); /* #1e293b — neutral-800       */
 
-  /* MUTED: Light Steel */
-  --muted: oklch(92% 0.01 260);
-  --muted-foreground: oklch(65% 0.01 260);
+  /* ── Muted ───────────────────────────────────── */
+  --muted:               oklch(96.5% 0.004 260);  /* #f1f5f9 — neutral-100              */
+  --muted-foreground:    oklch(42%   0.025 260);  /* #475569 — neutral-600              */
 
-  /* BORDER / INPUT: Steel Grey (#C0C2C9) */
-  --border: oklch(80% 0.01 260);
-  --input: oklch(80% 0.01 260);
+  /* ── Border / Input: neutral-200 ─────────────── */
+  --border:              oklch(92%   0.007 260);  /* #e2e8f0 — neutral-200              */
+  --input:               oklch(92%   0.007 260);  /* #e2e8f0 — neutral-200              */
 
-  /* RING: Deep Ocean Blue (focus ring) */
-  --ring: oklch(32.3% 0.23 273.7);
+  /* ── Focus ring: primary-500 ─────────────────── */
+  --ring:                oklch(72%   0.185 145);  /* #22c566 — primary-500              */
 
-  /* DANGER / ERROR: Soft Red (#E63946) */
-  --destructive: oklch(58% 0.22 25);
-  --destructive-foreground: oklch(100% 0 0);
+  /* ── Destructive / Error (#ef4444) ───────────── */
+  --destructive:         oklch(58%   0.22  25);   /* #ef4444 — error-500                */
+  --destructive-foreground: oklch(100% 0    0);   /* #ffffff                            */
 
-  /* WARNING: Warm Sun (#FFC845) */
-  --warning: oklch(84.6% 0.16 85.3);
-  --warning-foreground: oklch(20% 0.05 273);
+  /* ── Warning (#f59e0b) ───────────────────────── */
+  --warning:             oklch(75%   0.175 75);   /* #f59e0b — warning-500              */
+  --warning-foreground:  oklch(13%   0.03  260);  /* #0f172a — neutral-900 (dark on amber) */
 
-  /* SUCCESS: Tech Teal (#40E0D0) */
-  --success: oklch(80.5% 0.154 190.5);
-  --success-foreground: oklch(20% 0.05 273);
+  /* ── Success: same as primary for this brand ─── */
+  --success:             oklch(72%   0.185 145);  /* #22c566 — primary-500              */
+  --success-foreground:  oklch(100%  0     0);    /* #ffffff                            */
 
-  /* HIGHLIGHT: Bright Lemon (#F3E44D) — sparingly */
-  --highlight: oklch(91% 0.18 98);
-  --highlight-foreground: oklch(20% 0.05 273);
+  /* ── Info (#3b82f6) ──────────────────────────── */
+  --info:                oklch(60%   0.2   255);  /* #3b82f6 — info-500                 */
+  --info-foreground:     oklch(100%  0     0);    /* #ffffff                            */
 
-  /* RADIUS */
+  /* ── Highlight: warm lemon tint (sparingly) ──── */
+  --highlight:           oklch(97%   0.05  90);   /* ~#fefce8 — warm lemon bg           */
+  --highlight-foreground:oklch(22%   0.035 260);  /* #1e293b — neutral-800              */
+
+  /* ── Radius ──────────────────────────────────── */
   --radius: 0.5rem;
 
-  /* CHART COLORS */
-  --chart-1: oklch(32.3% 0.23 273.7);   /* Deep Ocean Blue */
-  --chart-2: oklch(80.5% 0.154 190.5);  /* Tech Teal */
-  --chart-3: oklch(84.6% 0.16 85.3);    /* Warm Sun Yellow */
-  --chart-4: oklch(88% 0.08 230);       /* Soft Sky */
-  --chart-5: oklch(60% 0.15 273);       /* Mid Blue */
+  /* ── Chart palette ───────────────────────────── */
+  --chart-1: oklch(72%  0.185 145);  /* primary-500  — Brand Green  */
+  --chart-2: oklch(75%  0.175 75);   /* warning-500  — Amber        */
+  --chart-3: oklch(58%  0.22  25);   /* error-500    — Soft Red     */
+  --chart-4: oklch(60%  0.2   255);  /* info-500     — Ocean Blue   */
+  --chart-5: oklch(46%  0.13  145);  /* primary-700  — Deep Green   */
 
-  /* SIDEBAR */
-  --sidebar: oklch(100% 0 0);
-  --sidebar-foreground: oklch(20% 0.05 273);
-  --sidebar-primary: oklch(32.3% 0.23 273.7);
-  --sidebar-primary-foreground: oklch(100% 0 0);
-  --sidebar-accent: oklch(90% 0.08 190.5);
-  --sidebar-accent-foreground: oklch(25% 0.1 190.5);
-  --sidebar-border: oklch(80% 0.01 260);
-  --sidebar-ring: oklch(32.3% 0.23 273.7);
+  /* ── Sidebar ─────────────────────────────────── */
+  --sidebar:                     oklch(100%  0     0);
+  --sidebar-foreground:          oklch(22%   0.035 260);
+  --sidebar-primary:             oklch(72%   0.185 145);
+  --sidebar-primary-foreground:  oklch(100%  0     0);
+  --sidebar-accent:              oklch(94%   0.05  145);
+  --sidebar-accent-foreground:   oklch(24%   0.08  145);
+  --sidebar-border:              oklch(92%   0.007 260);
+  --sidebar-ring:                oklch(72%   0.185 145);
 
-  --font-sans: var(--font-inter);
+  /* ── Font variables ──────────────────────────────────────────────────────
+     Wire these up in layout.tsx using next/font, e.g.:
+       const sora        = Sora({ variable: '--font-sora', ... })
+       const atkinson    = Atkinson_Hyperlegible_Next({ variable: '--font-atkinson-hyperlegible-next', ... })
+       const jetbrains   = JetBrains_Mono({    variable: '--font-jetbrains-mono',     ... })
+  ─────────────────────────────────────────────────────────────────────── */
+  --font-sans:    var(--font-atkinson-hyperlegible-next), 'Atkinson Hyperlegible Next', sans-serif;
+  --font-display: var(--font-sora),                         'Sora',                        sans-serif;
+  --font-mono:    var(--font-jetbrains-mono),     'JetBrains Mono',     monospace;
 }
 
+/* ─────────────────────────────────────────────
+   DARK MODE
+───────────────────────────────────────────── */
 .dark {
-  /* BACKGROUND: Deep Navy */
-  --background: oklch(15% 0.05 273);
-  --foreground: oklch(98% 0.01 260);
+  /* ── Backgrounds ─────────────────────────────── */
+  --background:          oklch(7%    0.015 260);  /* #020617 — neutral-950              */
+  --foreground:          oklch(96.5% 0.004 260);  /* #f1f5f9 — neutral-100              */
 
-  /* PRIMARY: Lighter Blue for dark bg visibility */
-  --primary: oklch(60% 0.2 273);
-  --primary-foreground: oklch(100% 0 0);
+  /* ── Primary: lighter green for dark bg ─────── */
+  --primary:             oklch(79%   0.16  145);  /* #4dd68f — primary-400              */
+  --primary-foreground:  oklch(24%   0.08  145);  /* #0a3d1e — primary-900              */
 
-  /* SECONDARY: Dark Teal */
-  --secondary: oklch(25% 0.1 190.5);
-  --secondary-foreground: oklch(90% 0.05 190.5);
+  /* ── Secondary: dark surface ────────────────── */
+  --secondary:           oklch(22%   0.035 260);  /* #1e293b — neutral-800              */
+  --secondary-foreground:oklch(96.5% 0.004 260);  /* #f1f5f9 — neutral-100              */
 
-  /* ACCENT: Tech Teal (vibrant on dark) */
-  --accent: oklch(80.5% 0.154 190.5);
-  --accent-foreground: oklch(15% 0.05 273);
+  /* ── Accent: primary-400 (vibrant on dark) ──── */
+  --accent:              oklch(79%   0.16  145);  /* #4dd68f — primary-400              */
+  --accent-foreground:   oklch(24%   0.08  145);  /* #0a3d1e — primary-900              */
 
-  /* SURFACE: Dark Navy Card */
-  --card: oklch(22% 0.05 273);
-  --card-foreground: oklch(99% 0 0);
-  --popover: oklch(22% 0.05 273);
-  --popover-foreground: oklch(99% 0 0);
+  /* ── Card / Popover surfaces ─────────────────── */
+  --card:                oklch(13%   0.03  260);  /* #0f172a — neutral-900              */
+  --card-foreground:     oklch(96.5% 0.004 260);  /* #f1f5f9 — neutral-100              */
+  --popover:             oklch(13%   0.03  260);  /* #0f172a — neutral-900              */
+  --popover-foreground:  oklch(96.5% 0.004 260);  /* #f1f5f9 — neutral-100              */
 
-  /* SURFACE TERTIARY: Dark */
-  --surface-tertiary: oklch(30% 0.05 273);
-  --surface-tertiary-foreground: oklch(99% 0 0);
+  /* ── Surface tertiary ────────────────────────── */
+  --surface-tertiary:             oklch(22%  0.035 260); /* #1e293b — neutral-800       */
+  --surface-tertiary-foreground:  oklch(96.5% 0.004 260);/* #f1f5f9 — neutral-100      */
 
-  /* MUTED: Dark Navy Muted */
-  --muted: oklch(30% 0.05 273);
-  --muted-foreground: oklch(60% 0.05 273);
+  /* ── Muted ───────────────────────────────────── */
+  --muted:               oklch(22%   0.035 260);  /* #1e293b — neutral-800              */
+  --muted-foreground:    oklch(65%   0.018 260);  /* #94a3b8 — neutral-400              */
 
-  /* BORDER / INPUT: Dark Blue Grey */
-  --border: oklch(30% 0.05 273);
-  --input: oklch(30% 0.05 273);
+  /* ── Border / Input: neutral-700 ─────────────── */
+  --border:              oklch(28%   0.03  260);  /* #334155 — neutral-700              */
+  --input:               oklch(28%   0.03  260);  /* #334155 — neutral-700              */
 
-  /* RING */
-  --ring: oklch(60% 0.2 273);
+  /* ── Focus ring: primary-400 ─────────────────── */
+  --ring:                oklch(79%   0.16  145);  /* #4dd68f — primary-400              */
 
-  /* DANGER */
-  --destructive: oklch(55% 0.2 25);
-  --destructive-foreground: oklch(100% 0 0);
+  /* ── Destructive (slightly brighter on dark) ─── */
+  --destructive:         oklch(62%   0.22  25);   /* error-500 shifted for dark bg      */
+  --destructive-foreground: oklch(100% 0    0);
 
-  /* WARNING: Warm Sun (unchanged — works on dark) */
-  --warning: oklch(84.6% 0.16 85.3);
-  --warning-foreground: oklch(20% 0.05 273);
+  /* ── Warning (unchanged — works on dark) ─────── */
+  --warning:             oklch(75%   0.175 75);   /* #f59e0b                            */
+  --warning-foreground:  oklch(13%   0.03  260);
 
-  /* SUCCESS: Tech Teal */
-  --success: oklch(80.5% 0.154 190.5);
-  --success-foreground: oklch(20% 0.05 273);
+  /* ── Success: primary-400 on dark ────────────── */
+  --success:             oklch(79%   0.16  145);  /* #4dd68f — primary-400              */
+  --success-foreground:  oklch(24%   0.08  145);
 
-  /* HIGHLIGHT: Bright Lemon */
-  --highlight: oklch(91% 0.18 98);
-  --highlight-foreground: oklch(20% 0.05 273);
+  /* ── Info ────────────────────────────────────── */
+  --info:                oklch(65%   0.2   255);  /* info-500 shifted for dark bg       */
+  --info-foreground:     oklch(100%  0     0);
 
-  /* CHART COLORS */
-  --chart-1: oklch(60% 0.2 273);
-  --chart-2: oklch(80.5% 0.154 190.5);
-  --chart-3: oklch(84.6% 0.16 85.3);
-  --chart-4: oklch(60% 0.15 230);
-  --chart-5: oklch(70% 0.15 273);
+  /* ── Highlight ───────────────────────────────── */
+  --highlight:           oklch(22%   0.035 260);  /* neutral-800 tint in dark mode      */
+  --highlight-foreground:oklch(79%   0.16  145);  /* primary-400 text                   */
 
-  /* SIDEBAR */
-  --sidebar: oklch(22% 0.05 273);
-  --sidebar-foreground: oklch(98% 0.01 260);
-  --sidebar-primary: oklch(60% 0.2 273);
-  --sidebar-primary-foreground: oklch(100% 0 0);
-  --sidebar-accent: oklch(25% 0.1 190.5);
-  --sidebar-accent-foreground: oklch(90% 0.05 190.5);
-  --sidebar-border: oklch(30% 0.05 273);
-  --sidebar-ring: oklch(60% 0.2 273);
+  /* ── Chart palette ───────────────────────────── */
+  --chart-1: oklch(79%  0.16  145);  /* primary-400 — shifted for dark  */
+  --chart-2: oklch(75%  0.175 75);   /* warning-500                     */
+  --chart-3: oklch(62%  0.22  25);   /* error — shifted                 */
+  --chart-4: oklch(65%  0.2   255);  /* info — shifted                  */
+  --chart-5: oklch(60%  0.165 145);  /* primary-600 shifted             */
+
+  /* ── Sidebar ─────────────────────────────────── */
+  --sidebar:                     oklch(13%   0.03  260);
+  --sidebar-foreground:          oklch(96.5% 0.004 260);
+  --sidebar-primary:             oklch(79%   0.16  145);
+  --sidebar-primary-foreground:  oklch(24%   0.08  145);
+  --sidebar-accent:              oklch(22%   0.035 260);
+  --sidebar-accent-foreground:   oklch(96.5% 0.004 260);
+  --sidebar-border:              oklch(28%   0.03  260);
+  --sidebar-ring:                oklch(79%   0.16  145);
 }
 
+/* ─────────────────────────────────────────────
+   @theme inline
+   Maps CSS custom properties → Tailwind utilities.
+   Also exposes the extended design system token
+   scale and BISINDO-specific animations directly.
+───────────────────────────────────────────── */
 @theme inline {
-  --radius-sm:  calc(var(--radius) - 4px);
-  --radius-md:  calc(var(--radius) - 2px);
-  --radius-lg:  var(--radius);
-  --radius-xl:  calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
 
-  --color-background:             var(--background);
-  --color-foreground:             var(--foreground);
+  /* ── Radius scale ─────────────────────────────── */
+  --radius-sm:  calc(var(--radius) - 4px);  /* 4px  */
+  --radius-md:  calc(var(--radius) - 2px);  /* 6px  */
+  --radius-lg:  var(--radius);              /* 8px  */
+  --radius-xl:  calc(var(--radius) + 4px);  /* 12px */
+  --radius-2xl: calc(var(--radius) + 8px);  /* 16px */
+  --radius-3xl: calc(var(--radius) + 12px); /* 20px */
 
-  --color-card:                   var(--card);
-  --color-card-foreground:        var(--card-foreground);
+  /* ── Semantic color tokens (shadcn standard) ──── */
+  --color-background:                  var(--background);
+  --color-foreground:                  var(--foreground);
 
-  --color-popover:                var(--popover);
-  --color-popover-foreground:     var(--popover-foreground);
+  --color-card:                        var(--card);
+  --color-card-foreground:             var(--card-foreground);
 
-  --color-primary:                var(--primary);
-  --color-primary-foreground:     var(--primary-foreground);
+  --color-popover:                     var(--popover);
+  --color-popover-foreground:          var(--popover-foreground);
 
-  --color-secondary:              var(--secondary);
-  --color-secondary-foreground:   var(--secondary-foreground);
+  --color-primary:                     var(--primary);
+  --color-primary-foreground:          var(--primary-foreground);
 
-  --color-muted:                  var(--muted);
-  --color-muted-foreground:       var(--muted-foreground);
+  --color-secondary:                   var(--secondary);
+  --color-secondary-foreground:        var(--secondary-foreground);
 
-  --color-accent:                 var(--accent);
-  --color-accent-foreground:      var(--accent-foreground);
+  --color-muted:                       var(--muted);
+  --color-muted-foreground:            var(--muted-foreground);
 
-  --color-destructive:            var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent:                      var(--accent);
+  --color-accent-foreground:           var(--accent-foreground);
 
-  --color-warning:                var(--warning);
-  --color-warning-foreground:     var(--warning-foreground);
+  --color-destructive:                 var(--destructive);
+  --color-destructive-foreground:      var(--destructive-foreground);
 
-  --color-success:                var(--success);
-  --color-success-foreground:     var(--success-foreground);
+  --color-warning:                     var(--warning);
+  --color-warning-foreground:          var(--warning-foreground);
 
-  --color-highlight:              var(--highlight);
-  --color-highlight-foreground:   var(--highlight-foreground);
+  --color-success:                     var(--success);
+  --color-success-foreground:          var(--success-foreground);
 
-  --color-surface-tertiary:             var(--surface-tertiary);
-  --color-surface-tertiary-foreground:  var(--surface-tertiary-foreground);
+  --color-info:                        var(--info);
+  --color-info-foreground:             var(--info-foreground);
 
-  --color-border:                 var(--border);
-  --color-input:                  var(--input);
-  --color-ring:                   var(--ring);
+  --color-highlight:                   var(--highlight);
+  --color-highlight-foreground:        var(--highlight-foreground);
 
-  --color-chart-1:                var(--chart-1);
-  --color-chart-2:                var(--chart-2);
-  --color-chart-3:                var(--chart-3);
-  --color-chart-4:                var(--chart-4);
-  --color-chart-5:                var(--chart-5);
+  --color-surface-tertiary:            var(--surface-tertiary);
+  --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
 
-  --color-sidebar:                        var(--sidebar);
-  --color-sidebar-foreground:             var(--sidebar-foreground);
-  --color-sidebar-primary:                var(--sidebar-primary);
-  --color-sidebar-primary-foreground:     var(--sidebar-primary-foreground);
-  --color-sidebar-accent:                 var(--sidebar-accent);
-  --color-sidebar-accent-foreground:      var(--sidebar-accent-foreground);
-  --color-sidebar-border:                 var(--sidebar-border);
-  --color-sidebar-ring:                   var(--sidebar-ring);
+  --color-border:                      var(--border);
+  --color-input:                       var(--input);
+  --color-ring:                        var(--ring);
+
+  --color-chart-1:                     var(--chart-1);
+  --color-chart-2:                     var(--chart-2);
+  --color-chart-3:                     var(--chart-3);
+  --color-chart-4:                     var(--chart-4);
+  --color-chart-5:                     var(--chart-5);
+
+  --color-sidebar:                     var(--sidebar);
+  --color-sidebar-foreground:          var(--sidebar-foreground);
+  --color-sidebar-primary:             var(--sidebar-primary);
+  --color-sidebar-primary-foreground:  var(--sidebar-primary-foreground);
+  --color-sidebar-accent:              var(--sidebar-accent);
+  --color-sidebar-accent-foreground:   var(--sidebar-accent-foreground);
+  --color-sidebar-border:              var(--sidebar-border);
+  --color-sidebar-ring:                var(--sidebar-ring);
+
+  /* ── Extended primary scale ───────────────────────────────────────────────
+     These are fixed (not dark-mode-swapped) — use the numbered variants
+     (e.g. bg-primary-100, text-primary-700) in custom components instead of
+     the semantic tokens above when you need a specific shade.
+  ─────────────────────────────────────────────────────────────────────────── */
+  --color-primary-50:  oklch(98%   0.015 145);  /* #eefbf4 — lightest tint, badge bg   */
+  --color-primary-100: oklch(94%   0.05  145);  /* #d5f5e3 — success/high-conf bg      */
+  --color-primary-200: oklch(88%   0.1   145);  /* #aaebc7 — borders, dividers         */
+  --color-primary-400: oklch(79%   0.16  145);  /* #4dd68f — hover highlights          */
+  --color-primary-500: oklch(72%   0.185 145);  /* #22c566 — brand / button fill       */
+  --color-primary-600: oklch(60%   0.165 145);  /* #16a350 — button hover              */
+  --color-primary-700: oklch(46%   0.13  145);  /* #117a3c — button active / dark text */
+  --color-primary-900: oklch(24%   0.08  145);  /* #0a3d1e — darkest text on light bg  */
+
+  /* ── Neutral scale ───────────────────────────────────────────────────────── */
+  --color-neutral-50:  oklch(98.5% 0.002 260);  /* #f8fafc — app background            */
+  --color-neutral-100: oklch(96.5% 0.004 260);  /* #f1f5f9 — card backgrounds          */
+  --color-neutral-200: oklch(92%   0.007 260);  /* #e2e8f0 — subtle borders            */
+  --color-neutral-400: oklch(65%   0.018 260);  /* #94a3b8 — placeholder text          */
+  --color-neutral-600: oklch(42%   0.025 260);  /* #475569 — secondary text            */
+  --color-neutral-800: oklch(22%   0.035 260);  /* #1e293b — body text                 */
+  --color-neutral-900: oklch(13%   0.03  260);  /* #0f172a — headings                  */
+  --color-neutral-950: oklch(7%    0.015 260);  /* #020617 — dark mode surface         */
+
+  /* ── Semantic scale tokens ───────────────────────────────────────────────── */
+  --color-success-100: oklch(94%   0.05  145);  /* #d5f5e3 — high-confidence bg        */
+  --color-success-500: oklch(72%   0.185 145);  /* #22c566 — high-confidence bar/text  */
+  --color-success-700: oklch(46%   0.13  145);  /* #117a3c — high-confidence label     */
+
+  --color-warning-100: oklch(97%   0.04  90);   /* #fef3c7 — medium-confidence bg      */
+  --color-warning-500: oklch(75%   0.175 75);   /* #f59e0b — medium-confidence bar     */
+  --color-warning-700: oklch(52%   0.14  75);   /* #92400e (approx) — warning label    */
+
+  --color-error-50:    oklch(97%   0.02  20);   /* #fff1f2 — error lightest bg         */
+  --color-error-100:   oklch(94%   0.04  20);   /* #fee2e2 — low-confidence bg         */
+  --color-error-500:   oklch(58%   0.22  25);   /* #ef4444 — low-confidence bar/stop   */
+  --color-error-700:   oklch(40%   0.18  25);   /* #b91c1c — error text                */
+
+  --color-info-500:    oklch(60%   0.2   255);  /* #3b82f6 — FPS badge, dev panel      */
+
+  /* ── Custom spacing ──────────────────────────── */
+  --spacing-18: 4.5rem;  /* 72px — use as gap-18 or p-18 */
+
+  /* ── Font families ──────────────────────────────────────────────────────────
+     Usage:
+      font-sans     → Atkinson Hyperlegible Next → body text, UI labels
+      font-display  → Sora                        → prediction badge, headings
+       font-mono     → JetBrains Mono   → FPS counter, dev panel, log tables
+  ─────────────────────────────────────────────────────────────────────────── */
+  --font-family-sans:    var(--font-sans);
+  --font-family-display: var(--font-display);
+  --font-family-mono:    var(--font-mono);
+
+  /* ── BISINDO-specific animations ────────────────────────────────────────────
+     Apply via Tailwind's animate-* utilities once registered here, or use
+     the CSS custom property names directly in component styles.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /* Prediction badge pop — bouncy scale-in on new letter */
+  --animate-prediction-in: prediction-pop 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  /* Confidence bar fill — slides in from 0 width */
+  --animate-confidence-fill: confidence-grow 300ms ease-out both;
+
+  /* Pulsing glow ring — active detection state, TTS speaking state */
+  --animate-pulse-ring: pulse-ring 1.5s ease-out infinite;
+
+  /* TTS waveform bar — apply to each bar with animation-delay stagger */
+  --animate-tts-wave: tts-wave 0.6s ease-in-out infinite alternate;
+
+  /* History card expand — smooth height reveal on tap */
+  --animate-card-expand: card-expand 200ms ease-out both;
+
+  /* Delete-undo progress bar — shrinks to 0 over the 3-second undo window */
+  --animate-delete-undo: delete-undo 3000ms linear forwards;
 }
 
+/* ─────────────────────────────────────────────
+   KEYFRAMES — BISINDO design system v1.1
+───────────────────────────────────────────── */
+
+/* Prediction badge enters with a spring overshoot */
+@keyframes prediction-pop {
+  0%   { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Confidence progress bar grows from left */
+@keyframes confidence-grow {
+  0% { width: 0%; }
+}
+
+/* Green glow ring — active detection dot, TTS sentence builder border */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(34, 197, 102, 0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(34, 197, 102, 0);   }
+  100% { box-shadow: 0 0 0 0   rgba(34, 197, 102, 0);    }
+}
+
+/* TTS waveform — each bar scales between short and tall */
+@keyframes tts-wave {
+  0%   { transform: scaleY(0.3); }
+  100% { transform: scaleY(1.0); }
+}
+
+/* History card expands on tap */
+@keyframes card-expand {
+  0%   { max-height: 64px;  opacity: 0.8; }
+  100% { max-height: 400px; opacity: 1;   }
+}
+
+/* Undo progress indicator shrinks over 3s before delete commits */
+@keyframes delete-undo {
+  0%   { width: 100%; }
+  100% { width: 0%;   }
+}
+
+/* Landing page hero — elements fade up on load */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Typewriter cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION
+   Respect the OS preference — disable all
+   transitions and animations for vestibular users.
+   The TTS and detection status states still
+   communicate via color; motion is enhancement only.
+───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   BASE LAYER
+───────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  /* Prediction badge and all display headings use Sora */
+  h1, h2, h3, h4, h5, h6,
+  [data-prediction-badge] {
+    font-family: var(--font-display);
+  }
+  /* Developer panel, FPS counter, log tables use JetBrains Mono */
+  code, kbd, samp, pre,
+  [data-dev-panel],
+  [data-fps-counter] {
+    font-family: var(--font-mono);
   }
 }

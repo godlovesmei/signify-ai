@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Header from '@/components/Navbar'; 
-import Footer from '@/components/Footer';
+import Header from '@/components/layout/Navbar'; 
+import Footer from '@/components/layout/Footer';
 
 import {
   Camera,
@@ -429,8 +429,9 @@ export default function HowItWorksPage() {
                     Open Signify in your browser right now. No account required to try.
                   </p>
                   <Button
+                    variant="warning"
                     size="lg"
-                    className="mt-10 rounded-2xl bg-warning px-12 text-warning-foreground shadow-2xl shadow-black/20 hover:bg-warning/90 text-base font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+                    className="mt-10 rounded-2xl px-12 text-base font-bold shadow-2xl shadow-black/20"
                     asChild
                   >
                     <Link href="/translate">

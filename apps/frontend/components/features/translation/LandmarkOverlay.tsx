@@ -1,53 +1,43 @@
 'use client';
 
-/**
- * LandmarkOverlay.tsx
- * Renders a transparent <canvas> positioned over the webcam video.
- * Uses drawingUtils to paint hand landmarks and skeleton connections
- * whenever the `landmarks` prop changes.
- *
- * Design decisions:
- *  - The canvas is absolutely positioned and sized to match its parent.
- *  - We use a ResizeObserver instead of a fixed size so it stays correct
- *    when the panel resizes (e.g. responsive layout switches).
- *  - `pointer-events: none` ensures click-through to camera controls.
- *  - Mirroring is handled via CSS transform so coordinates stay consistent.
- */
-
 import { useEffect, useRef } from 'react';
 import {
   clearCanvas,
   drawHandSkeleton,
   drawBoundingBox,
-  type Landmark,
+  type DetectedHand,
   type DrawHandSkeletonOptions,
 } from './drawingUtils';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+const HAND_COLORS: Record<'Left' | 'Right', { stroke: string; pill: string }> = {
+  Left:  { stroke: 'rgba(59,130,246,0.70)',  pill: 'rgba(59,130,246,0.85)'  },
+  Right: { stroke: 'rgba(249,115,22,0.70)',  pill: 'rgba(249,115,22,0.85)'  },
+};
 
 export interface LandmarkOverlayProps {
-  /** Array of 21 normalized hand landmarks from MediaPipe */
-  landmarks: Landmark[] | null;
-  /** Whether to show the bounding box around the detected hand */
+  hands: DetectedHand[] | null;
   showBoundingBox?: boolean;
-  /** Whether the video is mirrored (user-facing camera) */
+  showHandLabels?: boolean;
+  /**
+   * When true, landmark X coords are flipped (x → 1 – x) so drawings
+   * align with the CSS-mirrored video. We flip per-landmark rather than
+   * using ctx.scale(-1, 1) so that text labels render correctly without
+   * a secondary un-mirror transform. Default: true
+   */
   mirrored?: boolean;
-  /** Optional style overrides for skeleton drawing */
   skeletonOptions?: DrawHandSkeletonOptions;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
 export default function LandmarkOverlay({
-  landmarks,
-  showBoundingBox = false,
-  mirrored = true,
+  hands,
+  showBoundingBox  = true,
+  showHandLabels   = true,
+  mirrored         = true,
   skeletonOptions,
 }: LandmarkOverlayProps) {
-  const canvasRef     = useRef<HTMLCanvasElement>(null);
-  const containerRef  = useRef<HTMLDivElement>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Keep canvas dimensions in sync with the container using ResizeObserver
   useEffect(() => {
     const container = containerRef.current;
     const canvas    = canvasRef.current;
@@ -65,49 +55,43 @@ export default function LandmarkOverlay({
     return () => observer.disconnect();
   }, []);
 
-  // Redraw whenever landmarks change
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     clearCanvas(ctx, canvas.width, canvas.height);
+    if (!hands || hands.length === 0) return;
 
-    if (!landmarks || landmarks.length === 0) return;
+    for (const hand of hands) {
+      const displayLandmarks = mirrored
+        ? hand.landmarks.map((lm) => ({ ...lm, x: 1 - lm.x }))
+        : hand.landmarks;
 
-    // When the video is mirrored (CSS -scale-x-100), we mirror the canvas
-    // drawing context so landmarks align correctly with the flipped feed.
-    if (mirrored) {
-      ctx.save();
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
+      drawHandSkeleton(ctx, displayLandmarks, canvas.width, canvas.height, skeletonOptions);
+
+      if (showBoundingBox) {
+        const colors = HAND_COLORS[hand.handedness];
+        drawBoundingBox(ctx, displayLandmarks, canvas.width, canvas.height, {
+          strokeColor: colors.stroke,
+          labelBg:     colors.pill,
+          labelColor:  '#ffffff',
+          label: showHandLabels
+            ? `${hand.handedness} · ${Math.round(hand.score * 100)}%`
+            : undefined,
+        });
+      }
     }
-
-    drawHandSkeleton(ctx, landmarks, canvas.width, canvas.height, skeletonOptions);
-
-    if (showBoundingBox) {
-      drawBoundingBox(ctx, landmarks, canvas.width, canvas.height);
-    }
-
-    if (mirrored) {
-      ctx.restore();
-    }
-  }, [landmarks, mirrored, showBoundingBox, skeletonOptions]);
+  }, [hands, mirrored, showBoundingBox, showHandLabels, skeletonOptions]);
 
   return (
-    // Container fills the parent (the camera section)
     <div
       ref={containerRef}
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-10"
     >
-      <canvas
-        ref={canvasRef}
-        className="h-full w-full"
-        aria-hidden="true"
-      />
+      <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
     </div>
   );
 }

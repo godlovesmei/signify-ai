@@ -5,11 +5,10 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import LandingNavbar from '@/components/layout/LandingNavbar';
+import Footer from '@/components/layout/Footer';
 import {
   ArrowRight,
-  Sun,
   Globe,
   Shield,
   Play,
@@ -20,6 +19,9 @@ import {
   Eye,
   Server,
   FileWarning,
+  BookOpen,
+  GraduationCap,
+  FlaskConical,
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -32,21 +34,10 @@ function useIntersectionReveal(threshold = 0.15) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    // Respect prefers-reduced-motion
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      setVisible(true);
-      return;
-    }
-
+    if (prefersReduced) { setVisible(true); return; }
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
       { threshold }
     );
     observer.observe(el);
@@ -55,61 +46,6 @@ function useIntersectionReveal(threshold = 0.15) {
 
   return { ref, visible };
 }
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   TYPEWRITER — demo transcript animation
-   ───────────────────────────────────────────────────────────────────────────── */
-const DEMO_PHRASES = [
-  'Hello, my name is Maya.',
-  'I need help with my order.',
-  'Thank you for understanding.',
-  'Where is the nearest exit?',
-];
-
-function TypewriterTranscript() {
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [displayed, setDisplayed] = useState('');
-  const [charIndex, setCharIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      setDisplayed(DEMO_PHRASES[phraseIndex]);
-      return;
-    }
-
-    if (paused) {
-      const t = setTimeout(() => {
-        setDisplayed('');
-        setCharIndex(0);
-        setPhraseIndex((i) => (i + 1) % DEMO_PHRASES.length);
-        setPaused(false);
-      }, 2000);
-      return () => clearTimeout(t);
-    }
-
-    const current = DEMO_PHRASES[phraseIndex];
-    if (charIndex < current.length) {
-      const t = setTimeout(() => {
-        setDisplayed(current.slice(0, charIndex + 1));
-        setCharIndex((c) => c + 1);
-      }, 42);
-      return () => clearTimeout(t);
-    } else {
-      setPaused(true);
-    }
-  }, [charIndex, paused, phraseIndex]);
-
-  return (
-    <span className="font-medium text-foreground">
-      {displayed}
-      <span className="ml-0.5 inline-block h-5 w-0.5 animate-[blink_1s_step-end_infinite] bg-primary align-middle" />
-    </span>
-  );
-}
-
-    <Navbar />
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SECTION REVEAL WRAPPER
@@ -140,6 +76,60 @@ function Reveal({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   TYPEWRITER — demo transcript animation
+   Phrases are in Bahasa Indonesia to reflect the app's target language.
+   ───────────────────────────────────────────────────────────────────────────── */
+const DEMO_PHRASES = [
+  'Halo, nama saya Rina.',
+  'Saya butuh bantuan.',
+  'Terima kasih sudah mengerti.',
+  'Di mana pintu keluarnya?',
+];
+
+function TypewriterTranscript() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [charIndex, setCharIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) { setDisplayed(DEMO_PHRASES[phraseIndex]); return; }
+
+    if (paused) {
+      const t = setTimeout(() => {
+        setDisplayed(''); setCharIndex(0);
+        setPhraseIndex((i) => (i + 1) % DEMO_PHRASES.length);
+        setPaused(false);
+      }, 2000);
+      return () => clearTimeout(t);
+    }
+
+    const current = DEMO_PHRASES[phraseIndex];
+    if (charIndex < current.length) {
+      const t = setTimeout(() => {
+        setDisplayed(current.slice(0, charIndex + 1));
+        setCharIndex((c) => c + 1);
+      }, 42);
+      return () => clearTimeout(t);
+    } else {
+      setPaused(true);
+    }
+  }, [charIndex, paused, phraseIndex]);
+
+  return (
+    <span className="font-medium text-foreground">
+      {displayed}
+      {/* Blinking cursor — purely decorative, hidden from screen readers */}
+      <span
+        aria-hidden="true"
+        className="ml-0.5 inline-block h-5 w-0.5 animate-[blink_1s_step-end_infinite] bg-primary align-middle"
+      />
+    </span>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    HERO
    ───────────────────────────────────────────────────────────────────────────── */
 function HeroSection() {
@@ -149,82 +139,88 @@ function HeroSection() {
       aria-labelledby="hero-heading"
       className="relative min-h-screen overflow-hidden"
     >
-      {/* Background photo — contained to right side via gradient mask */}
       <Image
         src="/hero.png"
-        alt="Person using sign language in a natural conversation setting"
+        alt="Seseorang menggunakan bahasa isyarat BISINDO dalam percakapan sehari-hari"
         fill
         className="object-cover object-center"
         priority
         quality={90}
       />
-      {/* Gradient: left side fully readable, right side shows image */}
+      {/* Gradient: left fully readable, right reveals photo */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/15" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-transparent" />
 
       <div className="relative w-full flex min-h-screen flex-col justify-center px-6 pb-24 pt-36 md:px-10">
         <div className="max-w-[580px]">
 
-          {/* Eyebrow — problem-framing stat, not product boast */}
+          {/* Eyebrow — grounds the app in the BISINDO community */}
           <p className="mb-5 text-sm font-semibold uppercase tracking-widest text-primary animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:100ms]">
-            For 70 million Deaf and Hard of Hearing people worldwide
+            Bahasa Isyarat Indonesia · Untuk komunitas Tuli dan semua orang
           </p>
 
-          {/* H1 — empathy-led, describes the frustration */}
+          {/* H1 — empathy-led, describes the real problem */}
           <h1
             id="hero-heading"
             className="mb-6 text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl lg:text-[68px] animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:200ms]"
           >
-            Communication
+            Isyarat Tanganmu
             <br />
-            Shouldn&apos;t Require an
+            Menjadi Kata
             <br />
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Interpreter in the Room.
+              Seketika.
             </span>
           </h1>
 
-          {/* Body — plain language, what it does */}
+          {/* Body — plain language, zero jargon */}
           <p className="mb-10 max-w-[460px] text-lg leading-relaxed text-muted-foreground animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:300ms]">
-            Signify translates sign language into spoken words and text in real time — so you
-            can be understood anywhere, by anyone, without waiting for help.
+            Kenali alfabet dan kata BISINDO secara real-time langsung dari kamera perangkatmu —
+            tanpa unduhan, tanpa akun, langsung di browser.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-4 animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:400ms]">
             <Button
+              variant="default"
               size="lg"
-              className="rounded-2xl bg-warning px-8 text-warning-foreground hover:bg-warning/90 shadow-lg shadow-warning/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-warning/30"
+              className="rounded-2xl px-8"
               asChild
             >
-              <Link href="/translate">Start Translating</Link>
+              <Link href="/translate">Mulai Deteksi</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="rounded-2xl border-border/60 px-8 backdrop-blur-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5"
+              className="rounded-2xl border-border/60 px-8 backdrop-blur-sm"
               asChild
             >
               <Link href="/how-it-works">
-                <Play className="mr-2 h-4 w-4 fill-current" />
-                Watch 60-second Demo
+                <Play className="mr-2 h-4 w-4 fill-current" aria-hidden="true" />
+                Lihat Demo 60 Detik
               </Link>
             </Button>
           </div>
 
           {/* Objection-removal trust line */}
           <p className="mt-7 text-sm text-muted-foreground/80 animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:500ms]">
-            No account needed to try &nbsp;·&nbsp; Works in your browser &nbsp;·&nbsp; Free to start
+            Tanpa akun &nbsp;·&nbsp; Bekerja di browser &nbsp;·&nbsp; Gratis selamanya
           </p>
         </div>
 
-        {/* Live transcript preview — bottom-left floating card */}
-        <div className="absolute bottom-12 left-6 max-w-xs rounded-2xl border border-border/50 bg-background/80 p-4 shadow-xl shadow-black/10 backdrop-blur-md md:left-10 animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:700ms]">
+        {/* Live transcript preview — floating bottom-left card */}
+        <div
+          className="absolute bottom-12 left-6 max-w-xs rounded-2xl border border-border/50 bg-background/80 p-4 shadow-xl shadow-black/10 backdrop-blur-md md:left-10 animate-[fadeUp_0.6s_ease_forwards] opacity-0 [animation-delay:700ms]"
+          aria-label="Pratinjau hasil deteksi langsung"
+        >
           <div className="mb-2 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.4)] animate-pulse" />
-            <span className="text-xs font-medium text-muted-foreground">Live transcript</span>
+            <span
+              aria-hidden="true"
+              className="h-2 w-2 rounded-full bg-primary shadow-[0_0_6px_2px_rgba(34,197,102,0.4)] animate-pulse"
+            />
+            <span className="text-xs font-medium text-muted-foreground">Hasil deteksi langsung</span>
           </div>
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm leading-relaxed" aria-live="polite" aria-atomic="true">
             <TypewriterTranscript />
           </p>
         </div>
@@ -239,21 +235,18 @@ function HeroSection() {
 const HOW_IT_WORKS_STEPS = [
   {
     icon: Camera,
-    step: '01',
-    title: 'Open Your Camera',
-    desc: 'No download. Opens directly in your browser on any device — phone, tablet, or laptop.',
+    title: 'Buka Kameramu',
+    desc: 'Langsung di browser. Tidak perlu mengunduh apapun. Bekerja di ponsel, tablet, maupun laptop.',
   },
   {
     icon: Hand,
-    step: '02',
-    title: 'Sign in Front of It',
-    desc: 'Our AI reads hand shapes, movement, and position in real time across ASL, BISINDO, and more.',
+    title: 'Tunjukkan Isyarat BISINDO',
+    desc: 'AI membaca bentuk tangan dan posisi jari secara real-time, lalu mengenali huruf atau kata alfabet BISINDO.',
   },
   {
     icon: MessageSquare,
-    step: '03',
-    title: 'Signify Speaks for You',
-    desc: 'Translated text appears instantly. Enable voice output to have it spoken aloud in natural language.',
+    title: 'Lihat Hasilnya Seketika',
+    desc: 'Teks hasil terjemahan muncul langsung. Aktifkan Text-to-Speech untuk menyuarakannya dalam Bahasa Indonesia.',
   },
 ];
 
@@ -262,30 +255,30 @@ function HowItWorksSection() {
     <section aria-labelledby="how-heading" className="py-28 bg-background">
       <div className="w-full px-6 md:px-10">
         <Reveal>
-          {/* Direct heading — no badge decoration */}
           <h2
             id="how-heading"
             className="mb-16 text-4xl font-bold text-foreground md:text-5xl"
           >
-            Here&apos;s Exactly How It Works
+            Cara Kerjanya
           </h2>
         </Reveal>
 
         <div className="relative grid gap-8 md:grid-cols-3">
-          {/* Connecting dashed line — desktop only */}
           <div
             aria-hidden="true"
-            className="absolute top-8 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] hidden h-px border-t-2 border-dashed border-border/60 md:block"
+            className="absolute top-7 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] hidden h-px border-t-2 border-dashed border-border/60 md:block"
           />
 
-          {HOW_IT_WORKS_STEPS.map(({ icon: Icon, step, title, desc }, i) => (
-            <Reveal key={step} delay={i * 120}>
+          {HOW_IT_WORKS_STEPS.map(({ icon: Icon, title, desc }, i) => (
+            <Reveal key={title} delay={i * 120}>
               <div className="relative flex flex-col gap-5">
-                {/* Step number + icon */}
                 <div className="flex items-center gap-4">
                   <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20 transition-all duration-300 hover:bg-primary/20 hover:ring-primary/40">
                     <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
-                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground"
+                    >
                       {i + 1}
                     </span>
                   </div>
@@ -316,65 +309,64 @@ function DemoPreviewSection() {
               id="demo-heading"
               className="text-4xl font-bold text-foreground md:text-5xl mb-4"
             >
-              Try It Without Creating an Account
+              Coba Tanpa Membuat Akun
             </h2>
             <p className="text-lg text-muted-foreground">
-              Experience real-time translation before signing up. No personal information required.
+              Rasakan deteksi real-time sebelum masuk. Tidak diperlukan informasi pribadi apapun.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={100}>
-          {/* Browser frame mockup */}
           <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/10">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 border-b border-border/50 bg-muted/40 px-5 py-3">
+            <div aria-hidden="true" className="flex items-center gap-2 border-b border-border/50 bg-muted/40 px-5 py-3">
               <div className="flex gap-1.5">
                 <span className="h-3 w-3 rounded-full bg-red-400/80" />
                 <span className="h-3 w-3 rounded-full bg-yellow-400/80" />
                 <span className="h-3 w-3 rounded-full bg-green-400/80" />
               </div>
               <div className="mx-auto rounded-md border border-border/40 bg-background/60 px-4 py-1 text-xs text-muted-foreground">
-                signify.ai/translate
+                bisindo.app/translate
               </div>
             </div>
 
-            {/* Demo body */}
             <div className="grid md:grid-cols-2 min-h-[280px]">
-              {/* Camera feed placeholder */}
               <div className="relative flex flex-col items-center justify-center gap-4 border-r border-border/40 bg-muted/30 p-8">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
                   <Camera className="h-9 w-9 text-primary" aria-hidden="true" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground text-center">
-                  Camera feed appears here
+                  Tampilan kamera muncul di sini
                 </p>
-                <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur-sm border border-border/40">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                <div
+                  aria-hidden="true"
+                  className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur-sm border border-border/40"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                   Live
                 </div>
               </div>
 
-              {/* Transcript area */}
               <div className="flex flex-col justify-between p-8">
                 <div>
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Live Transcript
+                    Hasil Deteksi
                   </p>
                   <div className="min-h-[80px] rounded-xl bg-muted/40 border border-border/30 p-4">
-                    <p className="text-sm leading-relaxed">
+                    <p className="text-sm leading-relaxed" aria-live="polite">
                       <TypewriterTranscript />
                     </p>
                   </div>
                 </div>
                 <Button
+                  variant="default"
                   size="lg"
-                  className="mt-6 w-full rounded-xl bg-warning text-warning-foreground hover:bg-warning/90 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-warning/25"
+                  className="mt-6 w-full rounded-xl font-semibold"
                   asChild
                 >
                   <Link href="/translate">
-                    Open Signify — it&apos;s free
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    Buka Penerjemah — gratis
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
               </div>
@@ -384,7 +376,7 @@ function DemoPreviewSection() {
 
         <Reveal delay={200}>
           <p className="mt-5 text-center text-sm text-muted-foreground/70">
-            This is a limited preview. Full translation is available after free sign-up. Takes 10 seconds to start.
+            Ini adalah pratinjau terbatas. Deteksi penuh tersedia setelah login dengan Google. Butuh 10 detik untuk mulai.
           </p>
         </Reveal>
       </div>
@@ -397,55 +389,68 @@ function DemoPreviewSection() {
    ───────────────────────────────────────────────────────────────────────────── */
 const AUDIENCES = [
   {
-    badge: 'Deaf & HoH Community',
-    title: 'Communicate Independently in Any Setting',
-    desc: 'Whether you\'re at a medical appointment, a job interview, or a coffee shop — Signify lets you be understood on your own terms, without waiting for an interpreter to be arranged.',
-    cta: { label: 'See how it helps', href: '/use-cases/deaf-hoh' },
+    badge: 'Komunitas Tuli & Difabel Rungu',
+    title: 'Berkomunikasi Mandiri di Mana Saja',
+    desc: 'Saat konsultasi dokter, wawancara kerja, atau sekadar di warung kopi — ungkapkan dirimu tanpa perlu menunggu juru bahasa isyarat.',
+    cta: { label: 'Pelajari lebih lanjut', href: '/how-it-works' },
     accent: 'text-primary',
     accentBg: 'bg-primary/8',
     accentBorder: 'border-primary/20',
+    icon: Hand,
   },
   {
-    badge: 'Sign Language Learners',
-    title: 'Practice and Get Instant Feedback',
-    desc: 'See your signs translated in real time. Understand where recognition succeeds and where it needs improvement — a study tool that responds to you.',
-    cta: { label: 'Start learning', href: '/use-cases/learners' },
+    badge: 'Guru & Siswa SLB',
+    title: 'Latihan Terstruktur dengan Umpan Balik Langsung',
+    desc: 'Mode Latihan menampilkan target isyarat dan langsung mengonfirmasi apakah bentuk tangan sudah benar — alat bantu ajar yang merespons siswamu secara real-time.',
+    cta: { label: 'Lihat mode latihan', href: '/translate' },
     accent: 'text-accent',
     accentBg: 'bg-accent/8',
     accentBorder: 'border-accent/20',
+    icon: GraduationCap,
   },
   {
-    badge: 'Workplaces & Professionals',
-    title: 'Accessible Meetings for Every Team Member',
-    desc: 'Remove the logistical barrier of scheduling interpreters for every meeting. Signify works in real time so no one is left waiting or excluded.',
-    cta: { label: 'Explore for teams', href: '/use-cases/workplace' },
+    badge: 'Peneliti & Pengembang AI',
+    title: 'Data Inferensi Terbuka untuk Riset',
+    desc: 'Akses koordinat landmark tangan, confidence score per kelas, FPS, dan waktu inferensi langsung dari panel developer yang bisa dikolaps.',
+    cta: { label: 'Buka panel developer', href: '/translate' },
+    accent: 'text-info',
+    accentBg: 'bg-info/8',
+    accentBorder: 'border-info/20',
+    icon: FlaskConical,
+  },
+  {
+    badge: 'Masyarakat Umum',
+    title: 'Pelajari BISINDO dari Nol',
+    desc: 'Galeri Referensi menampilkan semua huruf alfabet BISINDO dengan foto dan panduan. Kamu bisa langsung mencobanya di depan kamera dan lihat hasilnya.',
+    cta: { label: 'Lihat galeri referensi', href: '/translate' },
     accent: 'text-warning',
     accentBg: 'bg-warning/8',
     accentBorder: 'border-warning/20',
+    icon: BookOpen,
   },
 ];
 
 function WhoItsForSection() {
   return (
-    <section id="who-its-for" aria-labelledby="audience-heading" className="py-28 bg-background">
+    <section id="untuk-siapa" aria-labelledby="audience-heading" className="py-28 bg-background">
       <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="mb-14">
             <Badge className="mb-4 bg-accent/12 text-accent hover:bg-accent/18 border-0 text-xs font-semibold uppercase tracking-wider">
-              Built for Real Needs
+              Dirancang untuk Kebutuhan Nyata
             </Badge>
             <h2
               id="audience-heading"
               className="text-4xl font-bold text-foreground md:text-5xl"
             >
-              Who Uses Signify
+              Siapa yang Menggunakannya
             </h2>
           </div>
         </Reveal>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {AUDIENCES.map(({ badge, title, desc, cta, accent, accentBg, accentBorder }, i) => (
-            <Reveal key={badge} delay={i * 100}>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {AUDIENCES.map(({ badge, title, desc, cta, accent, accentBg, accentBorder, icon: Icon }, i) => (
+            <Reveal key={badge} delay={i * 80}>
               <div
                 className={[
                   'group relative flex h-full flex-col justify-between rounded-2xl border p-7 transition-all duration-300',
@@ -455,23 +460,18 @@ function WhoItsForSection() {
                 ].join(' ')}
               >
                 <div>
-                  <span
-                    className={[
-                      'mb-4 inline-block text-xs font-bold uppercase tracking-widest',
-                      accent,
-                    ].join(' ')}
-                  >
+                  <div className={['mb-4 flex h-10 w-10 items-center justify-center rounded-xl', accentBg.replace('/8', '/15')].join(' ')}>
+                    <Icon className={['h-5 w-5', accent].join(' ')} aria-hidden="true" />
+                  </div>
+                  <span className={['mb-3 block text-xs font-bold uppercase tracking-widest', accent].join(' ')}>
                     {badge}
                   </span>
-                  <h3 className="mb-3 text-xl font-bold text-foreground leading-snug">{title}</h3>
+                  <h3 className="mb-3 text-lg font-bold text-foreground leading-snug">{title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{desc}</p>
                 </div>
                 <Link
                   href={cta.href}
-                  className={[
-                    'mt-8 flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 group-hover:gap-2.5',
-                    accent,
-                  ].join(' ')}
+                  className={['mt-8 flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 group-hover:gap-2.5', accent].join(' ')}
                 >
                   {cta.label}
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -486,35 +486,35 @@ function WhoItsForSection() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   FEATURE DEEP DIVE — alternating rows, not a grid
+   FEATURE DEEP DIVE
    ───────────────────────────────────────────────────────────────────────────── */
 const FEATURE_ROWS = [
   {
-    icon: Sun,
-    eyebrow: 'Vision Model',
-    title: 'Translate in Any Lighting Condition',
-    body: 'Our model is trained across varied environments — dim rooms, outdoor light, mixed skin tones, and different hand sizes. Accuracy should not depend on having a perfect studio setup.',
-    visual: 'bg-gradient-to-br from-amber-500/10 to-orange-500/5',
-    iconColor: 'text-amber-500',
-    iconBg: 'bg-amber-500/10',
+    icon: Camera,
+    eyebrow: 'Deteksi Real-Time',
+    title: 'Dari Gerakan Tangan ke Teks dalam < 150ms',
+    body: 'MediaPipe Tasks Vision memproses landmark tangan langsung di perangkatmu. Tidak ada video yang dikirim ke server — semua berjalan lokal di browser untuk latensi serendah mungkin.',
+    visual: 'bg-gradient-to-br from-primary/10 to-primary/5',
+    iconColor: 'text-primary',
+    iconBg: 'bg-primary/10',
   },
   {
     icon: Globe,
-    eyebrow: 'Language Support',
-    title: 'ASL, BISINDO, and More — With Community Input',
-    body: 'We actively expand language support with native signers involved in the process, not just sourced datasets. If your sign language isn\'t supported yet, you can join the waitlist or contribute.',
-    visual: 'bg-gradient-to-br from-blue-500/10 to-cyan-500/5',
-    iconColor: 'text-blue-500',
-    iconBg: 'bg-blue-500/10',
+    eyebrow: 'BISINDO & Multibahasa',
+    title: 'Alfabet BISINDO, Diperluas Bersama Komunitas',
+    body: 'Sistem ini dibangun bersama pengguna BISINDO natif — bukan hanya dari dataset mentah. Dukungan untuk isyarat kata dan frasa sedang dikembangkan secara aktif.',
+    visual: 'bg-gradient-to-br from-info/10 to-info/5',
+    iconColor: 'text-info',
+    iconBg: 'bg-info/10',
   },
   {
     icon: Shield,
-    eyebrow: 'Privacy by Design',
-    title: 'Your Video Never Leaves Your Device',
-    body: 'Sign language is intimate and personal. All processing happens locally in your browser. We have no access to your camera feed, we store no video, and we keep no session logs. This isn\'t a policy — it\'s how the system is built.',
-    visual: 'bg-gradient-to-br from-emerald-500/10 to-teal-500/5',
-    iconColor: 'text-emerald-500',
-    iconBg: 'bg-emerald-500/10',
+    eyebrow: 'Privasi by Design',
+    title: 'Video Kameramu Tidak Pernah Meninggalkan Perangkat',
+    body: 'Bahasa isyarat adalah komunikasi yang personal. Semua pemrosesan terjadi lokal di browser. Kami tidak menyimpan video, tidak merekam sesi, dan tidak memiliki akses ke kamera — ini bukan kebijakan, ini cara sistemnya dibangun.',
+    visual: 'bg-gradient-to-br from-success/10 to-success/5',
+    iconColor: 'text-success',
+    iconBg: 'bg-success/10',
     highlight: true,
   },
 ];
@@ -526,13 +526,13 @@ function FeatureDeepDiveSection() {
         <Reveal>
           <div className="mb-16">
             <Badge className="mb-4 bg-primary/12 text-primary hover:bg-primary/18 border-0 text-xs font-semibold uppercase tracking-wider">
-              Capabilities
+              Kemampuan Sistem
             </Badge>
             <h2
               id="features-heading"
               className="max-w-lg text-4xl font-bold text-foreground md:text-5xl"
             >
-              What Makes Signify Different
+              Apa yang Membuat Ini Berbeda
             </h2>
           </div>
         </Reveal>
@@ -542,13 +542,11 @@ function FeatureDeepDiveSection() {
             <Reveal key={title} delay={60}>
               <div
                 className={[
-                  'group grid items-center gap-10 rounded-3xl border border-border/40 p-8 md:p-12 transition-all duration-300 hover:border-border/70 hover:shadow-xl hover:shadow-black/5',
+                  'group grid items-center gap-10 rounded-3xl border border-border/40 p-8 md:p-12 transition-all duration-300 hover:border-border/70 hover:shadow-xl hover:shadow-black/5 bg-card',
                   i % 2 === 0 ? 'md:grid-cols-[1fr_400px]' : 'md:grid-cols-[400px_1fr]',
-                  highlight ? 'ring-1 ring-emerald-500/20' : '',
-                  'bg-card',
+                  highlight ? 'ring-1 ring-success/20' : '',
                 ].join(' ')}
               >
-                {/* Text — reorder on even/odd */}
                 <div className={i % 2 !== 0 ? 'md:order-2' : ''}>
                   <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted-foreground">
                     {eyebrow}
@@ -556,8 +554,6 @@ function FeatureDeepDiveSection() {
                   <h3 className="mb-4 text-2xl font-bold text-foreground leading-snug md:text-3xl">{title}</h3>
                   <p className="text-base leading-relaxed text-muted-foreground">{body}</p>
                 </div>
-
-                {/* Visual block */}
                 <div
                   className={[
                     'flex h-44 items-center justify-center rounded-2xl',
@@ -589,18 +585,18 @@ function FeatureDeepDiveSection() {
 const TRUST_PILLARS = [
   {
     icon: Eye,
-    title: 'No Cloud Processing',
-    desc: 'Your camera feed is processed locally in your browser. It never reaches our servers — or any server.',
+    title: 'Tidak Ada Pemrosesan Cloud',
+    desc: 'Kamera diproses lokal di browsermu. Tidak pernah menyentuh server kami — atau server manapun.',
   },
   {
     icon: Server,
-    title: 'No Video Storage',
-    desc: 'Nothing is saved. Ever. We have no server-side logs of your sessions, your signs, or your conversations.',
+    title: 'Tidak Ada Penyimpanan Video',
+    desc: 'Tidak ada yang disimpan. Sama sekali. Kami tidak memiliki log sesi, rekaman isyarat, atau rekaman percakapan.',
   },
   {
     icon: FileWarning,
-    title: 'Honest About Limitations',
-    desc: 'Our model performs best in well-lit environments with clear hand visibility. We document where it falls short — because you deserve to know before you depend on it.',
+    title: 'Jujur Tentang Keterbatasan',
+    desc: 'Model bekerja terbaik di ruangan terang dengan visibilitas tangan yang jelas. Kami mendokumentasikan batasannya — karena kamu berhak tahu sebelum mengandalkannya.',
   },
 ];
 
@@ -614,10 +610,10 @@ function TrustSection() {
               id="trust-heading"
               className="text-4xl font-bold text-foreground md:text-5xl mb-4"
             >
-              How We Think About Privacy
+              Cara Kami Menjaga Privasimu
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              You&apos;re giving us access to your camera. That&apos;s significant. Here is exactly what happens — and what doesn&apos;t.
+              Kamu memberi kami akses ke kamera. Itu hal yang signifikan. Berikut yang terjadi — dan yang tidak terjadi.
             </p>
           </div>
         </Reveal>
@@ -652,48 +648,53 @@ function CommunityVoicesSection() {
             id="voices-heading"
             className="mb-16 text-4xl font-bold text-foreground md:text-5xl"
           >
-            From the People Who Use It
+            Dari Orang-Orang yang Menggunakannya
           </h2>
         </Reveal>
 
         <div className="grid gap-8 md:grid-cols-12">
-          {/* Primary quote — large, prominent */}
           <Reveal className="md:col-span-8" delay={0}>
             <blockquote className="flex h-full flex-col justify-between rounded-3xl border border-border/50 bg-card p-10 md:p-12">
               <p className="text-xl leading-relaxed text-foreground md:text-2xl md:leading-relaxed font-medium">
-                &ldquo;I used Signify in a job interview. For the first time, I didn&apos;t need to ask if they
-                had an interpreter available. I just opened my laptop and it worked.&rdquo;
+                &ldquo;Saya pakai ini saat wawancara kerja. Untuk pertama kalinya saya tidak perlu
+                bertanya apakah mereka punya juru bahasa isyarat. Saya buka laptopnya, langsung
+                berfungsi.&rdquo;
               </p>
               <footer className="mt-8">
-                <p className="text-sm font-semibold text-foreground">Maya R.</p>
-                <p className="text-sm text-muted-foreground">Deaf professional, Jakarta</p>
+                <cite className="not-italic">
+                  <p className="text-sm font-semibold text-foreground">Rina P.</p>
+                  <p className="text-sm text-muted-foreground">Pengguna Tuli, Surabaya</p>
+                </cite>
               </footer>
             </blockquote>
           </Reveal>
 
-          {/* Secondary quotes */}
           <div className="flex flex-col gap-6 md:col-span-4">
             <Reveal delay={80}>
               <blockquote className="flex h-full flex-col justify-between rounded-3xl border border-border/50 bg-card p-7">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  &ldquo;As someone learning ASL, getting real-time feedback on whether my signs are
-                  being recognized correctly is genuinely useful. Nothing else does this.&rdquo;
+                  &ldquo;Saya pakai ini di kelas untuk memberi umpan balik ke murid secara langsung
+                  apakah isyarat mereka sudah benar. Tidak ada alat lain yang bisa melakukan ini.&rdquo;
                 </p>
                 <footer className="mt-6">
-                  <p className="text-sm font-semibold text-foreground">Daniel K.</p>
-                  <p className="text-xs text-muted-foreground">ASL learner, hearing, Seoul</p>
+                  <cite className="not-italic">
+                    <p className="text-sm font-semibold text-foreground">Pak Hendra W.</p>
+                    <p className="text-xs text-muted-foreground">Guru SLB, Bandung</p>
+                  </cite>
                 </footer>
               </blockquote>
             </Reveal>
             <Reveal delay={160}>
               <blockquote className="flex h-full flex-col justify-between rounded-3xl border border-border/50 bg-card p-7">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  &ldquo;We use it in team standups. Our Deaf colleague can contribute in real time
-                  without anyone needing to arrange anything in advance.&rdquo;
+                  &ldquo;Panel developer-nya memberikan akses ke data landmark dan confidence score
+                  yang saya butuhkan untuk penelitian. Jarang ada aplikasi yang setransparan ini.&rdquo;
                 </p>
                 <footer className="mt-6">
-                  <p className="text-sm font-semibold text-foreground">Priya M.</p>
-                  <p className="text-xs text-muted-foreground">Engineering manager, Bangalore</p>
+                  <cite className="not-italic">
+                    <p className="text-sm font-semibold text-foreground">Dimas A.</p>
+                    <p className="text-xs text-muted-foreground">Peneliti AI, Universitas Indonesia</p>
+                  </cite>
                 </footer>
               </blockquote>
             </Reveal>
@@ -705,7 +706,7 @@ function CommunityVoicesSection() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CTA SECTION — soft close
+   CTA
    ───────────────────────────────────────────────────────────────────────────── */
 function CtaSection() {
   return (
@@ -713,40 +714,34 @@ function CtaSection() {
       <div className="w-full px-6 md:px-10">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl bg-primary px-10 py-20 text-center md:px-24">
-            {/* Subtle decorative glow — not flashy */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-accent/15 blur-3xl"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 right-0 h-48 w-48 rounded-full bg-accent/10 blur-2xl translate-x-1/4 translate-y-1/4"
-            />
+            <div aria-hidden="true" className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-accent/15 blur-3xl" />
+            <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-0 h-48 w-48 rounded-full bg-accent/10 blur-2xl translate-x-1/4 translate-y-1/4" />
 
             <div className="relative">
               <h2
                 id="cta-heading"
                 className="text-4xl font-bold text-primary-foreground md:text-5xl"
               >
-                Start a Conversation.
+                Mulai Berbicara.
                 <br />
-                No Interpreter Needed.
+                Lewat Tanganmu.
               </h2>
               <p className="mx-auto mt-5 max-w-md text-lg text-primary-foreground/70 leading-relaxed">
-                Try Signify free in your browser right now. No download. No credit card. No waiting.
+                Coba BISINDO gratis di browsermu sekarang. Tanpa unduhan. Tanpa kartu kredit. Tanpa menunggu.
               </p>
               <Button
+                variant="surface"
                 size="lg"
-                className="mt-10 rounded-2xl bg-warning px-12 text-warning-foreground shadow-2xl shadow-black/20 hover:bg-warning/90 text-base font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+                className="mt-10 rounded-2xl px-12 text-base font-bold shadow-2xl shadow-black/20"
                 asChild
               >
                 <Link href="/translate">
-                  Open Signify — it&apos;s free
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  Mulai Sekarang — Gratis
+                  <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                 </Link>
               </Button>
               <p className="mt-4 text-sm text-primary-foreground/50">
-                Takes 10 seconds to start
+                Butuh 10 detik untuk mulai
               </p>
             </div>
           </div>
@@ -755,52 +750,25 @@ function CtaSection() {
     </section>
   );
 }
-<Footer />
 
 /* ─────────────────────────────────────────────────────────────────────────────
    ROOT PAGE
    ───────────────────────────────────────────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <>
-      {/*
-        Global keyframes — defined once, used by hero animations and typewriter cursor.
-        Add these to your globals.css if you prefer:
-
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
-        }
-      */}
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-background text-foreground">
-        <Navbar />
-        <main>
-          <HeroSection />
-          <HowItWorksSection />
-          <DemoPreviewSection />
-          <WhoItsForSection />
-          <FeatureDeepDiveSection />
-          <TrustSection />
-          <CommunityVoicesSection />
-          <CtaSection />
-        </main>
-        <Footer />
-      </div>
-    </>
+    <div className="min-h-screen bg-background text-foreground">
+      <LandingNavbar />
+      <main id="main-content">
+        <HeroSection />
+        <HowItWorksSection />
+        <DemoPreviewSection />
+        <WhoItsForSection />
+        <FeatureDeepDiveSection />
+        <TrustSection />
+        <CommunityVoicesSection />
+        <CtaSection />
+      </main>
+      <Footer />
+    </div>
   );
 }

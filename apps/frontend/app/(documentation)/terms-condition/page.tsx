@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { ChevronRight, FileText, Mail } from 'lucide-react';
 
 function useIntersectionReveal(threshold = 0.1) {
@@ -289,7 +289,8 @@ export default function TermsConditionPage() {
                   </p>
                 </div>
                 <Button
-                  className="shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 transition-all duration-200 hover:-translate-y-px hover:shadow-md hover:shadow-primary/20 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/80"
+                  variant="default"
+                  className="shrink-0 rounded-xl px-6"
                   asChild
                 >
                   <Link href="mailto:legal@signify.ai">
