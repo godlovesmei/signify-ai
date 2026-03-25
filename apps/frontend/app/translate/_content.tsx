@@ -1,0 +1,491 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { Settings, Volume2, VolumeX } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
+
+import {
+  WebcamCapture,
+  LandmarkOverlay,
+  PredictionDisplay,
+  PredictionBadge,
+  SentenceBuilder,
+  DetectionStatus,
+  type WebcamCaptureHandle,
+  type CameraState,
+  type TranscriptEntry,
+  type DetectionStatusState,
+} from '@/components/features/translation';
+import type { DetectedHand } from '@/components/features/translation/drawingUtils';
+import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
+import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
+import { useTheme } from '@/hooks/useTheme';
+
+const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const MODEL_INIT_MS      = 2400;
+const DETECTION_INTERVAL = 1500;
+const HAND_CROP_PADDING  = 0.25;
+
+type Language = 'ASL' | 'BISINDO';
+
+let _id = 0;
+function uid() { return `entry-${Date.now()}-${++_id}`; }
+
+async function createHandLandmarker(): Promise<HandLandmarker> {
+  const vision = await FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+  );
+  return HandLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath:
+        'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+      delegate: 'GPU',
+    },
+    runningMode:                'VIDEO',
+    numHands:                   2,
+    minHandDetectionConfidence: 0.5,
+    minHandPresenceConfidence:  0.5,
+    minTrackingConfidence:      0.5,
+  });
+}
+
+function cropHandFromCanvas(
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  hands: DetectedHand[],
+): Blob | null {
+  if (hands.length === 0) return null;
+  const { videoWidth: W, videoHeight: H } = video;
+  let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
+  for (const hand of hands) {
+    for (const lm of hand.landmarks) {
+      if (lm.x < xMin) xMin = lm.x;
+      if (lm.y < yMin) yMin = lm.y;
+      if (lm.x > xMax) xMax = lm.x;
+      if (lm.y > yMax) yMax = lm.y;
+    }
+  }
+  const bw = (xMax - xMin) * W, bh = (yMax - yMin) * H;
+  const padX = bw * HAND_CROP_PADDING, padY = bh * HAND_CROP_PADDING;
+  const cx = Math.max(0, Math.floor(xMin * W - padX));
+  const cy = Math.max(0, Math.floor(yMin * H - padY));
+  const cw = Math.min(W - cx, Math.ceil(bw + padX * 2));
+  const ch = Math.min(H - cy, Math.ceil(bh + padY * 2));
+  if (cw <= 0 || ch <= 0) return null;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.drawImage(video, 0, 0, W, H);
+  const crop = document.createElement('canvas');
+  crop.width = cw; crop.height = ch;
+  const cropCtx = crop.getContext('2d');
+  if (!cropCtx) return null;
+  cropCtx.drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+  const dataUrl = crop.toDataURL('image/jpeg', 0.85);
+  const binary  = atob(dataUrl.split(',')[1]);
+  const arr     = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+  return new Blob([arr], { type: 'image/jpeg' });
+}
+
+async function predictFromBlob(
+  blob: Blob,
+): Promise<{ prediction: string; confidence: number; low_confidence: boolean } | null> {
+  try {
+    const form = new FormData();
+    form.append('file', blob, 'hand.jpg');
+    const res = await fetch(`${API_BASE_URL}/api/v1/translate/predict`, {
+      method: 'POST', body: form,
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+function toDetectionStatus(state: CameraState): DetectionStatusState {
+  if (state === 'detecting')                                    return 'detecting';
+  if (state === 'ready')                                        return 'ready';
+  if (state === 'loading' || state === 'requesting')            return 'loading';
+  if (state === 'error-permission' || state === 'error-device') return 'error';
+  return 'idle';
+}
+
+export default function TranslatePageContent() {
+  const prefs = useAccessibilityPrefs();
+  const { theme, setTheme } = useTheme();
+
+  const [appState, setAppState]                   = useState<CameraState>('idle');
+  const [transcript, setTranscript]               = useState<TranscriptEntry[]>([]);
+  const [tokens, setTokens]                       = useState<string[]>([]);
+  const [currentLetter, setCurrentLetter]         = useState<string | null>(null);
+  const [currentConfidence, setCurrentConfidence] = useState<number | null>(null);
+  const [isSpeaking, setIsSpeaking]               = useState(false);
+  const [isTtsError, setIsTtsError]               = useState(false);
+  const [fps, setFps]                             = useState(0);
+  const [language, setLanguage]                   = useState<Language>('BISINDO');
+  const [voiceEnabled, setVoiceEnabled]           = useState(false);
+  const [facingMode, setFacingMode]               = useState<'user' | 'environment'>('user');
+  const [isMirrored, setIsMirrored]               = useState(true);
+  const [showSettings, setShowSettings]           = useState(false);
+  const [devices, setDevices]                     = useState<MediaDeviceOption[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId]   = useState('');
+  const [apiError, setApiError]                   = useState(false);
+  const [mpReady, setMpReady]                     = useState(false);
+  const [hands, setHands]                         = useState<DetectedHand[]>([]);
+
+  const webcamRef      = useRef<WebcamCaptureHandle>(null);
+  const canvasRef      = useRef<HTMLCanvasElement>(null);
+  const streamRef      = useRef<MediaStream | null>(null);
+  const timerRef       = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isBusy         = useRef(false);
+  const landmarkerRef  = useRef<HandLandmarker | null>(null);
+  const fpsCountRef    = useRef(0);
+  const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const facingModeRef   = useRef(facingMode);
+  const languageRef     = useRef(language);
+  const voiceEnabledRef = useRef(voiceEnabled);
+
+  useEffect(() => { facingModeRef.current   = facingMode;   }, [facingMode]);
+  useEffect(() => { languageRef.current     = language;     }, [language]);
+  useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
+
+  useEffect(() => {
+    let cancelled = false;
+    createHandLandmarker()
+      .then((lm) => { if (!cancelled) { landmarkerRef.current = lm; setMpReady(true); } })
+      .catch((e) => console.error('MediaPipe init failed:', e));
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    navigator.mediaDevices?.enumerateDevices()
+      .then((d) => {
+        const videoInputs = d.filter((x) => x.kind === 'videoinput');
+        setDevices(videoInputs.map((x) => ({ deviceId: x.deviceId, label: x.label })));
+        if (videoInputs.length > 0) setSelectedDeviceId(videoInputs[0].deviceId);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopStream();
+      if (timerRef.current)       clearInterval(timerRef.current);
+      if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const stopStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    const video = webcamRef.current?.videoElement;
+    if (video) video.srcObject = null;
+  }, []);
+
+  const startCamera = useCallback(
+    async (facing: 'user' | 'environment' = facingMode, deviceId?: string) => {
+      setAppState('requesting');
+      setApiError(false);
+      stopStream();
+      try {
+        const videoConstraints: MediaTrackConstraints = {
+          facingMode: facing,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        };
+        if (deviceId) videoConstraints.deviceId = { exact: deviceId };
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: videoConstraints, audio: false,
+        });
+        streamRef.current = stream;
+        const video = webcamRef.current?.videoElement;
+        if (video) { video.srcObject = stream; await video.play(); }
+        setAppState('loading');
+        setTimeout(() => setAppState('ready'), MODEL_INIT_MS);
+      } catch (err: unknown) {
+        const e = err as { name?: string };
+        setAppState(
+          e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError'
+            ? 'error-permission' : 'error-device',
+        );
+      }
+    },
+    [facingMode, stopStream],
+  );
+
+  const handleReset = useCallback(() => {
+    stopStream();
+    if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
+    if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
+    isBusy.current = false; fpsCountRef.current = 0;
+    setAppState('idle');
+    setTranscript([]); setTokens([]);
+    setCurrentLetter(null); setCurrentConfidence(null);
+    setIsSpeaking(false); setIsTtsError(false);
+    setFps(0); setApiError(false); setHands([]);
+  }, [stopStream]);
+
+  const startDetection = useCallback(() => {
+    if (appState !== 'ready') return;
+    setAppState('detecting');
+    setApiError(false);
+
+    fpsCountRef.current = 0;
+    fpsIntervalRef.current = setInterval(() => {
+      setFps(fpsCountRef.current);
+      fpsCountRef.current = 0;
+    }, 1000);
+
+    timerRef.current = setInterval(async () => {
+      if (isBusy.current) return;
+      const video = webcamRef.current?.videoElement;
+      if (!video || !canvasRef.current || !landmarkerRef.current) return;
+      if (video.readyState < 2) return;
+
+      isBusy.current = true;
+      try {
+        const result             = landmarkerRef.current.detectForVideo(video, performance.now());
+        const detectedLandmarks  = result.landmarks    ?? [];
+        const detectedHandedness = result.handednesses ?? [];
+        const mirrored           = facingModeRef.current === 'user';
+
+        const nextHands: DetectedHand[] = detectedLandmarks.map((lms, i) => {
+          const topClass  = detectedHandedness[i]?.[0];
+          const rawLabel  = (topClass?.categoryName ?? 'Right') as 'Left' | 'Right';
+          const corrected = mirrored ? (rawLabel === 'Left' ? 'Right' : 'Left') : rawLabel;
+          return { landmarks: lms as DetectedHand['landmarks'], handedness: corrected, score: topClass?.score ?? 1 };
+        });
+
+        setHands(nextHands);
+        if (nextHands.length === 0) {
+          setCurrentLetter(null); setCurrentConfidence(null); return;
+        }
+
+        const blob = cropHandFromCanvas(video, canvasRef.current, nextHands);
+        if (!blob) return;
+
+        const prediction = await predictFromBlob(blob);
+        if (!prediction) { setApiError(true); return; }
+
+        setApiError(false);
+        fpsCountRef.current += 1;
+        setCurrentLetter(prediction.prediction);
+        setCurrentConfidence(prediction.confidence);
+        if (prediction.low_confidence) return;
+
+        setTokens((prev) => [...prev, prediction.prediction]);
+        setTranscript((prev) => [
+          ...prev.slice(-49),
+          { id: uid(), text: prediction.prediction, confidence: prediction.confidence, timestamp: new Date(), language: languageRef.current },
+        ]);
+
+        if (voiceEnabledRef.current && 'speechSynthesis' in window) {
+          setIsSpeaking(true);
+          const u = new SpeechSynthesisUtterance(prediction.prediction);
+          u.rate = 0.95;
+          u.onend = () => setIsSpeaking(false);
+          u.onerror = () => setIsSpeaking(false);
+          window.speechSynthesis.speak(u);
+        }
+      } finally { isBusy.current = false; }
+    }, DETECTION_INTERVAL);
+  }, [appState]);
+
+  const stopDetection = useCallback(() => {
+    if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
+    if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
+    isBusy.current = false; fpsCountRef.current = 0;
+    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
+    if (appState === 'detecting') setAppState('ready');
+  }, [appState]);
+
+  const flipCamera = useCallback(() => {
+    const next = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(next);
+    stopDetection();
+    startCamera(next);
+  }, [facingMode, stopDetection, startCamera]);
+
+  const handleSpeak = useCallback(() => {
+    const sentence = tokens.join('');
+    if (!sentence.trim() || isSpeaking) return;
+    if (!('speechSynthesis' in window)) { setIsTtsError(true); return; }
+    setIsTtsError(false);
+    setIsSpeaking(true);
+    const u = new SpeechSynthesisUtterance(sentence);
+    u.lang   = 'id-ID';
+    u.rate   = prefs.ttsSpeed;
+    u.volume = prefs.ttsVolume;
+    u.onend  = () => setIsSpeaking(false);
+    u.onerror = () => { setIsSpeaking(false); setIsTtsError(true); };
+    window.speechSynthesis.speak(u);
+  }, [tokens, isSpeaking, prefs.ttsSpeed, prefs.ttsVolume]);
+
+  const handleLogout = useCallback(async () => {
+    const { createBrowserClient } = await import('@supabase/ssr');
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+    );
+    await supabase.auth.signOut();
+    window.location.href = '/auth/login';
+  }, []);
+
+  const isLive   = appState === 'ready' || appState === 'detecting';
+  const isActive = appState === 'detecting';
+
+  return (
+    <>
+      <style>{`
+        @keyframes scanline {
+          0%   { top: 1.25rem; opacity: 0 }
+          8%   { opacity: 1 }
+          92%  { opacity: 1 }
+          100% { top: calc(100% - 5.5rem); opacity: 0 }
+        }
+        @keyframes entryIn {
+          from { opacity: 0; transform: translateY(4px) }
+          to   { opacity: 1; transform: translateY(0) }
+        }
+        .entry-enter { animation: entryIn 0.22s ease forwards; }
+      `}</style>
+
+      <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
+
+      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+        <header
+          role="banner"
+          className="flex h-14 shrink-0 items-center justify-between border-b border-border/30 bg-background px-4 md:px-5"
+        >
+          <Logo size="sm" />
+
+          <div className="flex items-center gap-2">
+            {isActive && (
+              <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-destructive/70 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-destructive" />
+              </span>
+            )}
+            <h1 className="text-sm font-semibold tracking-[-0.01em]">
+              {isActive ? 'Detecting' : 'Translate'}
+            </h1>
+            {isLive && (
+              <span className="hidden rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary md:inline-flex">
+                Live
+              </span>
+            )}
+            {!mpReady && (
+              <span className="hidden rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning-foreground md:inline-flex">
+                Loading hand detector…
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => setVoiceEnabled((v) => !v)}
+              disabled={!isLive}
+              aria-label={voiceEnabled ? 'Disable voice' : 'Enable voice'}
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-30"
+            >
+              {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={() => setShowSettings(true)}
+              aria-label="Open settings"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
+
+        <main className="flex flex-1 flex-col overflow-hidden md:flex-row" style={{ minHeight: 0 }}>
+          <div className="relative flex flex-col md:flex-1" style={{ minHeight: 0 }}>
+            <WebcamCapture
+              ref={webcamRef}
+              state={appState}
+              facingMode={facingMode}
+              mpReady={mpReady}
+              handsCount={hands.length}
+              apiError={apiError}
+              hasMultipleCameras={devices.length > 1}
+              languageLabel={language}
+              voiceEnabled={voiceEnabled}
+              onRequestCamera={() => startCamera()}
+              onStartDetection={startDetection}
+              onStopDetection={stopDetection}
+              onFlipCamera={flipCamera}
+              onReset={handleReset}
+            />
+            {isActive && (
+              <LandmarkOverlay
+                hands={hands}
+                mirrored={isMirrored}
+                showBoundingBox
+                showHandLabels
+              />
+            )}
+          </div>
+
+          <aside
+            aria-label="Detection feedback"
+            className="flex flex-col gap-4 overflow-y-auto border-t border-border/30 bg-background p-4 md:w-[420px] md:border-t-0 md:border-l"
+          >
+            <div className="flex items-center justify-between">
+              <DetectionStatus state={toDetectionStatus(appState)} fps={fps} showFps />
+            </div>
+
+            <PredictionBadge
+              letter={currentLetter}
+              confidence={currentConfidence}
+              isDetecting={isActive}
+              hasHand={hands.length > 0}
+              textScale={prefs.textScale}
+            />
+
+            <SentenceBuilder
+              tokens={tokens}
+              isSpeaking={isSpeaking}
+              onDeleteLast={() => setTokens((prev) => prev.slice(0, -1))}
+              onClearAll={() => setTokens([])}
+              onSpeak={handleSpeak}
+              isTtsError={isTtsError}
+              textScale={prefs.textScale}
+            />
+
+            <PredictionDisplay
+              transcript={transcript}
+              appState={appState}
+              onClearTranscript={() => setTranscript([])}
+            />
+          </aside>
+        </main>
+      </div>
+
+      <SettingsDrawer
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        theme={theme}
+        onThemeChange={setTheme}
+        devices={devices}
+        selectedDeviceId={selectedDeviceId}
+        onDeviceChange={(id) => { setSelectedDeviceId(id); startCamera(facingMode, id); }}
+        isMirrored={isMirrored}
+        onMirrorToggle={() => setIsMirrored((v) => !v)}
+        highContrast={prefs.highContrast}
+        onHighContrastToggle={() => prefs.setHighContrast(!prefs.highContrast)}
+        textScale={prefs.textScale}
+        onTextScaleChange={prefs.setTextScale}
+        ttsSpeed={prefs.ttsSpeed}
+        onTtsSpeedChange={prefs.setTtsSpeed}
+        ttsVolume={prefs.ttsVolume}
+        onTtsVolumeChange={prefs.setTtsVolume}
+        onLogout={handleLogout}
+      />
+    </>
+  );
+}
