@@ -21,6 +21,7 @@ import type { DetectedHand } from '@/components/features/translation/drawingUtil
 import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
+import { useLandmarkClassifier } from '@/hooks/useLandmarkClassifier';
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
@@ -126,6 +127,7 @@ function toDetectionStatus(state: CameraState): DetectionStatusState {
 export default function TranslatePageContent() {
   const prefs = useAccessibilityPrefs();
   const { theme, setTheme } = useTheme();
+  const { isReady: mlpReady, predict: mlpPredict } = useLandmarkClassifier();
 
   const [appState, setAppState]                   = useState<CameraState>('idle');
   const [transcript, setTranscript]               = useState<TranscriptEntry[]>([]);
@@ -275,7 +277,40 @@ export default function TranslatePageContent() {
           setCurrentLetter(null); setCurrentConfidence(null); return;
         }
 
-        // Predict on each hand individually and take the highest-confidence result
+        // ── MLP path (browser-side, no network call) ──────────────────
+        // Try landmark-based MLP first — fast, robust, no domain gap.
+        // Falls back to CNN when MLP weights aren't loaded yet or confidence is low.
+        if (mlpReady) {
+          const mlpResults = nextHands
+            .map(hand => mlpPredict(hand.landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))))
+            .filter((r): r is NonNullable<typeof r> => r !== null);
+
+          if (mlpResults.length > 0) {
+            const best = mlpResults.reduce((a, b) => b.confidence > a.confidence ? b : a);
+            if (!best.low_confidence) {
+              setApiError(false);
+              fpsCountRef.current += 1;
+              setCurrentLetter(best.prediction);
+              setCurrentConfidence(best.confidence);
+              setTokens(prev => [...prev, best.prediction]);
+              setTranscript(prev => [
+                ...prev.slice(-49),
+                { id: uid(), text: best.prediction, confidence: best.confidence, timestamp: new Date(), language: languageRef.current },
+              ]);
+              if (voiceEnabledRef.current && 'speechSynthesis' in window) {
+                setIsSpeaking(true);
+                const u = new SpeechSynthesisUtterance(best.prediction);
+                u.rate = 0.95;
+                u.onend = () => setIsSpeaking(false);
+                u.onerror = () => setIsSpeaking(false);
+                window.speechSynthesis.speak(u);
+              }
+              return;
+            }
+          }
+        }
+
+        // ── CNN path (backend API, fallback) ──────────────────────────
         const predictions = await Promise.all(
           nextHands.map((hand) => {
             const blob = cropHandFromCanvas(video, hand);
