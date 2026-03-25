@@ -52,36 +52,48 @@ async function createHandLandmarker(): Promise<HandLandmarker> {
 
 function cropHandFromCanvas(
   video: HTMLVideoElement,
-  canvas: HTMLCanvasElement,
-  hands: DetectedHand[],
+  hand: DetectedHand,
 ): Blob | null {
-  if (hands.length === 0) return null;
   const { videoWidth: W, videoHeight: H } = video;
+
   let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
-  for (const hand of hands) {
-    for (const lm of hand.landmarks) {
-      if (lm.x < xMin) xMin = lm.x;
-      if (lm.y < yMin) yMin = lm.y;
-      if (lm.x > xMax) xMax = lm.x;
-      if (lm.y > yMax) yMax = lm.y;
-    }
+  for (const lm of hand.landmarks) {
+    if (lm.x < xMin) xMin = lm.x;
+    if (lm.y < yMin) yMin = lm.y;
+    if (lm.x > xMax) xMax = lm.x;
+    if (lm.y > yMax) yMax = lm.y;
   }
-  const bw = (xMax - xMin) * W, bh = (yMax - yMin) * H;
-  const padX = bw * HAND_CROP_PADDING, padY = bh * HAND_CROP_PADDING;
-  const cx = Math.max(0, Math.floor(xMin * W - padX));
-  const cy = Math.max(0, Math.floor(yMin * H - padY));
-  const cw = Math.min(W - cx, Math.ceil(bw + padX * 2));
-  const ch = Math.min(H - cy, Math.ceil(bh + padY * 2));
+
+  const bw  = (xMax - xMin) * W;
+  const bh  = (yMax - yMin) * H;
+  const pad = Math.max(bw, bh) * HAND_CROP_PADDING;
+
+  // Force square crop centered on the hand bounding box
+  const side = Math.ceil(Math.max(bw, bh) + pad * 2);
+  const cx   = Math.max(0, Math.round(((xMin + xMax) / 2) * W - side / 2));
+  const cy   = Math.max(0, Math.round(((yMin + yMax) / 2) * H - side / 2));
+  const cw   = Math.min(W - cx, side);
+  const ch   = Math.min(H - cy, side);
   if (cw <= 0 || ch <= 0) return null;
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
+
+  // Draw full frame to scratch canvas
+  const scratch = document.createElement('canvas');
+  scratch.width = W; scratch.height = H;
+  const ctx = scratch.getContext('2d');
   if (!ctx) return null;
   ctx.drawImage(video, 0, 0, W, H);
+
+  // Draw square crop — flip left hand horizontally to normalize to right-hand orientation
   const crop = document.createElement('canvas');
-  crop.width = cw; crop.height = ch;
+  crop.width = side; crop.height = side;
   const cropCtx = crop.getContext('2d');
   if (!cropCtx) return null;
-  cropCtx.drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+  if (hand.handedness === 'Left') {
+    cropCtx.translate(side, 0);
+    cropCtx.scale(-1, 1);
+  }
+  cropCtx.drawImage(scratch, cx, cy, cw, ch, 0, 0, side, side);
+
   const dataUrl = crop.toDataURL('image/jpeg', 0.85);
   const binary  = atob(dataUrl.split(',')[1]);
   const arr     = new Uint8Array(binary.length);
@@ -123,7 +135,7 @@ export default function TranslatePageContent() {
   const [isSpeaking, setIsSpeaking]               = useState(false);
   const [isTtsError, setIsTtsError]               = useState(false);
   const [fps, setFps]                             = useState(0);
-  const [language, setLanguage]                   = useState<Language>('BISINDO');
+  const [language]                                = useState<Language>('BISINDO');
   const [voiceEnabled, setVoiceEnabled]           = useState(false);
   const [facingMode, setFacingMode]               = useState<'user' | 'environment'>('user');
   const [isMirrored, setIsMirrored]               = useState(true);
@@ -135,7 +147,6 @@ export default function TranslatePageContent() {
   const [hands, setHands]                         = useState<DetectedHand[]>([]);
 
   const webcamRef      = useRef<WebcamCaptureHandle>(null);
-  const canvasRef      = useRef<HTMLCanvasElement>(null);
   const streamRef      = useRef<MediaStream | null>(null);
   const timerRef       = useRef<ReturnType<typeof setInterval> | null>(null);
   const isBusy         = useRef(false);
@@ -242,14 +253,14 @@ export default function TranslatePageContent() {
     timerRef.current = setInterval(async () => {
       if (isBusy.current) return;
       const video = webcamRef.current?.videoElement;
-      if (!video || !canvasRef.current || !landmarkerRef.current) return;
+      if (!video || !landmarkerRef.current) return;
       if (video.readyState < 2) return;
 
       isBusy.current = true;
       try {
         const result             = landmarkerRef.current.detectForVideo(video, performance.now());
         const detectedLandmarks  = result.landmarks    ?? [];
-        const detectedHandedness = result.handednesses ?? [];
+        const detectedHandedness = result.handedness ?? [];
         const mirrored           = facingModeRef.current === 'user';
 
         const nextHands: DetectedHand[] = detectedLandmarks.map((lms, i) => {
@@ -264,11 +275,16 @@ export default function TranslatePageContent() {
           setCurrentLetter(null); setCurrentConfidence(null); return;
         }
 
-        const blob = cropHandFromCanvas(video, canvasRef.current, nextHands);
-        if (!blob) return;
-
-        const prediction = await predictFromBlob(blob);
-        if (!prediction) { setApiError(true); return; }
+        // Predict on each hand individually and take the highest-confidence result
+        const predictions = await Promise.all(
+          nextHands.map((hand) => {
+            const blob = cropHandFromCanvas(video, hand);
+            return blob ? predictFromBlob(blob) : Promise.resolve(null);
+          }),
+        );
+        const valid = predictions.filter((p): p is NonNullable<typeof p> => p !== null);
+        if (valid.length === 0) { setApiError(true); return; }
+        const prediction = valid.reduce((best, p) => p.confidence > best.confidence ? p : best);
 
         setApiError(false);
         fpsCountRef.current += 1;
@@ -352,8 +368,6 @@ export default function TranslatePageContent() {
         }
         .entry-enter { animation: entryIn 0.22s ease forwards; }
       `}</style>
-
-      <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
 
       <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
         <header
