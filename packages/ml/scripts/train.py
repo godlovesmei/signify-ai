@@ -1,17 +1,20 @@
 # packages/ml/scripts/train.py
 """
 Entry point for training the BISINDO EfficientNetV2B0 classifier.
-
 Run from repo root:
     python packages/ml/scripts/train.py
-
 Or with custom args:
     python packages/ml/scripts/train.py \
         --phase1_epochs 20 \
         --phase2_epochs 40 \
         --batch_size 64
-"""
 
+Resume dari checkpoint:
+    python packages/ml/scripts/train.py \
+        --resume_weights models/checkpoints/bisindo_v2/phase1_best.weights.h5 \
+        --initial_epoch 12 \
+        --batch_size 16
+"""
 import argparse
 import logging
 import sys
@@ -52,6 +55,30 @@ def parse_args():
     p.add_argument("--output_dir",      default="models/checkpoints/bisindo_v2")
     p.add_argument("--label_map_path",  default="data/processed/bisindo_v1/manifests/label_map.csv")
 
+    # Resume
+    p.add_argument(
+        "--resume_weights",
+        default=None,
+        help="Path ke checkpoint .h5 untuk dilanjutkan (contoh: models/checkpoints/bisindo_v2/phase1_best.weights.h5)",
+    )
+    p.add_argument(
+        "--initial_epoch",
+        type=int,
+        default=0,
+        help="Epoch awal phase 1 saat resume (default: 0)",
+    )
+    p.add_argument(
+        "--initial_epoch_phase2",
+        type=int,
+        default=0,
+        help="Epoch awal phase 2 saat resume (default: 0)",
+    )
+    p.add_argument(
+        "--skip_phase1",
+        action="store_true",
+        help="Lewati phase 1 dan langsung ke phase 2 (gunakan bersama --resume_weights)",
+    )
+
     # Misc
     p.add_argument(
         "--no_mixed_precision",
@@ -78,6 +105,10 @@ def main():
         unfreeze_from_layer = args.unfreeze_from_layer,
         output_dir          = args.output_dir,
         label_map_path      = args.label_map_path,
+        resume_weights       = args.resume_weights,
+        initial_epoch        = args.initial_epoch,
+        initial_epoch_phase2 = args.initial_epoch_phase2,
+        skip_phase1          = args.skip_phase1,
         mixed_precision     = not args.no_mixed_precision,
     )
 

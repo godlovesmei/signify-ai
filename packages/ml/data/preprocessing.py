@@ -5,8 +5,8 @@ Preprocessing utilities untuk BISINDO v1.
 Karena dataset sudah diproses oleh Roboflow (crop, resize 244x244, grayscale),
 file ini HANYA berisi:
   - Konstanta TARGET_SIZE
-  - tf_augment()  — augmentasi on-the-fly saat training
-  - tf_normalize() — normalisasi ke range [-1, 1] sesuai MobileNetV2
+  - tf_augment()   — augmentasi on-the-fly saat training
+  - tf_normalize() — normalisasi ke range [0, 1] sesuai EfficientNetV2B0
 """
 
 import logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-TARGET_SIZE = (224, 224)   # resize dari 244 → 224 untuk MobileNetV2
+TARGET_SIZE = (224, 224)   # resize dari 244 → 224 untuk EfficientNetV2B0
 
 
 # ── TF-level ops (dipanggil dari dalam tf.data pipeline di dataset.py) ───────
@@ -45,14 +45,17 @@ def tf_augment(image: tf.Tensor) -> tf.Tensor:
 
 def tf_normalize(image: tf.Tensor) -> tf.Tensor:
     """
-    Normalisasi [0, 1] → [-1, 1] sesuai MobileNetV2.
+    Normalisasi untuk EfficientNetV2B0 dengan include_preprocessing=False.
 
-    MobileNetV2 dilatih dengan tf.keras.applications.mobilenet_v2.preprocess_input
-    yang memetakan pixel sebagai: output = (pixel / 127.5) - 1
-    Setara dengan: [0, 1] → [-1, 1] via (x * 2) - 1.
+    EfficientNetV2B0 dilatih dengan input dalam range [0, 1].
+    Preprocessing internal model (include_preprocessing=True) hanya melakukan
+    Rescaling(1/255), sehingga ketika include_preprocessing=False, model
+    mengharapkan input yang sudah di-scale ke [0, 1] — tidak ada pergeseran
+    tambahan seperti MobileNetV2's [-1, 1].
 
-    FIX dari versi sebelumnya: versi lama pakai ImageNet mean/std
-    (dirancang untuk ResNet/VGG), yang tidak kompatibel dengan
-    pretrained weights MobileNetV2 dan menurunkan akurasi.
+    BUG dari versi sebelumnya: versi lama menerapkan (x * 2) - 1 yang
+    mentransformasi [0, 1] → [-1, 1] (normalisasi MobileNetV2), bukan
+    EfficientNetV2B0. Ini menyebabkan semua aktivasi beroperasi pada
+    rentang yang salah dan menurunkan akurasi ~4-5%.
     """
-    return (image * 2.0) - 1.0
+    return image

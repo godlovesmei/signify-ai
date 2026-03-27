@@ -116,11 +116,11 @@ def build_dataset(
     Build a single tf.data.Dataset from a manifest CSV.
 
     Pipeline order:
-        from_tensor_slices → [shuffle] → map(load) → [cache] → map(augment+norm) → batch → [repeat] → prefetch
+        from_tensor_slices → map(load) → [cache] → [shuffle] → map(augment+norm) → batch → [repeat] → prefetch
 
-    Caching after load (before augmentation) means:
+    Caching after load but before shuffle+augmentation means:
       - Images are decoded from disk only once (fast subsequent epochs)
-      - Augmentation is still re-applied randomly on each epoch
+      - Shuffle and augmentation are re-applied randomly on each epoch
 
     Args:
         csv_path:   Path to the manifest CSV.
@@ -144,13 +144,13 @@ def build_dataset(
         (filepaths, tf.cast(labels, tf.int32))
     )
 
-    if shuffle:
-        ds = ds.shuffle(buffer_size=min(n, 5000), reshuffle_each_iteration=True)
-
     ds = ds.map(_load_image, num_parallel_calls=AUTOTUNE)
 
     if cache:
         ds = ds.cache()
+
+    if shuffle:
+        ds = ds.shuffle(buffer_size=min(n, 5000), reshuffle_each_iteration=True)
 
     ds = ds.map(
         lambda img, lbl: _augment_and_normalize(img, lbl, augment),

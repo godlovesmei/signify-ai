@@ -40,7 +40,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Export BISINDO model")
     p.add_argument(
         "--checkpoint",
-        default="models/checkpoints/bisindo_v1/phase2_best.weights.h5",
+        default="models/checkpoints/bisindo_v2/phase2_best.weights.h5",
         help="Path ke file .weights.h5 hasil training phase 2",
     )
     p.add_argument(

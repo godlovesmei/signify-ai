@@ -54,6 +54,12 @@ class TrainerConfig:
     output_dir:     str = "models/checkpoints/bisindo_v2"
     label_map_path: str = "data/processed/bisindo_v1/manifests/label_map.csv"
 
+    # Resume
+    resume_weights:       Optional[str] = None  # path ke .h5 checkpoint
+    initial_epoch:        int           = 0     # epoch awal phase 1 saat resume
+    initial_epoch_phase2: int           = 0     # epoch awal phase 2 saat resume
+    skip_phase1:          bool          = False # lewati phase 1, langsung ke phase 2
+
     # Misc
     mixed_precision: bool = True
     seed:            int  = 42
@@ -69,9 +75,9 @@ def build_model(
     """
     EfficientNetV2B0 + custom classification head.
 
-    include_preprocessing=False is required because tf_normalize() in the
-    tf.data pipeline already maps [0, 1] → [-1, 1]. Leaving it True would
-    apply normalization twice and corrupt every activation.
+    include_preprocessing=False because the tf.data pipeline already delivers
+    images in [0, 1] via _load_image (cast + /255). EfficientNetV2B0's built-in
+    preprocessing only does Rescaling(1/255), so skipping it avoids double-scaling.
     """
     base = tf.keras.applications.EfficientNetV2B0(
         input_shape=input_shape,
@@ -124,6 +130,15 @@ class Trainer:
         tf.random.set_seed(self.cfg.seed)
         Path(self.cfg.output_dir).mkdir(parents=True, exist_ok=True)
 
+        # Enable memory growth so TF allocates GPU memory on demand instead of
+        # reserving all available VRAM upfront. Critical on GPUs with <6 GB free.
+        for gpu in tf.config.list_physical_devices("GPU"):
+            try:
+                tf.config.experimental.set_memory_growth(gpu, True)
+                logger.info("Memory growth enabled for %s", gpu.name)
+            except RuntimeError as e:
+                logger.warning("Could not enable memory growth: %s", e)
+
         if self.cfg.mixed_precision:
             tf.keras.mixed_precision.set_global_policy("mixed_float16")
             logger.info("Mixed precision enabled (float16)")
@@ -155,6 +170,13 @@ class Trainer:
             dropout_rate = self.cfg.dropout_rate,
         )
 
+        # ── Resume ────────────────────────────────────────────────
+        if self.cfg.resume_weights:
+            logger.info("Memuat weights dari: %s", self.cfg.resume_weights)
+            self.model.load_weights(self.cfg.resume_weights)
+            logger.info("Resume dari epoch %d", self.cfg.initial_epoch)
+        # ──────────────────────────────────────────────────────────
+
     def _phase1(self) -> tf.keras.callbacks.History:
         logger.info("=== Phase 1: Feature extraction (%d epochs) ===", self.cfg.phase1_epochs)
         self.model.compile(
@@ -169,6 +191,7 @@ class Trainer:
             self.train_ds,
             validation_data = self.val_ds,
             epochs          = self.cfg.phase1_epochs,
+            initial_epoch   = self.cfg.initial_epoch,  # resume support
             callbacks       = build_callbacks(self.cfg.output_dir, phase="phase1", monitor="val_accuracy"),
             verbose         = 1,
         )
@@ -190,6 +213,7 @@ class Trainer:
             self.train_ds,
             validation_data = self.val_ds,
             epochs          = self.cfg.phase2_epochs,
+            initial_epoch   = self.cfg.initial_epoch_phase2,  # resume support
             callbacks       = build_callbacks(self.cfg.output_dir, phase="phase2", monitor="val_accuracy"),
             verbose         = 1,
         )
@@ -216,9 +240,38 @@ class Trainer:
         self.model.save(save_path)
         logger.info("Final model saved to %s", save_path)
 
+    def _save_history(
+        self,
+        h1: tf.keras.callbacks.History,
+        h2: tf.keras.callbacks.History,
+    ) -> None:
+        """Persist combined phase1+phase2 training history as JSON."""
+        import json
+
+        def _extract(h: tf.keras.callbacks.History) -> Dict:
+            return {
+                "accuracy":     h.history.get("accuracy", []),
+                "val_accuracy": h.history.get("val_accuracy", []),
+                "loss":         h.history.get("loss", []),
+                "val_loss":     h.history.get("val_loss", []),
+                "lr":           [float(x) for x in h.history.get("lr", [])],
+            }
+
+        data = {"phase1": _extract(h1), "phase2": _extract(h2)}
+        path = Path(self.cfg.output_dir) / "training_history.json"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        logger.info("Training history saved → %s", path)
+
     def run(self) -> Dict:
-        self._phase1()
-        self._phase2()
+        if self.cfg.skip_phase1:
+            logger.info("Skip phase 1 — langsung ke phase 2")
+            h1 = tf.keras.callbacks.History()  # placeholder kosong
+        else:
+            h1 = self._phase1()
+
+        h2 = self._phase2()
+        self._save_history(h1, h2)
         results = self._evaluate()
         self._save()
         return results

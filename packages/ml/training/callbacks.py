@@ -1,6 +1,6 @@
 # packages/ml/training/callbacks.py
 """
-Keras callbacks untuk training BISINDO MobileNetV2.
+Keras callbacks untuk training BISINDO EfficientNetV2B0.
 
 build_callbacks() dipanggil di trainer.py untuk setiap phase.
 """
