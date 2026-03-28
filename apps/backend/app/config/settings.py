@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     # Inference
     INPUT_SIZE:           int   = 224
     TOP_K:                int   = 3
-    CONFIDENCE_THRESHOLD: float = 0.5
+    CONFIDENCE_THRESHOLD: float = 0.65
 
     class Config:
         env_file = ".env"

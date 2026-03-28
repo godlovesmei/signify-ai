@@ -25,7 +25,10 @@ import { useLandmarkClassifier } from '@/hooks/useLandmarkClassifier';
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
-const DETECTION_INTERVAL = 1500;
+const DETECTION_INTERVAL = 500;
+const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
+const VOTE_BUFFER_SIZE   = 4;     // frames to collect before committing
+const VOTE_NEEDED        = 3;     // how many of those frames must agree
 const HAND_CROP_PADDING  = 0.10;
 
 type Language = 'ASL' | 'BISINDO';
@@ -227,6 +230,24 @@ export default function TranslatePageContent() {
   useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
   useEffect(() => { isMirroredRef.current   = isMirrored;   }, [isMirrored]);
 
+  // ── Stability gate ──────────────────────────────────────────────────────────
+  const prevLandmarksRef = useRef<Array<{ x: number; y: number }> | null>(null);
+
+  function isHandStable(landmarks: Array<{ x: number; y: number }>): boolean {
+    const prev = prevLandmarksRef.current;
+    prevLandmarksRef.current = landmarks.map(l => ({ x: l.x, y: l.y }));
+    if (!prev || prev.length !== landmarks.length) return false;
+    const drift = landmarks.reduce((sum, lm, i) => {
+      const dx = lm.x - prev[i].x;
+      const dy = lm.y - prev[i].y;
+      return sum + Math.sqrt(dx * dx + dy * dy);
+    }, 0) / landmarks.length;
+    return drift < MOTION_THRESHOLD;
+  }
+
+  // ── Sliding window vote ─────────────────────────────────────────────────────
+  const voteBuffer = useRef<string[]>([]);
+
   useEffect(() => {
     let cancelled = false;
     createHandLandmarker()
@@ -302,6 +323,7 @@ export default function TranslatePageContent() {
     setCurrentLetter(null); setCurrentConfidence(null);
     setIsSpeaking(false); setIsTtsError(false);
     setFps(0); setApiError(false); setHands([]); setHandsIncomplete(false);
+    voteBuffer.current = []; prevLandmarksRef.current = null;
   }, [stopStream]);
 
   const startDetection = useCallback(() => {
@@ -338,8 +360,17 @@ export default function TranslatePageContent() {
         setHands(nextHands);
         if (nextHands.length === 0) {
           setCurrentLetter(null); setCurrentConfidence(null);
-          setHandsIncomplete(false); return;
+          setHandsIncomplete(false);
+          prevLandmarksRef.current = null;
+          voteBuffer.current = [];
+          return;
         }
+
+        // ── Stability gate ─────────────────────────────────────────────
+        // Use the primary hand's landmarks to detect motion. Skip inference
+        // when the hand is still transitioning — only predict held poses.
+        const primaryLandmarks = nextHands[0].landmarks.map(l => ({ x: l.x, y: l.y }));
+        if (!isHandStable(primaryLandmarks)) return;
 
         // ── Crop strategy: single hand vs. joint two-hand ─────────────
         // BISINDO is predominantly two-handed. The model was trained on
@@ -397,22 +428,42 @@ export default function TranslatePageContent() {
 
         // Use CNN result (or report error if both paths failed)
         if (cnnBest === null) { setApiError(true); return; }
+        if (cnnBest.low_confidence) {
+          setApiError(false);
+          setCurrentLetter(cnnBest.prediction);
+          setCurrentConfidence(cnnBest.confidence);
+          return;
+        }
 
         setApiError(false);
         fpsCountRef.current += 1;
         setCurrentLetter(cnnBest.prediction);
         setCurrentConfidence(cnnBest.confidence);
-        if (cnnBest.low_confidence) return;
 
-        setTokens((prev) => [...prev, cnnBest.prediction]);
+        // ── Sliding window vote ────────────────────────────────────────
+        // Collect predictions into a rolling buffer. Only commit to transcript
+        // when VOTE_NEEDED frames out of VOTE_BUFFER_SIZE agree on the same letter.
+        // This eliminates single-frame noise and B/P/W ambiguity.
+        voteBuffer.current.push(cnnBest.prediction);
+        if (voteBuffer.current.length > VOTE_BUFFER_SIZE) voteBuffer.current.shift();
+        if (voteBuffer.current.length < VOTE_BUFFER_SIZE) return;
+
+        const freq: Record<string, number> = {};
+        for (const l of voteBuffer.current) freq[l] = (freq[l] ?? 0) + 1;
+        const [winner, count] = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+        if (count < VOTE_NEEDED) return;
+
+        voteBuffer.current = []; // reset after commit so the same letter isn't repeated immediately
+
+        setTokens((prev) => [...prev, winner]);
         setTranscript((prev) => [
           ...prev.slice(-49),
-          { id: uid(), text: cnnBest.prediction, confidence: cnnBest.confidence, timestamp: new Date(), language: languageRef.current },
+          { id: uid(), text: winner, confidence: cnnBest.confidence, timestamp: new Date(), language: languageRef.current },
         ]);
 
         if (voiceEnabledRef.current && 'speechSynthesis' in window) {
           setIsSpeaking(true);
-          const u = new SpeechSynthesisUtterance(cnnBest.prediction);
+          const u = new SpeechSynthesisUtterance(winner);
           u.rate = 0.95;
           u.onend = () => setIsSpeaking(false);
           u.onerror = () => setIsSpeaking(false);
@@ -427,6 +478,7 @@ export default function TranslatePageContent() {
     if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
     isBusy.current = false; fpsCountRef.current = 0;
     setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0); setHandsIncomplete(false);
+    voteBuffer.current = []; prevLandmarksRef.current = null;
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
 
@@ -580,6 +632,12 @@ export default function TranslatePageContent() {
               hasHand={hands.length > 0}
               textScale={prefs.textScale}
             />
+
+            {isActive && (currentLetter === 'J' || currentLetter === 'Z') && (
+              <p className="text-center text-xs text-amber-500">
+                {currentLetter} requires motion — hold the starting pose, then sign the movement.
+              </p>
+            )}
 
             <SentenceBuilder
               tokens={tokens}
