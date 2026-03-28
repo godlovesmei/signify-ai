@@ -11,11 +11,9 @@ Domain Gap Fix:
   Dataset training (Roboflow) sudah di-grayscale dan di-crop rapi.
   Input dari webcam berupa full frame berwarna dengan background.
   Preprocessing di sini menjembatani gap tersebut:
-    1. Convert RGB → Grayscale → RGB  (simulasi kondisi training)
-    2. CLAHE (Contrast Limited Adaptive Histogram Equalization)
-       untuk normalisasi pencahayaan yang tidak merata dari webcam
-    3. Resize ke 224×224
-    4. Normalize ke [-1, 1] sesuai MobileNetV2
+    1. Convert RGB → Grayscale → RGB  (simulasi kondisi training — dataset Roboflow grayscale)
+    2. Resize ke 224×224
+    3. Normalize ke [0, 1] sesuai EfficientNetV2B0
 """
 
 import json
@@ -61,9 +59,6 @@ class MLService:
         self._label_map: dict[str, str] = {}
         self._loaded   = False
         self._loaded_at: float = 0.0
-
-        # CLAHE untuk contrast enhancement — dibuat sekali, reusable
-        self._clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
     # ── Load ──────────────────────────────────────────────────────────────────
 
@@ -113,15 +108,16 @@ class MLService:
           1. Decode bytes → PIL → NumPy RGB
           2. Convert ke Grayscale untuk mencocokkan distribusi training data
              (dataset Roboflow sudah grayscale CRT phosphor)
-          3. CLAHE untuk normalisasi kontras — sangat berguna untuk kondisi
-             pencahayaan webcam yang bervariasi
-          4. Convert kembali ke RGB (3 channel) karena MobileNetV2 expect (224,224,3)
-          5. Resize ke 224×224
-          6. Normalize [0,255] → [-1,1]
-          7. Add batch dim → (1, 224, 224, 3)
+          3. Grayscale → RGB (3 channel identik) karena EfficientNetV2B0 expect (224,224,3)
+          4. Resize ke 224×224
+          5. Normalize [0,255] → [0,1]
+          6. Add batch dim → (1, 224, 224, 3)
+
+        Note: CLAHE dihapus — model tidak dilatih dengan CLAHE sehingga
+        menerapkannya saat inferensi menghasilkan input di luar distribusi training.
 
         Returns:
-            float32 array shape (1, 224, 224, 3) range [-1, 1]
+            float32 array shape (1, 224, 224, 3) range [0, 1]
         """
         # Step 1: decode
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
@@ -130,22 +126,18 @@ class MLService:
         # Step 2: RGB → Grayscale (single channel)
         gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)   # (H, W)
 
-        # Step 3: CLAHE contrast enhancement
-        gray = self._clahe.apply(gray)                 # (H, W) uint8
-
-        # Step 4: Grayscale → RGB (stack 3 identical channels)
-        # Model expect 3 channel, tapi semua channel identik → efektif grayscale
+        # Step 3: Grayscale → RGB (stack 3 identical channels)
         rgb = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)   # (H, W, 3)
 
-        # Step 5: Resize ke target size
+        # Step 4: Resize ke target size
         size = self.settings.INPUT_SIZE
         rgb  = cv2.resize(rgb, (size, size), interpolation=cv2.INTER_LINEAR)
 
-        # Step 6: Normalize [0,255] → [-1,1]
+        # Step 5: Normalize [0,255] → [0,1]
         arr_f = rgb.astype(np.float32)
-        arr_f = (arr_f / 127.5) - 1.0
+        arr_f = arr_f / 255.0
 
-        # Step 7: Add batch dimension
+        # Step 6: Add batch dimension
         return np.expand_dims(arr_f, axis=0)   # (1, 224, 224, 3)
 
     # ── Inference ─────────────────────────────────────────────────────────────

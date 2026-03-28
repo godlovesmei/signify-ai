@@ -268,7 +268,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     return (
       <section
         aria-label="Camera feed"
-        className="relative flex flex-col bg-neutral-950 md:flex-1"
+        className="relative flex flex-col bg-neutral-950 md:h-full"
         style={{ minHeight: 0 }}
       >
         <video

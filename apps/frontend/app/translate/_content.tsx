@@ -26,7 +26,7 @@ import { useLandmarkClassifier } from '@/hooks/useLandmarkClassifier';
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
 const DETECTION_INTERVAL = 1500;
-const HAND_CROP_PADDING  = 0.25;
+const HAND_CROP_PADDING  = 0.10;
 
 type Language = 'ASL' | 'BISINDO';
 
@@ -51,9 +51,39 @@ async function createHandLandmarker(): Promise<HandLandmarker> {
   });
 }
 
-function cropHandFromCanvas(
+/** Shared helper — draws a square region from the video onto a 224×224 canvas and returns a PNG blob. */
+function buildCropBlob(
+  scratch: HTMLCanvasElement,
+  cx: number, cy: number, side: number,
+  flipHorizontal: boolean,
+): Blob | null {
+  const TARGET = 224;
+  const crop = document.createElement('canvas');
+  crop.width = TARGET; crop.height = TARGET;
+  const cropCtx = crop.getContext('2d');
+  if (!cropCtx) return null;
+  if (flipHorizontal) {
+    cropCtx.translate(TARGET, 0);
+    cropCtx.scale(-1, 1);
+  }
+  cropCtx.drawImage(scratch, cx, cy, side, side, 0, 0, TARGET, TARGET);
+  const dataUrl = crop.toDataURL('image/png');
+  const binary  = atob(dataUrl.split(',')[1]);
+  const arr     = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+  return new Blob([arr], { type: 'image/png' });
+}
+
+/**
+ * Single-hand crop — used for one-handed BISINDO letters: C, E, I, J, L, O, R, U, V, Z.
+ * Flip logic normalises to right-hand orientation:
+ *   rear camera  → flip real left hands (appear left-looking in raw pixels)
+ *   front camera → flip real right hands (camera-perspective makes right appear left-looking)
+ */
+function cropSingleHand(
   video: HTMLVideoElement,
   hand: DetectedHand,
+  mirrored: boolean,
 ): Blob | null {
   const { videoWidth: W, videoHeight: H } = video;
 
@@ -68,38 +98,68 @@ function cropHandFromCanvas(
   const bw  = (xMax - xMin) * W;
   const bh  = (yMax - yMin) * H;
   const pad = Math.max(bw, bh) * HAND_CROP_PADDING;
-
-  // Force square crop centered on the hand bounding box
   const side = Math.ceil(Math.max(bw, bh) + pad * 2);
-  const cx   = Math.max(0, Math.round(((xMin + xMax) / 2) * W - side / 2));
-  const cy   = Math.max(0, Math.round(((yMin + yMax) / 2) * H - side / 2));
-  const cw   = Math.min(W - cx, side);
-  const ch   = Math.min(H - cy, side);
-  if (cw <= 0 || ch <= 0) return null;
+  const cx   = Math.max(0, Math.min(W - side, Math.round(((xMin + xMax) / 2) * W - side / 2)));
+  const cy   = Math.max(0, Math.min(H - side, Math.round(((yMin + yMax) / 2) * H - side / 2)));
+  if (side <= 0) return null;
 
-  // Draw full frame to scratch canvas
   const scratch = document.createElement('canvas');
   scratch.width = W; scratch.height = H;
   const ctx = scratch.getContext('2d');
   if (!ctx) return null;
   ctx.drawImage(video, 0, 0, W, H);
 
-  // Draw square crop — flip left hand horizontally to normalize to right-hand orientation
-  const crop = document.createElement('canvas');
-  crop.width = side; crop.height = side;
-  const cropCtx = crop.getContext('2d');
-  if (!cropCtx) return null;
-  if (hand.handedness === 'Left') {
-    cropCtx.translate(side, 0);
-    cropCtx.scale(-1, 1);
-  }
-  cropCtx.drawImage(scratch, cx, cy, cw, ch, 0, 0, side, side);
+  const shouldFlip = mirrored ? hand.handedness === 'Right' : hand.handedness === 'Left';
+  return buildCropBlob(scratch, cx, cy, side, shouldFlip);
+}
 
-  const dataUrl = crop.toDataURL('image/jpeg', 0.85);
-  const binary  = atob(dataUrl.split(',')[1]);
-  const arr     = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
-  return new Blob([arr], { type: 'image/jpeg' });
+/**
+ * Two-hand crop — used for two-handed BISINDO letters: A, B, D, F, G, H, K, M, N, P, Q, S, T, W, X, Y.
+ * Computes a joint bounding box across ALL detected hands so both appear in one 224×224 crop,
+ * matching the training data distribution (Roboflow images contain both hands together).
+ *
+ * Returns null if either hand's bounding box extends outside the frame — the model
+ * should not receive a partially-visible two-hand gesture.
+ *
+ * Flip: the entire crop is flipped once when mirrored (front camera), preserving the
+ * spatial relationship between the hands that the model learned.
+ */
+function cropBothHands(
+  video: HTMLVideoElement,
+  hands: DetectedHand[],
+  mirrored: boolean,
+): Blob | null {
+  const { videoWidth: W, videoHeight: H } = video;
+
+  let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
+  for (const hand of hands) {
+    for (const lm of hand.landmarks) {
+      if (lm.x < xMin) xMin = lm.x;
+      if (lm.y < yMin) yMin = lm.y;
+      if (lm.x > xMax) xMax = lm.x;
+      if (lm.y > yMax) yMax = lm.y;
+    }
+  }
+
+  const bw  = (xMax - xMin) * W;
+  const bh  = (yMax - yMin) * H;
+  const pad = Math.max(bw, bh) * HAND_CROP_PADDING;
+  const side = Math.ceil(Math.max(bw, bh) + pad * 2);
+  const rawCx = Math.round(((xMin + xMax) / 2) * W - side / 2);
+  const rawCy = Math.round(((yMin + yMax) / 2) * H - side / 2);
+
+  // Reject if the unclamped bounding box extends outside the frame —
+  // a clipped two-hand crop is worse than no prediction.
+  if (rawCx < 0 || rawCy < 0 || rawCx + side > W || rawCy + side > H || side <= 0) return null;
+
+  const scratch = document.createElement('canvas');
+  scratch.width = W; scratch.height = H;
+  const ctx = scratch.getContext('2d');
+  if (!ctx) return null;
+  ctx.drawImage(video, 0, 0, W, H);
+
+  // Flip the whole scene for front camera — preserves left/right spatial relationship
+  return buildCropBlob(scratch, rawCx, rawCy, side, mirrored);
 }
 
 async function predictFromBlob(
@@ -145,6 +205,7 @@ export default function TranslatePageContent() {
   const [devices, setDevices]                     = useState<MediaDeviceOption[]>([]);
   const [selectedDeviceId, setSelectedDeviceId]   = useState('');
   const [apiError, setApiError]                   = useState(false);
+  const [handsIncomplete, setHandsIncomplete]     = useState(false);
   const [mpReady, setMpReady]                     = useState(false);
   const [hands, setHands]                         = useState<DetectedHand[]>([]);
 
@@ -159,10 +220,12 @@ export default function TranslatePageContent() {
   const facingModeRef   = useRef(facingMode);
   const languageRef     = useRef(language);
   const voiceEnabledRef = useRef(voiceEnabled);
+  const isMirroredRef   = useRef(isMirrored);
 
   useEffect(() => { facingModeRef.current   = facingMode;   }, [facingMode]);
   useEffect(() => { languageRef.current     = language;     }, [language]);
   useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
+  useEffect(() => { isMirroredRef.current   = isMirrored;   }, [isMirrored]);
 
   useEffect(() => {
     let cancelled = false;
@@ -238,7 +301,7 @@ export default function TranslatePageContent() {
     setTranscript([]); setTokens([]);
     setCurrentLetter(null); setCurrentConfidence(null);
     setIsSpeaking(false); setIsTtsError(false);
-    setFps(0); setApiError(false); setHands([]);
+    setFps(0); setApiError(false); setHands([]); setHandsIncomplete(false);
   }, [stopStream]);
 
   const startDetection = useCallback(() => {
@@ -274,15 +337,37 @@ export default function TranslatePageContent() {
 
         setHands(nextHands);
         if (nextHands.length === 0) {
-          setCurrentLetter(null); setCurrentConfidence(null); return;
+          setCurrentLetter(null); setCurrentConfidence(null);
+          setHandsIncomplete(false); return;
         }
 
-        // ── MLP path (browser-side, no network call) ──────────────────
-        // Try landmark-based MLP first — fast, robust, no domain gap.
-        // Falls back to CNN when MLP weights aren't loaded yet or confidence is low.
-        if (mlpReady) {
+        // ── Crop strategy: single hand vs. joint two-hand ─────────────
+        // BISINDO is predominantly two-handed. The model was trained on
+        // Roboflow images where both hands appear together in one crop.
+        // When 2 hands are detected → joint crop (preserves spatial relationship).
+        // When 1 hand is detected  → single-hand crop (correct for C,E,I,J,L,O,R,U,V,Z).
+        // cropBothHands() returns null if the joint bounding box clips the frame edge —
+        // in that case we skip inference rather than sending a broken crop.
+        let cropBlob: Blob | null;
+        if (nextHands.length >= 2) {
+          cropBlob = cropBothHands(video, nextHands, isMirroredRef.current);
+          setHandsIncomplete(cropBlob === null); // null = one hand near edge, clipped
+          if (cropBlob === null) return;
+        } else {
+          // One hand in frame — valid for single-hand letters; may be incomplete for two-hand letters.
+          // We cannot know which case this is until after prediction, so we proceed but flag it.
+          setHandsIncomplete(false);
+          cropBlob = cropSingleHand(video, nextHands[0], isMirroredRef.current);
+          if (cropBlob === null) return;
+        }
+
+        // ── CNN path (backend API, primary) ───────────────────────────
+        const cnnBest = await predictFromBlob(cropBlob);
+
+        // ── MLP fallback (browser-side) — when CNN unreachable or low confidence ──
+        if ((cnnBest === null || cnnBest.confidence < 0.7) && mlpReady) {
           const mlpResults = nextHands
-            .map(hand => mlpPredict(hand.landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))))
+            .map(hand => mlpPredict(hand.landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z ?? 0 }))))
             .filter((r): r is NonNullable<typeof r> => r !== null);
 
           if (mlpResults.length > 0) {
@@ -310,32 +395,24 @@ export default function TranslatePageContent() {
           }
         }
 
-        // ── CNN path (backend API, fallback) ──────────────────────────
-        const predictions = await Promise.all(
-          nextHands.map((hand) => {
-            const blob = cropHandFromCanvas(video, hand);
-            return blob ? predictFromBlob(blob) : Promise.resolve(null);
-          }),
-        );
-        const valid = predictions.filter((p): p is NonNullable<typeof p> => p !== null);
-        if (valid.length === 0) { setApiError(true); return; }
-        const prediction = valid.reduce((best, p) => p.confidence > best.confidence ? p : best);
+        // Use CNN result (or report error if both paths failed)
+        if (cnnBest === null) { setApiError(true); return; }
 
         setApiError(false);
         fpsCountRef.current += 1;
-        setCurrentLetter(prediction.prediction);
-        setCurrentConfidence(prediction.confidence);
-        if (prediction.low_confidence) return;
+        setCurrentLetter(cnnBest.prediction);
+        setCurrentConfidence(cnnBest.confidence);
+        if (cnnBest.low_confidence) return;
 
-        setTokens((prev) => [...prev, prediction.prediction]);
+        setTokens((prev) => [...prev, cnnBest.prediction]);
         setTranscript((prev) => [
           ...prev.slice(-49),
-          { id: uid(), text: prediction.prediction, confidence: prediction.confidence, timestamp: new Date(), language: languageRef.current },
+          { id: uid(), text: cnnBest.prediction, confidence: cnnBest.confidence, timestamp: new Date(), language: languageRef.current },
         ]);
 
         if (voiceEnabledRef.current && 'speechSynthesis' in window) {
           setIsSpeaking(true);
-          const u = new SpeechSynthesisUtterance(prediction.prediction);
+          const u = new SpeechSynthesisUtterance(cnnBest.prediction);
           u.rate = 0.95;
           u.onend = () => setIsSpeaking(false);
           u.onerror = () => setIsSpeaking(false);
@@ -349,7 +426,7 @@ export default function TranslatePageContent() {
     if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
     if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
     isBusy.current = false; fpsCountRef.current = 0;
-    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
+    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0); setHandsIncomplete(false);
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
 
@@ -453,7 +530,7 @@ export default function TranslatePageContent() {
         </header>
 
         <main className="flex flex-1 flex-col overflow-hidden md:flex-row" style={{ minHeight: 0 }}>
-          <div className="relative flex flex-col md:flex-1" style={{ minHeight: 0 }}>
+          <div className="relative flex flex-col md:aspect-square md:h-full md:flex-none" style={{ minHeight: 0 }}>
             <WebcamCapture
               ref={webcamRef}
               state={appState}
@@ -477,6 +554,14 @@ export default function TranslatePageContent() {
                 showBoundingBox
                 showHandLabels
               />
+            )}
+            {isActive && handsIncomplete && (
+              <div
+                role="alert"
+                className="absolute top-14 left-1/2 z-20 -translate-x-1/2 rounded-full bg-amber-500/90 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm whitespace-nowrap"
+              >
+                Keep both hands fully in frame
+              </div>
             )}
           </div>
 

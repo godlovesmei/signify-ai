@@ -18,8 +18,8 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]
 
     # Model paths
-    SAVED_MODEL_PATH: str = "models/exports/bisindo_v1/saved_model"
-    LABEL_MAP_PATH:   str = "models/exports/bisindo_v1/label_map.json"
+    SAVED_MODEL_PATH: str = "models/exports/bisindo_v2/saved_model"
+    LABEL_MAP_PATH:   str = "models/exports/bisindo_v2/label_map.json"
 
     # SavedModel signature keys.
     # These are auto-generated at export time and WILL change when the
@@ -27,15 +27,15 @@ class Settings(BaseSettings):
     #
     #   python - <<'EOF'
     #   import tensorflow as tf
-    #   m = tf.saved_model.load("models/exports/bisindo_v1/saved_model")
+    #   m = tf.saved_model.load("models/exports/bisindo_v2/saved_model")
     #   f = m.signatures["serving_default"]
     #   print("INPUT :", list(f.structured_input_signature[1].keys()))
     #   print("OUTPUT:", list(f.structured_outputs.keys()))
     #   EOF
     #
     # Then update the two values below to match.
-    MODEL_INPUT_KEY:  str = "keras_tensor_154"  # verified from bisindo_v1 SavedModel
-    MODEL_OUTPUT_KEY: str = "output_0"          # verified from bisindo_v1 SavedModel
+    MODEL_INPUT_KEY:  str = "keras_tensor_268"  # verified from bisindo_v2 SavedModel
+    MODEL_OUTPUT_KEY: str = "output_0"          # verified from bisindo_v2 SavedModel
 
     # Inference
     INPUT_SIZE:           int   = 224
