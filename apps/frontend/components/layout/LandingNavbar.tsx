@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/Logo';
+import { LoginModal } from '@/components/auth/LoginModal';
 
 export default function LandingNavbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -27,7 +29,7 @@ export default function LandingNavbar() {
       <div
         className={[
           'w-full flex items-center justify-between px-6 md:px-10 transition-all duration-300',
-          scrolled ? 'h-14' : 'h-20',
+          scrolled ? 'h-14' : 'h-16',
         ].join(' ')}
       >
         <Logo size="lg" />
@@ -54,21 +56,23 @@ export default function LandingNavbar() {
             variant="ghost"
             size="default"
             className="hidden text-sm text-muted-foreground md:inline-flex"
-            asChild
+            onClick={() => setLoginOpen(true)}
           >
-            <Link href="/auth/login">Sign In</Link>
+            Sign In
           </Button>
 
           <Button
             variant="default"
             size="default"
             className="rounded-xl px-5 text-sm font-semibold"
-            asChild
+            onClick={() => setLoginOpen(true)}
           >
-            <Link href="/auth/login">Try Free</Link>
+            Try Free
           </Button>
         </div>
       </div>
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </header>
   );
 }

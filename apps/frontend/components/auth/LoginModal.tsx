@@ -1,29 +1,47 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { X } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { Logo } from '@/components/ui/Logo';
 import { cn } from '@/lib/utils';
 
-// ─── Error message map ────────────────────────────────────────────────────────
-// Maps URL error params (set by callback/route.ts) to plain-language strings.
-const CALLBACK_ERRORS: Record<string, string> = {
-  auth_callback_failed: 'Sign-in failed. Please try again.',
-};
+interface LoginModalProps {
+  open: boolean;
+  onClose: () => void;
+}
 
-export default function LoginPage() {
-  const searchParams = useSearchParams();
+export function LoginModal({ open, onClose }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pick up errors forwarded from the OAuth callback route
+  // Reset state when modal opens
   useEffect(() => {
-    const cbError = searchParams.get('error');
-    if (cbError) {
-      setError(CALLBACK_ERRORS[cbError] ?? 'Sign-in failed. Please try again.');
+    if (open) {
+      setError(null);
+      setLoading(false);
     }
-  }, [searchParams]);
+  }, [open]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [open, onClose]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   const handleGoogleSignIn = async () => {
     setError(null);
@@ -33,10 +51,8 @@ export default function LoginPage() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Supabase will redirect here after Google consent
         redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: {
-          // Request refresh token so sessions survive browser restarts
           access_type: 'offline',
           prompt: 'select_account',
         },
@@ -46,32 +62,27 @@ export default function LoginPage() {
     if (oauthError) {
       setError('Sign-in failed. Please try again.');
       setLoading(false);
-      // On success, Supabase triggers a full-page redirect — no need to reset loading
     }
   };
 
+  if (!open) return null;
+
   return (
-    /*
-      Full-screen muted overlay.
-      bg-background/95 + backdrop-blur gives the impression of the landing page
-      underneath without distracting from the modal.
-    */
-    <div className="relative min-h-screen flex items-center justify-center p-4 bg-background overflow-hidden">
-
-      {/* Violet radial glow — primary brand tint */}
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Sign in"
+    >
+      {/* Backdrop — blurs the page behind */}
       <div
+        className="absolute inset-0 bg-background/60 backdrop-blur-sm"
+        onClick={onClose}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,_var(--color-primary-100)_0%,_transparent_100%)] opacity-60"
-      />
-      {/* Secondary accent blob — bottom-right depth */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_40%_35%_at_80%_80%,_oklch(60.56%_0.1896_310.40_/_0.08)_0%,_transparent_100%)]"
       />
 
-      {/* ── Modal card ─────────────────────────────────────────────────────── */}
+      {/* Modal card */}
       <div
-        role="main"
         className={cn(
           'relative z-10 w-full max-w-sm',
           'flex flex-col items-center gap-6',
@@ -79,11 +90,27 @@ export default function LoginPage() {
           'bg-card/90 backdrop-blur-md',
           'shadow-2xl shadow-black/12',
           'px-8 py-10',
-          // Subtle top-edge highlight for glass depth
           'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-2xl before:bg-gradient-to-r before:from-transparent before:via-primary/20 before:to-transparent',
+          // Entrance animation
+          'animate-in fade-in zoom-in-95 duration-200',
         )}
       >
-        {/* ── Logo + App identity ─────────────────────────────────────────── */}
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close sign in"
+          className={cn(
+            'absolute top-4 right-4',
+            'size-7 flex items-center justify-center rounded-md',
+            'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+            'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+          )}
+        >
+          <X className="size-4" aria-hidden="true" />
+        </button>
+
+        {/* Logo + identity */}
         <div className="flex flex-col items-center gap-3 text-center">
           <Logo size="lg" />
           <div>
@@ -96,14 +123,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ── Value proposition ──────────────────────────────────────────── */}
+        {/* Value prop */}
         <p className="text-center text-sm text-muted-foreground leading-relaxed">
           Sign in to save your translation history and track your practice progress.
         </p>
 
         <div className="w-full h-px bg-border" aria-hidden="true" />
 
-        {/* ── Google Sign-In ─────────────────────────────────────────────── */}
+        {/* Google Sign-In */}
         <div className="w-full flex flex-col items-center gap-3">
           <button
             type="button"
@@ -112,8 +139,6 @@ export default function LoginPage() {
             aria-busy={loading}
             aria-label={loading ? 'Signing in…' : 'Sign in with Google'}
             className={cn(
-              // Google brand guidelines: white bg, #3c4043 text, #dadce0 border
-              // Never restyle the Google button beyond these sanctioned states
               'w-full h-12 rounded-lg',
               'flex items-center justify-center gap-3',
               'border border-[#dadce0] bg-white',
@@ -127,7 +152,6 @@ export default function LoginPage() {
             )}
           >
             {loading ? (
-              /* Spinner replaces Google logo while request is in-flight */
               <>
                 <svg
                   className="size-4 animate-spin text-[#3c4043]"
@@ -135,22 +159,13 @@ export default function LoginPage() {
                   fill="none"
                   aria-hidden="true"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12" cy="12" r="10"
-                    stroke="currentColor" strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                 </svg>
                 <span>Signing in…</span>
               </>
             ) : (
               <>
-                {/* Official Google G — four-colour logo, never recoloured */}
                 <svg
                   className="size-5 shrink-0"
                   viewBox="0 0 24 24"
@@ -167,19 +182,14 @@ export default function LoginPage() {
             )}
           </button>
 
-          {/* Error state — plain language, no jargon */}
           {error && (
-            <p
-              role="alert"
-              aria-live="assertive"
-              className="text-center text-sm text-destructive"
-            >
+            <p role="alert" aria-live="assertive" className="text-center text-sm text-destructive">
               {error}
             </p>
           )}
         </div>
 
-        {/* ── Footer notices ─────────────────────────────────────────────── */}
+        {/* Footer notices */}
         <div className="flex flex-col gap-1.5 text-center">
           <p className="text-xs text-muted-foreground">
             Your camera stays on your device. No video is uploaded or stored.
