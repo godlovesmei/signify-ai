@@ -15,7 +15,7 @@ const PROTECTED_PREFIXES = [
 // Authenticated users visiting these are redirected away (e.g. back to app).
 const AUTH_PREFIXES = ['/auth/login', '/auth/signup'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { supabase, supabaseResponse } = createClient(request);
 
   // IMPORTANT: always call getUser() — never getSession() — in middleware.

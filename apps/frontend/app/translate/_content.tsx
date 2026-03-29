@@ -543,8 +543,8 @@ export default function TranslatePageContent() {
           <div className="flex items-center gap-2">
             {isActive && (
               <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-destructive/70 animate-ping" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-destructive" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success/70 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
               </span>
             )}
             <h1 className="text-sm font-semibold tracking-[-0.01em]">
@@ -619,7 +619,7 @@ export default function TranslatePageContent() {
 
           <aside
             aria-label="Detection feedback"
-            className="flex flex-col gap-4 overflow-y-auto border-t border-border/30 bg-background p-4 md:w-[420px] md:border-t-0 md:border-l"
+            className="flex flex-col gap-4 overflow-y-auto border-t border-border/30 bg-card p-4 md:w-[420px] md:border-t-0 md:border-l"
           >
             <div className="flex items-center justify-between">
               <DetectionStatus state={toDetectionStatus(appState)} fps={fps} showFps />
