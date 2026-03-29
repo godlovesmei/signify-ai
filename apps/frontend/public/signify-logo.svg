@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" width="800" height="900">
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="35%" stop-color="#7C3AED"/>
+      <stop offset="60%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="wordGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="50%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.7"/>
+    </linearGradient>
+    <clipPath id="iconClip">
+      <rect x="150" y="60" width="500" height="500" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- ========== APP ICON ========== -->
+  <g>
+    <!-- Icon background with gradient -->
+    <rect x="150" y="60" width="500" height="500" rx="112" fill="url(#iconBg)"/>
+
+    <!-- Clipped content -->
+    <g clip-path="url(#iconClip)">
+
+      <!-- Soft top-left light -->
+      <ellipse cx="300" cy="160" rx="320" ry="240" fill="url(#shine)"/>
+
+      <!-- Palm base — frosted glass panel -->
+      <rect x="265" y="340" width="270" height="150" rx="60" fill="#FFFFFF" fill-opacity="0.1" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.5"/>
+
+      <!-- Fingers — glass capsules -->
+      <!-- Pinky -->
+      <g transform="rotate(-22, 316, 292)">
+        <rect x="291" y="192" width="50" height="152" rx="25" fill="#FFFFFF" fill-opacity="0.13" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1"/>
+      </g>
+      <!-- Ring -->
+      <g transform="rotate(-10, 356, 268)">
+        <rect x="331" y="148" width="50" height="178" rx="25" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+      </g>
+      <!-- Middle (tallest, brightest) -->
+      <rect x="375" y="108" width="52" height="200" rx="26" fill="#FFFFFF" fill-opacity="0.2" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1.5"/>
+      <!-- Index -->
+      <g transform="rotate(10, 444, 272)">
+        <rect x="419" y="152" width="50" height="170" rx="25" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+      </g>
+      <!-- Thumb -->
+      <g transform="rotate(28, 490, 310)">
+        <rect x="465" y="218" width="48" height="125" rx="24" fill="#FFFFFF" fill-opacity="0.13" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1"/>
+      </g>
+
+      <!-- AI Vision Eye — outer ring -->
+      <circle cx="400" cy="415" r="38" fill="none" stroke="#22D3EE" stroke-width="2.5" stroke-opacity="0.7"/>
+      <!-- Scan orbit -->
+      <circle cx="400" cy="415" r="50" fill="none" stroke="#22D3EE" stroke-width="1" stroke-opacity="0.15" stroke-dasharray="4 6"/>
+      <!-- Eye inner glow -->
+      <circle cx="400" cy="415" r="16" fill="url(#cyanGlow)"/>
+      <!-- Eye highlight -->
+      <circle cx="400" cy="415" r="6" fill="#FFFFFF" fill-opacity="0.9"/>
+
+      <!-- Scan arc accents -->
+      <path d="M370 392 A38 38 0 0 1 400 382" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-opacity="0.4" stroke-linecap="round"/>
+      <path d="M430 438 A38 38 0 0 1 400 448" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-opacity="0.4" stroke-linecap="round"/>
+
+      <!-- Subtle particle dots -->
+      <circle cx="540" cy="110" r="5" fill="#22D3EE" fill-opacity="0.4"/>
+      <circle cx="570" cy="160" r="3" fill="#A78BFA" fill-opacity="0.35"/>
+      <circle cx="220" cy="490" r="4" fill="#EC4899" fill-opacity="0.25"/>
+      <circle cx="560" cy="440" r="3" fill="#22D3EE" fill-opacity="0.2"/>
+
+    </g>
+  </g>
+
+  <!-- ========== WORDMARK ========== -->
+  <text x="400" y="680" text-anchor="middle" font-family="'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="600" letter-spacing="-2" fill="url(#wordGrad)">Signify</text>
+
+  <!-- Tagline -->
+  <text x="400" y="730" text-anchor="middle" font-family="'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="18" font-weight="400" letter-spacing="6" fill="#9CA3AF">AI SIGN LANGUAGE</text>
+
+</svg>

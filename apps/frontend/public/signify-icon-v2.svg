@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="35%" stop-color="#7C3AED"/>
+      <stop offset="60%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="sh" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Finger glass fills — solid blended colors that look like frosted glass over the gradient -->
+    <linearGradient id="glass1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B8AFF8"/>
+      <stop offset="100%" stop-color="#9B8AE8"/>
+    </linearGradient>
+    <linearGradient id="glass2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C4B8FC"/>
+      <stop offset="100%" stop-color="#A899F0"/>
+    </linearGradient>
+    <!-- Middle finger — brighter/highlighted -->
+    <linearGradient id="glassMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D5CCFF"/>
+      <stop offset="100%" stop-color="#B8AAFC"/>
+    </linearGradient>
+    <!-- Palm -->
+    <linearGradient id="glassPalm" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#C0B4F5"/>
+      <stop offset="100%" stop-color="#A694E8"/>
+    </linearGradient>
+
+    <!-- Cyan eye glow -->
+    <radialGradient id="eyeGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+
+    <clipPath id="ic">
+      <rect width="512" height="512" rx="115"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+
+  <g clip-path="url(#ic)">
+    <!-- Top-left sheen -->
+    <ellipse cx="180" cy="100" rx="340" ry="250" fill="url(#sh)"/>
+
+    <!-- ===== HAND ===== -->
+
+    <!-- Palm base -->
+    <rect x="160" y="290" width="192" height="110" rx="46" fill="url(#glassPalm)" opacity="0.65" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1.2"/>
+    <!-- Palm inner highlight -->
+    <rect x="168" y="296" width="176" height="50" rx="25" fill="#FFFFFF" fill-opacity="0.08"/>
+
+    <!-- Pinky -->
+    <g transform="rotate(-22, 208, 224)">
+      <rect x="188" y="152" width="38" height="108" rx="19" fill="url(#glass1)" opacity="0.6" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="0.8"/>
+      <rect x="194" y="158" width="26" height="40" rx="13" fill="#FFFFFF" fill-opacity="0.1"/>
+    </g>
+    <!-- Ring -->
+    <g transform="rotate(-10, 240, 205)">
+      <rect x="221" y="118" width="38" height="128" rx="19" fill="url(#glass2)" opacity="0.65" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="0.8"/>
+      <rect x="227" y="124" width="26" height="45" rx="13" fill="#FFFFFF" fill-opacity="0.1"/>
+    </g>
+    <!-- Middle (tallest, brightest) -->
+    <rect x="237" y="78" width="40" height="155" rx="20" fill="url(#glassMid)" opacity="0.75" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="1.2"/>
+    <rect x="243" y="84" width="28" height="55" rx="14" fill="#FFFFFF" fill-opacity="0.15"/>
+    <!-- Index -->
+    <g transform="rotate(10, 302, 210)">
+      <rect x="283" y="122" width="38" height="125" rx="19" fill="url(#glass2)" opacity="0.65" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="0.8"/>
+      <rect x="289" y="128" width="26" height="44" rx="13" fill="#FFFFFF" fill-opacity="0.1"/>
+    </g>
+    <!-- Thumb -->
+    <g transform="rotate(28, 338, 248)">
+      <rect x="315" y="178" width="36" height="95" rx="18" fill="url(#glass1)" opacity="0.6" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="0.8"/>
+      <rect x="321" y="184" width="24" height="35" rx="12" fill="#FFFFFF" fill-opacity="0.08"/>
+    </g>
+
+    <!-- ===== AI EYE ===== -->
+    <!-- Glow backdrop -->
+    <circle cx="256" cy="345" r="48" fill="url(#eyeGlow)"/>
+    <!-- Outer ring -->
+    <circle cx="256" cy="345" r="30" fill="none" stroke="#22D3EE" stroke-width="2" stroke-opacity="0.75"/>
+    <!-- Scan orbit -->
+    <circle cx="256" cy="345" r="40" fill="none" stroke="#22D3EE" stroke-width="0.8" stroke-opacity="0.15" stroke-dasharray="3 5"/>
+    <!-- Iris -->
+    <circle cx="256" cy="345" r="12" fill="url(#cy)"/>
+    <!-- Highlight -->
+    <circle cx="256" cy="345" r="4.5" fill="#FFFFFF" fill-opacity="0.92"/>
+
+    <!-- Scan arcs -->
+    <path d="M232 327 A30 30 0 0 1 256 319" fill="none" stroke="#22D3EE" stroke-width="1.3" stroke-opacity="0.45" stroke-linecap="round"/>
+    <path d="M280 363 A30 30 0 0 1 256 371" fill="none" stroke="#22D3EE" stroke-width="1.3" stroke-opacity="0.45" stroke-linecap="round"/>
+
+    <!-- Ambient particles -->
+    <circle cx="410" cy="85" r="4" fill="#22D3EE" fill-opacity="0.45"/>
+    <circle cx="435" cy="128" r="2.5" fill="#C4B5FD" fill-opacity="0.4"/>
+    <circle cx="128" cy="405" r="3" fill="#F472B6" fill-opacity="0.3"/>
+    <circle cx="400" cy="420" r="2" fill="#22D3EE" fill-opacity="0.25"/>
+  </g>
+</svg>

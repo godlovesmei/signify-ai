@@ -64,8 +64,8 @@ export default function SentenceBuilder({
         role="list"
       >
         {isEmpty ? (
-          <span className="select-none text-sm italic text-muted-foreground/50">
-            Confirmed letters will appear here…
+          <span className="select-none text-xs text-muted-foreground/40 tracking-wide">
+            Letters appear here as you sign…
           </span>
         ) : (
           tokens.map((token, i) => {
@@ -77,10 +77,10 @@ export default function SentenceBuilder({
                 aria-label={`Letter ${token}${isLatest ? ', latest' : ''}`}
                 className={cn(
                   'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                  'font-display text-sm font-semibold transition-colors duration-150',
+                  'font-display text-sm font-semibold transition-all duration-150',
                   isLatest
-                    ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-200'
-                    : 'bg-muted text-muted-foreground',
+                    ? 'bg-primary/15 text-primary ring-1 ring-primary/30 scale-105'
+                    : 'bg-muted/60 text-muted-foreground',
                 )}
               >
                 {token}
@@ -101,7 +101,7 @@ export default function SentenceBuilder({
         )}
         style={{ fontSize: sentenceFontSize }}
       >
-        {isEmpty ? 'Your sentence will build here' : sentence}
+        {isEmpty ? 'Your sentence builds here…' : sentence}
       </div>
 
       {/* Controls row — delete left, char count + TTS right */}

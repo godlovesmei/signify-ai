@@ -51,7 +51,7 @@ function ConfidencePill({ value }: { value: number }) {
       title={`${Math.round(value * 100)}% model confidence`}
       className={[
         'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5',
-        'text-[10px] font-semibold leading-none',
+        'text-xs font-semibold leading-none',
         pillClass,
       ].join(' ')}
     >
@@ -234,14 +234,17 @@ export default function PredictionDisplay({
       </div>
 
       {/* Latest prediction footer */}
-      <div className="shrink-0 border-t border-border/30 bg-card/50 px-5 py-4">
+      <div className="shrink-0 border-t border-border/30 bg-card/50 px-5 py-3.5">
         {latest ? (
-          <>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-              Latest
-            </p>
-            <p className="text-base font-semibold leading-snug">{latest.text}</p>
-          </>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                Latest
+              </p>
+              <p className="text-base font-semibold leading-snug">{latest.text}</p>
+            </div>
+            <ConfidencePill value={latest.confidence} />
+          </div>
         ) : (
           <div aria-hidden="true" className="select-none opacity-0">
             <p className="text-[10px]">&nbsp;</p>

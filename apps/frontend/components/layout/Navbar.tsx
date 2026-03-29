@@ -101,7 +101,7 @@ function ModeTabBar({ pathname }: { pathname: string }) {
               // Underline indicator
               'after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-left after:transition-transform after:duration-200',
               isActive
-                ? 'text-primary-700 font-semibold after:bg-primary after:scale-x-100'
+                ? 'text-primary font-semibold after:bg-primary after:scale-x-100'
                 : 'text-muted-foreground font-medium after:bg-primary after:scale-x-0 hover:text-foreground hover:bg-muted/60 rounded-t-md',
             )}
           >
@@ -214,7 +214,7 @@ export default function Navbar({
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
                   'relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full',
                   isActive
-                    ? 'text-primary-700 font-semibold after:bg-primary'
+                    ? 'text-primary font-semibold after:bg-primary'
                     : 'text-muted-foreground font-medium after:bg-transparent hover:text-foreground hover:bg-muted/40',
                 )}
               >

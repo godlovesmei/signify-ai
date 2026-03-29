@@ -29,7 +29,7 @@ function LogoContent({
         style={{ width: icon, height: icon }}
       >
         <Image
-          src="/logo.png"
+          src="/signify-icon-v2.svg"
           alt="Signify.ai logo"
           fill
           className="object-contain"

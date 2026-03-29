@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Camera, FlipHorizontal, Hand, Loader2, RotateCcw, ShieldAlert, Square } from 'lucide-react';
+import { Camera, Check, FlipHorizontal, Hand, Loader2, RotateCcw, ShieldAlert, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -59,10 +59,13 @@ function ScanCorners() {
 
 function LiveDot() {
   return (
-    <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-destructive/70 animate-ping" />
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-destructive" />
-    </span>
+    <div aria-hidden="true" className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-white/90 backdrop-blur-sm">
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-success/80 animate-ping" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+      </span>
+      LIVE
+    </div>
   );
 }
 
@@ -185,7 +188,9 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
           'Sign at a natural, comfortable pace',
         ].map((tip) => (
           <li key={tip} className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="h-1 w-1 shrink-0 rounded-full bg-primary/50" aria-hidden="true" />
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10" aria-hidden="true">
+              <Check className="h-3 w-3 text-primary" />
+            </span>
             {tip}
           </li>
         ))}

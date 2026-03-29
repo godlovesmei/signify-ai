@@ -48,30 +48,30 @@ export default function TTSButton({
 
           // Disabled — empty sentence
           isEmpty && !hasError && [
-            'cursor-not-allowed border-border bg-muted text-neutral-200 opacity-50',
+            'cursor-not-allowed border-border bg-muted text-muted-foreground/30 opacity-50',
           ],
 
           // Error state
           hasError && !isSpeaking && [
-            'border-error-500/60 bg-error-100 text-error-500',
-            'hover:bg-error-100',
+            'border-destructive/40 bg-destructive/8 text-destructive',
+            'hover:bg-destructive/12',
           ],
 
           // Speaking / active
           isSpeaking && [
-            'border-primary-500 bg-primary-100 text-primary-700',
+            'border-primary/40 bg-primary/10 text-primary',
           ],
 
           // Idle — ready to speak
           !isEmpty && !isSpeaking && !hasError && [
-            'border-border bg-muted text-neutral-600',
-            'hover:border-neutral-200 hover:bg-neutral-100 hover:text-neutral-700',
+            'border-border bg-muted text-muted-foreground',
+            'hover:bg-muted/80 hover:text-foreground hover:border-border/80',
             'active:scale-[0.97]',
           ],
         )}
       >
         {isSpeaking
-          ? <TTSSpeakingIndicator active={true} className="text-primary-700" />
+          ? <TTSSpeakingIndicator active={true} className="text-primary" />
           : <Volume2 className="h-4 w-4" aria-hidden="true" />
         }
       </button>
@@ -82,7 +82,7 @@ export default function TTSButton({
         className={cn(
           'rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums tracking-wide',
           isSpeaking
-            ? 'bg-primary-100 text-primary-700'
+            ? 'bg-primary/15 text-primary'
             : 'bg-muted text-muted-foreground',
         )}
       >
@@ -91,8 +91,8 @@ export default function TTSButton({
 
       {/* Error message */}
       {hasError && !isSpeaking && (
-        <p role="alert" className="text-xs text-error-500">
-          Text-to-speech unavailable. Check your device volume.
+        <p role="alert" className="text-xs text-destructive">
+          TTS unavailable. Check your device volume.
         </p>
       )}
     </div>

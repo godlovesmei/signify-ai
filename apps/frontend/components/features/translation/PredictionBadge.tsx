@@ -94,18 +94,25 @@ export default function PredictionBadge({
             : 'min-h-[120px] p-6',
           // Border / background
           isNoHand
-            ? 'border border-dashed border-border bg-muted'
+            ? 'border border-dashed border-border/60 bg-muted/40'
             : CARD_CLASSES[tier],
           // Glow on high confidence
-          tier === 'high' && !isNoHand &&
-            'shadow-[0_0_12px_rgba(34,197,102,0.30)] animate-pulse-ring',
+          tier === 'high' &&
+            'shadow-[0_0_14px_rgba(34,197,102,0.35)] animate-pulse-ring',
         )}
       >
         {isIdle && !isDetecting ? (
-          /* Compact idle — no giant dash, just a subtle label */
-          <p className="text-xs text-muted-foreground/60 select-none">
-            Waiting for detection…
-          </p>
+          /* Compact idle — subtle label with icon */
+          <div className="flex items-center gap-2 select-none">
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/25" aria-hidden="true" />
+            <p className="text-xs text-muted-foreground/50">Start detection to see results</p>
+          </div>
+        ) : isNoHand ? (
+          /* Detecting but no hand in frame */
+          <div className="flex flex-col items-center gap-2 select-none">
+            <span className="text-3xl text-muted-foreground/20" aria-hidden="true">✋</span>
+            <p className="text-xs text-muted-foreground/50">Show your hand to the camera</p>
+          </div>
         ) : (
           <span
             key={letterKey}
@@ -114,7 +121,7 @@ export default function PredictionBadge({
             className={cn(
               'font-display font-extrabold leading-none tracking-tight',
               'animate-prediction-in',
-              isNoHand ? 'text-muted-foreground/40' : TEXT_CLASSES[tier],
+              TEXT_CLASSES[tier],
             )}
             style={{ fontSize }}
           >

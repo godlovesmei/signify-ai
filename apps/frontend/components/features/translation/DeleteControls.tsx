@@ -53,13 +53,13 @@ export default function DeleteControls({
         aria-label="Delete last character"
         className={cn(
           'flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning-500/50 focus-visible:ring-offset-1',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/50 focus-visible:ring-offset-1',
           disabled
-            ? 'cursor-not-allowed border-border bg-muted text-neutral-200 opacity-50'
+            ? 'cursor-not-allowed border-border bg-muted text-muted-foreground/30 opacity-50'
             : [
-                'border-border bg-muted text-neutral-600',
-                'hover:border-warning-500/60 hover:bg-warning-100 hover:text-warning-700',
-                'active:scale-[0.97] active:bg-warning-100/80',
+                'border-border bg-muted text-muted-foreground',
+                'hover:border-warning/40 hover:bg-warning/10 hover:text-warning-foreground',
+                'active:scale-[0.97]',
               ].join(' '),
         )}
       >
@@ -75,14 +75,14 @@ export default function DeleteControls({
         aria-pressed={confirming}
         className={cn(
           'flex h-11 items-center gap-1.5 rounded-xl px-3 text-sm transition-all duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error-500/50 focus-visible:ring-offset-1',
-          disabled && 'cursor-not-allowed text-neutral-200 opacity-50 pointer-events-none',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 focus-visible:ring-offset-1',
+          disabled && 'cursor-not-allowed text-muted-foreground/30 opacity-50 pointer-events-none',
           !disabled && !confirming && [
-            'text-neutral-600',
-            'hover:bg-error-50 hover:text-error-500',
+            'text-muted-foreground',
+            'hover:bg-destructive/8 hover:text-destructive',
           ].join(' '),
           !disabled && confirming && [
-            'border border-error-500/60 bg-error-100 font-medium text-error-700',
+            'border border-destructive/50 bg-destructive/10 font-medium text-destructive',
           ].join(' '),
         )}
       >
