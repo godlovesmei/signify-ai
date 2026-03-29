@@ -8,9 +8,11 @@ Routes:
 """
 
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
+from app.api.deps import verify_supabase_token
 from app.services.ml_service import MLService, PredictionResult, get_ml_service
 
 logger = logging.getLogger(__name__)
@@ -38,6 +40,7 @@ def _prediction_to_dict(result: PredictionResult) -> dict:
 async def predict(
     file:    UploadFile = File(...),
     service: MLService  = Depends(get_ml_service),
+    _token:  Annotated[dict | None, Depends(verify_supabase_token)] = None,
 ):
     """
     Terima gambar webcam, kembalikan prediksi huruf BISINDO.

@@ -13,3 +13,5 @@ dependencies:
       - pillow
       - numpy
       - opencv-python-headless
+      - PyJWT==2.9.0
+      - cryptography
