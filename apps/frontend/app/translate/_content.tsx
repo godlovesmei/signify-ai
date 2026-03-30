@@ -27,8 +27,8 @@ const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:
 const MODEL_INIT_MS      = 2400;
 const DETECTION_INTERVAL = 500;
 const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
-const VOTE_BUFFER_SIZE   = 4;     // frames to collect before committing
-const VOTE_NEEDED        = 3;     // how many of those frames must agree
+const VOTE_BUFFER_SIZE   = 6;     // frames to collect before committing
+const VOTE_NEEDED        = 5;     // how many of those frames must agree
 const HAND_CROP_PADDING  = 0.10;
 
 type Language = 'ASL' | 'BISINDO';
