@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Camera, Check, FlipHorizontal, Hand, Loader2, RotateCcw, ShieldAlert, Square } from 'lucide-react';
+import { Camera, Check, FlipHorizontal, Hand, Loader2, Maximize2, Minimize2, RotateCcw, ShieldAlert, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -257,13 +257,29 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     },
     ref,
   ) => {
-    const videoRef = useRef<HTMLVideoElement>(null);
+    const videoRef   = useRef<HTMLVideoElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     useImperativeHandle(ref, () => ({
       get videoElement() {
         return videoRef.current;
       },
     }));
+
+    useEffect(() => {
+      const handler = () => setIsFullscreen(!!document.fullscreenElement);
+      document.addEventListener('fullscreenchange', handler);
+      return () => document.removeEventListener('fullscreenchange', handler);
+    }, []);
+
+    const handleFullscreen = () => {
+      if (!document.fullscreenElement) {
+        sectionRef.current?.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    };
 
     const isLive    = state === 'ready' || state === 'detecting';
     const isActive  = state === 'detecting';
@@ -272,6 +288,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
 
     return (
       <section
+        ref={sectionRef}
         aria-label="Camera feed"
         className="relative flex flex-col bg-neutral-950 md:h-full"
         style={{ minHeight: 0 }}
@@ -347,13 +364,23 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 : <Hand className="h-5 w-5 text-white" />}
             </Button>
 
-            <OverlayIconBtn
-              onClick={onFlipCamera}
-              disabled={!hasMultipleCameras}
-              label="Switch camera"
-            >
-              <FlipHorizontal className="h-4 w-4" />
-            </OverlayIconBtn>
+            <div className="flex items-center gap-2">
+              <OverlayIconBtn
+                onClick={onFlipCamera}
+                disabled={!hasMultipleCameras}
+                label="Switch camera"
+              >
+                <FlipHorizontal className="h-4 w-4" />
+              </OverlayIconBtn>
+              <OverlayIconBtn
+                onClick={handleFullscreen}
+                label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen
+                  ? <Minimize2 className="h-4 w-4" />
+                  : <Maximize2 className="h-4 w-4" />}
+              </OverlayIconBtn>
+            </div>
           </div>
         )}
 

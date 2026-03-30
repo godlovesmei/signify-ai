@@ -11,6 +11,8 @@ export interface SentenceBuilderProps {
   onDeleteLast: () => void;
   onClearAll: () => void;
   onSpeak: () => void;
+  /** Appends a space character to the token list. */
+  onAddSpace?: () => void;
   /** Pass true when the last TTS attempt threw an error. */
   isTtsError?: boolean;
   textScale?: number;
@@ -22,6 +24,7 @@ export default function SentenceBuilder({
   onDeleteLast,
   onClearAll,
   onSpeak,
+  onAddSpace,
   isTtsError = false,
   textScale = 1,
 }: SentenceBuilderProps) {
@@ -78,12 +81,16 @@ export default function SentenceBuilder({
                 className={cn(
                   'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
                   'font-display text-sm font-semibold transition-all duration-150',
-                  isLatest
-                    ? 'bg-primary/15 text-primary ring-1 ring-primary/30 scale-105'
-                    : 'bg-muted/60 text-muted-foreground',
+                  token === ' '
+                    ? isLatest
+                      ? 'bg-primary/15 ring-1 ring-primary/30 scale-105'
+                      : 'bg-muted/60'
+                    : isLatest
+                      ? 'bg-primary/15 text-primary ring-1 ring-primary/30 scale-105'
+                      : 'bg-muted/60 text-muted-foreground',
                 )}
               >
-                {token}
+                {token === ' ' ? '·' : token}
               </span>
             );
           })
@@ -104,13 +111,32 @@ export default function SentenceBuilder({
         {isEmpty ? 'Your sentence builds here…' : sentence}
       </div>
 
-      {/* Controls row — delete left, char count + TTS right */}
-      <div className="flex items-center justify-between gap-2">
-        <DeleteControls
-          onDeleteLast={onDeleteLast}
-          onClearAll={onClearAll}
-          disabled={isEmpty}
-        />
+      {/* Quick actions: Space + Delete controls */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          {onAddSpace && (
+            <button
+              type="button"
+              onClick={onAddSpace}
+              aria-label="Add space"
+              className={cn(
+                'flex h-11 items-center gap-1.5 rounded-xl border px-3 text-sm transition-all duration-150',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1',
+                'border-border bg-muted text-muted-foreground',
+                'hover:border-primary/40 hover:bg-primary/8 hover:text-primary',
+                'active:scale-[0.97]',
+              )}
+            >
+              <span aria-hidden="true" className="text-base leading-none">⎵</span>
+              <span>Space</span>
+            </button>
+          )}
+          <DeleteControls
+            onDeleteLast={onDeleteLast}
+            onClearAll={onClearAll}
+            disabled={isEmpty}
+          />
+        </div>
 
         <div className="flex items-center gap-2">
           {!isEmpty && (

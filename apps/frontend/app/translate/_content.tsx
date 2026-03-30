@@ -380,16 +380,21 @@ export default function TranslatePageContent() {
         // When 1 hand is detected  → single-hand crop (correct for C,E,I,J,L,O,R,U,V,Z).
         // cropBothHands() returns null if the joint bounding box clips the frame edge —
         // in that case we skip inference rather than sending a broken crop.
+        //
+        // IMPORTANT: use `mirrored` (derived from facingMode) — NOT `isMirrored`
+        // (display toggle). The flip correction must match the handedness correction
+        // above, which also uses facingMode. Using the display toggle caused wrong
+        // flips when switching cameras or toggling the mirror setting.
         let cropBlob: Blob | null;
         if (nextHands.length >= 2) {
-          cropBlob = cropBothHands(video, nextHands, isMirroredRef.current);
+          cropBlob = cropBothHands(video, nextHands, mirrored);
           setHandsIncomplete(cropBlob === null); // null = one hand near edge, clipped
           if (cropBlob === null) return;
         } else {
           // One hand in frame — valid for single-hand letters; may be incomplete for two-hand letters.
           // We cannot know which case this is until after prediction, so we proceed but flag it.
           setHandsIncomplete(false);
-          cropBlob = cropSingleHand(video, nextHands[0], isMirroredRef.current);
+          cropBlob = cropSingleHand(video, nextHands[0], mirrored);
           if (cropBlob === null) return;
         }
 

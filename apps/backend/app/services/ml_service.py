@@ -23,7 +23,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-import cv2
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -105,12 +104,13 @@ class MLService:
         Pipeline preprocessing untuk input webcam → tensor siap inferensi.
 
         Steps:
-          1. Decode bytes → PIL → NumPy RGB
-          2. Convert ke Grayscale untuk mencocokkan distribusi training data
-             (dataset Roboflow sudah grayscale CRT phosphor)
-          3. Grayscale → RGB (3 channel identik) karena EfficientNetV2B0 expect (224,224,3)
-          4. Resize ke 224×224
-          5. Normalize [0,255] → [0,1]
+          1. Decode bytes → PIL → NumPy RGB uint8
+          2. RGB → Grayscale via ITU-R BT.601 luminance weights
+             (mencocokkan distribusi training data Roboflow yang sudah grayscale)
+          3. Grayscale → 3-channel (stack identik) karena model expect (224,224,3)
+          4. Resize ke 224×224 (bilinear, sama dengan tf.image.resize di training)
+          5. Normalize [0,255] → [0,1] — model dilatih dengan include_preprocessing=False
+             dan pipeline training membagi 255; EfficientNetV2B0 expect [0,1]
           6. Add batch dim → (1, 224, 224, 3)
 
         Note: CLAHE dihapus — model tidak dilatih dengan CLAHE sehingga
@@ -122,23 +122,36 @@ class MLService:
         # Step 1: decode
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         arr   = np.array(image, dtype=np.uint8)   # (H, W, 3)
+        logger.debug("[preprocess] decode  — shape=%s dtype=%s min=%d max=%d mean=%.1f",
+                     arr.shape, arr.dtype, arr.min(), arr.max(), arr.mean())
 
-        # Step 2: RGB → Grayscale (single channel)
-        gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)   # (H, W)
+        # Step 2: RGB → Grayscale using ITU-R BT.601 luminance weights
+        # Explicit weights avoid ambiguity with cv2 BGR/RGB ordering.
+        gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)  # (H, W)
+        logger.debug("[preprocess] gray   — shape=%s dtype=%s min=%d max=%d mean=%.1f",
+                     gray.shape, gray.dtype, gray.min(), gray.max(), gray.mean())
 
-        # Step 3: Grayscale → RGB (stack 3 identical channels)
-        rgb = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)   # (H, W, 3)
+        # Step 3: Grayscale → 3-channel RGB (stack identical channels)
+        rgb = np.stack([gray, gray, gray], axis=-1)   # (H, W, 3)
 
-        # Step 4: Resize ke target size
+        # Step 4: Resize ke target size (bilinear via PIL)
         size = self.settings.INPUT_SIZE
-        rgb  = cv2.resize(rgb, (size, size), interpolation=cv2.INTER_LINEAR)
+        rgb  = np.array(
+            Image.fromarray(rgb).resize((size, size), Image.BILINEAR),
+            dtype=np.uint8,
+        )
+        logger.debug("[preprocess] resize — shape=%s dtype=%s min=%d max=%d mean=%.1f",
+                     rgb.shape, rgb.dtype, rgb.min(), rgb.max(), rgb.mean())
 
         # Step 5: Normalize [0,255] → [0,1]
-        arr_f = rgb.astype(np.float32)
-        arr_f = arr_f / 255.0
+        arr_f = rgb.astype(np.float32) / 255.0
+        logger.debug("[preprocess] norm   — shape=%s dtype=%s min=%.4f max=%.4f mean=%.4f",
+                     arr_f.shape, arr_f.dtype, arr_f.min(), arr_f.max(), arr_f.mean())
 
         # Step 6: Add batch dimension
-        return np.expand_dims(arr_f, axis=0)   # (1, 224, 224, 3)
+        batch = np.expand_dims(arr_f, axis=0)   # (1, 224, 224, 3)
+        logger.debug("[preprocess] batch  — shape=%s dtype=%s", batch.shape, batch.dtype)
+        return batch
 
     # ── Inference ─────────────────────────────────────────────────────────────
 
@@ -174,6 +187,16 @@ class MLService:
         t1    = time.perf_counter()
 
         inference_ms = (t1 - t0) * 1000
+
+        # Full softmax vector for diagnosis — enable DEBUG logging to see this.
+        # Look for: confidently wrong (one class >0.8, wrong) → domain shift / flip issue
+        #           uncertain (no class >0.3) → preprocessing mismatch
+        if logger.isEnabledFor(logging.DEBUG):
+            softmax_str = "  ".join(
+                f"{self._label_map.get(str(i), '?')}={probs[i]:.4f}"
+                for i in range(len(probs))
+            )
+            logger.debug("[softmax] %s", softmax_str)
 
         # Top-K results
         top_k_idx     = np.argsort(probs)[::-1][:self.settings.TOP_K]
