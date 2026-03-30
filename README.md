@@ -5,154 +5,160 @@ signify-ai/
 ├── apps/
 │   ├── frontend/                   # Next.js web app
 │   │   ├── app/
-│   │   │   ├── (auth)/
-│   │   │   │   ├── login/
-│   │   │   │   └── register/
-│   │   │   ├── (dashboard)/
-│   │   │   │   ├── translate/
-│   │   │   │   └── history/
+│   │   │   ├── (documentation)/
+│   │   │   │   ├── how-it-works/
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── research/
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── sections/   # 10 section components
+│   │   │   │   └── terms-condition/
+│   │   │   │       └── page.tsx
+│   │   │   ├── auth/
+│   │   │   │   ├── callback/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── login/
+│   │   │   │       └── page.tsx
+│   │   │   ├── collect/
+│   │   │   │   ├── _content.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── translate/
+│   │   │   │   ├── _content.tsx
+│   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
-│   │   │   └── page.tsx
+│   │   │   └── page.tsx            # Landing page
+│   │   │
 │   │   ├── components/
-│   │   │   ├── ui/                 # shadcn/radix primitives
-│   │   │   └── features/
-│   │   │       ├── translation/
-│   │   │       │   ├── WebcamCapture.tsx
-│   │   │       │   ├── LandmarkOverlay.tsx
-│   │   │       │   └── PredictionDisplay.tsx
-│   │   │       └── auth/
+│   │   │   ├── auth/
+│   │   │   │   ├── AuthGuard.tsx
+│   │   │   │   └── LoginModal.tsx
+│   │   │   ├── features/
+│   │   │   │   └── translation/
+│   │   │   │       ├── WebcamCapture.tsx
+│   │   │   │       ├── LandmarkOverlay.tsx
+│   │   │   │       ├── PredictionDisplay.tsx
+│   │   │   │       ├── PredictionBadge.tsx
+│   │   │   │       ├── SentenceBuilder.tsx
+│   │   │   │       ├── DetectionStatus.tsx
+│   │   │   │       ├── DeleteControls.tsx
+│   │   │   │       ├── drawingUtils.ts
+│   │   │   │       └── index.ts
+│   │   │   ├── layout/
+│   │   │   │   ├── LandingNavbar.tsx   # Marketing nav (transparent, scroll-aware)
+│   │   │   │   ├── Navbar.tsx          # App nav (mode tabs, settings, avatar)
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   └── SettingsDrawer.tsx
+│   │   │   ├── tts/
+│   │   │   │   ├── TTSButton.tsx
+│   │   │   │   └── TTSSpeakingIndicator.tsx
+│   │   │   └── ui/                 # shadcn/radix primitives
+│   │   │       ├── Logo.tsx
+│   │   │       ├── badge.tsx
+│   │   │       ├── button.tsx
+│   │   │       ├── card.tsx
+│   │   │       ├── dialog.tsx
+│   │   │       ├── progress.tsx
+│   │   │       ├── sheet.tsx
+│   │   │       ├── slider.tsx
+│   │   │       ├── sonner.tsx
+│   │   │       ├── tabs.tsx
+│   │   │       └── toggle.tsx
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useAccessibilityPrefs.ts
+│   │   │   └── useTheme.ts
+│   │   │
 │   │   ├── lib/
-│   │   │   ├── api/
-│   │   │   ├── hooks/
-│   │   │   │   ├── useWebcam.ts
-│   │   │   │   └── useWebSocket.ts
-│   │   │   └── types/
+│   │   │   ├── supabase.ts
+│   │   │   └── utils.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   └── supabase/
+│   │   │       ├── client.ts
+│   │   │       ├── middleware.ts
+│   │   │       └── server.ts
+│   │   │
 │   │   ├── public/
-│   │   ├── .env.example
-│   │   ├── next.config.js
+│   │   ├── .env.local
+│   │   ├── components.json
+│   │   ├── next.config.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
 │   └── backend/                    # FastAPI service
 │       ├── app/
-│       │   ├── main.py
-│       │   ├── config/
-│       │   │   ├── settings.py     # Pydantic BaseSettings
-│       │   │   └── database.py
 │       │   ├── api/
+│       │   │   ├── deps.py
 │       │   │   └── v1/
-│       │   │       ├── router.py
 │       │   │       └── endpoints/
-│       │   │           ├── auth.py
-│       │   │           ├── translation.py
-│       │   │           ├── websocket.py
-│       │   │           └── health.py
+│       │   │           └── translation.py
+│       │   ├── config/
+│       │   │   └── settings.py     # Pydantic BaseSettings
 │       │   ├── core/
-│       │   │   ├── security.py
-│       │   │   └── exceptions.py
-│       │   ├── models/             # SQLAlchemy ORM models
-│       │   │   ├── user.py
-│       │   │   └── prediction.py
-│       │   ├── schemas/            # Pydantic request/response
-│       │   │   ├── auth.py
-│       │   │   └── translation.py
+│       │   ├── models/
+│       │   ├── schemas/
 │       │   ├── services/
-│       │   │   ├── auth_service.py
 │       │   │   └── ml_service.py   # loads model, runs inference
-│       │   └── repositories/
-│       │       ├── user_repository.py
-│       │       └── prediction_repository.py
-│       ├── alembic/
-│       │   └── versions/
+│       │   └── utils/
 │       ├── tests/
-│       │   ├── conftest.py
-│       │   └── unit/
+│       ├── .env
 │       ├── .env.example
 │       ├── Dockerfile
-│       ├── pyproject.toml
-│       └── requirements.txt
+│       ├── main.py
+│       └── pyproject.toml
 │
-├── ml/                             # All ML work: training, eval, export
-│   ├── data/
-│   │   ├── loader.py               # unified loader across datasets
-│   │   ├── preprocessing.py        # MediaPipe landmark extraction
-│   │   ├── augmentation.py
-│   │   └── tfod_converter.py       # converts TFOD format → sequences
-│   ├── models/
-│   │   ├── base.py                 # abstract model interface
-│   │   ├── lstm.py                 # landmark sequence → class
-│   │   └── cnn_lstm.py             # optional image+sequence hybrid
-│   ├── training/
-│   │   ├── trainer.py
-│   │   ├── callbacks.py
-│   │   └── metrics.py
-│   ├── inference/
-│   │   ├── predictor.py            # used by backend ml_service.py
-│   │   └── postprocessing.py
-│   ├── experiments/                # one folder per run (gitignored bulk)
-│   │   └── .gitkeep
-│   ├── configs/
-│   │   ├── base.yaml
-│   │   └── lstm_bisindo.yaml       # per-experiment overrides
-│   ├── scripts/
-│   │   ├── extract_landmarks.py    # batch MediaPipe preprocessing
-│   │   ├── train.py
-│   │   ├── evaluate.py
-│   │   └── export.py               # → ONNX or TFLite
-│   ├── tests/
-│   ├── pyproject.toml
-│   └── requirements.txt
-│
-├── data/                           # Raw and processed datasets (DVC-tracked)
-│   ├── README.md                   # document each dataset's origin + license
-│   ├── bisindo_v1/                 # your current dataset
-│   │   ├── raw/                    # original TFOD format (images + XMLs)
-│   │   │   ├── train/
-│   │   │   ├── valid/
-│   │   │   └── test/
-│   │   ├── landmarks/              # extracted .npy sequence files
-│   │   │   ├── train/
-│   │   │   ├── valid/
-│   │   │   └── test/
-│   │   └── metadata.json           # classes, counts, source info
+├── packages/
+│   ├── config/
+│   │   └── tsconfig/
+│   │       ├── base.json
+│   │       ├── nextjs.json
+│   │       └── react.json
 │   │
-│   └── _template/                  # copy this when adding a new dataset
-│       ├── raw/
-│       ├── landmarks/
-│       └── metadata.json
+│   └── ml/                         # ML pipeline: training, eval, export
+│       ├── analysis/
+│       │   └── gradcam.py
+│       ├── data/
+│       │   ├── augmentation.py
+│       │   ├── dataset.py
+│       │   └── preprocessing.py
+│       ├── scripts/
+│       │   ├── create_label_map.py
+│       │   ├── export_model.py
+│       │   ├── extract_landmarks.py
+│       │   ├── generate_visualizations.py
+│       │   ├── prepare_bisindo.py
+│       │   ├── train.py
+│       │   └── train_mlp.py
+│       └── training/
+│           ├── callbacks.py
+│           ├── metrics.py
+│           └── trainer.py
 │
-├── models/                         # Trained model artifacts (DVC-tracked)
-│   ├── bisindo_v1/
-│   │   ├── checkpoints/            # .pth or .h5 per epoch
-│   │   ├── best/
-│   │   │   └── model_best.pth
-│   │   └── exported/
-│   │       ├── model.onnx          # what the backend loads
-│   │       └── model_metadata.json # classes, input shape, version
-│   └── _template/
+├── data/                           # Datasets
+│   ├── raw/
+│   ├── processed/
+│   ├── augmented/
+│   └── metadata/
+│
+├── models/                         # Trained model artifacts
+│   ├── checkpoints/
+│   ├── exports/
+│   ├── production/
+│   └── hand_landmarker.task        # MediaPipe hand landmark model
 │
 ├── infrastructure/
-│   ├── docker-compose.yml          # local dev: frontend + backend + db
-│   ├── docker-compose.prod.yml     # prod: same but with env overrides
-│   └── nginx/
-│       └── nginx.conf              # reverse proxy for frontend + API
+│   ├── docker/
+│   ├── docker-compose.yml
+│   ├── docker-compose.prod.yml
+│   ├── nginx/
+│   ├── monitoring/
+│   └── teraform/
 │
 ├── docs/
-│   ├── architecture.md
-│   ├── setup.md                    # how to run locally
-│   ├── training.md                 # how to train a model
-│   └── api/
-│       └── openapi.yaml
-│
 ├── scripts/
-│   ├── setup-dev.sh
-│   └── migrate-db.sh
-│
-├── .dvc/                           # DVC config (tracks data/ and models/)
+├── analysis_outputs/
+├── .github/
 ├── .gitignore
-├── .env.example
-├── docker-compose.yml              # symlink or copy of infrastructure/
-├── Makefile                        # `make train`, `make dev`, `make deploy`
-├── pnpm-workspace.yaml
-├── turbo.json
+├── docker-compose.yml
+├── signify-architecture.excalidraw
 └── README.md
+```
