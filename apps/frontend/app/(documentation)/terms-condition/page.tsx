@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Navbar from '@/components/layout/Navbar';
+import LandingNavbar from '@/components/layout/LandingNavbar';
 import Footer from '@/components/layout/Footer';
 import { ChevronRight, FileText, Mail } from 'lucide-react';
 
@@ -174,7 +174,7 @@ function TableOfContents() {
 export default function TermsConditionPage() {
   return (
     <div className="min-h-screen bg-background text-foreground dark:bg-background dark:text-foreground">
-      <Navbar />
+      <LandingNavbar />
 
       <section
         id="main-content"

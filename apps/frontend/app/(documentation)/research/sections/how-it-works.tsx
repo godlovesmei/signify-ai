@@ -6,7 +6,7 @@ export default function HowItWorks() {
         How It Works
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           A real-time sign language translation system operates through a 

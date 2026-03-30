@@ -6,7 +6,7 @@ export default function ResearchDevelopment() {
         Research & Development
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           Research and development efforts focus on improving recognition 

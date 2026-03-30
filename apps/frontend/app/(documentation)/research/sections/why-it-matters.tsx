@@ -6,7 +6,7 @@ export default function WhyItMatters() {
         Why It Matters
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           Communication is fundamental to education, healthcare, employment 

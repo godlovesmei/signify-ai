@@ -6,7 +6,7 @@ export default function AccuracyImprovements() {
         Accuracy & Improvements
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           Achieving high accuracy in real-time sign language translation is a 

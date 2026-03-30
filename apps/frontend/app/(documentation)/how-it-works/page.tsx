@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Header from '@/components/layout/Navbar'; 
+import Header from '@/components/layout/LandingNavbar';
 import Footer from '@/components/layout/Footer';
 
 import {

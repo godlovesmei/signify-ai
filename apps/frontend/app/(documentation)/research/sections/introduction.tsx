@@ -6,7 +6,7 @@ export default function Introduction() {
         Introduction
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
         <p>
           A real-time sign language translator is an artificial intelligence (AI)
           system designed to interpret hand gestures, facial expressions and body

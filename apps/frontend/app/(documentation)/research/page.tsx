@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+import LandingNavbar from "@/components/layout/LandingNavbar";
 import Footer from "@/components/layout/Footer";
 import Introduction from "./sections/introduction";
 import WhyItMatters from "./sections/why-it-matters";
@@ -53,16 +53,16 @@ export default function ResearchPage() {
 
   return (
     <>
-      <Navbar />
-      <div className="min-h-screen bg-white text-gray-900">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-6 py-16 grid grid-cols-12 gap-8">
+      <LandingNavbar />
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-6 pt-32 pb-16 grid grid-cols-12 gap-8">
           <aside className="col-span-3 hidden lg:block">
             <div className="sticky top-28">
-              <div className="bg-white/50 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm">
-                <h2 className="text-base font-medium tracking-wide text-gray-500 mb-2">
+              <div className="bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-base font-medium tracking-wide text-muted-foreground mb-2">
                   Sign Language Research
                 </h2>
-                <p className="text-xs text-gray-400 mb-6">10 articles</p>
+                <p className="text-xs text-muted-foreground/60 mb-6">10 articles</p>
 
                 <nav className="space-y-1 text-sm">
                   {SECTIONS.map((section) => {
@@ -73,12 +73,12 @@ export default function ResearchPage() {
                         href={`#${section.id}`}
                         className={`group relative block px-3 py-2 rounded-md transition-all duration-200 ${
                           isActive
-                            ? "bg-blue-50 text-blue-700 font-medium"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                         }`}
                       >
                         {isActive && (
-                          <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-1 bg-blue-600 rounded-full" />
+                          <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-1 bg-primary rounded-full" />
                         )}
                         <span className="ml-2">{section.title}</span>
                       </Link>
@@ -94,17 +94,19 @@ export default function ResearchPage() {
               What is a real-time sign language translator?
             </h1>
 
-            <div className="flex items-center justify-between border-b border-gray-100 pb-6 mb-12">
+            <div className="flex items-center justify-between border-b border-border/40 pb-6 mb-12">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 transition-transform hover:scale-105" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
+                  S
+                </div>
                 <div>
-                  <p className="font-medium text-gray-800">Your Name</p>
-                  <p className="text-sm text-gray-500">
-                    Founder, Signify Research
+                  <p className="font-medium text-foreground">Signify Team</p>
+                  <p className="text-sm text-muted-foreground">
+                    Research &amp; Development
                   </p>
                 </div>
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-muted-foreground">
                 12 min read · Updated March 2025
               </div>
             </div>
@@ -163,39 +165,39 @@ export default function ResearchPage() {
 
           <aside className="col-span-3 hidden lg:block">
             <div className="sticky top-28">
-              <div className="bg-gradient-to-b from-white to-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">
+              <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
                   About this research
                 </p>
-                <h3 className="text-2xl font-light text-gray-800 mb-4">
+                <h3 className="text-2xl font-light text-foreground mb-4">
                   AI for Accessibility
                 </h3>
 
-                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-500 text-lg leading-5">•</span>
+                    <span className="text-primary text-lg leading-5">•</span>
                     <span>
                       Computer vision for real-time gesture recognition
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-500 text-lg leading-5">•</span>
+                    <span className="text-primary text-lg leading-5">•</span>
                     <span>Ethical AI and inclusive design</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-500 text-lg leading-5">•</span>
+                    <span className="text-primary text-lg leading-5">•</span>
                     <span>Community-driven data collection</span>
                   </li>
                 </ul>
 
-                <p className="text-sm text-gray-500 mb-6">
+                <p className="text-sm text-muted-foreground mb-6">
                   Supported by 5 research partners across academia and
                   non-profits.
                 </p>
 
                 <Link
                   href="/about"
-                  className="inline-block w-full text-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-blue-600 hover:text-blue-600 transition-colors duration-200"
+                  className="inline-block w-full text-center px-4 py-2 border border-border/60 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors duration-200"
                 >
                   Learn about Signify →
                 </Link>

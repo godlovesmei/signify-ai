@@ -191,6 +191,7 @@ export default function TranslatePageContent() {
   const prefs = useAccessibilityPrefs();
   const { theme, setTheme } = useTheme();
   const [appState, setAppState]                   = useState<CameraState>('idle');
+  const [sessionStart, setSessionStart]           = useState<Date | null>(null);
   const [transcript, setTranscript]               = useState<TranscriptEntry[]>([]);
   const [tokens, setTokens]                       = useState<string[]>([]);
   const [currentLetter, setCurrentLetter]         = useState<string | null>(null);
@@ -321,6 +322,7 @@ export default function TranslatePageContent() {
     setCurrentLetter(null); setCurrentConfidence(null);
     setIsSpeaking(false); setIsTtsError(false);
     setFps(0); setApiError(false); setHands([]); setHandsIncomplete(false);
+    setSessionStart(null);
     voteBuffer.current = []; prevLandmarksRef.current = null;
   }, [stopStream]);
 
@@ -328,6 +330,7 @@ export default function TranslatePageContent() {
     if (appState !== 'ready') return;
     setAppState('detecting');
     setApiError(false);
+    setSessionStart(new Date());
 
     fpsCountRef.current = 0;
     fpsIntervalRef.current = setInterval(() => {
@@ -473,6 +476,20 @@ export default function TranslatePageContent() {
     window.speechSynthesis.speak(u);
   }, [tokens, isSpeaking, prefs.ttsSpeed, prefs.ttsVolume]);
 
+  const handleSpeakEntry = useCallback((text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    setIsSpeaking(true);
+    setIsTtsError(false);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang    = 'id-ID';
+    u.rate    = prefs.ttsSpeed;
+    u.volume  = prefs.ttsVolume;
+    u.onend   = () => setIsSpeaking(false);
+    u.onerror = () => { setIsSpeaking(false); setIsTtsError(true); };
+    window.speechSynthesis.speak(u);
+  }, [prefs.ttsSpeed, prefs.ttsVolume]);
+
   const handleLogout = useCallback(async () => {
     const { createBrowserClient } = await import('@supabase/ssr');
     const supabase = createBrowserClient(
@@ -550,8 +567,21 @@ export default function TranslatePageContent() {
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col overflow-hidden md:flex-row" style={{ minHeight: 0 }}>
-          <div className="relative flex flex-col md:aspect-square md:h-full md:flex-none" style={{ minHeight: 0 }}>
+        {/*
+          2-column grid:
+            Col 1 — Camera        (~65%)
+            Col 2 — Sidebar       (~35%): Translation + Transcript stacked
+          On mobile: stacks vertically.
+        */}
+        <main
+          className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
+          style={{ minHeight: 0 }}
+        >
+          {/* ── Col 1: Camera ───────────────────────────────────────────── */}
+          <div
+            className="relative flex flex-col h-[50svh] md:h-full overflow-hidden border-b border-border/30 md:border-b-0 md:border-r"
+            style={{ minHeight: 0 }}
+          >
             <WebcamCapture
               ref={webcamRef}
               state={appState}
@@ -586,44 +616,61 @@ export default function TranslatePageContent() {
             )}
           </div>
 
-          <aside
-            aria-label="Detection feedback"
-            className="flex flex-col gap-4 overflow-y-auto border-t border-border/30 bg-card p-4 md:w-[420px] md:border-t-0 md:border-l"
-          >
-            <div className="flex items-center justify-between">
+          {/* ── Col 2: Sidebar (Translation + Transcript) ───────────────── */}
+          <div className="flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
+            {/* Translation panel */}
+            <div
+              aria-label="Real-time translation"
+              className="shrink-0 flex flex-col gap-4 border-b border-border/30 bg-card/20 p-4"
+            >
               <DetectionStatus state={toDetectionStatus(appState)} fps={fps} showFps />
+
+              <PredictionBadge
+                letter={currentLetter}
+                confidence={currentConfidence}
+                isDetecting={isActive}
+                hasHand={hands.length > 0}
+                textScale={prefs.textScale}
+              />
+
+              {isActive && (currentLetter === 'J' || currentLetter === 'Z') && (
+                <p className="text-center text-xs text-amber-500">
+                  {currentLetter} requires motion — hold the starting pose, then sign the movement.
+                </p>
+              )}
+
+              {/* Flow indicator */}
+              <div className="flex items-center gap-3" aria-hidden="true">
+                <div className="h-px flex-1 bg-border/40" />
+                <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/35">
+                  builds into
+                </span>
+                <div className="h-px flex-1 bg-border/40" />
+              </div>
+
+              <SentenceBuilder
+                tokens={tokens}
+                isSpeaking={isSpeaking}
+                onDeleteLast={() => setTokens((prev) => prev.slice(0, -1))}
+                onClearAll={() => setTokens([])}
+                onSpeak={handleSpeak}
+                onAddSpace={() => setTokens((prev) => [...prev, ' '])}
+                isTtsError={isTtsError}
+                textScale={prefs.textScale}
+              />
             </div>
 
-            <PredictionBadge
-              letter={currentLetter}
-              confidence={currentConfidence}
-              isDetecting={isActive}
-              hasHand={hands.length > 0}
-              textScale={prefs.textScale}
-            />
-
-            {isActive && (currentLetter === 'J' || currentLetter === 'Z') && (
-              <p className="text-center text-xs text-amber-500">
-                {currentLetter} requires motion — hold the starting pose, then sign the movement.
-              </p>
-            )}
-
-            <SentenceBuilder
-              tokens={tokens}
-              isSpeaking={isSpeaking}
-              onDeleteLast={() => setTokens((prev) => prev.slice(0, -1))}
-              onClearAll={() => setTokens([])}
-              onSpeak={handleSpeak}
-              isTtsError={isTtsError}
-              textScale={prefs.textScale}
-            />
-
-            <PredictionDisplay
-              transcript={transcript}
-              appState={appState}
-              onClearTranscript={() => setTranscript([])}
-            />
-          </aside>
+            {/* Transcript fills remaining space */}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <PredictionDisplay
+                transcript={transcript}
+                appState={appState}
+                onClearTranscript={() => setTranscript([])}
+                sessionStart={sessionStart}
+                onSpeakEntry={handleSpeakEntry}
+              />
+            </div>
+          </div>
         </main>
       </div>
 

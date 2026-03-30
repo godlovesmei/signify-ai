@@ -6,7 +6,7 @@ export default function TechnologyBehindIt() {
         Technology Behind It
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           The sign language translation system is powered by an integrated stack 

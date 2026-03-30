@@ -6,7 +6,7 @@ export default function Conclusion() {
         Conclusion
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           This research outlines the technological foundations and societal 

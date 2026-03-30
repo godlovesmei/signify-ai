@@ -6,7 +6,7 @@ export default function ModelTraining() {
         Model Training
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           Model training is the process through which a sign language translation 

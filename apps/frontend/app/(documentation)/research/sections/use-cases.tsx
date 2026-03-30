@@ -6,7 +6,7 @@ export default function UseCases() {
         Use Cases
       </h2>
 
-      <div className="space-y-8 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-8 text-lg leading-relaxed text-foreground">
 
         <p>
           Real-time sign language translation systems enable inclusive communication 

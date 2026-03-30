@@ -6,7 +6,7 @@ export default function AIMachineLearning() {
         AI & Machine Learning
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-gray-800">
+      <div className="space-y-6 text-lg leading-relaxed text-foreground">
 
         <p>
           Artificial intelligence (AI) forms the foundation of modern real-time 
