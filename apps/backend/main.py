@@ -33,11 +33,8 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up Signify AI backend...")
-    try:
-        init_ml_service(settings)
-        logger.info("Startup complete.")
-    except Exception as e:
-        logger.error("Failed to load model during startup: %s", e)
+    init_ml_service(settings)  # Let it crash — better than serving 503s silently
+    logger.info("Startup complete.")
     yield
     logger.info("Shutting down.")
 

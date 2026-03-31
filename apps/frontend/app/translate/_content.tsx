@@ -95,7 +95,7 @@ async function predictFromBlob(
 ): Promise<{ prediction: string; confidence: number; low_confidence: boolean } | null> {
   try {
     const form = new FormData();
-    form.append('file', blob, 'hand.jpg');
+    form.append('file', blob, 'hand.png');
     const res = await fetch(`${API_BASE_URL}/api/v1/translate/predict`, {
       method: 'POST', body: form,
     });

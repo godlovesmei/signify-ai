@@ -7,6 +7,7 @@ Routes:
     GET  /api/v1/translate/classes   — list semua kelas
 """
 
+import asyncio
 import logging
 from typing import Annotated
 
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/translate", tags=["translation"])
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_IMAGE_SIZE = 1 * 1024 * 1024  # 1 MB
 
 
 # ── Schemas (inline, tidak butuh Pydantic terpisah untuk sekarang) ─────────────
@@ -71,8 +73,17 @@ async def predict(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Gagal membaca file: {e}")
 
+    if len(image_bytes) > MAX_IMAGE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Gambar terlalu besar ({len(image_bytes)} bytes). Maks {MAX_IMAGE_SIZE} bytes.",
+        )
+
+    # Run blocking TF inference in a thread pool so it doesn't block the
+    # async event loop and stall concurrent requests.
     try:
-        result = service.predict(image_bytes)
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(None, service.predict, image_bytes)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except RuntimeError as e:

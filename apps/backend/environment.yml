@@ -12,6 +12,5 @@ dependencies:
       - python-multipart
       - pillow
       - numpy
-      - opencv-python-headless
       - PyJWT==2.9.0
       - cryptography

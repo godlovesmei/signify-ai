@@ -55,6 +55,8 @@ class MLService:
     def __init__(self, settings: Settings):
         self.settings  = settings
         self._infer    = None
+        self._input_key:  str = ""
+        self._output_key: str = ""
         self._label_map: dict[str, str] = {}
         self._loaded   = False
         self._loaded_at: float = 0.0
@@ -74,6 +76,14 @@ class MLService:
         logger.info("Loading model from %s", model_path)
         loaded       = tf.saved_model.load(str(model_path))
         self._infer  = loaded.signatures["serving_default"]
+
+        # Auto-detect signature keys so we don't break on model re-export.
+        input_keys  = list(self._infer.structured_input_signature[1].keys())
+        output_keys = list(self._infer.structured_outputs.keys())
+        self._input_key  = input_keys[0]
+        self._output_key = output_keys[0]
+        logger.info("Signature keys — input: %s, output: %s",
+                     self._input_key, self._output_key)
 
         self._label_map = json.loads(label_map_path.read_text(encoding="utf-8"))
         self._loaded    = True
@@ -181,9 +191,9 @@ class MLService:
         # Inference
         t0 = time.perf_counter()
         output_dict = self._infer(
-            **{self.settings.MODEL_INPUT_KEY: tf.constant(arr)}
+            **{self._input_key: tf.constant(arr)}
         )
-        probs = output_dict[self.settings.MODEL_OUTPUT_KEY][0].numpy()
+        probs = output_dict[self._output_key][0].numpy()
         t1    = time.perf_counter()
 
         inference_ms = (t1 - t0) * 1000
