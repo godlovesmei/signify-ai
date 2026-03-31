@@ -7,34 +7,40 @@ All outputs are saved as .png files to --output_dir (default: reports/figures/).
 
 Usage (from repo root, signify-ml env):
     python packages/ml/scripts/generate_visualizations.py \
-        --history   models/checkpoints/bisindo_v2/training_history.json \
-        --model     models/checkpoints/bisindo_v2/final_model.keras \
-        --test_csv  data/processed/bisindo_v1/manifests/test.csv \
-        --label_map data/processed/bisindo_v1/manifests/label_map.csv \
-        --output_dir reports/figures
+        --history    models/checkpoints/bisindo_v2/training_history.json \
+        --phase1_csv models/checkpoints/bisindo_v2/phase1_history.csv \
+        --phase2_csv models/checkpoints/bisindo_v2/phase2_history.csv \
+        --model      models/checkpoints/bisindo_v2/final_model.keras \
+        --test_csv   data/processed/bisindo_v1/manifests/test.csv \
+        --label_map  data/processed/bisindo_v1/manifests/label_map.csv \
+        --output_dir reports/figures \
+        --v1_acc 0.9901 --v1_top5 0.9998
 
     # Optional flags:
     --skip_gradcam          # Grad-CAM is slow (~5 min for 26 classes), skip if needed
-    --v1_acc    0.9901      # MobileNetV2 v1 top-1 accuracy for comparison chart
-    --v1_top5   0.9998      # MobileNetV2 v1 top-5 accuracy (optional)
+    --skip_roc              # ROC curve (memory-intensive for 26 classes)
+    --skip_samples          # Sample prediction grid
 
 Outputs:
-    REQUIRED
+    REQUIRED (6 figures)
       learning_curves.png         — train/val accuracy & loss per epoch
       confusion_matrix.png        — 26×26 normalized heatmap
       classification_report.png   — precision/recall/F1 per class heatmap
+      f1_bar_chart.png            — per-class F1 score, sorted, color-coded
+      architecture_diagram.png    — model pipeline block diagram
       model_comparison.png        — MobileNetV2 v1 vs EfficientNetV2B0 v2 bar chart
 
-    IMPORTANT
+    IMPORTANT (4 figures + 1 table)
       lr_schedule.png             — learning rate per epoch (both phases)
       roc_curves.png              — one-vs-rest ROC with macro AUC
       gradcam_samples.png         — one Grad-CAM sample per class (26-panel grid)
       experiment_table.md         — markdown comparison table
 
-    SUPPLEMENTARY
+    SUPPLEMENTARY (4 figures)
       class_distribution.png      — sample count per class (train/val/test)
       confidence_distribution.png — histogram of max softmax probabilities on test set
       topk_accuracy.png           — Top-1, Top-3, Top-5 accuracy bars
+      sample_predictions.png      — grid of correct/incorrect predictions
 """
 
 import argparse
@@ -81,7 +87,7 @@ plt.rcParams.update({
     "axes.spines.top":    False,
     "axes.spines.right":  False,
     "axes.grid":          True,
-    "axes.grid.alpha":    0.35,
+    "grid.alpha":         0.35,
     "grid.linestyle":     "--",
     "figure.dpi":         DPI,
 })
@@ -109,10 +115,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--v1_label", type=str,   default="MobileNetV2 v1",
                    help="Display label for v1 model in comparison chart")
 
-    p.add_argument("--skip_gradcam", action="store_true",
+    p.add_argument("--phase1_csv", default=None,
+                   help="CSV fallback for phase1 history (used when JSON arrays are empty)")
+    p.add_argument("--phase2_csv", default=None,
+                   help="CSV fallback for phase2 history (used when JSON arrays are empty)")
+
+    p.add_argument("--skip_gradcam",  action="store_true",
                    help="Skip Grad-CAM (slow: ~5 min for 26 classes)")
-    p.add_argument("--skip_roc",     action="store_true",
+    p.add_argument("--skip_roc",      action="store_true",
                    help="Skip ROC curve (memory-intensive for 26 classes)")
+    p.add_argument("--skip_samples",  action="store_true",
+                   help="Skip sample prediction grid")
 
     return p.parse_args()
 
@@ -125,13 +138,46 @@ def load_history(path: str) -> Dict:
         return json.load(f)
 
 
-def build_combined_history(history: Dict) -> Dict:
+def _load_phase_from_csv(csv_path: str) -> Dict[str, List[float]]:
+    """Load a phase history CSV into the same dict format as the JSON structure."""
+    csv_to_json = {
+        "accuracy": "accuracy",
+        "val_accuracy": "val_accuracy",
+        "loss": "loss",
+        "val_loss": "val_loss",
+        "learning_rate": "lr",
+    }
+    result: Dict[str, List[float]] = {v: [] for v in csv_to_json.values()}
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            for csv_col, json_key in csv_to_json.items():
+                if csv_col in row:
+                    result[json_key].append(float(row[csv_col]))
+    return result
+
+
+def build_combined_history(
+    history: Dict,
+    phase1_csv: Optional[str] = None,
+    phase2_csv: Optional[str] = None,
+) -> Dict:
     """
     Concatenate phase1 and phase2 metrics into continuous sequences.
+    Falls back to CSV files when JSON arrays are empty.
     Returns dict with keys: accuracy, val_accuracy, loss, val_loss, lr, phase_boundary.
     """
     p1 = history["phase1"]
     p2 = history["phase2"]
+
+    # Fallback to CSV when JSON arrays are empty or incomplete
+    if phase1_csv and not p1.get("accuracy"):
+        logger.info("Phase1 JSON empty — falling back to CSV: %s", phase1_csv)
+        p1 = _load_phase_from_csv(phase1_csv)
+
+    if phase2_csv and (not p2.get("accuracy") or not p2.get("lr")):
+        logger.info("Phase2 JSON incomplete — falling back to CSV: %s", phase2_csv)
+        p2 = _load_phase_from_csv(phase2_csv)
+
     combined = {}
     for key in ("accuracy", "val_accuracy", "loss", "val_loss", "lr"):
         combined[key] = p1.get(key, []) + p2.get(key, [])
@@ -165,10 +211,9 @@ def get_predictions(
 
 # ── 1. Learning Curves ────────────────────────────────────────────────────────
 
-def plot_learning_curves(history: Dict, output_dir: Path) -> None:
+def plot_learning_curves(combined: Dict, output_dir: Path) -> None:
     """Accuracy and loss curves for both phases, with phase boundary marker."""
-    combined = build_combined_history(history)
-    epochs   = range(1, len(combined["accuracy"]) + 1)
+    epochs = range(1, len(combined["accuracy"]) + 1)
     boundary = combined["phase_boundary"]
 
     fig, (ax_acc, ax_loss) = plt.subplots(1, 2, figsize=(14, 5))
@@ -350,17 +395,15 @@ def plot_model_comparison(
 
 # ── 5. Learning Rate Schedule ─────────────────────────────────────────────────
 
-def plot_lr_schedule(history: Dict, output_dir: Path) -> None:
+def plot_lr_schedule(combined: Dict, output_dir: Path) -> None:
     """Learning rate per epoch for both phases."""
-    p1_lr = history["phase1"].get("lr", [])
-    p2_lr = history["phase2"].get("lr", [])
-    if not p1_lr and not p2_lr:
-        logger.warning("No lr key in history — skipping lr_schedule.png")
+    combined_lr = combined.get("lr", [])
+    boundary    = combined.get("phase_boundary", 0)
+    if not combined_lr:
+        logger.warning("No lr data available — skipping lr_schedule.png")
         return
 
-    combined_lr = p1_lr + p2_lr
-    boundary    = len(p1_lr)
-    epochs      = range(1, len(combined_lr) + 1)
+    epochs = range(1, len(combined_lr) + 1)
 
     fig, ax = plt.subplots(figsize=(10, 4))
     ax.semilogy(list(epochs[:boundary]),  combined_lr[:boundary],
@@ -456,14 +499,19 @@ def _compute_gradcam(
         preds = head_model(base_out, training=False)
         loss  = preds[:, class_idx]
 
-    grads       = tape.gradient(loss, conv_out)
+    grads = tape.gradient(loss, conv_out)
+    if grads is None:
+        return np.zeros((224, 224), dtype=np.float32)
+
     pooled      = tf.reduce_mean(grads, axis=(0, 1, 2)).numpy()
     conv_np     = conv_out[0].numpy().copy()
     conv_np    *= pooled[np.newaxis, np.newaxis, :]
     heatmap     = np.mean(conv_np, axis=-1)
     heatmap     = np.maximum(heatmap, 0)
-    heatmap    /= (np.max(heatmap) + 1e-8)
-    return cv2.resize(heatmap, (224, 224))
+    max_val     = np.max(heatmap)
+    if max_val > 0:
+        heatmap /= max_val
+    return cv2.resize(heatmap.astype(np.float32), (224, 224))
 
 
 def plot_gradcam_samples(
@@ -730,7 +778,201 @@ def plot_topk_accuracy(
     out = output_dir / "topk_accuracy.png"
     fig.savefig(out, dpi=DPI, bbox_inches="tight")
     plt.close(fig)
-    logger.info("Saved: %s  [Top-1: {:.2%}, Top-3: {:.2%}, Top-5: {:.2%}]".format(*accs), out)
+    logger.info("Saved: %s  [Top-1: %.2f%%, Top-3: %.2f%%, Top-5: %.2f%%]",
+                out, accs[0] * 100, accs[1] * 100, accs[2] * 100)
+
+
+# ── 12. Architecture Diagram ─────────────────────────────────────────────────
+
+def plot_architecture_diagram(output_dir: Path) -> None:
+    """Static block diagram of the EfficientNetV2B0 classification pipeline."""
+    from matplotlib.patches import FancyBboxPatch
+
+    blocks = [
+        ("Input\n224 × 224 × 3",                              "#e0f2fe", ""),
+        ("EfficientNetV2B0\nImageNet pretrained, ~7.2 M params\n"
+         "Phase 1: frozen  |  Phase 2: unfreeze layer 240+",  "#dbeafe", "backbone"),
+        ("GlobalAveragePooling2D",                             "#f0fdf4", ""),
+        ("BatchNormalization",                                 "#f0fdf4", ""),
+        ("Dropout (0.3)",                                      "#fef9c3", "regularization"),
+        ("Dense (256, ReLU)",                                  "#dbeafe", ""),
+        ("Dropout (0.15)",                                     "#fef9c3", "regularization"),
+        ("Dense (26, Softmax)",                                "#dbeafe", "classifier"),
+        ("Output\n26 BISINDO Letter Classes (A – z)",          "#e0f2fe", ""),
+    ]
+
+    n        = len(blocks)
+    block_h  = 1.0
+    gap      = 0.6
+    total_h  = n * block_h + (n - 1) * gap + 2
+    fig, ax  = plt.subplots(figsize=(7, total_h * 0.65))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, total_h)
+    ax.axis("off")
+    ax.set_title("Model Architecture — EfficientNetV2B0 (BISINDO)", fontsize=13, pad=12)
+
+    cx = 5.0
+    bw = 8.0
+
+    for i, (label, color, tag) in enumerate(blocks):
+        y = total_h - 1.2 - i * (block_h + gap)
+        rect = FancyBboxPatch(
+            (cx - bw / 2, y - block_h / 2), bw, block_h,
+            boxstyle="round,pad=0.15", facecolor=color, edgecolor="#94a3b8", lw=1.2,
+        )
+        ax.add_patch(rect)
+        ax.text(cx, y, label, ha="center", va="center", fontsize=8, fontweight="bold")
+
+        # Arrow to next block
+        if i < n - 1:
+            ay = y - block_h / 2
+            ax.annotate(
+                "", xy=(cx, ay - gap + 0.05), xytext=(cx, ay - 0.05),
+                arrowprops=dict(arrowstyle="->", color="#64748b", lw=1.5),
+            )
+
+    fig.tight_layout()
+    out = output_dir / "architecture_diagram.png"
+    fig.savefig(out, dpi=DPI, bbox_inches="tight")
+    plt.close(fig)
+    logger.info("Saved: %s", out)
+
+
+# ── 13. Sample Prediction Grid ──────────────────────────────────────────────
+
+def plot_sample_predictions(
+    model:      tf.keras.Model,
+    test_csv:   str,
+    label_map:  Dict[str, int],
+    y_true:     np.ndarray,
+    y_pred:     np.ndarray,
+    y_proba:    np.ndarray,
+    output_dir: Path,
+    n_correct:  int = 18,
+    n_incorrect: int = 6,
+) -> None:
+    """Grid of correct and incorrect predictions with confidence scores."""
+    idx_to_cls = {v: k for k, v in label_map.items()}
+
+    # Read file paths from test CSV (order matches y_true since shuffle=False)
+    filepaths: List[str] = []
+    with open(test_csv, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            filepaths.append(row["filepath"])
+
+    if len(filepaths) != len(y_true):
+        logger.warning("CSV rows (%d) != predictions (%d) — skipping sample grid",
+                       len(filepaths), len(y_true))
+        return
+
+    correct_idx   = np.where(y_true == y_pred)[0]
+    incorrect_idx = np.where(y_true != y_pred)[0]
+
+    rng = np.random.default_rng(42)
+    sel_correct   = rng.choice(correct_idx,   size=min(n_correct, len(correct_idx)),     replace=False)
+    sel_incorrect = rng.choice(incorrect_idx,  size=min(n_incorrect, len(incorrect_idx)), replace=False)
+    selected      = np.concatenate([sel_incorrect, sel_correct])  # incorrect first
+
+    n_total = len(selected)
+    n_cols  = 4
+    n_rows  = int(np.ceil(n_total / n_cols))
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3.5, n_rows * 3.5))
+    fig.suptitle("Sample Predictions — Correct (green) vs Incorrect (red)", fontsize=13)
+
+    for ax_item in axes.flat:
+        ax_item.axis("off")
+
+    for panel_idx, sample_idx in enumerate(selected):
+        r, c    = divmod(panel_idx, n_cols)
+        ax_item = axes[r, c]
+        is_ok   = y_true[sample_idx] == y_pred[sample_idx]
+        conf    = float(y_proba[sample_idx, y_pred[sample_idx]])
+        true_lbl = idx_to_cls.get(int(y_true[sample_idx]), "?")
+        pred_lbl = idx_to_cls.get(int(y_pred[sample_idx]), "?")
+
+        # Load and display image
+        raw = tf.io.read_file(filepaths[sample_idx])
+        img = tf.image.decode_jpeg(raw, channels=3)
+        img = tf.image.resize(img, [224, 224]).numpy().astype("uint8")
+        ax_item.imshow(img)
+
+        color = "#22c55e" if is_ok else "#ef4444"
+        title = f"True: {true_lbl}  |  Pred: {pred_lbl}  ({conf:.1%})"
+        ax_item.set_title(title, fontsize=7, color=color, fontweight="bold")
+        for spine in ax_item.spines.values():
+            spine.set_visible(True)
+            spine.set_edgecolor(color)
+            spine.set_linewidth(3)
+
+    fig.tight_layout()
+    out = output_dir / "sample_predictions.png"
+    fig.savefig(out, dpi=DPI, bbox_inches="tight")
+    plt.close(fig)
+    logger.info("Saved: %s  (%d correct, %d incorrect)",
+                out, len(sel_correct), len(sel_incorrect))
+
+
+# ── 14. Per-class F1 Bar Chart ──────────────────────────────────────────────
+
+def plot_f1_bar_chart(
+    y_true:     np.ndarray,
+    y_pred:     np.ndarray,
+    label_map:  Dict[str, int],
+    output_dir: Path,
+) -> None:
+    """Horizontal bar chart of per-class F1 scores, sorted descending."""
+    classes = [k for k, _ in sorted(label_map.items(), key=lambda x: x[1])]
+    report  = classification_report(y_true, y_pred, target_names=classes, output_dict=True)
+
+    f1_data = [(cls, report[cls]["f1-score"]) for cls in classes]
+    f1_data.sort(key=lambda x: x[1])  # ascending for horizontal barh (top = best)
+
+    labels = [d[0] for d in f1_data]
+    values = [d[1] for d in f1_data]
+
+    # Color by performance tier
+    colors = []
+    for v in values:
+        if v >= 0.98:
+            colors.append("#22c55e")   # green
+        elif v >= 0.95:
+            colors.append("#3b82f6")   # blue
+        elif v >= 0.90:
+            colors.append("#f59e0b")   # orange
+        else:
+            colors.append("#ef4444")   # red
+
+    macro_f1 = report["macro avg"]["f1-score"]
+
+    fig, ax = plt.subplots(figsize=(10, 10))
+    bars = ax.barh(labels, values, color=colors, alpha=0.88, height=0.7)
+
+    # Value labels
+    for bar, val in zip(bars, values):
+        ax.text(
+            bar.get_width() + 0.003, bar.get_y() + bar.get_height() / 2,
+            f"{val:.3f}", va="center", fontsize=8,
+        )
+
+    # Macro-avg reference line
+    ax.axvline(macro_f1, color="#6b7280", lw=1.5, linestyle="--",
+               label=f"Macro avg F1 = {macro_f1:.4f}")
+
+    x_min = max(0, min(values) - 0.05)
+    ax.set_xlim(x_min, 1.03)
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.2f}"))
+    ax.set(
+        xlabel = "F1 Score",
+        title  = "Per-class F1 Score — EfficientNetV2B0 (test set, sorted)",
+    )
+    ax.legend(loc="lower right", framealpha=0.5)
+
+    fig.tight_layout()
+    out = output_dir / "f1_bar_chart.png"
+    fig.savefig(out, dpi=DPI, bbox_inches="tight")
+    plt.close(fig)
+    logger.info("Saved: %s  (macro F1 = %.4f)", out, macro_f1)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -743,7 +985,8 @@ def main() -> None:
 
     # ── Load history ──────────────────────────────────────────────────────────
     logger.info("Loading training history from %s", args.history)
-    history = load_history(args.history)
+    history  = load_history(args.history)
+    combined = build_combined_history(history, args.phase1_csv, args.phase2_csv)
 
     # ── Load label map ────────────────────────────────────────────────────────
     label_map = load_label_map(args.label_map)
@@ -777,9 +1020,11 @@ def main() -> None:
 
     # ── REQUIRED ──────────────────────────────────────────────────────────────
     logger.info("--- REQUIRED visualizations ---")
-    plot_learning_curves(history, output_dir)
+    plot_learning_curves(combined, output_dir)
     plot_confusion_matrix(y_true, y_pred, label_map, output_dir)
     plot_classification_report_heatmap(y_true, y_pred, label_map, output_dir)
+    plot_f1_bar_chart(y_true, y_pred, label_map, output_dir)
+    plot_architecture_diagram(output_dir)
     plot_model_comparison(
         v2_acc   = v2_acc,
         v2_top5  = v2_top5,
@@ -791,7 +1036,7 @@ def main() -> None:
 
     # ── IMPORTANT ─────────────────────────────────────────────────────────────
     logger.info("--- IMPORTANT visualizations ---")
-    plot_lr_schedule(history, output_dir)
+    plot_lr_schedule(combined, output_dir)
 
     if not args.skip_roc:
         plot_roc_curves(y_true, y_proba, label_map, output_dir)
@@ -819,6 +1064,11 @@ def main() -> None:
     plot_class_distribution(args.train_csv, args.val_csv, args.test_csv, label_map, output_dir)
     plot_confidence_distribution(y_true, y_pred, y_proba, output_dir)
     plot_topk_accuracy(y_true, y_proba, output_dir)
+
+    if not args.skip_samples:
+        plot_sample_predictions(model, args.test_csv, label_map, y_true, y_pred, y_proba, output_dir)
+    else:
+        logger.info("Skipping sample prediction grid (--skip_samples)")
 
     # ── Summary ───────────────────────────────────────────────────────────────
     pngs = sorted(output_dir.glob("*.png"))
