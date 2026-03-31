@@ -20,8 +20,6 @@ export interface WebcamCaptureProps {
   state: CameraState;
   facingMode: CameraFacingMode;
   mpReady: boolean;
-  /** 0, 1, or 2 — BISINDO requires two hands, so badge distinguishes all three states. */
-  handsCount: number;
   apiError: boolean;
   hasMultipleCameras: boolean;
   languageLabel: string;
@@ -37,25 +35,6 @@ export interface WebcamCaptureHandle {
   videoElement: HTMLVideoElement | null;
 }
 
-function ScanCorners() {
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10">
-      {(['tl', 'tr', 'bl', 'br'] as const).map((pos) => (
-        <span
-          key={pos}
-          className={[
-            'absolute h-6 w-6 border-white/60',
-            pos === 'tl' ? 'top-5 left-5 border-t border-l rounded-tl-md'
-              : pos === 'tr' ? 'top-5 right-5 border-t border-r rounded-tr-md'
-              : pos === 'bl' ? 'bottom-22 left-5 border-b border-l rounded-bl-md'
-              : 'bottom-22 right-5 border-b border-r rounded-br-md',
-          ].join(' ')}
-        />
-      ))}
-      <span className="absolute left-5 right-5 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[scanline_2.8s_ease-in-out_infinite]" />
-    </div>
-  );
-}
 
 function LiveDot() {
   return (
@@ -69,31 +48,6 @@ function LiveDot() {
   );
 }
 
-function HandStatusBadge({ handsCount }: { handsCount: number }) {
-  const label =
-    handsCount === 2 ? '✋ Both hands detected'
-    : handsCount === 1 ? '✋ 1 hand — show both for BISINDO'
-    : 'No hand in frame — show your sign';
-
-  const colorClass =
-    handsCount === 2 ? 'bg-primary/80 text-white'
-    : handsCount === 1 ? 'bg-warning/80 text-warning-foreground'
-    : 'bg-black/40 text-white/60';
-
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={[
-        'absolute bottom-24 left-1/2 z-20 -translate-x-1/2 rounded-full px-3 py-1',
-        'text-[11px] font-medium backdrop-blur-sm transition-all duration-300 whitespace-nowrap',
-        colorClass,
-      ].join(' ')}
-    >
-      {label}
-    </div>
-  );
-}
 
 function LoadingState({ label }: { label?: string }) {
   const [progress, setProgress] = useState(0);
@@ -244,7 +198,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       state,
       facingMode,
       mpReady,
-      handsCount,
       apiError,
       hasMultipleCameras,
       languageLabel,
@@ -305,9 +258,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
           playsInline
           aria-label="Live camera feed"
         />
-
-        {isActive && <ScanCorners />}
-        {isActive && <HandStatusBadge handsCount={handsCount} />}
 
         {isActive && apiError && (
           <div

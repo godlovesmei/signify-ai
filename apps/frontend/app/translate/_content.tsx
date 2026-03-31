@@ -7,7 +7,6 @@ import { Logo } from '@/components/ui/Logo';
 
 import {
   WebcamCapture,
-  LandmarkOverlay,
   PredictionDisplay,
   PredictionBadge,
   SentenceBuilder,
@@ -18,6 +17,7 @@ import {
   type DetectionStatusState,
 } from '@/components/features/translation';
 import type { DetectedHand } from '@/components/features/translation/drawingUtils';
+import HandGuideBox, { guideBoxPixels } from '@/components/features/translation/HandGuideBox';
 import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
@@ -29,8 +29,6 @@ const DETECTION_INTERVAL = 500;
 const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
 const VOTE_BUFFER_SIZE   = 6;     // frames to collect before committing
 const VOTE_NEEDED        = 5;     // how many of those frames must agree
-const HAND_CROP_PADDING  = 0.10;
-
 type Language = 'ASL' | 'BISINDO';
 
 let _id = 0;
@@ -54,115 +52,42 @@ async function createHandLandmarker(): Promise<HandLandmarker> {
   });
 }
 
-/** Shared helper — draws a square region from the video onto a 224×224 canvas and returns a PNG blob. */
-function buildCropBlob(
-  scratch: HTMLCanvasElement,
-  cx: number, cy: number, side: number,
-  flipHorizontal: boolean,
+/**
+ * Crop the static guide box region from the video and return a 224×224 PNG blob.
+ * The guide box is a centered square (~55% of video height) — the user positions
+ * their hand inside it, keeping the face out of the crop.
+ *
+ * For front camera the raw video is not mirrored, but the user sees a mirrored
+ * view (CSS scaleX(-1)). The guide box is centered so its position is the same
+ * in raw and mirrored space. We flip the crop content for front camera so the
+ * model receives the same orientation as training data.
+ */
+function cropGuideBox(
+  video: HTMLVideoElement,
+  mirrored: boolean,
 ): Blob | null {
+  const { videoWidth: W, videoHeight: H } = video;
+  const { x, y, side } = guideBoxPixels(W, H);
+  if (side <= 0) return null;
+
   const TARGET = 224;
-  const crop = document.createElement('canvas');
-  crop.width = TARGET; crop.height = TARGET;
-  const cropCtx = crop.getContext('2d');
-  if (!cropCtx) return null;
-  if (flipHorizontal) {
-    cropCtx.translate(TARGET, 0);
-    cropCtx.scale(-1, 1);
+  const crop   = document.createElement('canvas');
+  crop.width   = TARGET;
+  crop.height  = TARGET;
+  const ctx    = crop.getContext('2d');
+  if (!ctx) return null;
+
+  if (mirrored) {
+    ctx.translate(TARGET, 0);
+    ctx.scale(-1, 1);
   }
-  cropCtx.drawImage(scratch, cx, cy, side, side, 0, 0, TARGET, TARGET);
+  ctx.drawImage(video, x, y, side, side, 0, 0, TARGET, TARGET);
+
   const dataUrl = crop.toDataURL('image/png');
   const binary  = atob(dataUrl.split(',')[1]);
   const arr     = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
   return new Blob([arr], { type: 'image/png' });
-}
-
-/**
- * Single-hand crop — used for one-handed BISINDO letters: C, E, I, J, L, O, R, U, V, Z.
- * Flip logic normalises to right-hand orientation:
- *   rear camera  → flip real left hands (appear left-looking in raw pixels)
- *   front camera → flip real right hands (camera-perspective makes right appear left-looking)
- */
-function cropSingleHand(
-  video: HTMLVideoElement,
-  hand: DetectedHand,
-  mirrored: boolean,
-): Blob | null {
-  const { videoWidth: W, videoHeight: H } = video;
-
-  let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
-  for (const lm of hand.landmarks) {
-    if (lm.x < xMin) xMin = lm.x;
-    if (lm.y < yMin) yMin = lm.y;
-    if (lm.x > xMax) xMax = lm.x;
-    if (lm.y > yMax) yMax = lm.y;
-  }
-
-  const bw  = (xMax - xMin) * W;
-  const bh  = (yMax - yMin) * H;
-  const pad = Math.max(bw, bh) * HAND_CROP_PADDING;
-  const side = Math.ceil(Math.max(bw, bh) + pad * 2);
-  const cx   = Math.max(0, Math.min(W - side, Math.round(((xMin + xMax) / 2) * W - side / 2)));
-  const cy   = Math.max(0, Math.min(H - side, Math.round(((yMin + yMax) / 2) * H - side / 2)));
-  if (side <= 0) return null;
-
-  const scratch = document.createElement('canvas');
-  scratch.width = W; scratch.height = H;
-  const ctx = scratch.getContext('2d');
-  if (!ctx) return null;
-  ctx.drawImage(video, 0, 0, W, H);
-
-  const shouldFlip = mirrored ? hand.handedness === 'Right' : hand.handedness === 'Left';
-  return buildCropBlob(scratch, cx, cy, side, shouldFlip);
-}
-
-/**
- * Two-hand crop — used for two-handed BISINDO letters: A, B, D, F, G, H, K, M, N, P, Q, S, T, W, X, Y.
- * Computes a joint bounding box across ALL detected hands so both appear in one 224×224 crop,
- * matching the training data distribution (Roboflow images contain both hands together).
- *
- * Returns null if either hand's bounding box extends outside the frame — the model
- * should not receive a partially-visible two-hand gesture.
- *
- * Flip: the entire crop is flipped once when mirrored (front camera), preserving the
- * spatial relationship between the hands that the model learned.
- */
-function cropBothHands(
-  video: HTMLVideoElement,
-  hands: DetectedHand[],
-  mirrored: boolean,
-): Blob | null {
-  const { videoWidth: W, videoHeight: H } = video;
-
-  let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
-  for (const hand of hands) {
-    for (const lm of hand.landmarks) {
-      if (lm.x < xMin) xMin = lm.x;
-      if (lm.y < yMin) yMin = lm.y;
-      if (lm.x > xMax) xMax = lm.x;
-      if (lm.y > yMax) yMax = lm.y;
-    }
-  }
-
-  const bw  = (xMax - xMin) * W;
-  const bh  = (yMax - yMin) * H;
-  const pad = Math.max(bw, bh) * HAND_CROP_PADDING;
-  const side = Math.ceil(Math.max(bw, bh) + pad * 2);
-  const rawCx = Math.round(((xMin + xMax) / 2) * W - side / 2);
-  const rawCy = Math.round(((yMin + yMax) / 2) * H - side / 2);
-
-  // Reject if the unclamped bounding box extends outside the frame —
-  // a clipped two-hand crop is worse than no prediction.
-  if (rawCx < 0 || rawCy < 0 || rawCx + side > W || rawCy + side > H || side <= 0) return null;
-
-  const scratch = document.createElement('canvas');
-  scratch.width = W; scratch.height = H;
-  const ctx = scratch.getContext('2d');
-  if (!ctx) return null;
-  ctx.drawImage(video, 0, 0, W, H);
-
-  // Flip the whole scene for front camera — preserves left/right spatial relationship
-  return buildCropBlob(scratch, rawCx, rawCy, side, mirrored);
 }
 
 async function predictFromBlob(
@@ -207,7 +132,6 @@ export default function TranslatePageContent() {
   const [devices, setDevices]                     = useState<MediaDeviceOption[]>([]);
   const [selectedDeviceId, setSelectedDeviceId]   = useState('');
   const [apiError, setApiError]                   = useState(false);
-  const [handsIncomplete, setHandsIncomplete]     = useState(false);
   const [mpReady, setMpReady]                     = useState(false);
   const [hands, setHands]                         = useState<DetectedHand[]>([]);
 
@@ -321,7 +245,7 @@ export default function TranslatePageContent() {
     setTranscript([]); setTokens([]);
     setCurrentLetter(null); setCurrentConfidence(null);
     setIsSpeaking(false); setIsTtsError(false);
-    setFps(0); setApiError(false); setHands([]); setHandsIncomplete(false);
+    setFps(0); setApiError(false); setHands([]);
     setSessionStart(null);
     voteBuffer.current = []; prevLandmarksRef.current = null;
   }, [stopStream]);
@@ -361,7 +285,6 @@ export default function TranslatePageContent() {
         setHands(nextHands);
         if (nextHands.length === 0) {
           setCurrentLetter(null); setCurrentConfidence(null);
-          setHandsIncomplete(false);
           prevLandmarksRef.current = null;
           voteBuffer.current = [];
           return;
@@ -373,30 +296,12 @@ export default function TranslatePageContent() {
         const primaryLandmarks = nextHands[0].landmarks.map(l => ({ x: l.x, y: l.y }));
         if (!isHandStable(primaryLandmarks)) return;
 
-        // ── Crop strategy: single hand vs. joint two-hand ─────────────
-        // BISINDO is predominantly two-handed. The model was trained on
-        // Roboflow images where both hands appear together in one crop.
-        // When 2 hands are detected → joint crop (preserves spatial relationship).
-        // When 1 hand is detected  → single-hand crop (correct for C,E,I,J,L,O,R,U,V,Z).
-        // cropBothHands() returns null if the joint bounding box clips the frame edge —
-        // in that case we skip inference rather than sending a broken crop.
-        //
-        // IMPORTANT: use `mirrored` (derived from facingMode) — NOT `isMirrored`
-        // (display toggle). The flip correction must match the handedness correction
-        // above, which also uses facingMode. Using the display toggle caused wrong
-        // flips when switching cameras or toggling the mirror setting.
-        let cropBlob: Blob | null;
-        if (nextHands.length >= 2) {
-          cropBlob = cropBothHands(video, nextHands, mirrored);
-          setHandsIncomplete(cropBlob === null); // null = one hand near edge, clipped
-          if (cropBlob === null) return;
-        } else {
-          // One hand in frame — valid for single-hand letters; may be incomplete for two-hand letters.
-          // We cannot know which case this is until after prediction, so we proceed but flag it.
-          setHandsIncomplete(false);
-          cropBlob = cropSingleHand(video, nextHands[0], mirrored);
-          if (cropBlob === null) return;
-        }
+        // ── Crop the guide box region ─────────────────────────────────
+        // Instead of landmark-based hand cropping, we crop a fixed centered
+        // square (the guide box) that the user positions their hand inside.
+        // This keeps the face out of the crop and eliminates flip complexity.
+        const cropBlob = cropGuideBox(video, mirrored);
+        if (cropBlob === null) return;
 
         // ── CNN path (backend API, primary) ───────────────────────────
         const cnnBest = await predictFromBlob(cropBlob);
@@ -454,7 +359,7 @@ export default function TranslatePageContent() {
     if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
     if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
     isBusy.current = false; fpsCountRef.current = 0;
-    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0); setHandsIncomplete(false);
+    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
     voteBuffer.current = []; prevLandmarksRef.current = null;
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
@@ -592,7 +497,6 @@ export default function TranslatePageContent() {
               state={appState}
               facingMode={facingMode}
               mpReady={mpReady}
-              handsCount={hands.length}
               apiError={apiError}
               hasMultipleCameras={devices.length > 1}
               languageLabel={language}
@@ -603,22 +507,10 @@ export default function TranslatePageContent() {
               onFlipCamera={flipCamera}
               onReset={handleReset}
             />
-            {isActive && (
-              <LandmarkOverlay
-                hands={hands}
-                mirrored={isMirrored}
-                showBoundingBox
-                showHandLabels
-              />
-            )}
-            {isActive && handsIncomplete && (
-              <div
-                role="alert"
-                className="absolute top-14 left-1/2 z-20 -translate-x-1/2 rounded-full bg-amber-500/90 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm whitespace-nowrap"
-              >
-                Keep both hands fully in frame
-              </div>
-            )}
+            <HandGuideBox
+              active={isActive}
+              handDetected={isActive && hands.length > 0}
+            />
           </div>
 
           {/* ── Col 2: Sidebar (Translation + Transcript) ───────────────── */}
