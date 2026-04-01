@@ -48,7 +48,15 @@ def parse_args():
     p.add_argument("--phase1_epochs",       type=int,   default=15)
     p.add_argument("--phase2_epochs",       type=int,   default=30)
     p.add_argument("--phase1_lr",           type=float, default=1e-3)
+    p.add_argument("--phase1_weight_decay", type=float, default=1e-4,
+                   help="AdamW weight decay for phase 1 (default: 1e-4)")
     p.add_argument("--phase2_lr",           type=float, default=1e-5)
+    p.add_argument("--phase2_weight_decay", type=float, default=1e-5,
+                   help="AdamW weight decay for phase 2 (default: 1e-5)")
+    p.add_argument("--phase2_warmup_epochs", type=int,  default=2,
+                   help="Linear warmup epochs before cosine decay in phase 2")
+    p.add_argument("--phase2_lr_min",       type=float, default=1e-7,
+                   help="Minimum LR at the end of cosine decay (default: 1e-7)")
     p.add_argument("--unfreeze_from_layer", type=int,   default=240)
 
     # I/O
@@ -92,24 +100,28 @@ def parse_args():
 def main():
     args   = parse_args()
     config = TrainerConfig(
-        train_csv           = args.train_csv,
-        val_csv             = args.val_csv,
-        test_csv            = args.test_csv,
-        num_classes         = args.num_classes,
-        dropout_rate        = args.dropout_rate,
-        batch_size          = args.batch_size,
-        phase1_epochs       = args.phase1_epochs,
-        phase2_epochs       = args.phase2_epochs,
-        phase1_lr           = args.phase1_lr,
-        phase2_lr           = args.phase2_lr,
-        unfreeze_from_layer = args.unfreeze_from_layer,
-        output_dir          = args.output_dir,
-        label_map_path      = args.label_map_path,
+        train_csv            = args.train_csv,
+        val_csv              = args.val_csv,
+        test_csv             = args.test_csv,
+        num_classes          = args.num_classes,
+        dropout_rate         = args.dropout_rate,
+        batch_size           = args.batch_size,
+        phase1_epochs        = args.phase1_epochs,
+        phase2_epochs        = args.phase2_epochs,
+        phase1_lr            = args.phase1_lr,
+        phase1_weight_decay  = args.phase1_weight_decay,
+        phase2_lr            = args.phase2_lr,
+        phase2_weight_decay  = args.phase2_weight_decay,
+        phase2_warmup_epochs = args.phase2_warmup_epochs,
+        phase2_lr_min        = args.phase2_lr_min,
+        unfreeze_from_layer  = args.unfreeze_from_layer,
+        output_dir           = args.output_dir,
+        label_map_path       = args.label_map_path,
         resume_weights       = args.resume_weights,
         initial_epoch        = args.initial_epoch,
         initial_epoch_phase2 = args.initial_epoch_phase2,
         skip_phase1          = args.skip_phase1,
-        mixed_precision     = not args.no_mixed_precision,
+        mixed_precision      = not args.no_mixed_precision,
     )
 
     trainer = Trainer(config)

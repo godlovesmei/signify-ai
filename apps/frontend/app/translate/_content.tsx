@@ -21,11 +21,14 @@ import HandGuideBox, { guideBoxPixels } from '@/components/features/translation/
 import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
+import { preprocessFrame } from '@/lib/imagePreprocess';
+import { landmarksToBBox } from '@/lib/handROI';
 
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
-const DETECTION_INTERVAL = 500;
+const IS_MOBILE          = typeof navigator !== 'undefined' && /Android|iPhone|iPad/i.test(navigator.userAgent);
+const DETECTION_INTERVAL = IS_MOBILE ? 750 : 500; // slower on mobile to reduce heat
 const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
 const VOTE_BUFFER_SIZE   = 6;     // frames to collect before committing
 const VOTE_NEEDED        = 5;     // how many of those frames must agree
@@ -42,52 +45,39 @@ async function createHandLandmarker(): Promise<HandLandmarker> {
     baseOptions: {
       modelAssetPath:
         'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-      delegate: 'GPU',
+      // GPU WebGL can be slower on low-end mobile due to context switching overhead
+      delegate: IS_MOBILE ? 'CPU' : 'GPU',
     },
     runningMode:                'VIDEO',
-    numHands:                   2,
-    minHandDetectionConfidence: 0.5,
+    numHands:                   1,   // 2→1: nearly 2x faster, sufficient for single-hand BISINDO
+    minHandDetectionConfidence: 0.6, // slightly higher = skip ambiguous frames faster
     minHandPresenceConfidence:  0.5,
     minTrackingConfidence:      0.5,
   });
 }
 
 /**
- * Crop the static guide box region from the video and return a 224×224 PNG blob.
- * The guide box is a centered square (~55% of video height) — the user positions
- * their hand inside it, keeping the face out of the crop.
+ * Compute crop region: use dynamic ROI from MediaPipe landmarks if available,
+ * otherwise fall back to the static guide box.
  *
- * For front camera the raw video is not mirrored, but the user sees a mirrored
- * view (CSS scaleX(-1)). The guide box is centered so its position is the same
- * in raw and mirrored space. We flip the crop content for front camera so the
- * model receives the same orientation as training data.
+ * Dynamic ROI produces crops closer to the Roboflow training distribution
+ * (hand-cropped by annotators) because background noise is minimised.
+ * The guide box serves as a visual anchor so the user knows where to sign.
  */
-function cropGuideBox(
+function computeCropRegion(
   video: HTMLVideoElement,
-  mirrored: boolean,
-): Blob | null {
+  landmarks: ReadonlyArray<{ x: number; y: number }> | null,
+): { x: number; y: number; side: number } {
   const { videoWidth: W, videoHeight: H } = video;
-  const { x, y, side } = guideBoxPixels(W, H);
-  if (side <= 0) return null;
 
-  const TARGET = 224;
-  const crop   = document.createElement('canvas');
-  crop.width   = TARGET;
-  crop.height  = TARGET;
-  const ctx    = crop.getContext('2d');
-  if (!ctx) return null;
-
-  if (mirrored) {
-    ctx.translate(TARGET, 0);
-    ctx.scale(-1, 1);
+  // Try dynamic ROI first
+  if (landmarks && landmarks.length > 0) {
+    const roi = landmarksToBBox(landmarks, W, H, 0.25);
+    if (roi && roi.side > 0) return roi;
   }
-  ctx.drawImage(video, x, y, side, side, 0, 0, TARGET, TARGET);
 
-  const dataUrl = crop.toDataURL('image/png');
-  const binary  = atob(dataUrl.split(',')[1]);
-  const arr     = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
-  return new Blob([arr], { type: 'image/png' });
+  // Fallback: static guide box
+  return guideBoxPixels(W, H);
 }
 
 async function predictFromBlob(
@@ -198,6 +188,28 @@ export default function TranslatePageContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Page Visibility API ──────────────────────────────────────────────────
+  // Pause the detection loop when the tab is hidden to save CPU/GPU on mobile.
+  // The loop restarts automatically when the user returns.
+  const wasDetectingRef = useRef(false);
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.hidden && appState === 'detecting') {
+        wasDetectingRef.current = true;
+        if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
+        if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
+      } else if (!document.hidden && wasDetectingRef.current) {
+        wasDetectingRef.current = false;
+        // Re-trigger detection if we were detecting before tab was hidden
+        setAppState('ready');
+        // Small delay to allow video stream to stabilise after tab refocus
+        setTimeout(() => setAppState(prev => prev === 'ready' ? 'ready' : prev), 300);
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [appState]);
+
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
@@ -296,11 +308,17 @@ export default function TranslatePageContent() {
         const primaryLandmarks = nextHands[0].landmarks.map(l => ({ x: l.x, y: l.y }));
         if (!isHandStable(primaryLandmarks)) return;
 
-        // ── Crop the guide box region ─────────────────────────────────
-        // Instead of landmark-based hand cropping, we crop a fixed centered
-        // square (the guide box) that the user positions their hand inside.
-        // This keeps the face out of the crop and eliminates flip complexity.
-        const cropBlob = cropGuideBox(video, mirrored);
+        // ── Crop region: dynamic ROI (MediaPipe) with guide box fallback ──
+        // Dynamic ROI produces crops closer to Roboflow training data
+        // distribution; guide box is the fallback when landmarks are poor.
+        const cropRegion = computeCropRegion(video, primaryLandmarks);
+        if (cropRegion.side <= 0) return;
+
+        // ── Preprocess: auto-expose → grayscale → resize 224×224 → PNG ──
+        // preprocessFrame handles the full pipeline matching backend exactly.
+        const cropBlob = preprocessFrame(
+          video, cropRegion.x, cropRegion.y, cropRegion.side, mirrored,
+        );
         if (cropBlob === null) return;
 
         // ── CNN path (backend API, primary) ───────────────────────────

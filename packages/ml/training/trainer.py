@@ -4,11 +4,13 @@ Two-phase transfer learning trainer for BISINDO sign classification.
 
 Phase 1 — Feature extraction:
     EfficientNetV2B0 base fully frozen; only the custom head is trained.
-    Learning rate: 1e-3.
+    Optimizer: AdamW (decoupled weight decay).
+    Learning rate: 1e-3, ReduceLROnPlateau.
 
 Phase 2 — Fine-tuning:
     Top layers of the base unfrozen from index 240 (~last 30% of ~340 layers).
-    End-to-end training with a very low learning rate (1e-5).
+    Optimizer: AdamW with Cosine Decay + linear warmup.
+    Learning rate: 1e-5 → cosine anneal to 1e-7.
 """
 
 import logging
@@ -40,13 +42,17 @@ class TrainerConfig:
     dropout_rate: float = 0.3
 
     # Phase 1
-    phase1_epochs: int   = 15
-    phase1_lr:     float = 1e-3
-    batch_size:    int   = 32
+    phase1_epochs:       int   = 15
+    phase1_lr:           float = 1e-3
+    phase1_weight_decay: float = 1e-4
+    batch_size:          int   = 32
 
     # Phase 2
     phase2_epochs:       int   = 30
     phase2_lr:           float = 1e-5
+    phase2_weight_decay: float = 1e-5
+    phase2_warmup_epochs: int  = 2   # linear warmup sebelum cosine decay
+    phase2_lr_min:       float = 1e-7  # floor untuk cosine anneal
     # EfficientNetV2B0 has ~340 layers; 240 keeps early/mid features frozen.
     unfreeze_from_layer: int   = 240
 
@@ -180,7 +186,10 @@ class Trainer:
     def _phase1(self) -> tf.keras.callbacks.History:
         logger.info("=== Phase 1: Feature extraction (%d epochs) ===", self.cfg.phase1_epochs)
         self.model.compile(
-            optimizer = tf.keras.optimizers.Adam(self.cfg.phase1_lr),
+            optimizer = tf.keras.optimizers.AdamW(
+                learning_rate = self.cfg.phase1_lr,
+                weight_decay  = self.cfg.phase1_weight_decay,
+            ),
             loss      = tf.keras.losses.SparseCategoricalCrossentropy(),
             metrics   = [
                 "accuracy",
@@ -201,8 +210,33 @@ class Trainer:
     def _phase2(self) -> tf.keras.callbacks.History:
         logger.info("=== Phase 2: Fine-tuning (%d epochs) ===", self.cfg.phase2_epochs)
         _unfreeze_top_layers(self.model, self.cfg.unfreeze_from_layer)
+
+        # Cosine Decay with linear warmup.
+        # ReduceLROnPlateau (phase 1) bersifat reaktif — menunggu loss plateau.
+        # Cosine Decay proaktif dan smooth, menghindari sudden LR drops yang
+        # bisa destabilize BatchNorm statistics (kritis untuk noisy data).
+        steps_per_epoch = len(self.train_ds)
+        remaining_epochs = self.cfg.phase2_epochs - self.cfg.initial_epoch_phase2
+        total_steps = steps_per_epoch * remaining_epochs
+        warmup_steps = steps_per_epoch * self.cfg.phase2_warmup_epochs
+
+        lr_schedule = tf.keras.optimizers.schedules.CosineDecay(
+            initial_learning_rate = self.cfg.phase2_lr,
+            decay_steps           = total_steps - warmup_steps,
+            alpha                 = self.cfg.phase2_lr_min,
+            warmup_target         = self.cfg.phase2_lr,
+            warmup_steps          = warmup_steps,
+        )
+        logger.info(
+            "Phase 2 LR: CosineDecay %.1e → %.1e over %d steps (%d warmup)",
+            self.cfg.phase2_lr, self.cfg.phase2_lr_min, total_steps, warmup_steps,
+        )
+
         self.model.compile(
-            optimizer = tf.keras.optimizers.Adam(self.cfg.phase2_lr),
+            optimizer = tf.keras.optimizers.AdamW(
+                learning_rate = lr_schedule,
+                weight_decay  = self.cfg.phase2_weight_decay,
+            ),
             loss      = tf.keras.losses.SparseCategoricalCrossentropy(),
             metrics   = [
                 "accuracy",
@@ -214,7 +248,10 @@ class Trainer:
             validation_data = self.val_ds,
             epochs          = self.cfg.phase2_epochs,
             initial_epoch   = self.cfg.initial_epoch_phase2,  # resume support
-            callbacks       = build_callbacks(self.cfg.output_dir, phase="phase2", monitor="val_accuracy"),
+            callbacks       = build_callbacks(
+                self.cfg.output_dir, phase="phase2", monitor="val_accuracy",
+                use_lr_plateau=False,  # cosine decay handles LR scheduling
+            ),
             verbose         = 1,
         )
         logger.info("Phase 2 done. Best val_accuracy: %.4f", max(history.history["val_accuracy"]))

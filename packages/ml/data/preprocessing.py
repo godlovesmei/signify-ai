@@ -11,7 +11,6 @@ file ini HANYA berisi:
 
 import logging
 
-import numpy as np
 import tensorflow as tf
 
 logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ TARGET_SIZE = (224, 224)   # resize dari 244 → 224 untuk EfficientNetV2B0
 
 def tf_augment(image: tf.Tensor) -> tf.Tensor:
     """
-    Augmentasi ringan untuk training. Menerima float32 tensor dalam [0, 1].
+    Augmentasi untuk training. Menerima float32 tensor dalam [0, 1].
 
     Dihapus vs versi sebelumnya:
       - random_flip_left_right → flip mengubah orientasi tangan,
@@ -33,12 +32,34 @@ def tf_augment(image: tf.Tensor) -> tf.Tensor:
       - random_saturation      → dataset grayscale (R=G=B), saturation
         tidak berpengaruh sama sekali
 
-    Ditambahkan:
-      - random_jpeg_quality → simulasi kompresi webcam
+    Pipeline:
+      1. Random brightness/contrast — variasi pencahayaan dasar
+      2. Random JPEG quality        — simulasi kompresi webcam
+      3. Random gamma correction    — simulasi non-linear camera response curve
+         (gamma < 1 → brighten shadows, gamma > 1 → darken highlights)
+      4. Random Gaussian noise      — simulasi sensor noise di low-light (50% prob)
     """
+    # -- Existing augmentations --
     image = tf.image.random_brightness(image, max_delta=0.15)
     image = tf.image.random_contrast(image, lower=0.8, upper=1.2)
     image = tf.image.random_jpeg_quality(image, min_jpeg_quality=70, max_jpeg_quality=100)
+
+    # -- Gamma correction --
+    # Simulates over/under-exposure dari kamera nyata. random_brightness hanya
+    # melakukan shift linear (pixel + delta), tetapi kamera menghasilkan
+    # non-linear response curve. Gamma < 1 membuat shadow lebih terang
+    # (ruangan gelap), gamma > 1 membuat highlight lebih gelap.
+    gamma = tf.random.uniform([], 0.7, 1.4)
+    image = tf.pow(tf.clip_by_value(image, 1e-7, 1.0), gamma)
+
+    # -- Gaussian noise (50% probability) --
+    # Simulates sensor noise yang muncul saat ISO tinggi / low-light.
+    # stddev 0.02 cukup kecil agar tidak mendominasi fitur tangan, tapi cukup
+    # untuk mengajarkan model mengabaikan noise halus.
+    apply_noise = tf.random.uniform([]) > 0.5
+    noise = tf.random.normal(tf.shape(image), mean=0.0, stddev=0.02)
+    image = tf.cond(apply_noise, lambda: image + noise, lambda: image)
+
     image = tf.clip_by_value(image, 0.0, 1.0)
     return image
 

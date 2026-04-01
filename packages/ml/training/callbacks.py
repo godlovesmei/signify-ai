@@ -17,14 +17,20 @@ def build_callbacks(
     output_dir: str,
     phase: str,
     monitor: str = "val_accuracy",
+    use_lr_plateau: bool = True,
 ) -> list:
     """
     Buat daftar Keras callbacks untuk satu training phase.
 
     Args:
-        output_dir : direktori tempat checkpoint dan log disimpan
-        phase      : label phase, e.g. "phase1" atau "phase2"
-        monitor    : metrik yang diawasi untuk ModelCheckpoint & EarlyStopping
+        output_dir     : direktori tempat checkpoint dan log disimpan
+        phase          : label phase, e.g. "phase1" atau "phase2"
+        monitor        : metrik yang diawasi untuk ModelCheckpoint & EarlyStopping
+        use_lr_plateau : apakah ReduceLROnPlateau disertakan. Set False jika
+                         optimizer sudah menggunakan LR schedule (e.g. CosineDecay
+                         di phase 2), karena dua mekanisme LR scheduling yang
+                         saling bertabrakan menghasilkan perilaku yang tidak
+                         terprediksi.
 
     Returns:
         List of tf.keras.callbacks.Callback
@@ -64,18 +70,21 @@ def build_callbacks(
         )
     )
 
-    # ── 3. ReduceLROnPlateau ──────────────────────────────────────────────────
-    # Turunkan LR jika val_accuracy stagnan. Berguna terutama di phase 2.
-    callbacks.append(
-        tf.keras.callbacks.ReduceLROnPlateau(
-            monitor   = monitor,
-            mode      = "max",
-            factor    = 0.5,       # LR baru = LR lama * 0.5
-            patience  = 3,
-            min_lr    = 1e-7,
-            verbose   = 1,
+    # ── 3. ReduceLROnPlateau (opsional) ─────────────────────────────────────
+    # Turunkan LR jika val_accuracy stagnan. Hanya digunakan jika optimizer
+    # belum memiliki LR schedule sendiri (e.g. phase 1 dengan flat LR).
+    # Di phase 2 dengan CosineDecay, callback ini di-skip agar tidak konflik.
+    if use_lr_plateau:
+        callbacks.append(
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor   = monitor,
+                mode      = "max",
+                factor    = 0.5,       # LR baru = LR lama * 0.5
+                patience  = 3,
+                min_lr    = 1e-7,
+                verbose   = 1,
+            )
         )
-    )
 
     # ── 4. CSVLogger ─────────────────────────────────────────────────────────
     # Simpan history tiap epoch ke CSV — berguna untuk analisis post-training.
