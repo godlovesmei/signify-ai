@@ -72,6 +72,203 @@ const SIGN_LIBRARY: SignCard[] = [
       'Buka tiga jari utama ke samping. Dua jari lainnya ditekuk agar siluet E lebih jelas.',
     tip: 'Versi singkat: tiga jari terbuka ke samping, jari lainnya tetap terlipat.',
   },
+  {
+    id: 'F',
+    label: 'F',
+    name: 'Huruf F',
+    description:
+      'Dua jari tangan atas terbuka ke samping, telunjuk tangan bawah menyentuh bagian bawahnya.',
+    fingers:
+      'Bentuk dua jari tangan atas terbuka ke samping. Telunjuk tangan bawah menyentuh bagian bawah bentuk tersebut.',
+  },
+  {
+    id: 'G',
+    label: 'G',
+    name: 'Huruf G',
+    description:
+      'Kedua tangan mengepal, satu di atas dan satu di bawah saling berhadapan.',
+    fingers:
+      'Gunakan dua tangan dalam posisi mengepal. Letakkan satu tangan di atas dan satu di bawah secara saling berhadapan.',
+  },
+  {
+    id: 'H',
+    label: 'H',
+    name: 'Huruf H',
+    description:
+      'Kedua tangan dengan telunjuk tegak ke atas, jari tengah salah satu tangan melintang di tengah.',
+    fingers:
+      'Buat dua telunjuk tegak ke atas. Salah satu jari tengah diletakkan melintang di tengah sebagai penghubung.',
+    tip: 'Pastikan dua telunjuk tegak terlihat jelas.',
+    variant:
+      'Versi singkat: dua telunjuk tegak ke atas, jari tengah melintang di tengah menghubungkannya.',
+  },
+  {
+    id: 'I',
+    label: 'I',
+    name: 'Huruf I',
+    description:
+      'Satu tangan dengan kelingking tegak ke atas, jari lainnya terlipat.',
+    fingers:
+      'Angkat jari kelingking lurus ke atas. Jari lainnya tetap dilipat ke dalam.',
+  },
+  {
+    id: 'J',
+    label: 'J',
+    name: 'Huruf J',
+    description:
+      'Satu tangan mengepal dengan kelingking terbuka, digerakkan membentuk lengkungan seperti huruf J.',
+    fingers:
+      'Buat tangan mengepal lalu buka jari kelingking. Gerakkan membentuk lengkung menyerupai huruf J.',
+    tip: 'Pastikan gerak lengkungnya terlihat jelas di depan kamera.',
+  },
+  {
+    id: 'K',
+    label: 'K',
+    name: 'Huruf K',
+    description:
+      'Telunjuk satu tangan tegak, telunjuk tangan lain menyentuh bagian tengahnya dengan ibu jari terbuka di samping.',
+    fingers:
+      'Satu telunjuk tegak lurus. Tangan lain menyentuh bagian tengah telunjuk tersebut, dengan ibu jari tangan penyentuh terbuka di samping.',
+  },
+  {
+    id: 'L',
+    label: 'L',
+    name: 'Huruf L',
+    description:
+      'Telunjuk ke atas dan ibu jari ke samping membentuk sudut L.',
+    fingers:
+      'Angkat telunjuk ke atas dan buka ibu jari ke samping hingga membentuk sudut seperti huruf L.',
+  },
+  {
+    id: 'M',
+    label: 'M',
+    name: 'Huruf M',
+    description:
+      'Satu tangan terbuka, tiga jari tangan lain menempel di bagian tengah telapak tangan.',
+    fingers:
+      'Buka satu telapak tangan. Tempelkan tiga jari dari tangan lain pada bagian tengah telapak tersebut.',
+  },
+  {
+    id: 'N',
+    label: 'N',
+    name: 'Huruf N',
+    description:
+      'Telapak tangan terbuka, jari telunjuk dan tengah tangan lain menempel di bagian tengah telapak.',
+    fingers:
+      'Buka satu telapak tangan menghadap depan. Tempelkan jari telunjuk dan jari tengah tangan lain di bagian tengah telapak.',
+    variant:
+      'Versi lain: satu tangan terbuka menghadap depan, dua jari tangan lain menempel di tengah telapak tangan.',
+  },
+  {
+    id: 'O',
+    label: 'O',
+    name: 'Huruf O',
+    description:
+      'Ibu jari dan telunjuk membentuk lingkaran, jari lain terbuka.',
+    fingers:
+      'Satukan ibu jari dan telunjuk hingga membentuk lingkaran. Jari lainnya tetap terbuka.',
+  },
+  {
+    id: 'P',
+    label: 'P',
+    name: 'Huruf P',
+    description:
+      'Telunjuk satu tangan tegak, ibu jari dan telunjuk tangan lain membentuk lengkungan menyentuh bagian atasnya.',
+    fingers:
+      'Buat satu telunjuk tegak lurus. Tangan lain membentuk lengkungan dengan ibu jari dan telunjuk, lalu menyentuh bagian atas telunjuk.',
+    variant:
+      'Versi lain: telunjuk satu tangan tegak, ibu jari dan telunjuk tangan lain membentuk lengkungan dan menyentuh ujung telunjuk tersebut.',
+  },
+  {
+    id: 'Q',
+    label: 'Q',
+    name: 'Huruf Q',
+    description:
+      'Ibu jari dan telunjuk satu tangan membentuk lingkaran, telunjuk tangan lain menyentuh bagian bawahnya.',
+    fingers:
+      'Buat lingkaran dengan ibu jari dan telunjuk. Gunakan telunjuk tangan lain untuk menyentuh bagian bawah lingkaran.',
+  },
+  {
+    id: 'R',
+    label: 'R',
+    name: 'Huruf R',
+    description:
+      'Satu tangan dengan telunjuk tegak, jari tengah ditekuk dan menempel pada ibu jari.',
+    fingers:
+      'Tegakkan jari telunjuk. Tekuk jari tengah hingga menyentuh atau menempel pada ibu jari.',
+  },
+  {
+    id: 'S',
+    label: 'S',
+    name: 'Huruf S',
+    description:
+      'Kedua tangan membentuk lengkungan dengan ibu jari dan telunjuk, ujung telunjuk saling berhadapan.',
+    fingers:
+      'Gunakan dua tangan. Masing-masing membentuk lengkung dengan ibu jari dan telunjuk, lalu arahkan ujung telunjuk saling berhadapan.',
+  },
+  {
+    id: 'T',
+    label: 'T',
+    name: 'Huruf T',
+    description:
+      'Satu telunjuk tegak ke atas, telunjuk tangan lain mendatar menyentuh bagian atasnya.',
+    fingers:
+      'Tegakkan satu telunjuk ke atas. Letakkan telunjuk tangan lain secara mendatar menyentuh bagian atas telunjuk pertama.',
+  },
+  {
+    id: 'U',
+    label: 'U',
+    name: 'Huruf U',
+    description:
+      'Telunjuk dan kelingking terbuka ke atas, jari lain terlipat.',
+    fingers:
+      'Buka telunjuk dan kelingking ke arah atas. Jari lainnya tetap dilipat.',
+  },
+  {
+    id: 'V',
+    label: 'V',
+    name: 'Huruf V',
+    description:
+      'Telunjuk dan jari tengah terbuka ke atas membentuk V, jari lain terlipat.',
+    fingers:
+      'Buka telunjuk dan jari tengah ke atas hingga membentuk huruf V. Jari lainnya dilipat.',
+  },
+  {
+    id: 'W',
+    label: 'W',
+    name: 'Huruf W',
+    description:
+      'Dua telunjuk tegak ke atas, ibu jari kedua tangan bertemu di tengah membentuk dua sudut seperti huruf W.',
+    fingers:
+      'Gunakan dua tangan. Tegakkan kedua telunjuk ke atas dan pertemukan ibu jari di tengah hingga membentuk dua sudut seperti huruf W.',
+  },
+  {
+    id: 'X',
+    label: 'X',
+    name: 'Huruf X',
+    description:
+      'Kedua telunjuk saling menyilang di tengah membentuk silang.',
+    fingers:
+      'Gunakan dua telunjuk dan silangkan keduanya di tengah hingga membentuk huruf X.',
+  },
+  {
+    id: 'Y',
+    label: 'Y',
+    name: 'Huruf Y',
+    description:
+      'Telunjuk dan ibu jari satu tangan terbuka membentuk sudut, telunjuk tangan lain menyentuh bagian tengahnya.',
+    fingers:
+      'Buka telunjuk dan ibu jari satu tangan hingga membentuk sudut. Gunakan telunjuk tangan lain untuk menyentuh bagian tengah bentuk tersebut.',
+  },
+  {
+    id: 'Z',
+    label: 'Z',
+    name: 'Huruf Z',
+    description:
+      'Satu tangan terbuka mendatar ke depan dengan telapak menghadap ke bawah.',
+    fingers:
+      'Buka satu tangan secara mendatar ke arah depan. Posisi telapak tangan menghadap ke bawah.',
+  },
 ];
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
