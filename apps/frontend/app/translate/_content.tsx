@@ -23,6 +23,7 @@ import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
 import { preprocessFrame } from '@/lib/imagePreprocess';
 import { landmarksToBBox } from '@/lib/handROI';
+import PracticeGuide from '@/components/features/translation/PracticeGuide';
 
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
@@ -31,8 +32,9 @@ const IS_MOBILE          = typeof navigator !== 'undefined' && /Android|iPhone|i
 const DETECTION_INTERVAL = IS_MOBILE ? 750 : 500; // slower on mobile to reduce heat
 const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
 const VOTE_BUFFER_SIZE   = 6;     // frames to collect before committing
-const VOTE_NEEDED        = 5;     // how many of those frames must agree
+const WEIGHTED_VOTE_THRESHOLD = 0.6; // commit only if winner reaches >=60% total vote weight
 type Language = 'ASL' | 'BISINDO';
+type VoteEntry = { letter: string; confidence: number };
 
 let _id = 0;
 function uid() { return `entry-${Date.now()}-${++_id}`; }
@@ -159,7 +161,7 @@ export default function TranslatePageContent() {
   }
 
   // ── Sliding window vote ─────────────────────────────────────────────────────
-  const voteBuffer = useRef<string[]>([]);
+  const voteBuffer = useRef<VoteEntry[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -340,25 +342,44 @@ export default function TranslatePageContent() {
         setCurrentLetter(cnnBest.prediction);
         setCurrentConfidence(cnnBest.confidence);
 
-        // ── Sliding window vote ────────────────────────────────────────
-        // Collect predictions into a rolling buffer. Only commit to transcript
-        // when VOTE_NEEDED frames out of VOTE_BUFFER_SIZE agree on the same letter.
-        // This eliminates single-frame noise and B/P/W ambiguity.
-        voteBuffer.current.push(cnnBest.prediction);
+        // ── Confidence-weighted vote ───────────────────────────────────
+        // Each frame contributes weight=confidence^2, so uncertain frames
+        // have much less influence than stable high-confidence frames.
+        voteBuffer.current.push({ letter: cnnBest.prediction, confidence: cnnBest.confidence });
         if (voteBuffer.current.length > VOTE_BUFFER_SIZE) voteBuffer.current.shift();
         if (voteBuffer.current.length < VOTE_BUFFER_SIZE) return;
 
-        const freq: Record<string, number> = {};
-        for (const l of voteBuffer.current) freq[l] = (freq[l] ?? 0) + 1;
-        const [winner, count] = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-        if (count < VOTE_NEEDED) return;
+        const scores: Record<string, number> = {};
+        const confidencesByLetter: Record<string, number[]> = {};
+        for (const entry of voteBuffer.current) {
+          const weight = Math.pow(entry.confidence, 2);
+          scores[entry.letter] = (scores[entry.letter] ?? 0) + weight;
+          (confidencesByLetter[entry.letter] ??= []).push(entry.confidence);
+        }
+
+        const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        if (sorted.length === 0) return;
+
+        const [winner, winnerWeight] = sorted[0];
+        const totalWeight = Object.values(scores).reduce((a, b) => a + b, 0);
+        if (totalWeight <= 0) return;
+        if (winnerWeight / totalWeight < WEIGHTED_VOTE_THRESHOLD) return;
+
+        const winnerConf = confidencesByLetter[winner] ?? [cnnBest.confidence];
+        const committedConfidence = winnerConf.reduce((a, b) => a + b, 0) / winnerConf.length;
 
         voteBuffer.current = []; // reset after commit so the same letter isn't repeated immediately
 
         setTokens((prev) => [...prev, winner]);
         setTranscript((prev) => [
           ...prev.slice(-49),
-          { id: uid(), text: winner, confidence: cnnBest.confidence, timestamp: new Date(), language: languageRef.current },
+          {
+            id: uid(),
+            text: winner,
+            confidence: committedConfidence,
+            timestamp: new Date(),
+            language: languageRef.current,
+          },
         ]);
 
         if (voiceEnabledRef.current && 'speechSynthesis' in window) {
@@ -502,37 +523,42 @@ export default function TranslatePageContent() {
           On mobile: stacks vertically.
         */}
         <main
-          className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
-          style={{ minHeight: 0 }}
+          className="grid flex-1 grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
+          style={{ minHeight: 0, height: 'calc(100dvh - 56px)' }} // 56px = h-14 header
         >
           {/* ── Col 1: Camera ───────────────────────────────────────────── */}
           <div
-            className="relative flex flex-col h-[50svh] md:h-full overflow-hidden border-b border-border/30 md:border-b-0 md:border-r"
+            className="relative flex flex-col h-[52svh] md:h-full overflow-hidden border-b border-border/30 md:border-b-0 md:border-r bg-gradient-to-br from-background via-muted/40 to-background p-3 sm:p-4 md:p-6"
             style={{ minHeight: 0 }}
           >
-            <WebcamCapture
-              ref={webcamRef}
-              state={appState}
-              facingMode={facingMode}
-              mpReady={mpReady}
-              apiError={apiError}
-              hasMultipleCameras={devices.length > 1}
-              languageLabel={language}
-              voiceEnabled={voiceEnabled}
-              onRequestCamera={() => startCamera()}
-              onStartDetection={startDetection}
-              onStopDetection={stopDetection}
-              onFlipCamera={flipCamera}
-              onReset={handleReset}
-            />
-            <HandGuideBox
-              active={isActive}
-              handDetected={isActive && hands.length > 0}
-            />
+            <div
+              className="relative flex-1 w-full max-w-5xl mx-auto rounded-3xl border border-border/40 bg-card/40 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.65)] overflow-hidden backdrop-blur-md"
+              style={{ minHeight: 0 }}
+            >
+              <WebcamCapture
+                ref={webcamRef}
+                state={appState}
+                facingMode={facingMode}
+                mpReady={mpReady}
+                apiError={apiError}
+                hasMultipleCameras={devices.length > 1}
+                languageLabel={language}
+                voiceEnabled={voiceEnabled}
+                onRequestCamera={() => startCamera()}
+                onStartDetection={startDetection}
+                onStopDetection={stopDetection}
+                onFlipCamera={flipCamera}
+                onReset={handleReset}
+              />
+              <HandGuideBox
+                active={isActive}
+                handDetected={isActive && hands.length > 0}
+              />
+            </div>
           </div>
 
           {/* ── Col 2: Sidebar (Translation + Transcript) ───────────────── */}
-          <div className="flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
+          <div className="flex h-full flex-col overflow-y-auto" style={{ minHeight: 0 }}>
             {/* Translation panel */}
             <div
               aria-label="Real-time translation"
@@ -573,6 +599,11 @@ export default function TranslatePageContent() {
                 isTtsError={isTtsError}
                 textScale={prefs.textScale}
               />
+            </div>
+
+            {/* Practice guide */}
+            <div className="shrink-0 border-b border-border/30 bg-card/10 p-4">
+              <PracticeGuide />
             </div>
 
             {/* Transcript fills remaining space */}
