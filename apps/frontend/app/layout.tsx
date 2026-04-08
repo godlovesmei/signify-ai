@@ -3,6 +3,28 @@ import { Sora, Atkinson_Hyperlegible_Next, JetBrains_Mono } from 'next/font/goog
 import './globals.css';
 import { Toaster } from "@/components/ui/sonner"
 
+const THEME_STORAGE_KEY = 'signify:theme';
+const PREFER_DARK_QUERY = '(prefers-color-scheme: dark)';
+const themeInitScript = `
+(() => {
+  try {
+    const stored = localStorage.getItem('${THEME_STORAGE_KEY}');
+    const mode = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+    const mq = window.matchMedia('${PREFER_DARK_QUERY}');
+    const apply = () => {
+      const resolved = mode === 'system' ? (mq.matches ? 'dark' : 'light') : mode;
+      document.documentElement.classList.toggle('dark', resolved === 'dark');
+    };
+    apply();
+    if (mode === 'system') {
+      mq.addEventListener('change', apply);
+    }
+  } catch (e) {
+    // ignore — leave default light theme
+  }
+})();
+`;
+
 /* ─────────────────────────────────────────────────────────────────────────────
    FONTS — BISINDO Design System v1.1
    Display  → Sora                          → headings, prediction badge
@@ -21,6 +43,10 @@ const atkinsonHyperlegibleNext = Atkinson_Hyperlegible_Next({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   display: 'swap',
+  // Next.js can’t infer size-adjust metrics for this face yet; disable
+  // automatic fallback overrides to silence the dev warning.
+  adjustFontFallback: false,
+  fallback: ['system-ui', 'sans-serif'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -97,10 +123,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             --font-atkinson-hyperlegible-next in globals.css.
             Sora is applied selectively via font-display utility
             or the [data-prediction-badge] / h1–h6 base rule in globals.css.
-          */
-          'font-sans antialiased',
-        ].join(' ')}
-      >
+      */
+      'font-sans antialiased',
+    ].join(' ')}
+  >
+        {/* Apply system/default theme before hydration to avoid flash of wrong theme */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
         <Toaster position="bottom-right" richColors closeButton />
       </body>

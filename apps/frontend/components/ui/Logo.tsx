@@ -23,22 +23,33 @@ function LogoContent({
   const icon = sizeMap[size];
 
   return (
-    <span className="flex items-center gap-2">
-      <span
-        className="relative shrink-0 transition-transform group-hover:scale-105"
-        style={{ width: icon, height: icon }}
-      >
+    <span className="flex items-center gap-1.5">
+      <span className="relative shrink-0 transition-transform group-hover:scale-105">
+        {/* Light mode logo */}
         <Image
-          src="/signify-icon-v2.svg"
-          alt="Signify.ai logo"
-          fill
-          className="object-contain"
+          src="/lightmode-logo.png"
+          alt="Signify AI logo"
+          width={icon}
+          height={icon}
+          className="block dark:hidden object-contain"
+          priority
+        />
+        {/* Dark mode logo */}
+        <Image
+          src="/darkmode-logo.png"
+          alt="Signify AI logo"
+          width={icon}
+          height={icon}
+          className="hidden dark:block object-contain"
           priority
         />
       </span>
 
       {showWordmark && (
-        <span className="font-bold tracking-normal text-foreground text-xl">
+        <span
+          className="font-bold tracking-normal text-foreground text-xl"
+          style={{ fontFamily: 'var(--font-display)' }} // Sora
+        >
           Signify<span className="text-primary">AI</span>
         </span>
       )}
