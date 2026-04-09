@@ -23,6 +23,7 @@ import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
 import { preprocessFrame } from '@/lib/imagePreprocess';
 import { landmarksToBBox } from '@/lib/handROI';
+import { appendHistoryEntry } from '@/lib/userData';
 import PracticeGuide from '@/components/features/translation/PracticeGuide';
 
 
@@ -134,6 +135,7 @@ export default function TranslatePageContent() {
   const landmarkerRef  = useRef<HandLandmarker | null>(null);
   const fpsCountRef    = useRef(0);
   const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sessionIdRef   = useRef<string | null>(null);
 
   const facingModeRef   = useRef(facingMode);
   const languageRef     = useRef(language);
@@ -262,6 +264,7 @@ export default function TranslatePageContent() {
     setFps(0); setApiError(false); setHands([]);
     setSessionStart(null);
     voteBuffer.current = []; prevLandmarksRef.current = null;
+    sessionIdRef.current = null;
   }, [stopStream]);
 
   const startDetection = useCallback(() => {
@@ -269,6 +272,7 @@ export default function TranslatePageContent() {
     setAppState('detecting');
     setApiError(false);
     setSessionStart(new Date());
+    sessionIdRef.current = 'sess-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
     fpsCountRef.current = 0;
     fpsIntervalRef.current = setInterval(() => {
@@ -370,17 +374,28 @@ export default function TranslatePageContent() {
 
         voteBuffer.current = []; // reset after commit so the same letter isn't repeated immediately
 
+        const committedEntry: TranscriptEntry = {
+          id: uid(),
+          text: winner,
+          confidence: committedConfidence,
+          timestamp: new Date(),
+          language: languageRef.current,
+        };
+
         setTokens((prev) => [...prev, winner]);
         setTranscript((prev) => [
           ...prev.slice(-49),
-          {
-            id: uid(),
-            text: winner,
-            confidence: committedConfidence,
-            timestamp: new Date(),
-            language: languageRef.current,
-          },
+          committedEntry,
         ]);
+
+        appendHistoryEntry({
+          id: committedEntry.id,
+          sessionId: sessionIdRef.current ?? 'sess-' + Date.now(),
+          text: committedEntry.text,
+          confidence: committedEntry.confidence,
+          timestamp: committedEntry.timestamp.toISOString(),
+          language: committedEntry.language,
+        });
 
         if (voiceEnabledRef.current && 'speechSynthesis' in window) {
           setIsSpeaking(true);
@@ -400,6 +415,7 @@ export default function TranslatePageContent() {
     isBusy.current = false; fpsCountRef.current = 0;
     setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
     voteBuffer.current = []; prevLandmarksRef.current = null;
+    sessionIdRef.current = null;
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
 
@@ -643,3 +659,4 @@ export default function TranslatePageContent() {
     </>
   );
 }
+

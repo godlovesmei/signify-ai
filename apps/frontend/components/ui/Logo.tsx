@@ -27,7 +27,7 @@ function LogoContent({
       <span className="relative shrink-0 transition-transform group-hover:scale-105">
         {/* Light mode logo */}
         <Image
-          src="/lightmode-logo.png"
+          src="/nobackground-logo.png"
           alt="Signify AI logo"
           width={icon}
           height={icon}
@@ -36,7 +36,7 @@ function LogoContent({
         />
         {/* Dark mode logo */}
         <Image
-          src="/darkmode-logo.png"
+          src="/nobackground-logoo.png"
           alt="Signify AI logo"
           width={icon}
           height={icon}

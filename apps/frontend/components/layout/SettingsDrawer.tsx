@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { LogOut, Monitor, Moon, Sun, Volume2, Sliders, Camera } from 'lucide-react';
+import Link from 'next/link';
+import { LogOut, Monitor, Moon, Sun, Volume2, Sliders, Camera, BookOpen } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -415,6 +416,61 @@ export default function SettingsDrawer({
             </div>
           </section>
 
+          {/* ── Workspace ──────────────────────────────────────────────── */}
+          <section aria-labelledby="settings-workspace">
+            <SectionHeading
+              icon={<BookOpen className="h-3.5 w-3.5" />}
+              label="Workspace"
+            />
+
+            <div className="space-y-2">
+              <SettingsRow>
+                <div>
+                  <p className="text-sm font-medium">Practice</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Latihan alfabet dengan progres adaptif
+                  </p>
+                </div>
+                <Link
+                  href="/practice"
+                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Open
+                </Link>
+              </SettingsRow>
+
+              <SettingsRow>
+                <div>
+                  <p className="text-sm font-medium">History</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Lihat riwayat transcript yang tersimpan lokal
+                  </p>
+                </div>
+                <Link
+                  href="/history"
+                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Open
+                </Link>
+              </SettingsRow>
+
+              <SettingsRow>
+                <div>
+                  <p className="text-sm font-medium">Reference</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Referensi alfabet BISINDO + progress per huruf
+                  </p>
+                </div>
+                <Link
+                  href="/reference"
+                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Open
+                </Link>
+              </SettingsRow>
+            </div>
+          </section>
+
           {/* ── Account ─────────────────────────────────────────────────── */}
           <section aria-labelledby="settings-account" className="mt-auto">
             <SectionHeading
@@ -486,3 +542,4 @@ export default function SettingsDrawer({
     </Sheet>
   );
 }
+
