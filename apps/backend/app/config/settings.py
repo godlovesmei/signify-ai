@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     REQUIRE_AUTH: bool = False
 
     # Model paths
-    SAVED_MODEL_PATH: str = "models/exports/bisindo_v2/saved_model"
-    LABEL_MAP_PATH:   str = "models/exports/bisindo_v2/label_map.json"
+    SAVED_MODEL_PATH: str = "models/exports/bisindo_v2_ls/saved_model"
+    LABEL_MAP_PATH:   str = "models/exports/bisindo_v2_ls/label_map.json"
 
     # Inference
     INPUT_SIZE:           int   = 224

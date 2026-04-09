@@ -304,12 +304,12 @@ export default function PracticeGuide() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-border/50 bg-background/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-background/80 px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Sparkles className="h-4 w-4" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold">Panduan latihan</p>
             <p className="text-xs text-muted-foreground">
               Pelajari bentuk tangan sebelum mulai isyarat.
@@ -317,24 +317,16 @@ export default function PracticeGuide() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 sm:justify-end">
+        <div className="flex shrink-0 items-center justify-end">
           <button
             type="button"
             onClick={() => setShowChart(true)}
-            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition hover:border-border hover:text-foreground"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground whitespace-nowrap transition hover:border-border hover:text-foreground"
           >
             <Grid className="h-3.5 w-3.5" />
             Chart A–Z
           </button>
 
-          <div className="hidden text-right sm:block">
-            <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
-              Siap
-            </p>
-            <p className="text-sm font-semibold text-foreground">
-              Ikuti langkahnya
-            </p>
-          </div>
         </div>
       </div>
 
