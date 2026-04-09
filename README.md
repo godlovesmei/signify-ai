@@ -119,8 +119,8 @@ signify-ai/
 │   └── metadata/
 │
 ├── models/
-│   ├── checkpoints/bisindo_v2/     # Training checkpoints (gitignored)
-│   ├── exports/bisindo_v2/         # SavedModel for inference (gitignored)
+│   ├── checkpoints/bisindo_v2_ls/  # Training checkpoints (gitignored)
+│   ├── exports/bisindo_v2_ls/      # SavedModel for inference (gitignored)
 │   └── hand_landmarker.task        # MediaPipe model
 │
 ├── infrastructure/
@@ -165,6 +165,14 @@ cp .env.local.example .env.local   # fill in NEXT_PUBLIC_API_URL and Supabase ke
 cd apps/backend
 cp .env.example .env               # fill in model paths and optional Supabase config
 pip install -r requirements.txt    # or: pip install -e .
+```
+
+Model artifacts tidak ikut Git. Setelah clone/fetch, export ulang model:
+```bash
+cd /path/to/signify-ai
+python packages/ml/scripts/export_model.py \
+  --checkpoint models/checkpoints/bisindo_v2_ls/phase2_best.weights.h5 \
+  --output_dir models/exports/bisindo_v2_ls
 ```
 
 ### 4. ML Environment (for training only)
@@ -269,7 +277,7 @@ Health check and model status.
 ```json
 {
   "status": "ok",
-  "model": "models/exports/bisindo_v2/saved_model",
+  "model": "models/exports/bisindo_v2_ls/saved_model",
   "classes": 26,
   "loaded_at": 1234567890.5
 }
@@ -337,7 +345,7 @@ python packages/ml/scripts/train.py \
 Resume from checkpoint:
 ```bash
 python packages/ml/scripts/train.py \
-  --resume_weights models/checkpoints/bisindo_v2/phase1_best.weights.h5 \
+  --resume_weights models/checkpoints/bisindo_v2_ls/phase1_best.weights.h5 \
   --initial_epoch 12
 ```
 
@@ -368,7 +376,7 @@ Evaluated on the held-out test split (BISINDO v1 dataset, 26 classes A–Z).
 | H, O | 91–95% | H↔B, O↔V confusion |
 | B, D, P | 85–87% | D↔P most frequent confusion pair |
 
-> Full per-class classification report: `models/checkpoints/bisindo_v2/test_classification_report.csv`
+> Full per-class classification report: `models/checkpoints/bisindo_v2_ls/test_classification_report.csv`
 
 ---
 
@@ -378,8 +386,8 @@ Evaluated on the held-out test split (BISINDO v1 dataset, 26 classes A–Z).
 
 ```dotenv
 # Model
-SAVED_MODEL_PATH=models/exports/bisindo_v2/saved_model
-LABEL_MAP_PATH=models/exports/bisindo_v2/label_map.json
+SAVED_MODEL_PATH=models/exports/bisindo_v2_ls/saved_model
+LABEL_MAP_PATH=models/exports/bisindo_v2_ls/label_map.json
 
 # Inference
 INPUT_SIZE=224

@@ -68,12 +68,25 @@ class MLService:
         model_path     = Path(self.settings.SAVED_MODEL_PATH)
         label_map_path = Path(self.settings.LABEL_MAP_PATH)
 
-        if not model_path.exists():
-            raise FileNotFoundError(f"SavedModel tidak ditemukan: {model_path}")
-        if not label_map_path.exists():
-            raise FileNotFoundError(f"Label map tidak ditemukan: {label_map_path}")
-
         logger.info("Loading model from %s", model_path)
+
+        if not model_path.exists():
+            raise FileNotFoundError(
+                "SavedModel tidak ditemukan: "
+                f"{model_path}\n"
+                "Model artifacts tidak disimpan di Git. "
+                "Generate/export model dulu, misalnya:\n"
+                "python packages/ml/scripts/export_model.py "
+                "--checkpoint models/checkpoints/bisindo_v2_ls/phase2_best.weights.h5 "
+                "--output_dir models/exports/bisindo_v2_ls"
+            )
+        if not label_map_path.exists():
+            raise FileNotFoundError(
+                "Label map tidak ditemukan: "
+                f"{label_map_path}\n"
+                "Pastikan file label_map.json sudah diexport ke folder output model."
+            )
+
         loaded       = tf.saved_model.load(str(model_path))
         self._infer  = loaded.signatures["serving_default"]
 

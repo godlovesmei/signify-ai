@@ -9,8 +9,8 @@ Usage (jalankan dari repo root setelah training selesai):
 
     # Atau dengan path custom:
     python packages/ml/scripts/export_model.py \
-        --checkpoint models/checkpoints/bisindo_v1/phase2_best.weights.h5 \
-        --output_dir models/exports/bisindo_v1
+        --checkpoint models/checkpoints/bisindo_v2_ls/phase2_best.weights.h5 \
+        --output_dir models/exports/bisindo_v2_ls
 """
 
 import argparse
@@ -40,7 +40,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Export BISINDO model")
     p.add_argument(
         "--checkpoint",
-        default="models/checkpoints/bisindo_v2/phase2_best.weights.h5",
+        default="models/checkpoints/bisindo_v2_ls/phase2_best.weights.h5",
         help="Path ke file .weights.h5 hasil training phase 2",
     )
     p.add_argument(
@@ -50,7 +50,7 @@ def parse_args():
     )
     p.add_argument(
         "--output_dir",
-        default="models/exports/bisindo_v1",
+        default="models/exports/bisindo_v2_ls",
         help="Direktori output untuk SavedModel dan TFLite",
     )
     p.add_argument(
