@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import LandingNavbar from "@/components/layout/LandingNavbar";
 import Footer from "@/components/layout/Footer";
-import Introduction from "./sections/introduction";
-import WhyItMatters from "./sections/why-it-matters";
-import HowItWorks from "./sections/how-it-works";
-import TechnologyBehindIt from "./sections/technology-behind-it";
-import AIMachineLearning from "./sections/ai-machine-learning";
-import ModelTraining from "./sections/model-training";
-import AccuracyImprovements from "./sections/accuracy-improvements";
-import UseCases from "./sections/use-cases";
-import ResearchDevelopment from "./sections/research-development";
-import Conclusion from "./sections/conclusion";
+import Introduction from "@/components/features/research/Introduction";
+import WhyItMatters from "@/components/features/research/Why-It-Matters";
+import HowItWorks from "@/components/features/research/How-It-Works";
+import TechnologyBehindIt from "@/components/features/research/Technology-Behind-It";
+import AIMachineLearning from "@/components/features/research/Ai-Machine-Learning";
+import ModelTraining from "@/components/features/research/Model-Training";
+import AccuracyImprovements from "@/components/features/research/Accuracy-Improvements";
+import UseCases from "@/components/features/research/Use-Cases";
+import ResearchDevelopment from "@/components/features/research/Research-Development";
+import Conclusion from "@/components/features/research/Conclusion";
 
 const SECTIONS = [
   { id: "introduction", title: "Introduction" },
