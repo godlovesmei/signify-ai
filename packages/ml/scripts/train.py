@@ -58,6 +58,8 @@ def parse_args():
     p.add_argument("--phase2_lr_min",       type=float, default=1e-7,
                    help="Minimum LR at the end of cosine decay (default: 1e-7)")
     p.add_argument("--unfreeze_from_layer", type=int,   default=240)
+    p.add_argument("--label_smoothing",     type=float, default=0.1,
+                   help="Label smoothing factor for CategoricalCrossentropy (default: 0.1)")
 
     # I/O
     p.add_argument("--output_dir",      default="models/checkpoints/bisindo_v2")
@@ -93,6 +95,11 @@ def parse_args():
         action="store_true",
         help="Disable FP16 mixed precision (use if GPU VRAM < 6 GB)",
     )
+    p.add_argument(
+        "--allow_cpu",
+        action="store_true",
+        help="Allow training without GPU (slower). By default GPU is required.",
+    )
 
     return p.parse_args()
 
@@ -115,6 +122,7 @@ def main():
         phase2_warmup_epochs = args.phase2_warmup_epochs,
         phase2_lr_min        = args.phase2_lr_min,
         unfreeze_from_layer  = args.unfreeze_from_layer,
+        label_smoothing      = args.label_smoothing,
         output_dir           = args.output_dir,
         label_map_path       = args.label_map_path,
         resume_weights       = args.resume_weights,
@@ -122,6 +130,7 @@ def main():
         initial_epoch_phase2 = args.initial_epoch_phase2,
         skip_phase1          = args.skip_phase1,
         mixed_precision      = not args.no_mixed_precision,
+        require_gpu          = not args.allow_cpu,
     )
 
     trainer = Trainer(config)

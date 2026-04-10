@@ -28,6 +28,7 @@ const LETTERS         = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const SAMPLES_PER_LETTER = 50;   // samples to collect per letter
 const CAPTURE_INTERVAL   = 200;  // ms between captures (5 fps)
 const STORAGE_KEY        = 'signify:collect:dataset';
+const MEDIAPIPE_VISION_VERSION = '0.10.32';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ interface Dataset {
 
 async function createHandLandmarker(): Promise<HandLandmarker> {
   const vision = await FilesetResolver.forVisionTasks(
-    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+    `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VISION_VERSION}/wasm`,
   );
   return HandLandmarker.createFromOptions(vision, {
     baseOptions: {

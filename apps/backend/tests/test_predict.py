@@ -24,6 +24,13 @@ def _make_jpeg_bytes(width: int = 224, height: int = 224) -> bytes:
     return buf.getvalue()
 
 
+def _make_webp_bytes(width: int = 224, height: int = 224) -> bytes:
+    img = Image.new("RGB", (width, height), color=(128, 128, 128))
+    buf = io.BytesIO()
+    img.save(buf, format="WEBP")
+    return buf.getvalue()
+
+
 # ── Happy path ────────────────────────────────────────────────────────────────
 
 class TestPredictHappyPath:
@@ -49,10 +56,10 @@ class TestPredictHappyPath:
         assert resp.status_code == 200
 
     def test_webp_accepted(self, client):
-        # WebP content-type is allowed; send a PNG (server decodes via PIL anyway)
+        # Send a real WebP payload to validate decoder support end-to-end.
         resp = client.post(
             "/api/v1/translate/predict",
-            files={"file": ("hand.webp", _make_png_bytes(), "image/webp")},
+            files={"file": ("hand.webp", _make_webp_bytes(), "image/webp")},
         )
         assert resp.status_code == 200
 

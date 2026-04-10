@@ -18,7 +18,7 @@ export type CameraState =
 
 export interface WebcamCaptureProps {
   state: CameraState;
-  facingMode: CameraFacingMode;
+  isMirrored: boolean;
   mpReady: boolean;
   apiError: boolean;
   hasMultipleCameras: boolean;
@@ -196,7 +196,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
   (
     {
       state,
-      facingMode,
+      isMirrored,
       mpReady,
       apiError,
       hasMultipleCameras,
@@ -250,7 +250,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
           ref={videoRef}
           className={[
             'h-full w-full object-cover transition-opacity duration-300',
-            facingMode === 'user' ? '-scale-x-100' : '',
+            isMirrored ? '-scale-x-100' : '',
             isLive ? 'opacity-100' : 'opacity-0',
           ].join(' ')}
           autoPlay

@@ -22,18 +22,23 @@ import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/Sett
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
 import { preprocessFrame } from '@/lib/imagePreprocess';
-import { landmarksToBBox } from '@/lib/handROI';
+import { landmarksToBBox, resetROISmoother } from '@/lib/handROI';
 import { appendHistoryEntry } from '@/lib/userData';
 import PracticeGuide from '@/components/features/translation/PracticeGuide';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
+const MEDIAPIPE_VISION_VERSION = '0.10.32';
+const MEDIAPIPE_WASM_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VISION_VERSION}/wasm`;
 const IS_MOBILE          = typeof navigator !== 'undefined' && /Android|iPhone|iPad/i.test(navigator.userAgent);
-const DETECTION_INTERVAL = IS_MOBILE ? 750 : 500; // slower on mobile to reduce heat
+const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200; // faster cadence for lower commit latency
 const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
-const VOTE_BUFFER_SIZE   = 6;     // frames to collect before committing
-const WEIGHTED_VOTE_THRESHOLD = 0.6; // commit only if winner reaches >=60% total vote weight
+const VOTE_BUFFER_SIZE   = 3;     // shorter fallback window for mid-confidence predictions
+const WEIGHTED_VOTE_THRESHOLD = 0.67; // ~2/3 weighted quorum
+const FAST_COMMIT_THRESHOLD = 0.92; // single-frame fast commit when highly confident
+const SAME_LETTER_COOLDOWN_MS = 900; // suppress rapid duplicate commits of the same letter
 type Language = 'ASL' | 'BISINDO';
 type VoteEntry = { letter: string; confidence: number };
 
@@ -42,7 +47,7 @@ function uid() { return `entry-${Date.now()}-${++_id}`; }
 
 async function createHandLandmarker(): Promise<HandLandmarker> {
   const vision = await FilesetResolver.forVisionTasks(
-    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+    MEDIAPIPE_WASM_URL,
   );
   return HandLandmarker.createFromOptions(vision, {
     baseOptions: {
@@ -85,12 +90,16 @@ function computeCropRegion(
 
 async function predictFromBlob(
   blob: Blob,
+  accessToken?: string,
 ): Promise<{ prediction: string; confidence: number; low_confidence: boolean } | null> {
   try {
     const form = new FormData();
-    form.append('file', blob, 'hand.png');
+    form.append('file', blob, 'hand.jpg');
+    const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
     const res = await fetch(`${API_BASE_URL}/api/v1/translate/predict`, {
-      method: 'POST', body: form,
+      method: 'POST',
+      body: form,
+      headers,
     });
     if (!res.ok) return null;
     return await res.json();
@@ -136,21 +145,71 @@ export default function TranslatePageContent() {
   const fpsCountRef    = useRef(0);
   const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef   = useRef<string | null>(null);
+  const lastCommittedRef = useRef<{ letter: string | null; at: number }>({ letter: null, at: 0 });
 
-  const facingModeRef   = useRef(facingMode);
   const languageRef     = useRef(language);
   const voiceEnabledRef = useRef(voiceEnabled);
   const isMirroredRef   = useRef(isMirrored);
+  const accessTokenRef  = useRef<string | null>(null);
 
-  useEffect(() => { facingModeRef.current   = facingMode;   }, [facingMode]);
   useEffect(() => { languageRef.current     = language;     }, [language]);
   useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
   useEffect(() => { isMirroredRef.current   = isMirrored;   }, [isMirrored]);
 
+  useEffect(() => {
+    const supabase = createSupabaseClient();
+
+    supabase.auth.getSession().then(({ data }) => {
+      accessTokenRef.current = data.session?.access_token ?? null;
+    });
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      accessTokenRef.current = session?.access_token ?? null;
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  const commitLetter = useCallback((letter: string, confidence: number) => {
+    const committedEntry: TranscriptEntry = {
+      id: uid(),
+      text: letter,
+      confidence,
+      timestamp: new Date(),
+      language: languageRef.current,
+    };
+
+    setTokens((prev) => [...prev, letter]);
+    setTranscript((prev) => [
+      ...prev.slice(-49),
+      committedEntry,
+    ]);
+
+    appendHistoryEntry({
+      id: committedEntry.id,
+      sessionId: sessionIdRef.current ?? 'sess-' + Date.now(),
+      text: committedEntry.text,
+      confidence: committedEntry.confidence,
+      timestamp: committedEntry.timestamp.toISOString(),
+      language: committedEntry.language,
+    });
+
+    if (voiceEnabledRef.current && 'speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const u = new SpeechSynthesisUtterance(letter);
+      u.rate = 0.95;
+      u.onend = () => setIsSpeaking(false);
+      u.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(u);
+    }
+  }, []);
+
   // ── Stability gate ──────────────────────────────────────────────────────────
   const prevLandmarksRef = useRef<Array<{ x: number; y: number }> | null>(null);
 
-  function isHandStable(landmarks: Array<{ x: number; y: number }>): boolean {
+  const isHandStable = useCallback((landmarks: Array<{ x: number; y: number }>): boolean => {
     const prev = prevLandmarksRef.current;
     prevLandmarksRef.current = landmarks.map(l => ({ x: l.x, y: l.y }));
     if (!prev || prev.length !== landmarks.length) return false;
@@ -160,7 +219,7 @@ export default function TranslatePageContent() {
       return sum + Math.sqrt(dx * dx + dy * dy);
     }, 0) / landmarks.length;
     return drift < MOTION_THRESHOLD;
-  }
+  }, []);
 
   // ── Sliding window vote ─────────────────────────────────────────────────────
   const voteBuffer = useRef<VoteEntry[]>([]);
@@ -194,8 +253,9 @@ export default function TranslatePageContent() {
 
   // ── Page Visibility API ──────────────────────────────────────────────────
   // Pause the detection loop when the tab is hidden to save CPU/GPU on mobile.
-  // The loop restarts automatically when the user returns.
+  // If detection was active before hide, it resumes when tab becomes visible.
   const wasDetectingRef = useRef(false);
+  const resumeAfterVisibilityRef = useRef(false);
   useEffect(() => {
     function handleVisibility() {
       if (document.hidden && appState === 'detecting') {
@@ -204,10 +264,8 @@ export default function TranslatePageContent() {
         if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
       } else if (!document.hidden && wasDetectingRef.current) {
         wasDetectingRef.current = false;
-        // Re-trigger detection if we were detecting before tab was hidden
+        resumeAfterVisibilityRef.current = true;
         setAppState('ready');
-        // Small delay to allow video stream to stabilise after tab refocus
-        setTimeout(() => setAppState(prev => prev === 'ready' ? 'ready' : prev), 300);
       }
     }
     document.addEventListener('visibilitychange', handleVisibility);
@@ -265,10 +323,14 @@ export default function TranslatePageContent() {
     setSessionStart(null);
     voteBuffer.current = []; prevLandmarksRef.current = null;
     sessionIdRef.current = null;
+    lastCommittedRef.current = { letter: null, at: 0 };
+    resetROISmoother();
   }, [stopStream]);
 
-  const startDetection = useCallback(() => {
-    if (appState !== 'ready') return;
+  const startDetection = useCallback((force = false) => {
+    if (!force && appState !== 'ready') return;
+    if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
+    if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
     setAppState('detecting');
     setApiError(false);
     setSessionStart(new Date());
@@ -291,7 +353,7 @@ export default function TranslatePageContent() {
         const result             = landmarkerRef.current.detectForVideo(video, performance.now());
         const detectedLandmarks  = result.landmarks    ?? [];
         const detectedHandedness = result.handedness ?? [];
-        const mirrored           = facingModeRef.current === 'user';
+        const mirrored           = isMirroredRef.current;
 
         const nextHands: DetectedHand[] = detectedLandmarks.map((lms, i) => {
           const topClass  = detectedHandedness[i]?.[0];
@@ -305,6 +367,8 @@ export default function TranslatePageContent() {
           setCurrentLetter(null); setCurrentConfidence(null);
           prevLandmarksRef.current = null;
           voteBuffer.current = [];
+          lastCommittedRef.current = { letter: null, at: 0 };
+          resetROISmoother();
           return;
         }
 
@@ -312,7 +376,10 @@ export default function TranslatePageContent() {
         // Use the primary hand's landmarks to detect motion. Skip inference
         // when the hand is still transitioning — only predict held poses.
         const primaryLandmarks = nextHands[0].landmarks.map(l => ({ x: l.x, y: l.y }));
-        if (!isHandStable(primaryLandmarks)) return;
+        if (!isHandStable(primaryLandmarks)) {
+          voteBuffer.current = [];
+          return;
+        }
 
         // ── Crop region: dynamic ROI (MediaPipe) with guide box fallback ──
         // Dynamic ROI produces crops closer to Roboflow training data
@@ -320,17 +387,21 @@ export default function TranslatePageContent() {
         const cropRegion = computeCropRegion(video, primaryLandmarks);
         if (cropRegion.side <= 0) return;
 
-        // ── Preprocess: auto-expose → grayscale → resize 224×224 → PNG ──
-        // preprocessFrame handles the full pipeline matching backend exactly.
+        // ── Transport prep: crop + optional mirror + resize 224×224 ──
+        // Model preprocessing (grayscale/normalize) stays canonical in backend.
         const cropBlob = preprocessFrame(
           video, cropRegion.x, cropRegion.y, cropRegion.side, mirrored,
         );
         if (cropBlob === null) return;
 
         // ── CNN path (backend API, primary) ───────────────────────────
-        const cnnBest = await predictFromBlob(cropBlob);
-
-
+        let accessToken = accessTokenRef.current ?? undefined;
+        if (!accessToken) {
+          const { data } = await createSupabaseClient().auth.getSession();
+          accessToken = data.session?.access_token ?? undefined;
+          accessTokenRef.current = accessToken ?? null;
+        }
+        const cnnBest = await predictFromBlob(cropBlob, accessToken);
 
         // Use CNN result (or report error if both paths failed)
         if (cnnBest === null) { setApiError(true); return; }
@@ -345,6 +416,22 @@ export default function TranslatePageContent() {
         fpsCountRef.current += 1;
         setCurrentLetter(cnnBest.prediction);
         setCurrentConfidence(cnnBest.confidence);
+
+        const now = Date.now();
+        const canFastCommit = !(
+          lastCommittedRef.current.letter === cnnBest.prediction &&
+          now - lastCommittedRef.current.at < SAME_LETTER_COOLDOWN_MS
+        );
+
+        // Fast-path: immediately commit highly confident predictions.
+        if (cnnBest.confidence >= FAST_COMMIT_THRESHOLD) {
+          if (canFastCommit) {
+            commitLetter(cnnBest.prediction, cnnBest.confidence);
+            lastCommittedRef.current = { letter: cnnBest.prediction, at: now };
+            voteBuffer.current = [];
+          }
+          return;
+        }
 
         // ── Confidence-weighted vote ───────────────────────────────────
         // Each frame contributes weight=confidence^2, so uncertain frames
@@ -372,42 +459,25 @@ export default function TranslatePageContent() {
         const winnerConf = confidencesByLetter[winner] ?? [cnnBest.confidence];
         const committedConfidence = winnerConf.reduce((a, b) => a + b, 0) / winnerConf.length;
 
+        const canVoteCommit = !(
+          lastCommittedRef.current.letter === winner &&
+          now - lastCommittedRef.current.at < SAME_LETTER_COOLDOWN_MS
+        );
+        if (!canVoteCommit) return;
+
         voteBuffer.current = []; // reset after commit so the same letter isn't repeated immediately
-
-        const committedEntry: TranscriptEntry = {
-          id: uid(),
-          text: winner,
-          confidence: committedConfidence,
-          timestamp: new Date(),
-          language: languageRef.current,
-        };
-
-        setTokens((prev) => [...prev, winner]);
-        setTranscript((prev) => [
-          ...prev.slice(-49),
-          committedEntry,
-        ]);
-
-        appendHistoryEntry({
-          id: committedEntry.id,
-          sessionId: sessionIdRef.current ?? 'sess-' + Date.now(),
-          text: committedEntry.text,
-          confidence: committedEntry.confidence,
-          timestamp: committedEntry.timestamp.toISOString(),
-          language: committedEntry.language,
-        });
-
-        if (voiceEnabledRef.current && 'speechSynthesis' in window) {
-          setIsSpeaking(true);
-          const u = new SpeechSynthesisUtterance(winner);
-          u.rate = 0.95;
-          u.onend = () => setIsSpeaking(false);
-          u.onerror = () => setIsSpeaking(false);
-          window.speechSynthesis.speak(u);
-        }
+        commitLetter(winner, committedConfidence);
+        lastCommittedRef.current = { letter: winner, at: now };
       } finally { isBusy.current = false; }
     }, DETECTION_INTERVAL);
-  }, [appState]);
+  }, [appState, commitLetter]);
+
+  useEffect(() => {
+    if (appState !== 'ready' || !resumeAfterVisibilityRef.current) return;
+    resumeAfterVisibilityRef.current = false;
+    const timeoutId = setTimeout(() => startDetection(true), 300);
+    return () => clearTimeout(timeoutId);
+  }, [appState, startDetection]);
 
   const stopDetection = useCallback(() => {
     if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
@@ -416,12 +486,15 @@ export default function TranslatePageContent() {
     setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
     voteBuffer.current = []; prevLandmarksRef.current = null;
     sessionIdRef.current = null;
+    lastCommittedRef.current = { letter: null, at: 0 };
+    resetROISmoother();
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
 
   const flipCamera = useCallback(() => {
     const next = facingMode === 'user' ? 'environment' : 'user';
     setFacingMode(next);
+    setIsMirrored(next === 'user');
     stopDetection();
     startCamera(next);
   }, [facingMode, stopDetection, startCamera]);
@@ -456,11 +529,7 @@ export default function TranslatePageContent() {
   }, [prefs.ttsSpeed, prefs.ttsVolume]);
 
   const handleLogout = useCallback(async () => {
-    const { createBrowserClient } = await import('@supabase/ssr');
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
-    );
+    const supabase = createSupabaseClient();
     await supabase.auth.signOut();
     window.location.href = '/auth/login';
   }, []);
@@ -554,7 +623,7 @@ export default function TranslatePageContent() {
               <WebcamCapture
                 ref={webcamRef}
                 state={appState}
-                facingMode={facingMode}
+                isMirrored={isMirrored}
                 mpReady={mpReady}
                 apiError={apiError}
                 hasMultipleCameras={devices.length > 1}
@@ -589,12 +658,6 @@ export default function TranslatePageContent() {
                 hasHand={hands.length > 0}
                 textScale={prefs.textScale}
               />
-
-              {isActive && (currentLetter === 'J' || currentLetter === 'Z') && (
-                <p className="text-center text-xs text-amber-500">
-                  {currentLetter} requires motion — hold the starting pose, then sign the movement.
-                </p>
-              )}
 
               {/* Flow indicator */}
               <div className="flex items-center gap-3" aria-hidden="true">

@@ -51,6 +51,8 @@ def log_classification_report(
     for images, labels in dataset:
         logits = model(images, training=False)
         preds  = tf.argmax(logits, axis=-1).numpy()
+        if len(labels.shape) > 1:
+            labels = tf.argmax(labels, axis=-1)
         all_preds.extend(preds.tolist())
         all_labels.extend(labels.numpy().tolist())
 

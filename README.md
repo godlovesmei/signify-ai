@@ -18,10 +18,10 @@ Signify AI is a full-stack application that translates BISINDO (Bahasa Isyarat I
 
 ## Features
 
-- **Real-time recognition** — captures webcam frames at 500 ms intervals (750 ms on mobile) and predicts the signed letter
+- **Real-time recognition** — captures webcam frames at 200 ms intervals (300 ms on mobile) and predicts the signed letter
 - **Dynamic hand ROI** — MediaPipe landmarks crop the hand region precisely; falls back to a static guide box
-- **Preprocessing parity** — frontend `preprocessFrame` matches backend preprocessing exactly (auto-expose → grayscale → resize 224×224 → PNG)
-- **Majority-vote buffer** — 6-frame voting window (5/6 agreement required) reduces flickering predictions
+- **Canonical CNN preprocessing** — frontend sends a cropped frame, backend applies the single source of truth preprocessing for model input
+- **Confidence-weighted voting** — 3-frame weighted vote buffer plus high-confidence fast-commit reduces flickering predictions
 - **Sentence builder** — accumulates predicted letters into a word/sentence with TTS playback
 - **Mobile optimised** — CPU delegate, reduced frame rate, and Page Visibility API pause on tab hide
 - **Optional auth** — Supabase JWT gating on the API (toggle with `REQUIRE_AUTH`)

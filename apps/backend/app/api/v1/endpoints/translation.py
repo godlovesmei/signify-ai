@@ -60,7 +60,7 @@ async def predict(
         }
 
     Jika low_confidence=true, frontend sebaiknya menampilkan UI
-    yang menunjukkan model tidak yakin (confidence < 0.5).
+    yang menunjukkan model tidak yakin (confidence < threshold konfigurasi).
     """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -88,7 +88,7 @@ async def predict(
         raise HTTPException(status_code=422, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected inference error")
         raise HTTPException(status_code=500, detail="Internal inference error")
 

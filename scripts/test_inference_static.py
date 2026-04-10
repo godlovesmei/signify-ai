@@ -17,7 +17,6 @@ import io
 import json
 import logging
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -29,12 +28,9 @@ logger = logging.getLogger(__name__)
 
 # ── Paths (relative to repo root) ────────────────────────────────────────────
 
-MODEL_DIR      = Path("models/exports/bisindo_v2/saved_model")
-LABEL_MAP_PATH = Path("models/exports/bisindo_v2/label_map.json")
+MODEL_DIR      = Path("models/exports/bisindo_v2_ls/saved_model")
+LABEL_MAP_PATH = Path("models/exports/bisindo_v2_ls/label_map.json")
 TRAIN_CSV      = Path("data/processed/bisindo_v1/manifests/train.csv")
-
-INPUT_KEY  = "keras_tensor_268"
-OUTPUT_KEY = "output_0"
 
 
 # ── Inference preprocessing (mirrors ml_service.py exactly) ───────────────────
@@ -86,6 +82,8 @@ def preprocess_training(filepath: str) -> np.ndarray:
 def main():
     if not MODEL_DIR.exists():
         sys.exit(f"Model not found: {MODEL_DIR}")
+    if not LABEL_MAP_PATH.exists():
+        sys.exit(f"Label map not found: {LABEL_MAP_PATH}")
     if not TRAIN_CSV.exists():
         sys.exit(f"Training manifest not found: {TRAIN_CSV}")
 
@@ -93,6 +91,8 @@ def main():
     logger.info("Loading model from %s ...", MODEL_DIR)
     loaded = tf.saved_model.load(str(MODEL_DIR))
     infer  = loaded.signatures["serving_default"]
+    input_key = list(infer.structured_input_signature[1].keys())[0]
+    output_key = list(infer.structured_outputs.keys())[0]
 
     label_map = json.loads(LABEL_MAP_PATH.read_text())
     logger.info("Loaded %d classes\n", len(label_map))
@@ -120,8 +120,8 @@ def main():
         image_bytes = Path(filepath).read_bytes()
         arr_inf = preprocess_inference(image_bytes)
 
-        output = infer(**{INPUT_KEY: tf.constant(arr_inf)})
-        probs  = output[OUTPUT_KEY][0].numpy()
+        output = infer(**{input_key: tf.constant(arr_inf)})
+        probs  = output[output_key][0].numpy()
         pred_idx  = int(np.argmax(probs))
         pred_conf = float(probs[pred_idx])
         pred_label = label_map[str(pred_idx)]
