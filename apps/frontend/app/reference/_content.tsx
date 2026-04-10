@@ -27,8 +27,6 @@ export default function ReferencePageContent() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <WorkspaceTopNav
-        title="Reference"
-        subtitle="Panduan cepat alfabet BISINDO dan progress latihan"
         actions={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/practice">Go to Practice</Link>

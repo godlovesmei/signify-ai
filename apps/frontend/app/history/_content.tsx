@@ -59,8 +59,6 @@ export default function HistoryPageContent() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <WorkspaceTopNav
-        title="History"
-        subtitle="Riwayat hasil translasi yang tersimpan di browser ini"
         actions={
           sessions.length > 0 && (
             <Button onClick={handleClearAll} variant="ghost" size="sm">

@@ -6,7 +6,7 @@ import { Logo } from '@/components/ui/Logo';
 import { cn } from '@/lib/utils';
 
 interface WorkspaceTopNavProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   actions?: React.ReactNode;
 }
@@ -26,10 +26,12 @@ export default function WorkspaceTopNav({ title, subtitle, actions }: WorkspaceT
       <div className="flex h-14 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
           <Logo size="sm" />
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold text-foreground">{title}</p>
-            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-          </div>
+          {(title || subtitle) && (
+            <div className="hidden sm:block">
+              {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
+              {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+            </div>
+          )}
         </div>
 
         <nav aria-label="Workspace navigation" className="hidden items-center gap-1 md:flex">

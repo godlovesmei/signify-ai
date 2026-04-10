@@ -82,8 +82,6 @@ export default function PracticePageContent() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <WorkspaceTopNav
-        title="Practice"
-        subtitle="Latih alfabet BISINDO satu huruf per putaran"
         actions={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/translate">Back to Translate</Link>
