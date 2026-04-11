@@ -1,10 +1,12 @@
 # apps/backend/app/config/settings.py
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     # App
     APP_NAME:    str  = "Signify AI — BISINDO Inference API"
     APP_VERSION: str  = "1.0.0"
@@ -36,10 +38,7 @@ class Settings(BaseSettings):
     INPUT_SIZE:           int   = 224
     TOP_K:                int   = 3
     CONFIDENCE_THRESHOLD: float = 0.55
-
-    class Config:
-        env_file = ".env"
-        extra    = "ignore"
+    INFERENCE_TIMEOUT_SECONDS: float = 5.0
 
 
 @lru_cache

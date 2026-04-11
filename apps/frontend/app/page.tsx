@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import LandingNavbar from '@/components/layout/LandingNavbar';
@@ -29,22 +29,34 @@ import {
    ───────────────────────────────────────────────────────────────────────────── */
 function useIntersectionReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const reveal = () => {
+      el.dataset.visible = 'true';
+    };
+
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) { setVisible(true); return; }
+    if (prefersReduced) {
+      reveal();
+      return;
+    }
+
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          reveal();
+          observer.disconnect();
+        }
+      },
       { threshold }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [threshold]);
 
-  return { ref, visible };
+  return ref;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -59,20 +71,38 @@ function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const { ref, visible } = useIntersectionReveal();
+  const ref = useIntersectionReveal();
   return (
     <div
       ref={ref}
+      data-visible="false"
       className={[
-        'transition-all duration-700',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
+        'transition-all duration-700 opacity-0 translate-y-5 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0',
         className,
       ].join(' ')}
-      style={{ transitionDelay: visible ? `${delay}ms` : '0ms' }}
+      style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
     </div>
   );
+}
+
+function subscribeToReducedMotion(onStoreChange: () => void) {
+  if (typeof window === 'undefined') return () => {};
+
+  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  mediaQuery.addEventListener('change', onStoreChange);
+
+  return () => mediaQuery.removeEventListener('change', onStoreChange);
+}
+
+function getReducedMotionSnapshot() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(subscribeToReducedMotion, getReducedMotionSnapshot, () => false);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -91,10 +121,10 @@ function TypewriterTranscript() {
   const [displayed, setDisplayed] = useState('');
   const [charIndex, setCharIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const prefersReduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) { setDisplayed(DEMO_PHRASES[phraseIndex]); return; }
+    if (prefersReduced) return;
 
     if (paused) {
       const t = setTimeout(() => {
@@ -113,13 +143,18 @@ function TypewriterTranscript() {
       }, 42);
       return () => clearTimeout(t);
     } else {
-      setPaused(true);
+      const t = setTimeout(() => {
+        setPaused(true);
+      }, 0);
+      return () => clearTimeout(t);
     }
-  }, [charIndex, paused, phraseIndex]);
+  }, [charIndex, paused, phraseIndex, prefersReduced]);
+
+  const visibleText = prefersReduced ? DEMO_PHRASES[phraseIndex] : displayed;
 
   return (
     <span className="font-medium text-foreground">
-      {displayed}
+      {visibleText}
       {/* Blinking cursor — purely decorative, hidden from screen readers */}
       <span
         aria-hidden="true"

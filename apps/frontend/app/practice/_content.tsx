@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
 import { Button } from '@/components/ui/button';
@@ -37,18 +37,12 @@ function pickAdaptiveLetter(stats: PracticeStats): AlphabetLetter {
 }
 
 export default function PracticePageContent() {
-  const [stats, setStats] = useState<PracticeStats | null>(null);
-  const [target, setTarget] = useState<AlphabetLetter>('A');
+  const [stats, setStats] = useState<PracticeStats>(() => getPracticeStats());
+  const [target, setTarget] = useState<AlphabetLetter>(() => pickAdaptiveLetter(getPracticeStats()));
   const [lastResult, setLastResult] = useState<'correct' | 'incorrect' | null>(null);
 
-  useEffect(() => {
-    const current = getPracticeStats();
-    setStats(current);
-    setTarget(pickAdaptiveLetter(current));
-  }, []);
-
   const accuracy = useMemo(() => {
-    if (!stats || stats.totalAttempts === 0) return 0;
+    if (stats.totalAttempts === 0) return 0;
     return Math.round((stats.correctAttempts / stats.totalAttempts) * 100);
   }, [stats]);
 
@@ -67,7 +61,6 @@ export default function PracticePageContent() {
   }
 
   const weakLetters = useMemo(() => {
-    if (!stats) return [] as AlphabetLetter[];
     return [...ALPHABET_LETTERS]
       .sort((a, b) => {
         const aStats = stats.byLetter[a];
@@ -135,15 +128,15 @@ export default function PracticePageContent() {
               </div>
               <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
                 <p className="text-muted-foreground">Total attempts</p>
-                <p className="mt-1 text-2xl font-bold">{stats?.totalAttempts ?? 0}</p>
+                <p className="mt-1 text-2xl font-bold">{stats.totalAttempts}</p>
               </div>
               <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
                 <p className="text-muted-foreground">Current streak</p>
-                <p className="mt-1 text-2xl font-bold">{stats?.currentStreak ?? 0}</p>
+                <p className="mt-1 text-2xl font-bold">{stats.currentStreak}</p>
               </div>
               <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
                 <p className="text-muted-foreground">Best streak</p>
-                <p className="mt-1 text-2xl font-bold">{stats?.bestStreak ?? 0}</p>
+                <p className="mt-1 text-2xl font-bold">{stats.bestStreak}</p>
               </div>
             </div>
 
@@ -156,9 +149,9 @@ export default function PracticePageContent() {
             <h2 className="text-lg font-semibold">Letters to improve</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {weakLetters.map((letter) => {
-                const letterStats = stats?.byLetter[letter];
-                const attempts = letterStats?.attempts ?? 0;
-                const correct = letterStats?.correct ?? 0;
+                const letterStats = stats.byLetter[letter];
+                const attempts = letterStats.attempts;
+                const correct = letterStats.correct;
                 const percent = attempts === 0 ? 0 : Math.round((correct / attempts) * 100);
                 return (
                   <div key={letter} className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-sm">

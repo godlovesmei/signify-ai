@@ -138,7 +138,7 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
       <ul className="w-full space-y-2.5 text-left" aria-label="Tips for best results">
         {[
           'Face a light source for best accuracy',
-          'Keep both hands clearly visible',
+          'Keep your signing hand clearly visible inside the guide box',
           'Sign at a natural, comfortable pace',
         ].map((tip) => (
           <li key={tip} className="flex items-center gap-3 text-sm text-muted-foreground">

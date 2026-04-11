@@ -35,10 +35,6 @@ function getSystemPreference(): 'light' | 'dark' {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function resolve(mode: ThemeMode): 'light' | 'dark' {
-  return mode === 'system' ? getSystemPreference() : mode;
-}
-
 function applyTheme(resolved: 'light' | 'dark') {
   document.documentElement.classList.toggle('dark', resolved === 'dark');
 }
@@ -47,31 +43,24 @@ function applyTheme(resolved: 'light' | 'dark') {
 
 export function useTheme(): ThemePrefs {
   const [theme, setThemeState] = useState<ThemeMode>(readStoredTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
-    resolve(readStoredTheme()),
-  );
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemPreference);
+  const resolvedTheme: 'light' | 'dark' = theme === 'system' ? systemTheme : theme;
 
-  // Apply on mount and whenever theme changes
+  // Keep system theme in sync with OS preference changes.
   useEffect(() => {
-    const resolved = resolve(theme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-  }, [theme]);
-
-  // When mode is 'system', listen for OS-level preference changes
-  useEffect(() => {
-    if (theme !== 'system') return;
-
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
-      const resolved = e.matches ? 'dark' : 'light';
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
 
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [theme]);
+  }, []);
+
+  // Apply resolved theme to the document.
+  useEffect(() => {
+    applyTheme(resolvedTheme);
+  }, [resolvedTheme]);
 
   const setTheme = useCallback((mode: ThemeMode) => {
     setThemeState(mode);

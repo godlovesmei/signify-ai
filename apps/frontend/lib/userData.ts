@@ -2,7 +2,34 @@ const HISTORY_STORAGE_KEY = "signify:history:entries:v1";
 const PRACTICE_STORAGE_KEY = "signify:practice:stats:v1";
 const MAX_HISTORY_ENTRIES = 1200;
 
-export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("") as const;
+export const ALPHABET_LETTERS = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+] as const;
 export type AlphabetLetter = (typeof ALPHABET_LETTERS)[number];
 
 export interface StoredHistoryEntry {

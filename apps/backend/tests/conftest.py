@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.services.ml_service import MLService, PredictionResult, get_ml_service
+from app.config.settings import Settings, get_settings
 
 
 def _make_fake_result(**overrides) -> PredictionResult:
@@ -46,7 +47,16 @@ def mock_ml_service():
 
 
 @pytest.fixture()
-def client(mock_ml_service):
+def settings_override():
+    return Settings(
+        REQUIRE_AUTH=False,
+        SUPABASE_JWT_SECRET="",
+        INFERENCE_TIMEOUT_SECONDS=5.0,
+    )
+
+
+@pytest.fixture()
+def client(mock_ml_service, settings_override):
     from main import app
 
     # Replace the lifespan so it doesn't try to load the real model
@@ -56,6 +66,7 @@ def client(mock_ml_service):
 
     app.router.lifespan_context = _test_lifespan
     app.dependency_overrides[get_ml_service] = lambda: mock_ml_service
+    app.dependency_overrides[get_settings] = lambda: settings_override
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

@@ -18,9 +18,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
-import { CheckCircle, Circle, Download, RefreshCw, Video } from 'lucide-react';
+import { CheckCircle, Download, RefreshCw, Video } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
-import { normalizeLandmarks } from '@/hooks/useLandmarkClassifier';
+import { normalizeLandmarks } from '../../hooks/useLandmarkClassifier';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -125,7 +125,7 @@ export default function CollectPageContent() {
         await videoRef.current.play();
         setCameraReady(true);
       }
-    } catch (e) {
+    } catch {
       setStatusMsg('Camera access denied.');
     }
   }, []);
@@ -146,7 +146,7 @@ export default function CollectPageContent() {
       if (!video || !landmarkerRef.current || video.readyState < 2) return;
 
       const result = landmarkerRef.current.detectForVideo(video, performance.now());
-      const lms    = result.hand_landmarks?.[0];
+      const lms    = result.landmarks?.[0];
 
       if (!lms || lms.length < 21) {
         setHandDetected(false);
@@ -162,26 +162,26 @@ export default function CollectPageContent() {
         const currentCount = countByLabel(prev.samples)[current] ?? 0;
         if (currentCount >= SAMPLES_PER_LETTER) {
           stopRecording();
+          setStatusMsg(`"${current}" complete! Move to next letter.`);
           return prev;
         }
+
         const next: Dataset = {
           ...prev,
           samples: [...prev.samples, { label: current, landmarks: normalized }],
         };
+
+        const nextCount = currentCount + 1;
+        if (nextCount >= SAMPLES_PER_LETTER) {
+          stopRecording();
+          setStatusMsg(`"${current}" complete! Move to next letter.`);
+        }
+
         saveDataset(next);
         return next;
       });
     }, CAPTURE_INTERVAL);
   }, [mpReady, cameraReady, isRecording, current, stopRecording]);
-
-  // Auto-stop when letter is done
-  useEffect(() => {
-    const count = counts[current] ?? 0;
-    if (isRecording && count >= SAMPLES_PER_LETTER) {
-      stopRecording();
-      setStatusMsg(`"${current}" complete! Move to next letter.`);
-    }
-  }, [counts, current, isRecording, stopRecording]);
 
   // Navigate letters
   const goNext = useCallback(() => {
@@ -277,7 +277,7 @@ export default function CollectPageContent() {
           {/* Progress bar */}
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-              <span>Letter "{current}"</span>
+              <span>{`Letter "${current}"`}</span>
               <span>{currentCount} / {SAMPLES_PER_LETTER}</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

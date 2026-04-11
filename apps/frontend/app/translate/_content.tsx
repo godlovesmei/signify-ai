@@ -14,7 +14,6 @@ import {
   type WebcamCaptureHandle,
   type CameraState,
   type TranscriptEntry,
-  type DetectionStatusState,
 } from '@/components/features/translation';
 import type { DetectedHand } from '@/components/features/translation/drawingUtils';
 import HandGuideBox, { guideBoxPixels } from '@/components/features/translation/HandGuideBox';
@@ -23,6 +22,8 @@ import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
 import { preprocessFrame } from '@/lib/imagePreprocess';
 import { landmarksToBBox, resetROISmoother } from '@/lib/handROI';
+import { predictFromBlob } from '@/lib/translateApi';
+import { mapCameraStateToDetectionStatus } from '@/lib/translateState';
 import { appendHistoryEntry } from '@/lib/userData';
 import PracticeGuide from '@/components/features/translation/PracticeGuide';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
@@ -86,32 +87,6 @@ function computeCropRegion(
 
   // Fallback: static guide box
   return guideBoxPixels(W, H);
-}
-
-async function predictFromBlob(
-  blob: Blob,
-  accessToken?: string,
-): Promise<{ prediction: string; confidence: number; low_confidence: boolean } | null> {
-  try {
-    const form = new FormData();
-    form.append('file', blob, 'hand.jpg');
-    const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
-    const res = await fetch(`${API_BASE_URL}/api/v1/translate/predict`, {
-      method: 'POST',
-      body: form,
-      headers,
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch { return null; }
-}
-
-function toDetectionStatus(state: CameraState): DetectionStatusState {
-  if (state === 'detecting')                                    return 'detecting';
-  if (state === 'ready')                                        return 'ready';
-  if (state === 'loading' || state === 'requesting')            return 'loading';
-  if (state === 'error-permission' || state === 'error-device') return 'error';
-  return 'idle';
 }
 
 export default function TranslatePageContent() {
@@ -287,8 +262,8 @@ export default function TranslatePageContent() {
       try {
         const videoConstraints: MediaTrackConstraints = {
           facingMode: facing,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 640 },
+          height: { ideal: 480 },
         };
         if (deviceId) videoConstraints.deviceId = { exact: deviceId };
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -390,7 +365,7 @@ export default function TranslatePageContent() {
         // ── Transport prep: crop + optional mirror + resize 224×224 ──
         // Model preprocessing (grayscale/normalize) stays canonical in backend.
         const cropBlob = preprocessFrame(
-          video, cropRegion.x, cropRegion.y, cropRegion.side, mirrored,
+          video, cropRegion.x, cropRegion.y, cropRegion.side, false,
         );
         if (cropBlob === null) return;
 
@@ -401,7 +376,10 @@ export default function TranslatePageContent() {
           accessToken = data.session?.access_token ?? undefined;
           accessTokenRef.current = accessToken ?? null;
         }
-        const cnnBest = await predictFromBlob(cropBlob, accessToken);
+        const cnnBest = await predictFromBlob(cropBlob, {
+          baseUrl: API_BASE_URL,
+          accessToken,
+        });
 
         // Use CNN result (or report error if both paths failed)
         if (cnnBest === null) { setApiError(true); return; }
@@ -470,7 +448,7 @@ export default function TranslatePageContent() {
         lastCommittedRef.current = { letter: winner, at: now };
       } finally { isBusy.current = false; }
     }, DETECTION_INTERVAL);
-  }, [appState, commitLetter]);
+  }, [appState, commitLetter, isHandStable]);
 
   useEffect(() => {
     if (appState !== 'ready' || !resumeAfterVisibilityRef.current) return;
@@ -649,7 +627,7 @@ export default function TranslatePageContent() {
               aria-label="Real-time translation"
               className="shrink-0 flex flex-col gap-4 border-b border-border/30 bg-card/20 p-4"
             >
-              <DetectionStatus state={toDetectionStatus(appState)} fps={fps} showFps />
+              <DetectionStatus state={mapCameraStateToDetectionStatus(appState)} fps={fps} showFps />
 
               <PredictionBadge
                 letter={currentLetter}

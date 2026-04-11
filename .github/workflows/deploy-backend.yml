@@ -1,0 +1,48 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        type: choice
+        default: staging
+        options:
+          - staging
+          - production
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+          activate-environment: signify-backend
+          environment-file: apps/backend/environment.yml
+          auto-activate-base: false
+          use-mamba: true
+
+      - name: Run backend tests
+        shell: bash -l {0}
+        run: |
+          python -m pytest apps/backend/tests -q
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: verify
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy backend
+        run: |
+          bash scripts/deploy.sh backend "${{ inputs.environment }}"

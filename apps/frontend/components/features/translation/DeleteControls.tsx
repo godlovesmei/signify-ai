@@ -30,7 +30,9 @@ export default function DeleteControls({
 
   // Reset confirming when disabled (sentence cleared externally)
   useEffect(() => {
-    if (disabled) setConfirming(false);
+    if (!disabled) return;
+    const timeoutId = setTimeout(() => setConfirming(false), 0);
+    return () => clearTimeout(timeoutId);
   }, [disabled]);
 
   function handleClearClick() {

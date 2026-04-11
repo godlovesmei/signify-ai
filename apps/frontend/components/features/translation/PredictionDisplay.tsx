@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { CameraOff, Check, Copy, FileText, Hand, Loader2, Share2, ShieldAlert, Trash2, Volume2 } from 'lucide-react';
 import type { CameraState } from './WebcamCapture';
 
@@ -28,6 +28,43 @@ function formatElapsed(seconds: number): string {
   const m   = Math.floor(seconds / 60);
   const sec = seconds % 60;
   return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+type ClockListener = () => void;
+
+const secondClockListeners = new Set<ClockListener>();
+let secondClockInterval: ReturnType<typeof setInterval> | null = null;
+
+function emitSecondClockTick() {
+  for (const listener of secondClockListeners) {
+    listener();
+  }
+}
+
+function subscribeToSecondClock(listener: ClockListener) {
+  secondClockListeners.add(listener);
+
+  if (secondClockInterval === null) {
+    secondClockInterval = setInterval(() => {
+      emitSecondClockTick();
+    }, 1000);
+  }
+
+  return () => {
+    secondClockListeners.delete(listener);
+    if (secondClockListeners.size === 0 && secondClockInterval !== null) {
+      clearInterval(secondClockInterval);
+      secondClockInterval = null;
+    }
+  };
+}
+
+function getSecondClockSnapshot() {
+  return Math.floor(Date.now() / 1000);
+}
+
+function useNowSecond() {
+  return useSyncExternalStore(subscribeToSecondClock, getSecondClockSnapshot, () => 0);
 }
 
 function getConfidenceLabel(value: number): {
@@ -200,18 +237,13 @@ export default function PredictionDisplay({
   onSpeakEntry,
 }: PredictionDisplayProps) {
   const scrollEndRef            = useRef<HTMLDivElement>(null);
-  const [elapsed, setElapsed]   = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const nowSecond               = useNowSecond();
 
-  // Session timer
-  useEffect(() => {
-    if (!sessionStart) { setElapsed(0); return; }
-    setElapsed(Math.floor((Date.now() - sessionStart.getTime()) / 1000));
-    const id = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - sessionStart.getTime()) / 1000));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [sessionStart]);
+  const elapsed = useMemo(() => {
+    if (!sessionStart) return 0;
+    return Math.max(0, nowSecond - Math.floor(sessionStart.getTime() / 1000));
+  }, [nowSecond, sessionStart]);
 
   // Auto-scroll on new entry
   useEffect(() => {

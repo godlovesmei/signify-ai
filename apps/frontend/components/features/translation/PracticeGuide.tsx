@@ -289,10 +289,6 @@ export default function PracticeGuide() {
     setIndex(clamped);
   };
 
-  useEffect(() => {
-    setIndex(0);
-  }, []);
-
   return (
     <section className="flex flex-col gap-3 rounded-2xl border border-border/40 bg-card/60 p-4 shadow-sm backdrop-blur-sm">
       <div className="flex w-full gap-2 overflow-x-auto pb-1">
@@ -528,6 +524,7 @@ function LetterCard({
     <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-background/80 p-2 text-center shadow-sm">
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted">
         {!hasError ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
             alt={`Huruf ${letter}`}

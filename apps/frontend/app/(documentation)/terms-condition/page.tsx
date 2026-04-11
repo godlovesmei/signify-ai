@@ -10,23 +10,34 @@ import { ChevronRight, FileText, Mail } from 'lucide-react';
 
 function useIntersectionReveal(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const reveal = () => {
+      el.dataset.visible = 'true';
+    };
+
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) { setVisible(true); return; }
+    if (prefersReduced) {
+      reveal();
+      return;
+    }
 
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          reveal();
+          observer.disconnect();
+        }
+      },
       { threshold }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [threshold]);
 
-  return { ref, visible };
+  return ref;
 }
 
 function Reveal({
@@ -38,16 +49,16 @@ function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const { ref, visible } = useIntersectionReveal();
+  const ref = useIntersectionReveal();
   return (
     <div
       ref={ref}
+      data-visible="false"
       className={[
-        'transition-all duration-700',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
+        'transition-all duration-700 opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0',
         className,
       ].join(' ')}
-      style={{ transitionDelay: visible ? `${delay}ms` : '0ms' }}
+      style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
     </div>

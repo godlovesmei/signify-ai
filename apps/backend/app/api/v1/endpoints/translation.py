@@ -14,6 +14,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from app.api.deps import verify_supabase_token
+from app.config.settings import Settings, get_settings
 from app.services.ml_service import MLService, PredictionResult, get_ml_service
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ def _prediction_to_dict(result: PredictionResult) -> dict:
 async def predict(
     file:    UploadFile = File(...),
     service: MLService  = Depends(get_ml_service),
+    settings: Settings = Depends(get_settings),
     _token:  Annotated[dict | None, Depends(verify_supabase_token)] = None,
 ):
     """
@@ -83,7 +85,12 @@ async def predict(
     # async event loop and stall concurrent requests.
     try:
         loop = asyncio.get_running_loop()
-        result = await loop.run_in_executor(None, service.predict, image_bytes)
+        result = await asyncio.wait_for(
+            loop.run_in_executor(None, service.predict, image_bytes),
+            timeout=settings.INFERENCE_TIMEOUT_SECONDS,
+        )
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Inference timeout")
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except RuntimeError as e:

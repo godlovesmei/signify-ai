@@ -1,0 +1,36 @@
+name: CI Backend
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - apps/backend/**
+      - .github/workflows/ci-backend.yml
+  push:
+    branches: [main]
+    paths:
+      - apps/backend/**
+      - .github/workflows/ci-backend.yml
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+          activate-environment: signify-backend
+          environment-file: apps/backend/environment.yml
+          auto-activate-base: false
+          use-mamba: true
+
+      - name: Run backend tests
+        shell: bash -l {0}
+        run: |
+          python -m pytest apps/backend/tests -q

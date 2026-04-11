@@ -17,10 +17,12 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
 
   // Reset state when modal opens
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const timeoutId = window.setTimeout(() => {
       setError(null);
       setLoading(false);
-    }
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [open]);
 
   // Close on Escape key

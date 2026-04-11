@@ -151,20 +151,33 @@ git clone https://github.com/<your-org>/signify-ai.git
 cd signify-ai
 ```
 
-### 2. Frontend
+### 2. One-command development setup (recommended)
+
+```bash
+bash scripts/setup-dev.sh
+```
+
+Include ML environment when needed:
+
+```bash
+WITH_ML=1 bash scripts/setup-dev.sh
+```
+
+### 3. Frontend (manual)
 
 ```bash
 cd apps/frontend
-npm install
+pnpm install
 cp .env.local.example .env.local   # fill in NEXT_PUBLIC_API_URL and Supabase keys
 ```
 
-### 3. Backend
+### 4. Backend (manual)
 
 ```bash
 cd apps/backend
 cp .env.example .env               # fill in model paths and optional Supabase config
-pip install -r requirements.txt    # or: pip install -e .
+conda env create -f environment.yml
+conda activate signify-backend
 ```
 
 Model artifacts tidak ikut Git. Setelah clone/fetch, export ulang model:
@@ -175,7 +188,7 @@ python packages/ml/scripts/export_model.py \
   --output_dir models/exports/bisindo_v2_ls
 ```
 
-### 4. ML Environment (for training only)
+### 5. ML Environment (for training only)
 
 ```bash
 cd packages/ml

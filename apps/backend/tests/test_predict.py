@@ -5,7 +5,10 @@ Uses a mocked MLService (no real TF model needed).
 """
 
 import io
+import time
+from datetime import datetime, timedelta, timezone
 
+import jwt
 from PIL import Image
 
 
@@ -116,6 +119,69 @@ class TestPredictErrorHandling:
             files={"file": ("hand.png", _make_png_bytes(), "image/png")},
         )
         assert resp.status_code == 500
+
+
+class TestPredictAuthAndTimeout:
+    def test_predict_requires_auth_when_enabled(self, client, settings_override):
+        settings_override.REQUIRE_AUTH = True
+
+        resp = client.post(
+            "/api/v1/translate/predict",
+            files={"file": ("hand.png", _make_png_bytes(), "image/png")},
+        )
+
+        assert resp.status_code == 401
+
+    def test_predict_rejects_invalid_token_when_auth_enabled(self, client, settings_override):
+        settings_override.REQUIRE_AUTH = True
+        settings_override.SUPABASE_JWT_SECRET = "test-secret"
+
+        resp = client.post(
+            "/api/v1/translate/predict",
+            files={"file": ("hand.png", _make_png_bytes(), "image/png")},
+            headers={"Authorization": "Bearer invalid.token.here"},
+        )
+
+        assert resp.status_code == 403
+
+    def test_predict_accepts_valid_token_when_auth_enabled(self, client, settings_override):
+        settings_override.REQUIRE_AUTH = True
+        settings_override.SUPABASE_JWT_SECRET = "test-secret"
+
+        token = jwt.encode(
+            {
+                "sub": "user-123",
+                "aud": "authenticated",
+                "exp": datetime.now(timezone.utc) + timedelta(minutes=10),
+            },
+            settings_override.SUPABASE_JWT_SECRET,
+            algorithm="HS256",
+        )
+
+        resp = client.post(
+            "/api/v1/translate/predict",
+            files={"file": ("hand.png", _make_png_bytes(), "image/png")},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert resp.status_code == 200
+
+    def test_predict_returns_504_on_timeout(self, client, mock_ml_service, settings_override):
+        settings_override.INFERENCE_TIMEOUT_SECONDS = 0.01
+
+        def _slow_predict(image_bytes: bytes):
+            _ = image_bytes
+            time.sleep(0.1)
+            return mock_ml_service.predict.return_value
+
+        mock_ml_service.predict.side_effect = _slow_predict
+
+        resp = client.post(
+            "/api/v1/translate/predict",
+            files={"file": ("hand.png", _make_png_bytes(), "image/png")},
+        )
+
+        assert resp.status_code == 504
 
 
 # ── Health endpoint ──────────────────────────────────────────────────────────

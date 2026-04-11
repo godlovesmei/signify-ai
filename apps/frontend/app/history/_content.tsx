@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
 import { Button } from '@/components/ui/button';
@@ -22,17 +22,13 @@ function formatDate(iso: string): string {
 }
 
 export default function HistoryPageContent() {
-  const [sessions, setSessions] = useState<HistorySession[]>([]);
+  const [sessions, setSessions] = useState<HistorySession[]>(() => getHistorySessions());
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
   const [copiedSessionId, setCopiedSessionId] = useState<string | null>(null);
 
-  const refreshSessions = useCallback(() => {
+  function refreshSessions() {
     setSessions(getHistorySessions());
-  }, []);
-
-  useEffect(() => {
-    refreshSessions();
-  }, [refreshSessions]);
+  }
 
   function handleDeleteSession(sessionId: string) {
     removeHistorySession(sessionId);

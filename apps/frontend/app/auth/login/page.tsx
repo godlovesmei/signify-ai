@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Logo } from '@/components/ui/Logo';
@@ -13,19 +13,34 @@ const CALLBACK_ERRORS: Record<string, string> = {
 };
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginPageFallback />}>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageFallback() {
+  return <div className="min-h-screen bg-background" aria-hidden="true" />;
+}
+
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dismissCallbackError, setDismissCallbackError] = useState(false);
 
-  // Pick up errors forwarded from the OAuth callback route
-  useEffect(() => {
+  const callbackError = useMemo(() => {
+    if (dismissCallbackError) return null;
     const cbError = searchParams.get('error');
-    if (cbError) {
-      setError(CALLBACK_ERRORS[cbError] ?? 'Sign-in failed. Please try again.');
-    }
-  }, [searchParams]);
+    if (!cbError) return null;
+    return CALLBACK_ERRORS[cbError] ?? 'Sign-in failed. Please try again.';
+  }, [dismissCallbackError, searchParams]);
+
+  const displayedError = error ?? callbackError;
 
   const handleGoogleSignIn = async () => {
+    setDismissCallbackError(true);
     setError(null);
     setLoading(true);
 
@@ -168,13 +183,13 @@ export default function LoginPage() {
           </button>
 
           {/* Error state — plain language, no jargon */}
-          {error && (
+          {displayedError && (
             <p
               role="alert"
               aria-live="assertive"
               className="text-center text-sm text-destructive"
             >
-              {error}
+              {displayedError}
             </p>
           )}
         </div>
