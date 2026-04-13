@@ -4,21 +4,24 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
 import { cn } from '@/lib/utils';
+import {
+  isWorkspaceNavActive,
+  WORKSPACE_NAV_ITEMS,
+} from '@/components/layout/mobile-nav/workspaceNavConfig';
 
 interface WorkspaceTopNavProps {
   title?: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  showLegacyMobileNav?: boolean;
 }
 
-const NAV_ITEMS = [
-  { label: 'Translate', href: '/translate' },
-  { label: 'Practice', href: '/practice' },
-  { label: 'History', href: '/history' },
-  { label: 'Reference', href: '/reference' },
-] as const;
-
-export default function WorkspaceTopNav({ title, subtitle, actions }: WorkspaceTopNavProps) {
+export default function WorkspaceTopNav({
+  title,
+  subtitle,
+  actions,
+  showLegacyMobileNav = false,
+}: WorkspaceTopNavProps) {
   const pathname = usePathname();
 
   return (
@@ -35,8 +38,8 @@ export default function WorkspaceTopNav({ title, subtitle, actions }: WorkspaceT
         </div>
 
         <nav aria-label="Workspace navigation" className="hidden items-center gap-1 md:flex">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          {WORKSPACE_NAV_ITEMS.map((item) => {
+            const isActive = isWorkspaceNavActive(item.href, pathname);
             return (
               <Link
                 key={item.href}
@@ -57,25 +60,27 @@ export default function WorkspaceTopNav({ title, subtitle, actions }: WorkspaceT
         <div className="flex items-center gap-2">{actions}</div>
       </div>
 
-      <nav aria-label="Workspace navigation (mobile)" className="grid grid-cols-4 border-t border-border/30 md:hidden">
-        {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'px-2 py-2 text-center text-xs font-medium transition-colors',
-                isActive
-                  ? 'bg-primary/8 text-primary'
-                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      {showLegacyMobileNav && (
+        <nav aria-label="Workspace navigation (mobile)" className="grid grid-cols-4 border-t border-border/30 md:hidden">
+          {WORKSPACE_NAV_ITEMS.map((item) => {
+            const isActive = isWorkspaceNavActive(item.href, pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'px-2 py-2 text-center text-xs font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary/8 text-primary'
+                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </header>
   );
 }

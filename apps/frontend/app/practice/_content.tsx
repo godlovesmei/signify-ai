@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
+import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
 import { Button } from '@/components/ui/button';
 import {
   ALPHABET_LETTERS,
@@ -167,6 +168,8 @@ export default function PracticePageContent() {
           </div>
         </section>
       </main>
+      <MobileBottomNav />
     </div>
   );
 }
+

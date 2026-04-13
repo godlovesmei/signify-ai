@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
+import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
 import { Button } from '@/components/ui/button';
 import {
   clearHistoryEntries,
@@ -128,6 +129,7 @@ export default function HistoryPageContent() {
           </div>
         )}
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

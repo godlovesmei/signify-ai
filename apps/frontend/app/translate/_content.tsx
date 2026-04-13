@@ -18,6 +18,7 @@ import {
 import type { DetectedHand } from '@/components/features/translation/drawingUtils';
 import HandGuideBox, { guideBoxPixels } from '@/components/features/translation/HandGuideBox';
 import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
+import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
 import { preprocessFrame } from '@/lib/imagePreprocess';
@@ -531,7 +532,7 @@ export default function TranslatePageContent() {
         .entry-enter { animation: entryIn 0.22s ease forwards; }
       `}</style>
 
-      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground [--workspace-mobile-nav-offset:calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:[--workspace-mobile-nav-offset:0px]">
         <header
           role="banner"
           className="flex h-14 shrink-0 items-center justify-between border-b border-border/30 bg-background px-4 md:px-5"
@@ -587,7 +588,7 @@ export default function TranslatePageContent() {
         */}
         <main
           className="grid flex-1 grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
-          style={{ minHeight: 0, height: 'calc(100dvh - 56px)' }} // 56px = h-14 header
+          style={{ minHeight: 0, height: 'calc(100dvh - 56px - var(--workspace-mobile-nav-offset, 0px))' }} // 56px = h-14 header
         >
           {/* ── Col 1: Camera ───────────────────────────────────────────── */}
           <div
@@ -675,6 +676,7 @@ export default function TranslatePageContent() {
             </div>
           </div>
         </main>
+        <MobileBottomNav reserveSpace={false} />
       </div>
 
       <SettingsDrawer

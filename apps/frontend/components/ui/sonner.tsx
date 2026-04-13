@@ -10,7 +10,13 @@ import {
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const MOBILE_TOAST_OFFSET: NonNullable<ToasterProps['mobileOffset']> = {
+  left: '0.75rem',
+  right: '0.75rem',
+  bottom: 'calc(var(--workspace-mobile-nav-offset, 0px) + 0.75rem)',
+}
+
+const Toaster = ({ mobileOffset, ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 
   return (
@@ -32,6 +38,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }
+      mobileOffset={mobileOffset ?? MOBILE_TOAST_OFFSET}
       {...props}
     />
   )
