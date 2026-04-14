@@ -205,7 +205,7 @@ export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNa
           href={item.href}
           aria-current={isActive ? 'page' : undefined}
           className={cn(
-            'relative flex h-16 flex-col items-center justify-center gap-1 rounded-xl px-1',
+            'relative flex h-[58px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
             isActive ? 'text-primary' : 'text-muted-foreground',
           )}
@@ -213,7 +213,7 @@ export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNa
           {isActive && (
             <motion.span
               layoutId="workspace-mobile-active-indicator"
-              className="absolute inset-0 rounded-xl bg-primary/12"
+              className="absolute inset-0 rounded-2xl bg-primary/14"
               transition={
                 reduceMotion
                   ? { duration: 0 }
@@ -227,7 +227,7 @@ export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNa
           </span>
 
           <motion.span
-            className="relative z-10 text-[11px] font-semibold"
+            className="relative z-10 text-[10px] font-medium tracking-[0.01em]"
             animate={{ opacity: isActive ? 1 : 0.86, y: isActive ? -1 : 0 }}
             transition={createIconTransition(reduceMotion)}
           >

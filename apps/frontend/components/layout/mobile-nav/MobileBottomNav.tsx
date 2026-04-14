@@ -14,9 +14,9 @@ interface MobileBottomNavProps {
   reserveSpace?: boolean;
 }
 
-const MOBILE_NAV_HEIGHT_PX = 64;
-const MOBILE_NAV_MARGIN_PX = 12;
-const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px) + ${MOBILE_NAV_MARGIN_PX}px)`;
+const MOBILE_NAV_HEIGHT_PX = 70;
+const MOBILE_NAV_EXTRA_OFFSET_PX = 2;
+const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px) + ${MOBILE_NAV_EXTRA_OFFSET_PX}px)`;
 
 export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNavProps) {
   const pathname = usePathname();
@@ -47,13 +47,14 @@ export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNav
       {reserveSpace && (
         <div
           aria-hidden="true"
-          className="h-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:hidden"
+          className="md:hidden"
+          style={{ height: MOBILE_NAV_OFFSET_VALUE }}
         />
       )}
 
       <motion.nav
         aria-label="Workspace mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 md:hidden"
         initial={reduceMotion ? undefined : { y: 16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={
@@ -62,17 +63,24 @@ export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNav
             : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }
         }
       >
-        <div className="mx-auto w-full max-w-md rounded-2xl border border-border/60 bg-background/92 shadow-[0_-12px_34px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-          <ul className="grid grid-cols-4 gap-1 p-1">
-            {WORKSPACE_NAV_ITEMS.map((item) => (
-              <MobileNavItem
-                key={item.key}
-                item={item}
-                isActive={item.key === activeItem.key}
-                reduceMotion={reduceMotion}
-              />
-            ))}
-          </ul>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background/55 to-transparent"
+        />
+
+        <div className="border-t border-border/50 bg-background/70 pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5 shadow-[0_-10px_30px_-22px_rgba(0,0,0,0.6)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+          <div className="mx-auto w-full max-w-md px-2">
+            <ul className="grid grid-cols-4 gap-0.5">
+              {WORKSPACE_NAV_ITEMS.map((item) => (
+                <MobileNavItem
+                  key={item.key}
+                  item={item}
+                  isActive={item.key === activeItem.key}
+                  reduceMotion={reduceMotion}
+                />
+              ))}
+            </ul>
+          </div>
         </div>
       </motion.nav>
     </>
