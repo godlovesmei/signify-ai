@@ -12,9 +12,17 @@ on:
       - apps/backend/**
       - .github/workflows/ci-backend.yml
 
+concurrency:
+  group: ci-backend-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash -l {0}
 
     steps:
       - name: Checkout repository
@@ -30,7 +38,15 @@ jobs:
           auto-activate-base: false
           use-mamba: true
 
-      - name: Run backend tests
-        shell: bash -l {0}
+      - name: Validate backend dependency graph
         run: |
-          python -m pytest apps/backend/tests -q
+          python -m pip install --upgrade pip
+          python -m pip check
+
+      - name: Syntax smoke check (backend)
+        run: |
+          python -m compileall apps/backend
+
+      - name: Run backend tests
+        run: |
+          python -m pytest apps/backend/tests -q --maxfail=1 --strict-config --strict-markers -W error

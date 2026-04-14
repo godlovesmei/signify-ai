@@ -29,7 +29,7 @@ Run all commands from repository root unless stated otherwise.
 
 ### Backend
 ```bash
-conda run -n signify-backend python -m pytest apps/backend/tests -q
+conda run -n signify-backend python -m pytest apps/backend/tests -q --maxfail=1 --strict-config --strict-markers -W error
 ```
 
 ### Frontend
@@ -53,6 +53,14 @@ conda run -n signify-backend pip-audit
 cd apps/frontend
 pnpm audit --prod --audit-level=high
 ```
+
+### Deploy Script Preflight
+- `scripts/deploy.sh` now validates Docker Compose config before deploy, including required env vars referenced by compose files.
+- Production deploy requires explicit confirmation: `CONFIRM_PROD_DEPLOY=1`.
+- Post-deploy HTTP smoke checks:
+	- Backend: `BACKEND_HEALTH_URL` (default `http://localhost:8000/health`)
+	- Frontend: `FRONTEND_HEALTH_URL` (default `http://localhost:3000/`)
+- Health check tuning: `HEALTHCHECK_ATTEMPTS` and `HEALTHCHECK_INTERVAL_SECONDS`.
 
 Repository workflow note:
 - `Security Scan` runs in non-blocking mode on pull requests.
