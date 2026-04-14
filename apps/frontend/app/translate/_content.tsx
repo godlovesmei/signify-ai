@@ -532,7 +532,7 @@ export default function TranslatePageContent() {
         .entry-enter { animation: entryIn 0.22s ease forwards; }
       `}</style>
 
-      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground [--workspace-mobile-nav-offset:calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:[--workspace-mobile-nav-offset:0px]">
+      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground [--workspace-mobile-nav-offset:calc(70px+env(safe-area-inset-bottom,0px)+2px)] md:[--workspace-mobile-nav-offset:0px]">
         <header
           role="banner"
           className="flex h-14 shrink-0 items-center justify-between border-b border-border/30 bg-background px-4 md:px-5"
@@ -592,7 +592,7 @@ export default function TranslatePageContent() {
         >
           {/* ── Col 1: Camera ───────────────────────────────────────────── */}
           <div
-            className="relative flex flex-col h-[52svh] md:h-full overflow-hidden border-b border-border/30 md:border-b-0 md:border-r bg-gradient-to-br from-background via-muted/40 to-background p-3 sm:p-4 md:p-6"
+            className="relative flex h-[38svh] min-h-[220px] flex-col overflow-hidden border-b border-border/30 bg-gradient-to-br from-background via-muted/40 to-background p-2.5 sm:h-[42svh] sm:min-h-[250px] sm:p-3 md:h-full md:border-b-0 md:border-r md:p-6"
             style={{ minHeight: 0 }}
           >
             <div

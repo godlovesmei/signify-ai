@@ -61,7 +61,7 @@ function LoadingState({ label }: { label?: string }) {
     requestAnimationFrame(raf);
   }, []);
   return (
-    <div className="flex w-full max-w-xs flex-col items-center gap-5 px-8 py-12 text-center">
+    <div className="flex w-full max-w-xs flex-col items-center gap-4 px-5 py-6 text-center sm:gap-5 sm:px-8 sm:py-10">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />
       <div>
         <h3 className="mb-1 text-base font-semibold">{label ?? 'Initialising'}</h3>
@@ -97,7 +97,7 @@ function ErrorState({
 }) {
   const isPermission = type === 'error-permission';
   return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-6 px-8 py-12 text-center">
+    <div className="flex w-full max-w-sm flex-col items-center gap-4 px-5 py-6 text-center sm:gap-6 sm:px-8 sm:py-10">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/8 ring-1 ring-destructive/15">
         <ShieldAlert className="h-6 w-6 text-destructive" />
       </div>
@@ -105,7 +105,7 @@ function ErrorState({
         <h3 className="mb-2 text-base font-semibold">
           {isPermission ? 'Camera Access Denied' : 'No Camera Found'}
         </h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
           {isPermission
             ? 'Signify needs camera access. Please allow it in your browser settings and try again.'
             : 'No camera detected. Please connect one and try again.'}
@@ -124,26 +124,26 @@ function ErrorState({
 
 function IdlePrompt({ onStart }: { onStart: () => void }) {
   return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-7 px-8 py-12 text-center">
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 ring-1 ring-primary/15">
-        <Camera className="h-7 w-7 text-primary" />
-        <span className="absolute -inset-2.5 rounded-[22px] border border-primary/10 animate-[pulseRing_3s_ease-in-out_infinite]" />
+    <div className="flex w-full max-w-sm flex-col items-center gap-4 px-5 py-5 text-center sm:gap-6 sm:px-7 sm:py-8">
+      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8 ring-1 ring-primary/15 sm:h-16 sm:w-16">
+        <Camera className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
+        <span className="absolute -inset-2 rounded-[20px] border border-primary/10 animate-[pulseRing_3s_ease-in-out_infinite]" />
       </div>
       <div>
-        <h3 className="mb-2 text-lg font-semibold">Start Translating</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <h3 className="mb-2 text-base font-semibold sm:text-lg">Start Translating</h3>
+        <p className="text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
           Position your hands in frame. Signify will detect your BISINDO signs in real time.
         </p>
       </div>
-      <ul className="w-full space-y-2.5 text-left" aria-label="Tips for best results">
+      <ul className="w-full space-y-2 text-left" aria-label="Tips for best results">
         {[
           'Face a light source for best accuracy',
           'Keep your signing hand clearly visible inside the guide box',
           'Sign at a natural, comfortable pace',
         ].map((tip) => (
-          <li key={tip} className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10" aria-hidden="true">
-              <Check className="h-3 w-3 text-primary" />
+          <li key={tip} className="flex items-center gap-2.5 text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 sm:h-5 sm:w-5" aria-hidden="true">
+              <Check className="h-2.5 w-2.5 text-primary sm:h-3 sm:w-3" />
             </span>
             {tip}
           </li>
@@ -152,11 +152,11 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
       <Button
         variant="default"
         onClick={onStart}
-        className="h-11 w-full rounded-xl text-sm font-semibold"
+        className="h-10 w-full rounded-xl text-sm font-semibold sm:h-11"
       >
         <Camera className="h-4 w-4" /> Enable Camera
       </Button>
-      <p className="text-xs text-muted-foreground/60">
+      <p className="text-[11px] leading-relaxed text-muted-foreground/65">
         Camera feed is processed locally and never stored.{' '}
         <Link
           href="/how-it-works"
@@ -269,7 +269,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
         )}
 
         {!isLive && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background">
+          <div className="absolute inset-0 flex items-start justify-center overflow-y-auto bg-background p-3 sm:items-center sm:p-6">
             {state === 'idle' && <IdlePrompt onStart={onRequestCamera} />}
             {isLoading && (
               <LoadingState
