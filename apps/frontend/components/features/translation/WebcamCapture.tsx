@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Camera, Check, FlipHorizontal, Hand, Loader2, Maximize2, Minimize2, RotateCcw, ShieldAlert, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { TranslateDetection } from '@/lib/translateApi';
 
 export type CameraFacingMode = 'user' | 'environment';
 
@@ -19,7 +20,7 @@ export type CameraState =
 export interface WebcamCaptureProps {
   state: CameraState;
   isMirrored: boolean;
-  mpReady: boolean;
+  detections: TranslateDetection[];
   apiError: boolean;
   hasMultipleCameras: boolean;
   languageLabel: string;
@@ -192,12 +193,16 @@ function OverlayIconBtn({
   );
 }
 
+function clampPercent(value: number): number {
+  return Math.max(0, Math.min(100, value));
+}
+
 const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
   (
     {
       state,
       isMirrored,
-      mpReady,
+      detections,
       apiError,
       hasMultipleCameras,
       languageLabel,
@@ -259,6 +264,39 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
           aria-label="Live camera feed"
         />
 
+        {isLive && detections.length > 0 && (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10">
+            {detections.map((det, index) => {
+              const modelSize = 640;
+              const x1 = clampPercent((det.box.x1 / modelSize) * 100);
+              const y1 = clampPercent((det.box.y1 / modelSize) * 100);
+              const x2 = clampPercent((det.box.x2 / modelSize) * 100);
+              const y2 = clampPercent((det.box.y2 / modelSize) * 100);
+
+              const left = isMirrored ? 100 - x2 : x1;
+              const width = Math.max(0, x2 - x1);
+              const height = Math.max(0, y2 - y1);
+
+              return (
+                <div
+                  key={`${det.class}-${index}`}
+                  className="absolute border-2 border-green-400"
+                  style={{
+                    left: `${clampPercent(left)}%`,
+                    top: `${y1}%`,
+                    width: `${width}%`,
+                    height: `${height}%`,
+                  }}
+                >
+                  <span className="absolute -top-6 left-0 rounded bg-green-500 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow">
+                    {`${det.class} ${(det.confidence * 100).toFixed(0)}%`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {isActive && apiError && (
           <div
             role="alert"
@@ -298,7 +336,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
             <Button
               variant={isActive ? 'destructive' : 'default'}
               onClick={isActive ? onStopDetection : onStartDetection}
-              disabled={!mpReady}
               aria-label={isActive ? 'Stop detection' : 'Start detection'}
               aria-pressed={isActive}
               className={[

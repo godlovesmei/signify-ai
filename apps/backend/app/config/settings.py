@@ -30,14 +30,12 @@ class Settings(BaseSettings):
     # if present, so a forged token is always rejected).
     REQUIRE_AUTH: bool = False
 
-    # Model paths
-    SAVED_MODEL_PATH: str = "models/exports/bisindo_v2_ls/saved_model"
-    LABEL_MAP_PATH:   str = "models/exports/bisindo_v2_ls/label_map.json"
+    # Model path
+    MODEL_PATH: str = "models/exports/bisindo_yolo/best.pt"
 
     # Inference
-    INPUT_SIZE:           int   = 224
-    TOP_K:                int   = 3
-    CONFIDENCE_THRESHOLD: float = 0.55
+    INPUT_SIZE:           int   = 640
+    CONFIDENCE_THRESHOLD: float = 0.5
     INFERENCE_TIMEOUT_SECONDS: float = 5.0
 
 

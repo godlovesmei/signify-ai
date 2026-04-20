@@ -1,7 +1,18 @@
-export type TranslatePredictionResponse = {
-  prediction: string;
+export type TranslateDetection = {
+  class: string;
   confidence: number;
-  low_confidence: boolean;
+  box: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  };
+};
+
+export type TranslatePredictionResponse = {
+  detections: TranslateDetection[];
+  inference_ms: number;
+  model: string;
 };
 
 type PredictFromBlobOptions = {

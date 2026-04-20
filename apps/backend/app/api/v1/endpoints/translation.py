@@ -1,115 +1,49 @@
 # apps/backend/app/api/v1/endpoints/translation.py
-"""
-Endpoint untuk inferensi BISINDO sign language.
-
-Routes:
-    POST /api/v1/translate/predict   — terima gambar, return prediksi
-    GET  /api/v1/translate/classes   — list semua kelas
-"""
-
-import asyncio
-import logging
 from typing import Annotated
 
+import cv2
+import numpy as np
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from app.api.deps import verify_supabase_token
 from app.config.settings import Settings, get_settings
-from app.services.ml_service import MLService, PredictionResult, get_ml_service
-
-logger = logging.getLogger(__name__)
+from app.services.ml_service import YOLOService
 
 router = APIRouter(prefix="/translate", tags=["translation"])
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
-MAX_IMAGE_SIZE = 1 * 1024 * 1024  # 1 MB
+MAX_IMAGE_SIZE = 2 * 1024 * 1024  # 2 MB
 
 
-# ── Schemas (inline, tidak butuh Pydantic terpisah untuk sekarang) ─────────────
+def get_service(settings: Settings = Depends(get_settings)) -> YOLOService:
+    return YOLOService.get_instance(settings.MODEL_PATH)
 
-def _prediction_to_dict(result: PredictionResult) -> dict:
-    return {
-        "prediction":    result.prediction,
-        "confidence":    result.confidence,
-        "top_k":         result.top_k,
-        "inference_ms":  result.inference_ms,
-        "low_confidence": result.low_confidence,
-    }
-
-
-# ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @router.post("/predict")
 async def predict(
-    file:    UploadFile = File(...),
-    service: MLService  = Depends(get_ml_service),
+    file: UploadFile = File(...),
+    service: YOLOService = Depends(get_service),
     settings: Settings = Depends(get_settings),
-    _token:  Annotated[dict | None, Depends(verify_supabase_token)] = None,
+    _token: Annotated[dict | None, Depends(verify_supabase_token)] = None,
 ):
-    """
-    Terima gambar webcam, kembalikan prediksi huruf BISINDO.
-
-    Request:
-        multipart/form-data — field 'file' berisi gambar JPEG/PNG/WebP
-
-    Response:
-        {
-          "prediction":     "A",
-          "confidence":     0.987,
-          "top_k":          [{"class": "A", "confidence": 0.987}, ...],
-          "inference_ms":   45.2,
-          "low_confidence": false
-        }
-
-    Jika low_confidence=true, frontend sebaiknya menampilkan UI
-    yang menunjukkan model tidak yakin (confidence < threshold konfigurasi).
-    """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Tipe file tidak didukung: {file.content_type}. Gunakan JPEG/PNG/WebP.",
-        )
+        raise HTTPException(status_code=400, detail="Format tidak didukung")
 
-    try:
-        image_bytes = await file.read()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Gagal membaca file: {e}")
+    contents = await file.read()
+    if len(contents) > MAX_IMAGE_SIZE:
+        raise HTTPException(status_code=413, detail="File terlalu besar")
 
-    if len(image_bytes) > MAX_IMAGE_SIZE:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Gambar terlalu besar ({len(image_bytes)} bytes). Maks {MAX_IMAGE_SIZE} bytes.",
-        )
+    arr = np.frombuffer(contents, np.uint8)
+    image = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if image is None:
+        raise HTTPException(status_code=422, detail="Gagal decode gambar")
 
-    # Run blocking TF inference in a thread pool so it doesn't block the
-    # async event loop and stall concurrent requests.
-    try:
-        loop = asyncio.get_running_loop()
-        result = await asyncio.wait_for(
-            loop.run_in_executor(None, service.predict, image_bytes),
-            timeout=settings.INFERENCE_TIMEOUT_SECONDS,
-        )
-    except TimeoutError:
-        raise HTTPException(status_code=504, detail="Inference timeout")
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))
-    except Exception:
-        logger.exception("Unexpected inference error")
-        raise HTTPException(status_code=500, detail="Internal inference error")
-
-    logger.debug(
-        "Prediction: %s (%.3f) in %.1fms",
-        result.prediction, result.confidence, result.inference_ms,
-    )
-    return _prediction_to_dict(result)
+    return service.predict(image, conf=settings.CONFIDENCE_THRESHOLD)
 
 
 @router.get("/classes")
-def get_classes(service: MLService = Depends(get_ml_service)):
-    """Kembalikan semua kelas yang bisa diprediksi."""
+async def get_classes(service: YOLOService = Depends(get_service)):
     return {
-        "classes": service.label_map,
-        "total":   service.num_classes,
+        "classes": service.model.names,
+        "total": len(service.model.names),
     }

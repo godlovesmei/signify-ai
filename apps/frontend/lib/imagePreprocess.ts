@@ -1,37 +1,16 @@
-const TRANSPORT_SIZE = 320;
-
-export function preprocessFrame(
+export function captureFrame(
   video: HTMLVideoElement,
-  cropX: number,
-  cropY: number,
-  cropSide: number,
-  mirrored: boolean,
-): Blob | null {
-  if (cropSide <= 0) return null;
+  canvas: HTMLCanvasElement,
+  targetSize = 640,
+): Promise<Blob | null> {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return Promise.resolve(null);
 
-  const raw    = document.createElement('canvas');
-  raw.width    = cropSide;
-  raw.height   = cropSide;
-  const rawCtx = raw.getContext('2d', { willReadFrequently: true });
-  if (!rawCtx) return null;
+  canvas.width = targetSize;
+  canvas.height = targetSize;
+  ctx.drawImage(video, 0, 0, targetSize, targetSize);
 
-  if (mirrored) {
-    rawCtx.translate(cropSide, 0);
-    rawCtx.scale(-1, 1);
-  }
-  rawCtx.drawImage(video, cropX, cropY, cropSide, cropSide, 0, 0, cropSide, cropSide);
-
-  const out    = document.createElement('canvas');
-  out.width    = TRANSPORT_SIZE;
-  out.height   = TRANSPORT_SIZE;
-  const outCtx = out.getContext('2d', { willReadFrequently: true });
-  if (!outCtx) return null;
-
-  outCtx.drawImage(raw, 0, 0, TRANSPORT_SIZE, TRANSPORT_SIZE);
-
-  const dataUrl = out.toDataURL('image/jpeg', 0.95);
-  const binary  = atob(dataUrl.split(',')[1]);
-  const arr     = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
-  return new Blob([arr], { type: 'image/jpeg' });
+  return new Promise((resolve) => {
+    canvas.toBlob(resolve, 'image/jpeg', 0.85);
+  });
 }

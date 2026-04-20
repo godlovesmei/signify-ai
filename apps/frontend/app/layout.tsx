@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     'penerjemah isyarat',
     'AI aksesibilitas',
     'real-time',
-    'MediaPipe',
+    'YOLO',
     'tuna rungu',
   ],
   authors: [{ name: 'BISINDO App Team' }],

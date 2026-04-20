@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import { Settings, Volume2, VolumeX } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 
@@ -15,15 +14,12 @@ import {
   type CameraState,
   type TranscriptEntry,
 } from '@/components/features/translation';
-import type { DetectedHand } from '@/components/features/translation/drawingUtils';
-import HandGuideBox, { guideBoxPixels } from '@/components/features/translation/HandGuideBox';
 import SettingsDrawer, { type MediaDeviceOption } from '@/components/layout/SettingsDrawer';
 import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
 import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
 import { useTheme } from '@/hooks/useTheme';
-import { preprocessFrame } from '@/lib/imagePreprocess';
-import { landmarksToBBox, resetROISmoother } from '@/lib/handROI';
-import { predictFromBlob } from '@/lib/translateApi';
+import { captureFrame } from '@/lib/imagePreprocess';
+import { predictFromBlob, type TranslateDetection } from '@/lib/translateApi';
 import { mapCameraStateToDetectionStatus } from '@/lib/translateState';
 import { appendHistoryEntry } from '@/lib/userData';
 import PracticeGuide from '@/components/features/translation/PracticeGuide';
@@ -32,11 +28,8 @@ import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
 const API_BASE_URL       = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const MODEL_INIT_MS      = 2400;
-const MEDIAPIPE_VISION_VERSION = '0.10.32';
-const MEDIAPIPE_WASM_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VISION_VERSION}/wasm`;
 const IS_MOBILE          = typeof navigator !== 'undefined' && /Android|iPhone|iPad/i.test(navigator.userAgent);
 const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200; // faster cadence for lower commit latency
-const MOTION_THRESHOLD   = 0.012; // avg landmark drift (normalised units) above which hand is considered moving
 const VOTE_BUFFER_SIZE   = 3;     // shorter fallback window for mid-confidence predictions
 const WEIGHTED_VOTE_THRESHOLD = 0.67; // ~2/3 weighted quorum
 const FAST_COMMIT_THRESHOLD = 0.92; // single-frame fast commit when highly confident
@@ -46,49 +39,6 @@ type VoteEntry = { letter: string; confidence: number };
 
 let _id = 0;
 function uid() { return `entry-${Date.now()}-${++_id}`; }
-
-async function createHandLandmarker(): Promise<HandLandmarker> {
-  const vision = await FilesetResolver.forVisionTasks(
-    MEDIAPIPE_WASM_URL,
-  );
-  return HandLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      modelAssetPath:
-        'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-      // GPU WebGL can be slower on low-end mobile due to context switching overhead
-      delegate: IS_MOBILE ? 'CPU' : 'GPU',
-    },
-    runningMode:                'VIDEO',
-    numHands:                   1,   // 2→1: nearly 2x faster, sufficient for single-hand BISINDO
-    minHandDetectionConfidence: 0.6, // slightly higher = skip ambiguous frames faster
-    minHandPresenceConfidence:  0.5,
-    minTrackingConfidence:      0.5,
-  });
-}
-
-/**
- * Compute crop region: use dynamic ROI from MediaPipe landmarks if available,
- * otherwise fall back to the static guide box.
- *
- * Dynamic ROI produces crops closer to the Roboflow training distribution
- * (hand-cropped by annotators) because background noise is minimised.
- * The guide box serves as a visual anchor so the user knows where to sign.
- */
-function computeCropRegion(
-  video: HTMLVideoElement,
-  landmarks: ReadonlyArray<{ x: number; y: number }> | null,
-): { x: number; y: number; side: number } {
-  const { videoWidth: W, videoHeight: H } = video;
-
-  // Try dynamic ROI first
-  if (landmarks && landmarks.length > 0) {
-    const roi = landmarksToBBox(landmarks, W, H, 0.25);
-    if (roi && roi.side > 0) return roi;
-  }
-
-  // Fallback: static guide box
-  return guideBoxPixels(W, H);
-}
 
 export default function TranslatePageContent() {
   const prefs = useAccessibilityPrefs();
@@ -110,14 +60,13 @@ export default function TranslatePageContent() {
   const [devices, setDevices]                     = useState<MediaDeviceOption[]>([]);
   const [selectedDeviceId, setSelectedDeviceId]   = useState('');
   const [apiError, setApiError]                   = useState(false);
-  const [mpReady, setMpReady]                     = useState(false);
-  const [hands, setHands]                         = useState<DetectedHand[]>([]);
+  const [detections, setDetections]               = useState<TranslateDetection[]>([]);
 
   const webcamRef      = useRef<WebcamCaptureHandle>(null);
   const streamRef      = useRef<MediaStream | null>(null);
   const timerRef       = useRef<ReturnType<typeof setInterval> | null>(null);
   const isBusy         = useRef(false);
-  const landmarkerRef  = useRef<HandLandmarker | null>(null);
+  const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const fpsCountRef    = useRef(0);
   const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef   = useRef<string | null>(null);
@@ -125,12 +74,10 @@ export default function TranslatePageContent() {
 
   const languageRef     = useRef(language);
   const voiceEnabledRef = useRef(voiceEnabled);
-  const isMirroredRef   = useRef(isMirrored);
   const accessTokenRef  = useRef<string | null>(null);
 
   useEffect(() => { languageRef.current     = language;     }, [language]);
   useEffect(() => { voiceEnabledRef.current = voiceEnabled; }, [voiceEnabled]);
-  useEffect(() => { isMirroredRef.current   = isMirrored;   }, [isMirrored]);
 
   useEffect(() => {
     const supabase = createSupabaseClient();
@@ -182,30 +129,14 @@ export default function TranslatePageContent() {
     }
   }, []);
 
-  // ── Stability gate ──────────────────────────────────────────────────────────
-  const prevLandmarksRef = useRef<Array<{ x: number; y: number }> | null>(null);
-
-  const isHandStable = useCallback((landmarks: Array<{ x: number; y: number }>): boolean => {
-    const prev = prevLandmarksRef.current;
-    prevLandmarksRef.current = landmarks.map(l => ({ x: l.x, y: l.y }));
-    if (!prev || prev.length !== landmarks.length) return false;
-    const drift = landmarks.reduce((sum, lm, i) => {
-      const dx = lm.x - prev[i].x;
-      const dy = lm.y - prev[i].y;
-      return sum + Math.sqrt(dx * dx + dy * dy);
-    }, 0) / landmarks.length;
-    return drift < MOTION_THRESHOLD;
-  }, []);
-
   // ── Sliding window vote ─────────────────────────────────────────────────────
   const voteBuffer = useRef<VoteEntry[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    createHandLandmarker()
-      .then((lm) => { if (!cancelled) { landmarkerRef.current = lm; setMpReady(true); } })
-      .catch((e) => console.error('MediaPipe init failed:', e));
-    return () => { cancelled = true; };
+    captureCanvasRef.current = document.createElement('canvas');
+    return () => {
+      captureCanvasRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -295,12 +226,11 @@ export default function TranslatePageContent() {
     setTranscript([]); setTokens([]);
     setCurrentLetter(null); setCurrentConfidence(null);
     setIsSpeaking(false); setIsTtsError(false);
-    setFps(0); setApiError(false); setHands([]);
+    setFps(0); setApiError(false); setDetections([]);
     setSessionStart(null);
-    voteBuffer.current = []; prevLandmarksRef.current = null;
+    voteBuffer.current = [];
     sessionIdRef.current = null;
     lastCommittedRef.current = { letter: null, at: 0 };
-    resetROISmoother();
   }, [stopStream]);
 
   const startDetection = useCallback((force = false) => {
@@ -321,92 +251,67 @@ export default function TranslatePageContent() {
     timerRef.current = setInterval(async () => {
       if (isBusy.current) return;
       const video = webcamRef.current?.videoElement;
-      if (!video || !landmarkerRef.current) return;
+      const canvas = captureCanvasRef.current;
+      if (!video || !canvas) return;
       if (video.readyState < 2) return;
 
       isBusy.current = true;
       try {
-        const result             = landmarkerRef.current.detectForVideo(video, performance.now());
-        const detectedLandmarks  = result.landmarks    ?? [];
-        const detectedHandedness = result.handedness ?? [];
-        const mirrored           = isMirroredRef.current;
+        const frameBlob = await captureFrame(video, canvas, 640);
+        if (frameBlob === null) return;
 
-        const nextHands: DetectedHand[] = detectedLandmarks.map((lms, i) => {
-          const topClass  = detectedHandedness[i]?.[0];
-          const rawLabel  = (topClass?.categoryName ?? 'Right') as 'Left' | 'Right';
-          const corrected = mirrored ? (rawLabel === 'Left' ? 'Right' : 'Left') : rawLabel;
-          return { landmarks: lms as DetectedHand['landmarks'], handedness: corrected, score: topClass?.score ?? 1 };
-        });
-
-        setHands(nextHands);
-        if (nextHands.length === 0) {
-          setCurrentLetter(null); setCurrentConfidence(null);
-          prevLandmarksRef.current = null;
-          voteBuffer.current = [];
-          lastCommittedRef.current = { letter: null, at: 0 };
-          resetROISmoother();
-          return;
-        }
-
-        // ── Stability gate ─────────────────────────────────────────────
-        // Use the primary hand's landmarks to detect motion. Skip inference
-        // when the hand is still transitioning — only predict held poses.
-        const primaryLandmarks = nextHands[0].landmarks.map(l => ({ x: l.x, y: l.y }));
-        if (!isHandStable(primaryLandmarks)) {
-          voteBuffer.current = [];
-          return;
-        }
-
-        // ── Crop region: dynamic ROI (MediaPipe) with guide box fallback ──
-        // Dynamic ROI produces crops closer to Roboflow training data
-        // distribution; guide box is the fallback when landmarks are poor.
-        const cropRegion = computeCropRegion(video, primaryLandmarks);
-        if (cropRegion.side <= 0) return;
-
-        // ── Transport prep: crop + optional mirror + resize 224×224 ──
-        // Model preprocessing (grayscale/normalize) stays canonical in backend.
-        const cropBlob = preprocessFrame(
-          video, cropRegion.x, cropRegion.y, cropRegion.side, false,
-        );
-        if (cropBlob === null) return;
-
-        // ── CNN path (backend API, primary) ───────────────────────────
         let accessToken = accessTokenRef.current ?? undefined;
         if (!accessToken) {
           const { data } = await createSupabaseClient().auth.getSession();
           accessToken = data.session?.access_token ?? undefined;
           accessTokenRef.current = accessToken ?? null;
         }
-        const cnnBest = await predictFromBlob(cropBlob, {
+
+        const yoloResult = await predictFromBlob(frameBlob, {
           baseUrl: API_BASE_URL,
           accessToken,
         });
 
-        // Use CNN result (or report error if both paths failed)
-        if (cnnBest === null) { setApiError(true); return; }
-        if (cnnBest.low_confidence) {
-          setApiError(false);
-          setCurrentLetter(cnnBest.prediction);
-          setCurrentConfidence(cnnBest.confidence);
+        if (yoloResult === null) {
+          setApiError(true);
+          setDetections([]);
           return;
         }
 
         setApiError(false);
         fpsCountRef.current += 1;
-        setCurrentLetter(cnnBest.prediction);
-        setCurrentConfidence(cnnBest.confidence);
+
+        const nextDetections = yoloResult.detections ?? [];
+        setDetections(nextDetections);
+
+        if (nextDetections.length === 0) {
+          setCurrentLetter(null); setCurrentConfidence(null);
+          voteBuffer.current = [];
+          lastCommittedRef.current = { letter: null, at: 0 };
+          return;
+        }
+
+        const topDetection = nextDetections.reduce((best, current) =>
+          current.confidence > best.confidence ? current : best,
+        );
+
+        const predictedLetter = topDetection.class;
+        const predictedConfidence = topDetection.confidence;
+
+        setCurrentLetter(predictedLetter);
+        setCurrentConfidence(predictedConfidence);
 
         const now = Date.now();
         const canFastCommit = !(
-          lastCommittedRef.current.letter === cnnBest.prediction &&
+          lastCommittedRef.current.letter === predictedLetter &&
           now - lastCommittedRef.current.at < SAME_LETTER_COOLDOWN_MS
         );
 
         // Fast-path: immediately commit highly confident predictions.
-        if (cnnBest.confidence >= FAST_COMMIT_THRESHOLD) {
+        if (predictedConfidence >= FAST_COMMIT_THRESHOLD) {
           if (canFastCommit) {
-            commitLetter(cnnBest.prediction, cnnBest.confidence);
-            lastCommittedRef.current = { letter: cnnBest.prediction, at: now };
+            commitLetter(predictedLetter, predictedConfidence);
+            lastCommittedRef.current = { letter: predictedLetter, at: now };
             voteBuffer.current = [];
           }
           return;
@@ -415,7 +320,7 @@ export default function TranslatePageContent() {
         // ── Confidence-weighted vote ───────────────────────────────────
         // Each frame contributes weight=confidence^2, so uncertain frames
         // have much less influence than stable high-confidence frames.
-        voteBuffer.current.push({ letter: cnnBest.prediction, confidence: cnnBest.confidence });
+        voteBuffer.current.push({ letter: predictedLetter, confidence: predictedConfidence });
         if (voteBuffer.current.length > VOTE_BUFFER_SIZE) voteBuffer.current.shift();
         if (voteBuffer.current.length < VOTE_BUFFER_SIZE) return;
 
@@ -435,7 +340,7 @@ export default function TranslatePageContent() {
         if (totalWeight <= 0) return;
         if (winnerWeight / totalWeight < WEIGHTED_VOTE_THRESHOLD) return;
 
-        const winnerConf = confidencesByLetter[winner] ?? [cnnBest.confidence];
+        const winnerConf = confidencesByLetter[winner] ?? [predictedConfidence];
         const committedConfidence = winnerConf.reduce((a, b) => a + b, 0) / winnerConf.length;
 
         const canVoteCommit = !(
@@ -449,7 +354,7 @@ export default function TranslatePageContent() {
         lastCommittedRef.current = { letter: winner, at: now };
       } finally { isBusy.current = false; }
     }, DETECTION_INTERVAL);
-  }, [appState, commitLetter, isHandStable]);
+  }, [appState, commitLetter]);
 
   useEffect(() => {
     if (appState !== 'ready' || !resumeAfterVisibilityRef.current) return;
@@ -462,11 +367,10 @@ export default function TranslatePageContent() {
     if (timerRef.current)       { clearInterval(timerRef.current);       timerRef.current = null; }
     if (fpsIntervalRef.current) { clearInterval(fpsIntervalRef.current); fpsIntervalRef.current = null; }
     isBusy.current = false; fpsCountRef.current = 0;
-    setHands([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
-    voteBuffer.current = []; prevLandmarksRef.current = null;
+    setDetections([]); setCurrentLetter(null); setCurrentConfidence(null); setFps(0);
+    voteBuffer.current = [];
     sessionIdRef.current = null;
     lastCommittedRef.current = { letter: null, at: 0 };
-    resetROISmoother();
     if (appState === 'detecting') setAppState('ready');
   }, [appState]);
 
@@ -554,11 +458,6 @@ export default function TranslatePageContent() {
                 Live
               </span>
             )}
-            {!mpReady && (
-              <span className="hidden rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning-foreground md:inline-flex">
-                Loading hand detector…
-              </span>
-            )}
           </div>
 
           <div className="flex items-center gap-0.5">
@@ -603,7 +502,7 @@ export default function TranslatePageContent() {
                 ref={webcamRef}
                 state={appState}
                 isMirrored={isMirrored}
-                mpReady={mpReady}
+                detections={detections}
                 apiError={apiError}
                 hasMultipleCameras={devices.length > 1}
                 languageLabel={language}
@@ -613,10 +512,6 @@ export default function TranslatePageContent() {
                 onStopDetection={stopDetection}
                 onFlipCamera={flipCamera}
                 onReset={handleReset}
-              />
-              <HandGuideBox
-                active={isActive}
-                handDetected={isActive && hands.length > 0}
               />
             </div>
           </div>
@@ -634,7 +529,7 @@ export default function TranslatePageContent() {
                 letter={currentLetter}
                 confidence={currentConfidence}
                 isDetecting={isActive}
-                hasHand={hands.length > 0}
+                hasHand={detections.length > 0}
                 textScale={prefs.textScale}
               />
 
