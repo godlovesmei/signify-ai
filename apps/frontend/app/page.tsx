@@ -528,7 +528,7 @@ const FEATURE_ROWS = [
     icon: Camera,
     eyebrow: 'Deteksi Real-Time',
     title: 'Dari Gerakan Tangan ke Teks dalam < 150ms',
-    body: 'MediaPipe Tasks Vision memproses landmark tangan langsung di perangkatmu. Tidak ada video yang dikirim ke server — semua berjalan lokal di browser untuk latensi serendah mungkin.',
+    body: 'YOLO11 mendeteksi dan mengenali gestur tangan secara real-time. Cukup arahkan kamera — model menangani deteksi dan klasifikasi dalam satu langkah.',
     visual: 'bg-gradient-to-br from-primary/10 to-primary/5',
     iconColor: 'text-primary',
     iconBg: 'bg-primary/10',

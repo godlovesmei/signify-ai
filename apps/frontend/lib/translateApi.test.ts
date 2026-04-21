@@ -11,7 +11,17 @@ describe('translateApi predictFromBlob', () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ prediction: 'A', confidence: 0.9, low_confidence: false }),
+      json: async () => ({
+        detections: [
+          {
+            class: 'A',
+            confidence: 0.9,
+            box: { x1: 10, y1: 20, x2: 200, y2: 220 },
+          },
+        ],
+        inference_ms: 14.2,
+        model: 'best.pt',
+      }),
     } as Response);
 
     const result = await predictFromBlob(makeBlob(), {
@@ -20,7 +30,17 @@ describe('translateApi predictFromBlob', () => {
       retryDelayMs: 0,
     });
 
-    expect(result).toEqual({ prediction: 'A', confidence: 0.9, low_confidence: false });
+    expect(result).toEqual({
+      detections: [
+        {
+          class: 'A',
+          confidence: 0.9,
+          box: { x1: 10, y1: 20, x2: 200, y2: 220 },
+        },
+      ],
+      inference_ms: 14.2,
+      model: 'best.pt',
+    });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -31,7 +51,17 @@ describe('translateApi predictFromBlob', () => {
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({ prediction: 'B', confidence: 0.8, low_confidence: false }),
+        json: async () => ({
+          detections: [
+            {
+              class: 'B',
+              confidence: 0.8,
+              box: { x1: 5, y1: 15, x2: 120, y2: 170 },
+            },
+          ],
+          inference_ms: 16.8,
+          model: 'best.pt',
+        }),
       } as Response);
 
     const result = await predictFromBlob(makeBlob(), {
@@ -41,7 +71,7 @@ describe('translateApi predictFromBlob', () => {
       retryDelayMs: 0,
     });
 
-    expect(result?.prediction).toBe('B');
+    expect(result?.detections[0]?.class).toBe('B');
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
@@ -52,7 +82,17 @@ describe('translateApi predictFromBlob', () => {
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({ prediction: 'C', confidence: 0.85, low_confidence: false }),
+        json: async () => ({
+          detections: [
+            {
+              class: 'C',
+              confidence: 0.85,
+              box: { x1: 25, y1: 30, x2: 180, y2: 210 },
+            },
+          ],
+          inference_ms: 12.1,
+          model: 'best.pt',
+        }),
       } as Response);
 
     const result = await predictFromBlob(makeBlob(), {
@@ -62,7 +102,7 @@ describe('translateApi predictFromBlob', () => {
       retryDelayMs: 0,
     });
 
-    expect(result?.prediction).toBe('C');
+    expect(result?.detections[0]?.class).toBe('C');
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 

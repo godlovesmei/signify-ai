@@ -44,6 +44,11 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Planning
+PLAN.md
+runs/
+*.pt
+
 # Environment variables
 **/.env
 .env

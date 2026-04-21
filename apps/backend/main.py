@@ -18,7 +18,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.settings import get_settings
-from app.services.ml_service import init_ml_service, get_ml_service
+from app.services.ml_service import YOLOService
 from app.api.v1.endpoints.translation import router as translation_router
 
 logging.basicConfig(
@@ -33,7 +33,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up Signify AI backend...")
-    init_ml_service(settings)  # Let it crash — better than serving 503s silently
+    YOLOService.get_instance(settings.MODEL_PATH)
     logger.info("Startup complete.")
     yield
     logger.info("Shutting down.")
@@ -57,18 +57,11 @@ app.include_router(translation_router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["system"])
-def health():
-    try:
-        svc = get_ml_service()
-        return {
-            "status":    "ok",
-            "model":     settings.SAVED_MODEL_PATH,
-            "classes":   svc.num_classes,
-            "loaded_at": svc.loaded_at,
-        }
-    except RuntimeError:
-        return {
-            "status":  "model_not_loaded",
-            "model":   settings.SAVED_MODEL_PATH,
-            "classes": 0,
-        }
+async def health():
+    service = YOLOService.get_instance(settings.MODEL_PATH)
+    return {
+        "status": "ok",
+        "model": settings.MODEL_PATH,
+        "classes": len(service.model.names),
+        "loaded_at": service.loaded_at,
+    }
