@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: apps/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount model weights without baking them into the image
+      - ./models:/app/models:ro
+    environment:
+      MODEL_PATH: models/exports/bisindo_yolo/best.pt
+      CONFIDENCE_THRESHOLD: "0.5"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      REQUIRE_AUTH: "false"
+      # Override in .env or docker-compose.override.yml for Supabase auth:
+      # SUPABASE_URL: https://your-project.supabase.co
+      # SUPABASE_JWT_SECRET: your-jwt-secret
+    env_file:
+      - apps/backend/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: apps/frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    env_file:
+      - apps/frontend/.env.local
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

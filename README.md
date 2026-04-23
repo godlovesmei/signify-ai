@@ -1,16 +1,16 @@
 # Signify AI
 
-> Real-time Indonesian Sign Language (BISINDO) recognition — from webcam to text, in the browser.
+> Real-time Indonesian Sign Language (BISINDO) recognition — webcam to text, in the browser.
 
-Signify AI is a full-stack application that translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text in real time. A Next.js frontend captures hand gestures via webcam, MediaPipe detects hand landmarks, and a FastAPI backend runs inference using a fine-tuned EfficientNetV2B0 CNN model.
+Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text in real time. A Next.js frontend captures raw webcam frames and sends them to a FastAPI backend that runs inference with a fine-tuned **YOLO11** object detection model. Bounding boxes and class labels are streamed back and rendered directly on the video feed.
 
 ---
 
 ## Demo / Preview
 
-| Translate Page | How It Works |
+| Translate Page | Detection |
 |---|---|
-| Real-time gesture → letter detection | Two-phase CNN pipeline |
+| Real-time gesture → letter detection | YOLO11 bounding box overlay |
 
 > Live demo: coming soon.
 
@@ -18,49 +18,74 @@ Signify AI is a full-stack application that translates BISINDO (Bahasa Isyarat I
 
 ## Features
 
-- **Real-time recognition** — captures webcam frames at 200 ms intervals (300 ms on mobile) and predicts the signed letter
-- **Dynamic hand ROI** — MediaPipe landmarks crop the hand region precisely; falls back to a static guide box
-- **Canonical CNN preprocessing** — frontend sends a cropped frame, backend applies the single source of truth preprocessing for model input
-- **Confidence-weighted voting** — 3-frame weighted vote buffer plus high-confidence fast-commit reduces flickering predictions
-- **Sentence builder** — accumulates predicted letters into a word/sentence with TTS playback
-- **Mobile optimised** — CPU delegate, reduced frame rate, and Page Visibility API pause on tab hide
-- **Optional auth** — Supabase JWT gating on the API (toggle with `REQUIRE_AUTH`)
-- **Data collection page** — for contributing new gesture samples
+- **Real-time detection** — captures frames every 200 ms (300 ms on mobile) and returns YOLO bounding boxes with confidence scores
+- **No MediaPipe** — hand detection and classification are both handled by YOLO11 on the backend; the browser sends raw frames
+- **Confidence-weighted voting** — 3-frame weighted vote buffer plus high-confidence fast-commit (≥ 0.92) reduces flickering
+- **Sentence builder** — accumulates predicted letters into words/sentences with TTS playback
+- **Page Visibility API** — detection loop pauses when the tab is hidden to save CPU/GPU
+- **Optional auth** — Supabase JWT gating on `/predict` (toggle with `REQUIRE_AUTH=true`)
+- **Accessibility** — dark / light / system theme, high contrast, text scale, TTS speed/volume controls
 
 ---
 
 ## Tech Stack
 
 ### Frontend
+
 | Library | Version | Purpose |
 |---|---|---|
 | Next.js | 16 | App framework (App Router) |
 | React | 19 | UI |
 | TypeScript | 5 | Type safety |
 | Tailwind CSS | 4 | Styling |
-| shadcn/ui + Radix UI | latest | Component primitives |
-| MediaPipe Vision | 0.10 | In-browser hand landmark detection |
+| Radix UI | 1.4 | Component primitives |
 | Supabase JS | 2 | Auth (SSR-safe client) |
+| Motion | 12 | Animations |
 | Sonner | 2 | Toast notifications |
 
 ### Backend
+
 | Library | Version | Purpose |
 |---|---|---|
 | FastAPI | latest | REST API framework |
 | Uvicorn | latest | ASGI server |
-| TensorFlow | 2.16.2 | Model inference |
-| Pydantic Settings | latest | Configuration management |
+| Ultralytics | ≥ 8.3 | YOLO11 inference |
+| PyTorch | ≥ 2.0 | ML runtime |
+| OpenCV | latest | Image decode |
+| PyJWT | 2.9 | Supabase JWT validation |
 | Python | 3.11 | Runtime |
 
 ### ML
+
 | Tool | Purpose |
 |---|---|
-| EfficientNetV2B0 | Base CNN (ImageNet pretrained) |
-| TensorFlow / Keras | Training framework |
-| CUDA 12.3 + cuDNN 8.9.7 | GPU acceleration |
-| FP16 mixed precision | Faster training |
-| Roboflow | Dataset preprocessing |
+| YOLO11n | Detection model (26 BISINDO letters) |
+| Ultralytics | Training & export framework |
+| CUDA 12 + cuDNN | GPU acceleration |
 | WandB | Experiment tracking (optional) |
+
+### Database
+
+| Service | Purpose |
+|---|---|
+| Supabase (PostgreSQL) | User profiles, translation history, practice stats |
+| Supabase Auth | JWT-based authentication |
+| Row Level Security | Per-user data isolation |
+
+---
+
+## Model Performance
+
+Trained on the BISINDO dataset (26 letters A–Z) using YOLO11n for 84 epochs (early stopping at epoch 84/100).
+
+| Metric | Value |
+|---|---|
+| mAP50 | **0.995** |
+| mAP50-95 | **0.926** |
+| Input size | 640 × 640 |
+| Output classes | 26 (A–Z) |
+| Inference latency (GPU) | ~15–25 ms |
+| Inference latency (CPU) | ~80–150 ms |
 
 ---
 
@@ -71,66 +96,52 @@ signify-ai/
 ├── apps/
 │   ├── frontend/                   # Next.js web application
 │   │   ├── app/
-│   │   │   ├── translate/          # Main translation page
-│   │   │   ├── collect/            # Data collection page
-│   │   │   ├── auth/               # Login / Supabase callback
-│   │   │   └── (documentation)/    # How-it-works, research, terms
+│   │   │   ├── translate/          # Main translation workspace
+│   │   │   ├── practice/           # Practice mode
+│   │   │   ├── history/            # Translation history
+│   │   │   ├── reference/          # BISINDO alphabet reference
+│   │   │   └── auth/               # Login / Supabase callback
 │   │   ├── components/
-│   │   │   ├── features/translation/   # Webcam, prediction, sentence builder
+│   │   │   ├── features/translation/   # WebcamCapture, PredictionDisplay, SentenceBuilder
 │   │   │   ├── layout/                 # Navbar, Footer, SettingsDrawer
 │   │   │   ├── tts/                    # Text-to-speech button + indicator
-│   │   │   └── ui/                     # shadcn primitives
+│   │   │   └── ui/                     # Radix/shadcn primitives
 │   │   ├── hooks/                  # useTheme, useAccessibilityPrefs
-│   │   ├── lib/                    # handROI.ts, imagePreprocess.ts, supabase.ts
-│   │   └── utils/supabase/         # SSR-safe Supabase helpers
+│   │   └── lib/                    # translateApi.ts, imagePreprocess.ts, supabase.ts
 │   │
 │   └── backend/                    # FastAPI inference service
 │       ├── app/
 │       │   ├── api/v1/endpoints/   # translation.py (predict, classes)
+│       │   ├── api/deps.py         # JWT auth dependency
 │       │   ├── config/settings.py  # Pydantic BaseSettings
-│       │   └── services/ml_service.py  # Model singleton + inference
-│       ├── tests/                  # Integration tests
+│       │   └── services/ml_service.py  # YOLOService singleton
+│       ├── tests/                  # pytest integration tests
 │       ├── main.py                 # App entry point
-│       └── Dockerfile
-│
-├── packages/
-│   └── ml/                         # ML pipeline
-│       ├── data/
-│       │   ├── preprocessing.py    # tf_preprocess, tf_augment
-│       │   ├── dataset.py          # tf.data pipeline builder
-│       │   └── augmentation.py
-│       ├── training/
-│       │   ├── trainer.py          # TrainerConfig + Trainer class
-│       │   ├── callbacks.py        # LR schedule, checkpoint, TensorBoard
-│       │   └── metrics.py
-│       ├── scripts/
-│       │   ├── train.py            # Main training entry point
-│       │   ├── export_model.py     # .keras → SavedModel
-│       │   ├── prepare_bisindo.py  # Dataset preparation
-│       │   ├── create_label_map.py
-│       │   ├── extract_landmarks.py
-│       │   └── generate_visualizations.py
-│       └── analysis/gradcam.py     # Grad-CAM visualizations
-│
-├── data/
-│   ├── raw/                        # Original images (gitignored)
-│   ├── processed/bisindo_v1/       # Training-ready CSVs + label map
-│   ├── augmented/                  # Augmented copies (gitignored)
-│   └── metadata/
+│       └── environment.yml         # Conda dependencies
 │
 ├── models/
-│   ├── checkpoints/bisindo_v2_ls/  # Training checkpoints (gitignored)
-│   ├── exports/bisindo_v2_ls/      # SavedModel for inference (gitignored)
-│   └── hand_landmarker.task        # MediaPipe model
+│   └── exports/bisindo_yolo/
+│       └── best.pt                 # YOLO11 trained weights (gitignored)
+│
+├── data/
+│   └── bisindo/
+│       ├── images/                 # Training images
+│       ├── labels/                 # YOLO .txt label files
+│       └── data.yml                # Dataset config
+│
+├── supabase/
+│   └── migrations/
+│       └── 20260422090000_init_signify_erd.sql  # Full schema + RLS
 │
 ├── infrastructure/
-│   ├── docker-compose.yml
 │   ├── docker-compose.prod.yml
 │   └── nginx/
 │
-├── scripts/                        # Dev / deploy utility scripts
-├── reports/figures/                # Generated training visualizations
-└── docs/                           # Additional documentation
+├── docs/
+│   └── database-erd.md
+│
+├── docker-compose.yml              # Local development stack
+└── README.md
 ```
 
 ---
@@ -139,10 +150,10 @@ signify-ai/
 
 ### Prerequisites
 
-- Node.js 20+
-- Python 3.11
-- Conda (recommended for ML environment)
-- CUDA 12.3 + cuDNN 8.9.7 (for GPU training, optional for inference)
+- **Node.js 20+** and **pnpm**
+- **Conda** (Miniconda or Anaconda)
+- **CUDA 12+** (optional — required only for GPU inference)
+- A **Supabase project** (free tier is fine)
 
 ### 1. Clone the repository
 
@@ -151,70 +162,97 @@ git clone https://github.com/<your-org>/signify-ai.git
 cd signify-ai
 ```
 
-### 2. One-command development setup (recommended)
+### 2. Backend — Python environment
 
 ```bash
-bash scripts/setup-dev.sh
+conda create -n signify-yolo python=3.11
+conda activate signify-yolo
+cd apps/backend
+pip install ultralytics>=8.3.0 torch torchvision fastapi "uvicorn[standard]" \
+    python-multipart pillow numpy opencv-python "PyJWT==2.9.0" pydantic-settings
 ```
 
-Include ML environment when needed:
+Or use the provided Conda environment file:
 
 ```bash
-WITH_ML=1 bash scripts/setup-dev.sh
+conda env create -f apps/backend/environment.yml
+conda activate signify-yolo
 ```
 
-### 3. Frontend (manual)
+### 3. Backend — Environment variables
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+# Edit .env and fill in your Supabase JWT secret if you want auth
+```
+
+### 4. Frontend — Node environment
 
 ```bash
 cd apps/frontend
 pnpm install
-cp .env.local.example .env.local   # fill in NEXT_PUBLIC_API_URL and Supabase keys
+cp .env.local.example .env.local
+# Edit .env.local and fill in your Supabase URL and anon key
 ```
 
-### 4. Backend (manual)
+### 5. Database — Supabase schema
+
+Run the migration against your Supabase project:
 
 ```bash
-cd apps/backend
-cp .env.example .env               # fill in model paths and optional Supabase config
-conda env create -f environment.yml
-conda activate signify-backend
+# Using Supabase CLI
+supabase db push
+
+# Or paste the contents of the file directly in Supabase SQL Editor
+# supabase/migrations/20260422090000_init_signify_erd.sql
 ```
 
-Model artifacts tidak ikut Git. Setelah clone/fetch, export ulang model:
-```bash
-cd /path/to/signify-ai
-python packages/ml/scripts/export_model.py \
-  --checkpoint models/checkpoints/bisindo_v2_ls/phase2_best.weights.h5 \
-  --output_dir models/exports/bisindo_v2_ls
-```
+### 6. Model weights
 
-### 5. ML Environment (for training only)
+The trained YOLO11 weights are **not committed to git** (`.pt` files are in `.gitignore`).
 
+If the weights already exist locally at `models/exports/bisindo_yolo/best.pt`, no action needed.
+
+To re-train from scratch:
 ```bash
-cd packages/ml
-conda env create -f environment.yml
-conda activate signify-ml
+conda activate signify-yolo
+yolo train \
+  model=yolo11n.pt \
+  data=data/bisindo/data.yml \
+  epochs=100 \
+  imgsz=640 \
+  batch=16 \
+  device=0 \
+  patience=20 \
+  name=bisindo_v1 \
+  project=runs/train
+
+mkdir -p models/exports/bisindo_yolo
+cp runs/train/bisindo_v1/weights/best.pt models/exports/bisindo_yolo/best.pt
 ```
 
 ---
 
-## Usage / Running the Project
+## Running the Project
 
 ### Development
 
-**Frontend** (http://localhost:3000)
-```bash
-cd apps/frontend
-npm run dev
-```
+**Backend** — runs on `http://localhost:8000`
 
-**Backend** (http://localhost:8000)
 ```bash
+conda activate signify-yolo
 cd apps/backend
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Docker (all services)
+**Frontend** — runs on `http://localhost:3000`
+
+```bash
+cd apps/frontend
+pnpm dev
+```
+
+### Docker (full local stack)
 
 ```bash
 docker-compose up --build
@@ -228,34 +266,32 @@ docker-compose -f infrastructure/docker-compose.prod.yml up -d
 
 ---
 
-## API Documentation
+## API Reference
 
-Interactive docs available at `http://localhost:8000/docs` (Swagger UI) after starting the backend.
+Interactive Swagger docs are available at `http://localhost:8000/docs` after starting the backend.
 
-### Endpoints
+### `POST /api/v1/translate/predict`
 
-#### `POST /api/v1/translate/predict`
-
-Runs inference on a hand gesture image.
+Run YOLO11 inference on a single image frame.
 
 **Request:** `multipart/form-data`
 
 | Field | Type | Description |
 |---|---|---|
-| `file` | image (PNG/JPEG/WebP) | Cropped hand image, max 1 MB |
+| `file` | image (JPEG / PNG / WebP) | Raw webcam frame, max 2 MB |
 
 **Response:**
 ```json
 {
-  "prediction": "A",
-  "confidence": 0.987,
-  "top_k": [
-    { "class": "A", "confidence": 0.987 },
-    { "class": "B", "confidence": 0.008 },
-    { "class": "C", "confidence": 0.003 }
+  "detections": [
+    {
+      "class": "A",
+      "confidence": 0.987,
+      "box": { "x1": 120.5, "y1": 80.2, "x2": 310.1, "y2": 450.8 }
+    }
   ],
-  "inference_ms": 45.2,
-  "low_confidence": false
+  "inference_ms": 18.4,
+  "model": "best.pt"
 }
 ```
 
@@ -263,160 +299,54 @@ Runs inference on a hand gesture image.
 
 | Code | Meaning |
 |---|---|
-| 400 | Invalid image format |
-| 413 | File too large (> 1 MB) |
-| 422 | Image processing error |
-| 503 | Model not loaded |
+| 400 | Unsupported image format |
+| 413 | File exceeds 2 MB |
+| 422 | Image decode failed |
 
----
+### `GET /api/v1/translate/classes`
 
-#### `GET /api/v1/translate/classes`
-
-Returns all recognizable classes.
+Returns all 26 recognizable BISINDO letter classes.
 
 ```json
 {
-  "classes": { "A": 0, "B": 1, "...", "Z": 25 },
+  "classes": { "0": "A", "1": "B", "...", "25": "Z" },
   "total": 26
 }
 ```
 
----
-
-#### `GET /health`
-
-Health check and model status.
+### `GET /health`
 
 ```json
 {
   "status": "ok",
-  "model": "models/exports/bisindo_v2_ls/saved_model",
+  "model": "models/exports/bisindo_yolo/best.pt",
   "classes": 26,
-  "loaded_at": 1234567890.5
+  "loaded_at": 1745200000.0
 }
 ```
-
----
-
-## Machine Learning Pipeline
-
-### Architecture
-
-Base model: **EfficientNetV2B0** (ImageNet pretrained, input 224×224×3)
-
-```
-EfficientNetV2B0 (base, frozen in Phase 1)
-  └── GlobalAveragePooling2D
-      └── BatchNormalization
-          └── Dropout(0.3)
-              └── Dense(256, relu)
-                  └── Dropout(0.15)
-                      └── Dense(26, softmax)  →  A–Z
-```
-
-### Two-Phase Transfer Learning
-
-**Phase 1 — Feature Extraction** (base frozen)
-- Optimizer: AdamW (`lr=1e-3`, `weight_decay=1e-4`)
-- Epochs: 15 (default)
-- Callback: ReduceLROnPlateau on `val_accuracy`
-
-**Phase 2 — Fine-tuning** (unfreeze from layer 240 onward)
-- Optimizer: AdamW + CosineDecay with linear warmup
-- LR schedule: `1e-5` → cosine anneal to `1e-7` (2-epoch warmup)
-- Epochs: 30 (default)
-- FP16 mixed precision enabled
-
-### Preprocessing
-
-```
-Raw image → resize 224×224 → normalize [0, 1]
-```
-
-Augmentation (training only):
-1. Random brightness (±0.15)
-2. Random contrast (0.8–1.2)
-3. Random JPEG quality (70–100) — simulates webcam compression
-4. Gamma correction (0.7–1.4) — simulates non-linear camera response
-5. Gaussian noise σ=0.02, 50% probability — simulates sensor noise
-
-> No horizontal flip — flipping changes BISINDO hand orientation and breaks class semantics.
-
-### Training
-
-```bash
-python packages/ml/scripts/train.py \
-  --train_csv data/processed/bisindo_v1/manifests/train.csv \
-  --val_csv   data/processed/bisindo_v1/manifests/valid.csv \
-  --test_csv  data/processed/bisindo_v1/manifests/test.csv \
-  --num_classes 26 \
-  --batch_size 32 \
-  --phase1_epochs 15 \
-  --phase2_epochs 30
-```
-
-Resume from checkpoint:
-```bash
-python packages/ml/scripts/train.py \
-  --resume_weights models/checkpoints/bisindo_v2_ls/phase1_best.weights.h5 \
-  --initial_epoch 12
-```
-
-Export to SavedModel:
-```bash
-python packages/ml/scripts/export_model.py
-```
-
----
-
-## Model Performance
-
-Evaluated on the held-out test split (BISINDO v1 dataset, 26 classes A–Z).
-
-| Metric | Value |
-|---|---|
-| Overall test accuracy | ~97% |
-| Average inference latency | ~45 ms |
-| Model input size | 224×224 |
-| Output classes | 26 (A–Z) |
-
-**Per-class highlights:**
-
-| Class | Accuracy | Notes |
-|---|---|---|
-| A, C, E, F, G, K, M, Q, R, S, T, V, X, Y, Z | 100% | — |
-| I, J, L, N, U, W | 97–98% | Minimal confusion |
-| H, O | 91–95% | H↔B, O↔V confusion |
-| B, D, P | 85–87% | D↔P most frequent confusion pair |
-
-> Full per-class classification report: `models/checkpoints/bisindo_v2_ls/test_classification_report.csv`
 
 ---
 
 ## Configuration
 
-### Backend (`.env`)
+### Backend (`apps/backend/.env`)
 
 ```dotenv
 # Model
-SAVED_MODEL_PATH=models/exports/bisindo_v2_ls/saved_model
-LABEL_MAP_PATH=models/exports/bisindo_v2_ls/label_map.json
+MODEL_PATH=models/exports/bisindo_yolo/best.pt
+INPUT_SIZE=640
+CONFIDENCE_THRESHOLD=0.5
 
-# Inference
-INPUT_SIZE=224
-TOP_K=3
-CONFIDENCE_THRESHOLD=0.55
-
-# CORS
+# CORS — comma-separated allowed origins
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
-# Auth (Supabase JWT — leave empty to disable)
+# Auth — Supabase JWT (leave empty to run without auth)
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_JWT_SECRET=your-jwt-secret
 REQUIRE_AUTH=false
 ```
 
-### Frontend (`.env.local`)
+### Frontend (`apps/frontend/.env.local`)
 
 ```dotenv
 NEXT_PUBLIC_API_URL=http://localhost:8000
@@ -424,110 +354,73 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-### ML Trainer (`TrainerConfig` defaults)
-
-| Parameter | Default | Description |
-|---|---|---|
-| `batch_size` | 32 | Training batch size |
-| `phase1_epochs` | 15 | Feature extraction epochs |
-| `phase2_epochs` | 30 | Fine-tuning epochs |
-| `phase1_lr` | 1e-3 | Phase 1 learning rate |
-| `phase2_lr` | 1e-5 | Phase 2 initial LR |
-| `dropout_rate` | 0.3 | Head dropout |
-| `unfreeze_from_layer` | 240 | Phase 2 unfreeze start |
-| `mixed_precision` | true | FP16 training |
-| `seed` | 42 | Reproducibility seed |
-
 ---
 
-## Scripts / Commands
+## Detection Pipeline
 
-### Frontend
-```bash
-npm run dev      # Dev server at localhost:3000
-npm run build    # Production build
-npm run start    # Serve production build
-npm run lint     # ESLint
 ```
-
-### Backend
-```bash
-uvicorn main:app --reload                          # Dev server
-uvicorn main:app --host 0.0.0.0 --port 8000        # Production
-python -m pytest tests/                            # Run tests
-```
-
-### ML
-```bash
-# Dataset
-python packages/ml/scripts/prepare_bisindo.py      # Prepare raw dataset
-python packages/ml/scripts/create_label_map.py     # Generate label map
-
-# Training
-python packages/ml/scripts/train.py                # Train with defaults
-python packages/ml/scripts/export_model.py         # Export to SavedModel
-
-# Analysis
-python packages/ml/scripts/generate_visualizations.py  # Post-training figures
-python packages/ml/analysis/gradcam.py             # Grad-CAM visualizations
-python scripts/test_inference_static.py            # Inference smoke test
+Browser (webcam)
+  └─ captureFrame()        — draws video to 640×640 canvas → JPEG blob
+      └─ POST /api/v1/translate/predict
+          └─ FastAPI
+              └─ cv2.imdecode()
+                  └─ YOLOService.predict()   — YOLO11 inference
+                      └─ { detections, inference_ms }
+Browser
+  └─ WebcamCapture.tsx     — renders bounding boxes as CSS divs over video
+  └─ Weighted vote buffer  — 3-frame quorum before committing a letter
+  └─ SentenceBuilder       — accumulates committed letters
 ```
 
 ---
 
-## Dataset
+## Database Schema
 
-**Name:** BISINDO v1 — Indonesian Sign Language Alphabet
+The Supabase schema lives in `supabase/migrations/20260422090000_init_signify_erd.sql`.
 
-**Classes:** 26 letters (A–Z) of the BISINDO manual alphabet
-
-**Preprocessing (Roboflow):**
-- Images cropped to hand region
-- Resized to 244×244 → 224×224 for model input
-- Grayscale encoding (R=G=B channels)
-
-**Splits:**
-
-| Split | Manifest |
+| Table | Purpose |
 |---|---|
-| Train | `data/processed/bisindo_v1/manifests/train.csv` |
-| Validation | `data/processed/bisindo_v1/manifests/valid.csv` |
-| Test | `data/processed/bisindo_v1/manifests/test.csv` |
+| `profiles` | User profile (auto-created on sign-up) |
+| `model_versions` | ML model registry with active flag |
+| `letters` | BISINDO alphabet A–Z (seeded) |
+| `translation_sessions` | Per-session records (webcam / upload / API) |
+| `translation_entries` | Individual letter detections per session |
+| `practice_attempts` | Per-letter practice correctness records |
+| `user_preferences` | Theme, contrast, text scale, TTS settings |
 
-Each manifest row: `filepath,label`
+All tables have Row Level Security — users can only access their own data.
+
+See `docs/database-erd.md` for the full entity-relationship diagram.
 
 ---
 
-## Roadmap / Future Work
+## Roadmap
 
 - [ ] Expand to dynamic gestures (words / phrases beyond alphabet)
 - [ ] Support two-hand BISINDO signs
-- [ ] Offline PWA mode (model served via ONNX / TFJS in browser)
-- [ ] Real-time TTS for full sentences
+- [ ] Offline PWA mode (ONNX in browser via ONNX Runtime Web)
+- [ ] Improve inference speed with TensorRT / CoreML export
 - [ ] User contribution flow with active-learning review queue
-- [ ] Improve D↔P and B↔H confusion with targeted data collection
-- [ ] Docker Compose full-stack setup (frontend + backend + nginx)
 - [ ] CI/CD pipeline with automated test and deploy
+- [ ] Docker Compose full-stack setup with GPU passthrough
 
 ---
 
 ## License
 
-This project does not currently include an open-source license. All rights reserved.
+All rights reserved. No open-source license is currently applied.
 
 ---
 
 ## Author
 
 **Meiske Priskilla Sahertian**
-[meiskesahertian7@gmail.com](mailto:meiskesahertian7@gmail.com)
 
 ---
 
 ## Acknowledgements
 
-- [MediaPipe](https://mediapipe.dev/) — hand landmark detection
-- [Roboflow](https://roboflow.com/) — dataset management and preprocessing
-- [EfficientNetV2](https://arxiv.org/abs/2104.00298) — Mingxing Tan & Quoc V. Le (Google Brain)
-- [shadcn/ui](https://ui.shadcn.com/) — accessible component library
+- [Ultralytics YOLO](https://github.com/ultralytics/ultralytics) — YOLO11 training & inference
 - [Supabase](https://supabase.com/) — open-source auth and database
+- [Radix UI](https://www.radix-ui.com/) — accessible component primitives
+- [shadcn/ui](https://ui.shadcn.com/) — component library
