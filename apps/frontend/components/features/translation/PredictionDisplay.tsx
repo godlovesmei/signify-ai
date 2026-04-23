@@ -236,7 +236,7 @@ export default function PredictionDisplay({
   sessionStart,
   onSpeakEntry,
 }: PredictionDisplayProps) {
-  const scrollEndRef            = useRef<HTMLDivElement>(null);
+  const scrollListRef           = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const nowSecond               = useNowSecond();
 
@@ -245,10 +245,10 @@ export default function PredictionDisplay({
     return Math.max(0, nowSecond - Math.floor(sessionStart.getTime() / 1000));
   }, [nowSecond, sessionStart]);
 
-  // Auto-scroll on new entry
+  // Scroll only the inner list — never the outer sidebar
   useEffect(() => {
-    if (transcript.length > 0) {
-      scrollEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (transcript.length > 0 && scrollListRef.current) {
+      scrollListRef.current.scrollTop = scrollListRef.current.scrollHeight;
     }
   }, [transcript]);
 
@@ -331,6 +331,7 @@ export default function PredictionDisplay({
 
       {/* Scrollable entry list */}
       <div
+        ref={scrollListRef}
         className="flex-1 overflow-y-auto px-4 py-3"
         role="log"
         aria-label="Translation output log"
@@ -349,7 +350,6 @@ export default function PredictionDisplay({
                 isCopied={copiedId === entry.id}
               />
             ))}
-            <div ref={scrollEndRef} aria-hidden="true" />
           </div>
         )}
       </div>

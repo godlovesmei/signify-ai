@@ -165,18 +165,18 @@ cd signify-ai
 ### 2. Backend — Python environment
 
 ```bash
-conda create -n signify-yolo python=3.11
-conda activate signify-yolo
+conda env create -f apps/backend/environment.yml
+conda activate signify-backend
+```
+
+Or manually:
+
+```bash
+conda create -n signify-backend python=3.11
+conda activate signify-backend
 cd apps/backend
 pip install ultralytics>=8.3.0 torch torchvision fastapi "uvicorn[standard]" \
     python-multipart pillow numpy opencv-python "PyJWT==2.9.0" pydantic-settings
-```
-
-Or use the provided Conda environment file:
-
-```bash
-conda env create -f apps/backend/environment.yml
-conda activate signify-yolo
 ```
 
 ### 3. Backend — Environment variables
@@ -215,7 +215,7 @@ If the weights already exist locally at `models/exports/bisindo_yolo/best.pt`, n
 
 To re-train from scratch:
 ```bash
-conda activate signify-yolo
+conda activate signify-backend
 yolo train \
   model=yolo11n.pt \
   data=data/bisindo/data.yml \
@@ -240,7 +240,7 @@ cp runs/train/bisindo_v1/weights/best.pt models/exports/bisindo_yolo/best.pt
 **Backend** — runs on `http://localhost:8000`
 
 ```bash
-conda activate signify-yolo
+conda activate signify-backend
 cd apps/backend
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```

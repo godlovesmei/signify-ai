@@ -122,7 +122,8 @@ export default function TranslatePageContent() {
     if (voiceEnabledRef.current && 'speechSynthesis' in window) {
       setIsSpeaking(true);
       const u = new SpeechSynthesisUtterance(letter);
-      u.rate = 0.95;
+      u.lang  = 'id-ID';
+      u.rate  = 0.95;
       u.onend = () => setIsSpeaking(false);
       u.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(u);
