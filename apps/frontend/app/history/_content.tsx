@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Check, Copy, Eye, EyeOff, Trash2 } from 'lucide-react';
 import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
 import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,7 @@ export default function HistoryPageContent() {
   }
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
       <WorkspaceTopNav
         actions={
           sessions.length > 0 && (
@@ -65,7 +66,24 @@ export default function HistoryPageContent() {
         }
       />
 
-      <main className="mx-auto w-full max-w-5xl p-4 md:p-6">
+      <main className="workspace-height min-h-0 overflow-y-auto">
+        <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
+          <div className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border/70 bg-background/95 px-4 py-3 backdrop-blur-md md:-mx-6 md:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h1 className="text-lg font-semibold">History</h1>
+                <p className="text-xs text-muted-foreground">
+                  {sessions.length} saved session{sessions.length === 1 ? '' : 's'}
+                </p>
+              </div>
+              {sessions.length > 0 && (
+                <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                  Latest first
+                </span>
+              )}
+            </div>
+          </div>
+
         {sessions.length === 0 ? (
           <div className="rounded-2xl border border-border bg-card p-8 text-center">
             <h1 className="text-xl font-semibold">Belum ada history</h1>
@@ -80,7 +98,6 @@ export default function HistoryPageContent() {
           <div className="space-y-3">
             {sessions.map((session) => {
               const isExpanded = expandedSessionId === session.sessionId;
-              const shortText = session.text.length > 80 ? `${session.text.slice(0, 80)}...` : session.text;
               const confidence = Math.round(session.averageConfidence * 100);
 
               return (
@@ -97,39 +114,55 @@ export default function HistoryPageContent() {
                       <Button
                         onClick={() => copySessionText(session)}
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         disabled={!session.text.trim()}
+                        aria-label={copiedSessionId === session.sessionId ? 'Copied' : 'Copy transcript'}
+                        title={copiedSessionId === session.sessionId ? 'Copied' : 'Copy transcript'}
                       >
-                        {copiedSessionId === session.sessionId ? 'Copied' : 'Copy'}
+                        {copiedSessionId === session.sessionId ? (
+                          <Check className="h-4 w-4 text-success" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         onClick={() => setExpandedSessionId(isExpanded ? null : session.sessionId)}
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        aria-label={isExpanded ? 'Hide full transcript' : 'View full transcript'}
+                        title={isExpanded ? 'Hide full transcript' : 'View full transcript'}
                       >
-                        {isExpanded ? 'Hide' : 'View'}
+                        {isExpanded ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                       <Button
                         onClick={() => handleDeleteSession(session.sessionId)}
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         className="text-destructive hover:text-destructive"
+                        aria-label="Delete session"
+                        title="Delete session"
                       >
-                        Delete
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
 
-                  <div className="mt-3 rounded-xl border border-border/50 bg-muted/20 p-3 text-sm leading-relaxed">
-                    {isExpanded ? session.text || '(empty transcript)' : shortText || '(empty transcript)'}
+                  <div
+                    className={[
+                      'mt-3 rounded-xl border border-border/50 bg-muted/20 p-3 text-sm leading-relaxed',
+                      isExpanded ? 'history-session-full' : 'history-session-preview',
+                    ].join(' ')}
+                  >
+                    {session.text || '(empty transcript)'}
                   </div>
                 </article>
               );
             })}
           </div>
         )}
+        </div>
       </main>
-      <MobileBottomNav />
+      <MobileBottomNav reserveSpace={false} />
     </div>
   );
 }
