@@ -1,8 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { CameraOff, Check, Copy, FileText, Hand, Loader2, Share2, ShieldAlert, Trash2, Volume2 } from 'lucide-react';
-import type { CameraState } from './WebcamCapture';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  CameraOff,
+  Check,
+  Copy,
+  FileText,
+  Hand,
+  Loader2,
+  Share2,
+  ShieldAlert,
+  Trash2,
+  Volume2,
+} from "lucide-react";
+import type { CameraState } from "./WebcamCapture";
 
 export interface TranscriptEntry {
   id: string;
@@ -16,22 +27,17 @@ export interface PredictionDisplayProps {
   transcript: TranscriptEntry[];
   appState: CameraState;
   onClearTranscript: () => void;
-  /** Set when detection session starts; drives the session timer. */
   sessionStart?: Date | null;
-  /** Called when user taps the Speak button on a transcript entry. */
   onSpeakEntry?: (text: string) => void;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function formatElapsed(seconds: number): string {
-  const m   = Math.floor(seconds / 60);
+  const m = Math.floor(seconds / 60);
   const sec = seconds % 60;
-  return `${m}:${sec.toString().padStart(2, '0')}`;
+  return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
 type ClockListener = () => void;
-
 const secondClockListeners = new Set<ClockListener>();
 let secondClockInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -43,13 +49,11 @@ function emitSecondClockTick() {
 
 function subscribeToSecondClock(listener: ClockListener) {
   secondClockListeners.add(listener);
-
   if (secondClockInterval === null) {
     secondClockInterval = setInterval(() => {
       emitSecondClockTick();
     }, 1000);
   }
-
   return () => {
     secondClockListeners.delete(listener);
     if (secondClockListeners.size === 0 && secondClockInterval !== null) {
@@ -73,12 +77,24 @@ function getConfidenceLabel(value: number): {
   pillClass: string;
 } {
   if (value >= 0.92) {
-    return { label: 'High confidence', dotClass: 'bg-success',     pillClass: 'bg-success/10 text-success' };
+    return {
+      label: "High confidence",
+      dotClass: "bg-success",
+      pillClass: "bg-success/10 text-success border border-success/20",
+    };
   }
   if (value >= 0.65) {
-    return { label: 'Likely correct',  dotClass: 'bg-warning',     pillClass: 'bg-warning/10 text-warning-foreground' };
+    return {
+      label: "Likely correct",
+      dotClass: "bg-warning",
+      pillClass: "bg-warning/10 text-warning border border-warning/20",
+    };
   }
-  return {   label: 'Uncertain',       dotClass: 'bg-destructive', pillClass: 'bg-destructive/10 text-destructive' };
+  return {
+    label: "Uncertain",
+    dotClass: "bg-destructive",
+    pillClass: "bg-destructive/10 text-destructive border border-destructive/20",
+  };
 }
 
 function ConfidencePill({ value }: { value: number }) {
@@ -87,18 +103,16 @@ function ConfidencePill({ value }: { value: number }) {
     <span
       title={`${Math.round(value * 100)}% model confidence`}
       className={[
-        'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5',
-        'text-xs font-semibold leading-none',
+        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5",
+        "text-xs font-semibold leading-none",
         pillClass,
-      ].join(' ')}
+      ].join(" ")}
     >
-      <span className={['h-1.5 w-1.5 rounded-full', dotClass].join(' ')} aria-hidden="true" />
+      <span className={["h-1.5 w-1.5 rounded-full", dotClass].join(" ")} aria-hidden="true" />
       {label}
     </span>
   );
 }
-
-// ── Transcript line ───────────────────────────────────────────────────────────
 
 function TranscriptLine({
   entry,
@@ -114,26 +128,26 @@ function TranscriptLine({
   isCopied: boolean;
 }) {
   const time = entry.timestamp.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   });
 
   return (
     <div
       className={[
-        'group flex flex-col gap-1.5 rounded-xl px-3.5 py-3 transition-colors duration-150',
+        "group flex flex-col gap-1.5 rounded-xl px-3.5 py-3 transition-all duration-200",
         isLatest
-          ? 'bg-primary/6 ring-1 ring-inset ring-primary/20'
-          : 'ring-1 ring-inset ring-border/40 hover:bg-muted/40',
-      ].join(' ')}
+          ? "bg-primary/5 ring-1 ring-inset ring-primary/15"
+          : "ring-1 ring-inset ring-border/70 dark:ring-white/5 hover:bg-muted/65 dark:hover:bg-white/5",
+      ].join(" ")}
     >
       <div className="flex items-start justify-between gap-2">
         <p
           className={[
-            'flex-1 text-sm leading-relaxed',
-            isLatest ? 'font-medium text-foreground' : 'text-foreground/75',
-          ].join(' ')}
+            "flex-1 text-sm leading-relaxed",
+            isLatest ? "font-medium text-foreground" : "text-foreground/70",
+          ].join(" ")}
         >
           {entry.text}
         </p>
@@ -143,23 +157,24 @@ function TranscriptLine({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <time
-            className="text-[11px] text-muted-foreground/50 tabular-nums"
+            className="text-[11px] text-muted-foreground/40 tabular-nums"
             dateTime={entry.timestamp.toISOString()}
           >
             {time}
           </time>
-          <span className="text-[11px] text-muted-foreground/30" aria-hidden="true">·</span>
-          <span className="text-[11px] text-muted-foreground/50">{entry.language}</span>
+          <span className="text-[11px] text-muted-foreground/20" aria-hidden="true">
+            ·
+          </span>
+          <span className="text-[11px] text-muted-foreground/40">{entry.language}</span>
         </div>
 
-        {/* Per-entry actions — always visible on mobile, hover on desktop */}
         <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           {onSpeak && (
             <button
               type="button"
               onClick={onSpeak}
               aria-label={`Speak: ${entry.text}`}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/65 hover:bg-muted/70 dark:hover:bg-white/10 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
               <Volume2 className="h-3 w-3" aria-hidden="true" />
             </button>
@@ -167,12 +182,14 @@ function TranscriptLine({
           <button
             type="button"
             onClick={onCopy}
-            aria-label={isCopied ? 'Copied!' : `Copy: ${entry.text}`}
-            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            aria-label={isCopied ? "Copied!" : `Copy: ${entry.text}`}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/65 hover:bg-muted/70 dark:hover:bg-white/10 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
           >
-            {isCopied
-              ? <Check className="h-3 w-3 text-success" aria-hidden="true" />
-              : <Copy className="h-3 w-3" aria-hidden="true" />}
+            {isCopied ? (
+              <Check className="h-3 w-3 text-success" aria-hidden="true" />
+            ) : (
+              <Copy className="h-3 w-3" aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
@@ -180,37 +197,37 @@ function TranscriptLine({
   );
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
 function EmptyState({ appState }: { appState: CameraState }) {
-  const messages: Partial<Record<CameraState, { icon: React.ReactNode; text: string }>> = {
+  const messages: Partial<
+    Record<CameraState, { icon: React.ReactNode; text: string }>
+  > = {
     idle: {
       icon: <CameraOff className="h-5 w-5" />,
-      text: 'Enable your camera to begin.',
+      text: "Enable your camera to begin.",
     },
     requesting: {
       icon: <Loader2 className="h-5 w-5 animate-spin" />,
-      text: 'Waiting for camera permission…',
+      text: "Waiting for camera permission…",
     },
     loading: {
       icon: <Loader2 className="h-5 w-5 animate-spin" />,
-      text: 'Loading hand detection model…',
+      text: "Loading hand detection model…",
     },
     ready: {
       icon: <Hand className="h-5 w-5" />,
-      text: 'Press the hand button to start detecting.',
+      text: "Press the hand button to start detecting.",
     },
     detecting: {
       icon: <Hand className="h-5 w-5 text-primary" />,
-      text: 'Show a hand sign in front of your camera…',
+      text: "Show a hand sign in front of your camera…",
     },
-    'error-permission': {
+    "error-permission": {
       icon: <ShieldAlert className="h-5 w-5 text-destructive" />,
-      text: 'Camera permission is required.',
+      text: "Camera permission is required.",
     },
-    'error-device': {
+    "error-device": {
       icon: <ShieldAlert className="h-5 w-5 text-destructive" />,
-      text: 'No camera was detected.',
+      text: "No camera was detected.",
     },
   };
 
@@ -219,15 +236,15 @@ function EmptyState({ appState }: { appState: CameraState }) {
 
   return (
     <div className="flex h-full min-h-52 flex-col items-center justify-center gap-4 text-center px-6">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground/40">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60 dark:bg-white/5 text-muted-foreground/40">
         {msg.icon}
       </div>
-      <p className="max-w-44 text-sm leading-relaxed text-muted-foreground/60">{msg.text}</p>
+      <p className="max-w-44 text-sm leading-relaxed text-muted-foreground/60">
+        {msg.text}
+      </p>
     </div>
   );
 }
-
-// ── Main component ────────────────────────────────────────────────────────────
 
 export default function PredictionDisplay({
   transcript,
@@ -236,16 +253,15 @@ export default function PredictionDisplay({
   sessionStart,
   onSpeakEntry,
 }: PredictionDisplayProps) {
-  const scrollListRef           = useRef<HTMLDivElement>(null);
+  const scrollListRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const nowSecond               = useNowSecond();
+  const nowSecond = useNowSecond();
 
   const elapsed = useMemo(() => {
     if (!sessionStart) return 0;
     return Math.max(0, nowSecond - Math.floor(sessionStart.getTime() / 1000));
   }, [nowSecond, sessionStart]);
 
-  // Scroll only the inner list — never the outer sidebar
   useEffect(() => {
     if (transcript.length > 0 && scrollListRef.current) {
       scrollListRef.current.scrollTop = scrollListRef.current.scrollHeight;
@@ -261,12 +277,15 @@ export default function PredictionDisplay({
   function handleExport() {
     if (transcript.length === 0) return;
     const lines = transcript.map(
-      (e) => `[${e.timestamp.toLocaleTimeString()}] ${e.text} (${e.language}, ${Math.round(e.confidence * 100)}%)`
+      (e) =>
+        `[${e.timestamp.toLocaleTimeString()}] ${e.text} (${e.language}, ${Math.round(
+          e.confidence * 100
+        )}%)`
     );
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
+    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
     a.download = `signify-${new Date().toISOString().slice(0, 10)}.txt`;
     document.body.appendChild(a);
     a.click();
@@ -275,15 +294,17 @@ export default function PredictionDisplay({
   }
 
   async function handleShare() {
-    const text = transcript.map((e) => e.text).join(' ').trim();
+    const text = transcript.map((e) => e.text).join(" ").trim();
     if (!text) return;
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'SignifyAI Transcript', text });
+        await navigator.share({ title: "SignifyAI Transcript", text });
       } else {
         await navigator.clipboard.writeText(text);
       }
-    } catch { /* user cancelled */ }
+    } catch {
+      /* user cancelled */
+    }
   }
 
   const hasEntries = transcript.length > 0;
@@ -293,17 +314,23 @@ export default function PredictionDisplay({
       aria-label="Translation transcript"
       aria-live="polite"
       aria-atomic="false"
-      className="flex flex-col overflow-hidden bg-background"
+      className="flex flex-col overflow-hidden"
       style={{ minHeight: 0 }}
     >
       {/* Panel header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-border/30 px-5 py-3.5">
+      <div className="flex shrink-0 items-center justify-between border-b border-border/70 dark:border-white/5 px-5 py-3.5">
         <div className="flex items-center gap-2">
           <svg
-            width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2.5"
-            strokeLinecap="round" strokeLinejoin="round"
-            className="shrink-0 text-muted-foreground" aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-muted-foreground/55"
+            aria-hidden="true"
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
@@ -311,18 +338,17 @@ export default function PredictionDisplay({
           {hasEntries && (
             <span
               aria-label={`${transcript.length} entries`}
-              className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground tabular-nums leading-none"
+              className="rounded-full bg-muted/65 dark:bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground/65 tabular-nums leading-none"
             >
               {transcript.length}
             </span>
           )}
         </div>
 
-        {/* Session timer */}
         {sessionStart && (
           <span
             aria-label={`Session duration: ${formatElapsed(elapsed)}`}
-            className="font-mono text-xs tabular-nums text-muted-foreground/50"
+            className="font-mono text-xs tabular-nums text-muted-foreground/40"
           >
             {formatElapsed(elapsed)}
           </span>
@@ -346,7 +372,9 @@ export default function PredictionDisplay({
                 entry={entry}
                 isLatest={i === transcript.length - 1}
                 onCopy={() => handleCopyEntry(entry)}
-                onSpeak={onSpeakEntry ? () => onSpeakEntry(entry.text) : undefined}
+                onSpeak={
+                  onSpeakEntry ? () => onSpeakEntry(entry.text) : undefined
+                }
                 isCopied={copiedId === entry.id}
               />
             ))}
@@ -355,14 +383,14 @@ export default function PredictionDisplay({
       </div>
 
       {/* Bottom action bar */}
-      <div className="shrink-0 border-t border-border/30 bg-card/50 px-4 py-3">
+      <div className="shrink-0 border-t border-border/70 dark:border-white/5 px-4 py-3">
         {hasEntries ? (
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleExport}
               aria-label="Export transcript as .txt"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground/75 transition-all hover:bg-muted/80 dark:hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <FileText className="h-3.5 w-3.5" aria-hidden="true" />
               Export .txt
@@ -372,7 +400,7 @@ export default function PredictionDisplay({
               type="button"
               onClick={onClearTranscript}
               aria-label="Clear transcript history"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/8 hover:text-destructive hover:border-destructive/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground/75 transition-all hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
               Clear
@@ -382,14 +410,13 @@ export default function PredictionDisplay({
               type="button"
               onClick={handleShare}
               aria-label="Share transcript"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground/75 transition-all hover:bg-muted/80 dark:hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
               Share
             </button>
           </div>
         ) : (
-          /* Spacer so layout height stays consistent */
           <div aria-hidden="true" className="h-8 opacity-0" />
         )}
       </div>

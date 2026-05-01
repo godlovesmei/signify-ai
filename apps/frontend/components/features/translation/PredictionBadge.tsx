@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-export type ConfidenceTier = 'idle' | 'low' | 'medium' | 'high';
+export type ConfidenceTier = "idle" | "low" | "medium" | "high";
 
 export interface PredictionBadgeProps {
   letter: string | null;
@@ -15,40 +15,51 @@ export interface PredictionBadgeProps {
 function getTier(
   confidence: number | null,
   isDetecting: boolean,
-  hasHand: boolean,
+  hasHand: boolean
 ): ConfidenceTier {
-  if (!isDetecting || confidence === null || !hasHand) return 'idle';
-  if (confidence >= 0.8) return 'high';
-  if (confidence >= 0.5) return 'medium';
-  return 'low';
+  if (!isDetecting || confidence === null || !hasHand) return "idle";
+  if (confidence >= 0.8) return "high";
+  if (confidence >= 0.5) return "medium";
+  return "low";
 }
 
-const CARD_CLASSES: Record<ConfidenceTier, string> = {
-  idle:   'bg-muted border border-border',
-  low:    'bg-error-100 border-2 border-error-500',
-  medium: 'bg-warning-100 border-2 border-warning-500',
-  high:   'bg-success-100 border-2 border-success-500',
-};
-
-const TEXT_CLASSES: Record<ConfidenceTier, string> = {
-  idle:   'text-muted-foreground',
-  low:    'text-error-700',
-  medium: 'text-warning-700',
-  high:   'text-success-700',
-};
-
-const BAR_CLASSES: Record<ConfidenceTier, string> = {
-  idle:   'bg-border',
-  low:    'bg-error-500',
-  medium: 'bg-warning-500',
-  high:   'bg-success-500',
-};
-
-const TIER_LABELS: Record<ConfidenceTier, string> = {
-  idle:   '—',
-  low:    'Low',
-  medium: 'Medium',
-  high:   'High',
+const TIER_CONFIG: Record<
+  ConfidenceTier,
+  {
+    card: string;
+    text: string;
+    bar: string;
+    glow?: string;
+    label: string;
+  }
+> = {
+  idle: {
+    card: "bg-card/90 border border-border/80 dark:border-white/10",
+    text: "text-muted-foreground/55",
+    bar: "bg-muted/75 dark:bg-white/10",
+    label: "—",
+  },
+  low: {
+    card: "bg-error/5 border border-error/20",
+    text: "text-error",
+    bar: "bg-error",
+    glow: "shadow-glow-error/30",
+    label: "Low",
+  },
+  medium: {
+    card: "bg-warning/5 border border-warning/20",
+    text: "text-warning",
+    bar: "bg-warning",
+    glow: "shadow-glow-warning/30",
+    label: "Medium",
+  },
+  high: {
+    card: "bg-success/5 border border-success/20",
+    text: "text-success",
+    bar: "bg-success",
+    glow: "shadow-glow-success/40",
+    label: "High",
+  },
 };
 
 export default function PredictionBadge({
@@ -59,59 +70,46 @@ export default function PredictionBadge({
   textScale = 1,
 }: PredictionBadgeProps) {
   const tier = getTier(confidence, isDetecting, hasHand);
-  const isIdle    = tier === 'idle';
-  const isNoHand  = isDetecting && !hasHand;
+  const isIdle = tier === "idle";
+  const isNoHand = isDetecting && !hasHand;
+  const config = TIER_CONFIG[tier];
 
-  const pct = confidence !== null && isDetecting && hasHand
-    ? Math.round(confidence * 100)
-    : 0;
+  const pct =
+    confidence !== null && isDetecting && hasHand
+      ? Math.round(confidence * 100)
+      : 0;
 
   const fontSize = `${Math.max(1.875, 4 * textScale)}rem`;
-  const letterKey = letter ?? '__idle__';
+  const letterKey = letter ?? "__idle__";
 
   return (
-    <div
-      role="region"
-      aria-label="Current sign prediction"
-      className="flex flex-col gap-3"
-    >
-      {/* Screen reader live region */}
+    <div role="region" aria-label="Current sign prediction" className="flex flex-col gap-3">
       <span className="sr-only" aria-live="assertive" aria-atomic="true">
-        {letter ? `Detected sign: ${letter}, ${TIER_LABELS[tier]} confidence` : ''}
+        {letter ? `Detected sign: ${letter}, ${config.label} confidence` : ""}
       </span>
 
-      {/* ── Badge card ────────────────────────────────────────────────────
-          Idle: compact 56px height, muted, no big dash
-          No-hand: dashed border, medium height
-          Active: full height with letter + glow on high confidence
-      ──────────────────────────────────────────────────────────────────── */}
+      {/* Badge card */}
       <div
         className={cn(
-          'relative flex items-center justify-center rounded-2xl transition-all duration-200',
-          // Height: compact when idle, full when active
-          isIdle && !isDetecting
-            ? 'min-h-[56px] px-4 py-3'
-            : 'min-h-[120px] p-6',
-          // Border / background
+          "relative flex items-center justify-center rounded-2xl transition-all duration-300",
+          "min-h-[112px] px-4 py-5 sm:min-h-[120px] sm:p-6",
           isNoHand
-            ? 'border border-dashed border-border/60 bg-muted/40'
-            : CARD_CLASSES[tier],
-          // Glow on high confidence
-          tier === 'high' &&
-            'shadow-[0_0_14px_rgba(34,197,102,0.35)] animate-pulse-ring',
+            ? "border border-dashed border-border/80 dark:border-white/10 bg-muted/55 dark:bg-white/5"
+            : config.card,
+          config.glow
         )}
       >
         {isIdle && !isDetecting ? (
-          /* Compact idle — subtle label with icon */
           <div className="flex items-center gap-2 select-none">
-            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/25" aria-hidden="true" />
-            <p className="text-xs text-muted-foreground/50">Start detection to see results</p>
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/20" aria-hidden="true" />
+            <p className="text-xs text-muted-foreground/55">Start detection to see results</p>
           </div>
         ) : isNoHand ? (
-          /* Detecting but no hand in frame */
           <div className="flex flex-col items-center gap-2 select-none">
-            <span className="text-3xl text-muted-foreground/20" aria-hidden="true">✋</span>
-            <p className="text-xs text-muted-foreground/50">Show your hand to the camera</p>
+            <span className="text-3xl text-muted-foreground/35" aria-hidden="true">
+              ✋
+            </span>
+            <p className="text-xs text-muted-foreground/55">Show your hand to the camera</p>
           </div>
         ) : (
           <span
@@ -119,35 +117,30 @@ export default function PredictionBadge({
             data-prediction-badge
             aria-hidden="true"
             className={cn(
-              'font-display font-extrabold leading-none tracking-tight',
-              'animate-prediction-in',
-              TEXT_CLASSES[tier],
+              "font-display font-extrabold leading-none tracking-tight animate-prediction-pop",
+              config.text
             )}
             style={{ fontSize }}
           >
-            {letter ?? '—'}
+            {letter ?? "—"}
           </span>
         )}
       </div>
 
-      {/* ── Confidence meter ──────────────────────────────────────────────
-          Hidden when fully idle — no point showing an empty bar before
-          detection starts. Visible (even at 0%) once detecting begins.
-      ──────────────────────────────────────────────────────────────────── */}
+      {/* Confidence meter */}
       {isDetecting && (
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <span
               className={cn(
-                'text-[11px] font-bold uppercase tracking-wide',
-                isIdle ? 'text-muted-foreground' : TEXT_CLASSES[tier],
+                "text-[11px] font-bold uppercase tracking-wide",
+                isIdle ? "text-muted-foreground/55" : config.text
               )}
             >
-              {TIER_LABELS[tier]}
+              {config.label}
             </span>
-
             {pct > 0 && (
-              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              <span className="font-mono text-xs tabular-nums text-muted-foreground/50">
                 {pct}%
               </span>
             )}
@@ -159,13 +152,13 @@ export default function PredictionBadge({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={`Detection confidence: ${pct}%`}
-            className="h-2 w-full overflow-hidden rounded-full bg-muted"
+            className="h-1.5 w-full overflow-hidden rounded-full bg-muted/65 dark:bg-white/5"
           >
             <div
               key={letterKey}
               className={cn(
-                'h-full rounded-full animate-confidence-fill transition-[width] duration-200 ease-out',
-                BAR_CLASSES[tier],
+                "h-full rounded-full animate-confidence-fill transition-[width] duration-200 ease-out",
+                config.bar
               )}
               style={{ width: `${pct}%` }}
             />

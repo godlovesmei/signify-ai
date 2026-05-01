@@ -1,20 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { LogOut, Monitor, Moon, Sun, Volume2, Sliders, Camera, BookOpen } from 'lucide-react';
+import { useState } from "react";
+import {
+  LogOut,
+  Monitor,
+  Moon,
+  Sun,
+  Volume2,
+  Sliders,
+  Camera,
+  Gauge,
+  Type,
+  Contrast,
+  Sparkles,
+  ChevronRight,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
-import { TEXT_SCALE_OPTIONS } from '@/hooks/useAccessibilityPrefs';
-import type { ThemeMode } from '@/hooks/useTheme';
-import type { NavUser } from '@/components/layout/Navbar';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { TEXT_SCALE_OPTIONS } from "@/hooks/useAccessibilityPrefs";
+import type { ThemeMode } from "@/hooks/useTheme";
+import type { NavUser } from "@/components/layout/Navbar";
 
 export interface MediaDeviceOption {
   deviceId: string;
@@ -24,60 +34,69 @@ export interface MediaDeviceOption {
 export interface SettingsDrawerProps {
   open: boolean;
   onClose: () => void;
-
-  // Theme
   theme: ThemeMode;
   onThemeChange: (mode: ThemeMode) => void;
-
-  // Camera
   devices: MediaDeviceOption[];
   selectedDeviceId: string;
   onDeviceChange: (deviceId: string) => void;
   isMirrored: boolean;
   onMirrorToggle: () => void;
-
-  // Accessibility
   highContrast: boolean;
   onHighContrastToggle: () => void;
   textScale: number;
   onTextScaleChange: (scale: number) => void;
-
-  // TTS
   ttsSpeed: number;
   onTtsSpeedChange: (v: number) => void;
   ttsVolume: number;
   onTtsVolumeChange: (v: number) => void;
-
-  // Account
+  voiceEnabled?: boolean;
+  onVoiceEnabledChange?: (enabled: boolean) => void;
   user?: NavUser | null;
   onLogout: () => void;
 }
 
-// ── Primitives ────────────────────────────────────────────────────────────────
-
-function SectionHeading({ icon, label }: { icon: React.ReactNode; label: string }) {
+/* ═══════════════════════════════════════════════════════════════
+   SECTION HEADING — refined with subtle icon glow
+   ═══════════════════════════════════════════════════════════════ */
+function SectionHeading({
+  icon,
+  label,
+}: {
+  icon: React.ReactNode;
+  label: string;
+}) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-muted-foreground" aria-hidden="true">{icon}</span>
-      <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+    <div className="flex items-center gap-2 mb-3 px-1">
+      <span className="text-primary/60" aria-hidden="true">
+        {icon}
+      </span>
+      <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/45">
         {label}
       </h3>
     </div>
   );
 }
 
-function SettingsRow({
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS CARD — glass panel with refined depth
+   ═══════════════════════════════════════════════════════════════ */
+function SettingsCard({
   children,
   className,
+  hover = false,
 }: {
   children: React.ReactNode;
   className?: string;
+  hover?: boolean;
 }) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-4 rounded-xl bg-muted/40 px-4 py-3',
-        className,
+        "rounded-2xl glass border border-border/40 dark:border-white/[0.06]",
+        "shadow-[0_1px_3px_rgba(var(--shadow-color),0.04),0_4px_12px_-6px_rgba(var(--shadow-color),0.08)]",
+        "transition-all duration-300",
+        hover && "hover:border-primary/15 dark:hover:border-primary/20 hover:shadow-[0_0_24px_-8px_rgba(var(--glow-primary),0.12)]",
+        className
       )}
     >
       {children}
@@ -85,7 +104,9 @@ function SettingsRow({
   );
 }
 
-/** Accessible pill toggle switch — matches §5.D Toggle / Switch states */
+/* ═══════════════════════════════════════════════════════════════
+   TOGGLE — refined with spring animation feel
+   ═══════════════════════════════════════════════════════════════ */
 function Toggle({
   checked,
   onChange,
@@ -103,22 +124,26 @@ function Toggle({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
-        checked ? 'bg-primary' : 'bg-border',
+        "relative inline-flex h-[22px] w-10 shrink-0 cursor-pointer rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        checked
+          ? "bg-primary shadow-[0_0_12px_-2px_rgba(var(--glow-primary),0.35)]"
+          : "bg-muted-foreground/20 hover:bg-muted-foreground/30"
       )}
     >
       <span
         className={cn(
-          'mt-0.5 inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200',
-          checked ? 'translate-x-4' : 'translate-x-0.5',
+          "absolute top-[2px] inline-block h-[18px] w-[18px] rounded-full bg-white shadow-[0_1px_3px_rgba(var(--shadow-color),0.15)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+          checked ? "left-[20px]" : "left-[2px]"
         )}
       />
     </button>
   );
 }
 
-/** Slider with min/max labels and a live value badge */
+/* ═══════════════════════════════════════════════════════════════
+   LABELLED SLIDER — custom styled with glow thumb
+   ═══════════════════════════════════════════════════════════════ */
 function LabelledSlider({
   label,
   value,
@@ -136,34 +161,42 @@ function LabelledSlider({
   onChange: (v: number) => void;
   formatValue: (v: number) => string;
 }) {
+  const percentage = ((value - min) / (max - min)) * 100;
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">{label}</span>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+        <span className="text-[13px] font-medium text-foreground/85">{label}</span>
+        <span className="font-mono text-[11px] tabular-nums text-primary/70 font-semibold bg-primary/[0.08] dark:bg-primary/[0.12] px-2 py-0.5 rounded-md">
           {formatValue(value)}
         </span>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        aria-label={label}
-        aria-valuenow={value}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        className={cn(
-          'h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted',
-          'accent-primary',
-          '[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4',
-          '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full',
-          '[&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm',
-        )}
-      />
-      <div className="flex justify-between text-[10px] text-muted-foreground/60">
+      <div className="relative h-5 flex items-center">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          aria-label={label}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        />
+        {/* Track background */}
+        <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 overflow-hidden">
+          {/* Filled track */}
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary transition-all duration-150"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        {/* Thumb visual */}
+        <div
+          className="absolute h-4 w-4 rounded-full bg-primary shadow-[0_0_12px_rgba(var(--glow-primary),0.4)] border-2 border-white dark:border-[oklch(21%_0.0162_310.40)] pointer-events-none transition-all duration-150"
+          style={{ left: `calc(${percentage}% - 8px)` }}
+        />
+      </div>
+      <div className="flex justify-between text-[10px] text-muted-foreground/35 font-medium">
         <span>{formatValue(min)}</span>
         <span>{formatValue(max)}</span>
       </div>
@@ -171,12 +204,29 @@ function LabelledSlider({
   );
 }
 
-// ── Theme Segmented Control ───────────────────────────────────────────────────
-
-const THEME_OPTIONS: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-  { value: 'light',  label: 'Light',  icon: <Sun  className="h-3.5 w-3.5" aria-hidden="true" /> },
-  { value: 'system', label: 'System', icon: <Monitor className="h-3.5 w-3.5" aria-hidden="true" /> },
-  { value: 'dark',   label: 'Dark',   icon: <Moon className="h-3.5 w-3.5" aria-hidden="true" /> },
+/* ═══════════════════════════════════════════════════════════════
+   THEME SEGMENTED CONTROL — floating pill style
+   ═══════════════════════════════════════════════════════════════ */
+const THEME_OPTIONS: {
+  value: ThemeMode;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    value: "light",
+    label: "Light",
+    icon: <Sun className="h-3.5 w-3.5" aria-hidden="true" />,
+  },
+  {
+    value: "system",
+    label: "System",
+    icon: <Monitor className="h-3.5 w-3.5" aria-hidden="true" />,
+  },
+  {
+    value: "dark",
+    label: "Dark",
+    icon: <Moon className="h-3.5 w-3.5" aria-hidden="true" />,
+  },
 ];
 
 function ThemeSegmentedControl({
@@ -190,7 +240,7 @@ function ThemeSegmentedControl({
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="flex w-full gap-1 rounded-xl bg-muted p-1"
+      className="relative flex w-full gap-1 rounded-xl bg-muted/40 dark:bg-white/[0.03] p-1 border border-border/30 dark:border-white/[0.05]"
     >
       {THEME_OPTIONS.map((opt) => {
         const isActive = value === opt.value;
@@ -203,16 +253,20 @@ function ThemeSegmentedControl({
             aria-label={`${opt.label} theme`}
             onClick={() => onChange(opt.value)}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold',
-              'transition-all duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+              "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
               isActive
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
+                ? "text-primary"
+                : "text-muted-foreground/50 hover:text-foreground/70"
             )}
           >
-            {opt.icon}
-            {opt.label}
+            {isActive && (
+              <span className="absolute inset-0 rounded-lg bg-primary/[0.08] dark:bg-primary/[0.12] ring-1 ring-primary/15 dark:ring-primary/25 shadow-[0_0_16px_-6px_rgba(var(--glow-primary),0.15)]" />
+            )}
+            <span className="relative z-10 flex items-center gap-1.5">
+              {opt.icon}
+              {opt.label}
+            </span>
           </button>
         );
       })}
@@ -220,8 +274,52 @@ function ThemeSegmentedControl({
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
+   TEXT SCALE SELECTOR — refined pill buttons
+   ═══════════════════════════════════════════════════════════════ */
+function TextScaleSelector({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (scale: number) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Text size"
+      className="flex w-full gap-1.5"
+    >
+      {(
+        Object.entries(TEXT_SCALE_OPTIONS) as [string, number][]
+      ).map(([key, scale]) => {
+        const isActive = value === scale;
+        return (
+          <button
+            key={key}
+            type="button"
+            role="radio"
+            aria-checked={isActive}
+            onClick={() => onChange(scale)}
+            className={cn(
+              "flex flex-1 items-center justify-center rounded-xl py-2.5 text-sm font-bold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              isActive
+                ? "bg-primary text-primary-foreground shadow-[0_0_16px_-4px_rgba(var(--glow-primary),0.3)]"
+                : "bg-muted/40 dark:bg-white/[0.04] text-muted-foreground/50 hover:text-foreground/70 hover:bg-muted/60 dark:hover:bg-white/[0.07]"
+            )}
+          >
+            {key}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS DRAWER — Main Component
+   ═══════════════════════════════════════════════════════════════ */
 export default function SettingsDrawer({
   open,
   onClose,
@@ -240,6 +338,8 @@ export default function SettingsDrawer({
   onTtsSpeedChange,
   ttsVolume,
   onTtsVolumeChange,
+  voiceEnabled = false,
+  onVoiceEnabledChange,
   user,
   onLogout,
 }: SettingsDrawerProps) {
@@ -259,51 +359,66 @@ export default function SettingsDrawer({
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-[360px]"
+        className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-[380px] glass-strong border-l border-border/40 dark:border-white/[0.06]"
         aria-label="App settings"
       >
-        <SheetHeader className="shrink-0 border-b border-border/40 px-5 py-4">
-          <SheetTitle className="text-sm font-semibold">Settings</SheetTitle>
+        {/* Header */}
+        <SheetHeader className="shrink-0 border-b border-border/30 dark:border-white/[0.06] px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/[0.08] dark:bg-primary/[0.12] ring-1 ring-primary/15">
+              <Sliders className="h-4 w-4 text-primary" aria-hidden="true" />
+            </div>
+            <SheetTitle className="text-base font-display font-semibold tracking-tight">
+              Settings
+            </SheetTitle>
+          </div>
         </SheetHeader>
 
-        <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-5">
-
-          {/* ── Camera ─────────────────────────────────────────────────── */}
+        {/* Scrollable Content */}
+        <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-6">
+          {/* ── Camera ── */}
           <section aria-labelledby="settings-camera">
             <SectionHeading
               icon={<Camera className="h-3.5 w-3.5" />}
               label="Camera"
             />
-
-            <div className="space-y-2">
+            <SettingsCard className="overflow-hidden">
               {devices.length > 0 && (
-                <SettingsRow className="flex-col items-start gap-2">
-                  <label htmlFor="camera-device" className="text-sm font-medium">
+                <div className="px-4 py-3.5 border-b border-border/30 dark:border-white/[0.06]">
+                  <label
+                    htmlFor="camera-device"
+                    className="text-[13px] font-medium text-foreground/85 block mb-2"
+                  >
                     Camera device
                   </label>
-                  <select
-                    id="camera-device"
-                    value={selectedDeviceId}
-                    onChange={(e) => onDeviceChange(e.target.value)}
-                    className={cn(
-                      'w-full appearance-none rounded-lg border border-border/50 bg-background',
-                      'px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary',
-                    )}
-                  >
-                    {devices.map((d) => (
-                      <option key={d.deviceId} value={d.deviceId}>
-                        {d.label || `Camera ${d.deviceId.slice(0, 6)}`}
-                      </option>
-                    ))}
-                  </select>
-                </SettingsRow>
+                  <div className="relative">
+                    <select
+                      id="camera-device"
+                      value={selectedDeviceId}
+                      onChange={(e) => onDeviceChange(e.target.value)}
+                      className={cn(
+                        "w-full appearance-none rounded-xl border border-border/50 dark:border-white/[0.08] bg-muted/30 dark:bg-white/[0.03]",
+                        "px-4 py-2.5 pr-10 text-sm text-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
+                      )}
+                    >
+                      {devices.map((d) => (
+                        <option key={d.deviceId} value={d.deviceId}>
+                          {d.label || `Camera ${d.deviceId.slice(0, 6)}`}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronRight
+                      className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 rotate-90 pointer-events-none"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
               )}
-
-              <SettingsRow>
+              <div className="flex items-center justify-between gap-4 px-4 py-3.5">
                 <div>
-                  <p className="text-sm font-medium">Mirror camera</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Flip horizontally — on by default for selfie cameras
+                  <p className="text-[13px] font-medium text-foreground/85">Mirror camera</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                    Flip horizontally for natural view
                   </p>
                 </div>
                 <Toggle
@@ -311,81 +426,90 @@ export default function SettingsDrawer({
                   onChange={onMirrorToggle}
                   label="Mirror camera"
                 />
-              </SettingsRow>
-            </div>
+              </div>
+            </SettingsCard>
           </section>
 
-          {/* ── Appearance ──────────────────────────────────────────────── */}
+          {/* ── Appearance ── */}
           <section aria-labelledby="settings-appearance">
             <SectionHeading
-              icon={<Moon className="h-3.5 w-3.5" />}
+              icon={<Sparkles className="h-3.5 w-3.5" />}
               label="Appearance"
             />
+            <div className="flex flex-col gap-2.5">
+              <SettingsCard className="p-4">
+                <p className="text-[13px] font-medium text-foreground/85 mb-3">Theme</p>
+                <ThemeSegmentedControl
+                  value={theme}
+                  onChange={onThemeChange}
+                />
+              </SettingsCard>
 
-            <div className="space-y-2">
-              {/* Theme — 3-way segmented control */}
-              <SettingsRow className="flex-col items-start gap-3">
-                <p className="text-sm font-medium">Theme</p>
-                <ThemeSegmentedControl value={theme} onChange={onThemeChange} />
-              </SettingsRow>
-
-              {/* High contrast */}
-              <SettingsRow>
-                <div>
-                  <p className="text-sm font-medium">High contrast</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Increases text and border contrast
-                  </p>
+              <SettingsCard className="flex items-center justify-between gap-4 px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/[0.08] dark:bg-warning/[0.12] ring-1 ring-warning/15">
+                    <Contrast className="h-3.5 w-3.5 text-warning" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-medium text-foreground/85">High contrast</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                      Increases text and border contrast
+                    </p>
+                  </div>
                 </div>
                 <Toggle
                   checked={highContrast}
                   onChange={onHighContrastToggle}
                   label="High contrast mode"
                 />
-              </SettingsRow>
+              </SettingsCard>
 
-              {/* Text size */}
-              <SettingsRow className="flex-col items-start gap-3">
-                <p className="text-sm font-medium">Prediction text size</p>
-                <div
-                  role="radiogroup"
-                  aria-label="Text size"
-                  className="flex w-full gap-1.5"
-                >
-                  {(Object.entries(TEXT_SCALE_OPTIONS) as [string, number][]).map(
-                    ([key, scale]) => (
-                      <button
-                        key={key}
-                        type="button"
-                        role="radio"
-                        aria-checked={textScale === scale}
-                        onClick={() => onTextScaleChange(scale)}
-                        className={cn(
-                          'flex flex-1 items-center justify-center rounded-lg py-2',
-                          'text-sm font-semibold transition-colors duration-150',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                          textScale === scale
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80',
-                        )}
-                      >
-                        {key}
-                      </button>
-                    ),
-                  )}
+              <SettingsCard className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-info/[0.08] dark:bg-info/[0.12] ring-1 ring-info/15">
+                    <Type className="h-3.5 w-3.5 text-info" aria-hidden="true" />
+                  </div>
+                  <p className="text-[13px] font-medium text-foreground/85">Prediction text size</p>
                 </div>
-              </SettingsRow>
+                <TextScaleSelector
+                  value={textScale}
+                  onChange={onTextScaleChange}
+                />
+              </SettingsCard>
             </div>
           </section>
 
-          {/* ── TTS ────────────────────────────────────────────────────── */}
+          {/* ── Text-to-Speech ── */}
           <section aria-labelledby="settings-tts">
             <SectionHeading
               icon={<Volume2 className="h-3.5 w-3.5" />}
               label="Text-to-Speech"
             />
+            <SettingsCard className="p-4 space-y-4">
+              {onVoiceEnabledChange && (
+                <>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success/[0.08] dark:bg-success/[0.12] ring-1 ring-success/15">
+                        <Volume2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-medium text-foreground/85">Voice feedback</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                          Speak detected letters automatically
+                        </p>
+                      </div>
+                    </div>
+                    <Toggle
+                      checked={voiceEnabled}
+                      onChange={onVoiceEnabledChange}
+                      label="Voice feedback"
+                    />
+                  </div>
+                  <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+                </>
+              )}
 
-            <div className="space-y-3 rounded-xl bg-muted/40 px-4 py-4">
               <LabelledSlider
                 label="Speed"
                 value={ttsSpeed}
@@ -395,7 +519,9 @@ export default function SettingsDrawer({
                 onChange={onTtsSpeedChange}
                 formatValue={(v) => `${v.toFixed(1)}×`}
               />
-              <div className="h-px bg-border/40" />
+
+              <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+
               <LabelledSlider
                 label="Volume"
                 value={ttsVolume}
@@ -406,131 +532,86 @@ export default function SettingsDrawer({
                 formatValue={(v) => `${Math.round(v * 100)}%`}
               />
 
-              {/* Language badge — was text-primary-700 (too dark on dark bg), now text-primary */}
-              <div className="flex items-center justify-between pt-1">
-                <p className="text-xs text-muted-foreground">Language</p>
-                <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+              <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+
+              <div className="flex items-center justify-between pt-0.5">
+                <p className="text-[11px] text-muted-foreground/40 font-medium">Language</p>
+                <span className="rounded-lg bg-primary/[0.08] dark:bg-primary/[0.12] px-2.5 py-1 text-[10px] font-bold text-primary ring-1 ring-primary/15">
                   Bahasa Indonesia
                 </span>
               </div>
-            </div>
+            </SettingsCard>
           </section>
 
-          {/* ── Workspace ──────────────────────────────────────────────── */}
-          <section aria-labelledby="settings-workspace">
-            <SectionHeading
-              icon={<BookOpen className="h-3.5 w-3.5" />}
-              label="Workspace"
-            />
-
-            <div className="space-y-2">
-              <SettingsRow>
-                <div>
-                  <p className="text-sm font-medium">Practice</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Latihan alfabet dengan progres adaptif
-                  </p>
-                </div>
-                <Link
-                  href="/practice"
-                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Open
-                </Link>
-              </SettingsRow>
-
-              <SettingsRow>
-                <div>
-                  <p className="text-sm font-medium">History</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Lihat riwayat transcript yang tersimpan lokal
-                  </p>
-                </div>
-                <Link
-                  href="/history"
-                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Open
-                </Link>
-              </SettingsRow>
-
-              <SettingsRow>
-                <div>
-                  <p className="text-sm font-medium">Reference</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Referensi alfabet BISINDO + progress per huruf
-                  </p>
-                </div>
-                <Link
-                  href="/reference"
-                  className="rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Open
-                </Link>
-              </SettingsRow>
-            </div>
-          </section>
-
-          {/* ── Account ─────────────────────────────────────────────────── */}
+          {/* ── Account ── */}
           <section aria-labelledby="settings-account" className="mt-auto">
             <SectionHeading
-              icon={<Sliders className="h-3.5 w-3.5" />}
+              icon={<Gauge className="h-3.5 w-3.5" />}
               label="Account"
             />
 
             {user && (
-              <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/40 px-4 py-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground overflow-hidden">
-                  {user.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.name}
-                      className="size-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    user.name
-                      .split(' ')
-                      .slice(0, 2)
-                      .map((n) => n[0])
-                      .join('')
-                      .toUpperCase()
-                  )}
+              <SettingsCard className="mb-3 p-4" hover>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-700 text-sm font-bold text-primary-foreground shadow-glow-primary overflow-hidden">
+                    {user.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.name}
+                        className="size-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      user.name
+                        .split(" ")
+                        .slice(0, 2)
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-display font-semibold text-foreground truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/55 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                  <div className="flex h-2 w-2 rounded-full bg-success shadow-[0_0_6px_rgba(var(--glow-success),0.5)]" />
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{user.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                </div>
-              </div>
+              </SettingsCard>
             )}
 
             <button
               type="button"
               onClick={handleLogoutClick}
               aria-label={
-                logoutConfirming ? 'Tap again to confirm sign out' : 'Sign out'
+                logoutConfirming
+                  ? "Tap again to confirm sign out"
+                  : "Sign out"
               }
               className={cn(
-                'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3',
-                'text-sm font-medium transition-all duration-150',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50',
+                "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5",
+                "text-sm font-medium transition-all duration-300",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40",
                 logoutConfirming
-                  ? 'bg-destructive/10 text-destructive border border-destructive/30'
-                  : 'bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
+                  ? "bg-destructive/10 text-destructive border border-destructive/25 shadow-[0_0_20px_-6px_rgba(var(--glow-error),0.15)]"
+                  : "glass text-muted-foreground/60 hover:bg-destructive/[0.06] hover:text-destructive/80 border border-border/40 dark:border-white/[0.06]"
               )}
             >
               <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {logoutConfirming ? 'Tap again to sign out' : 'Sign out'}
+              {logoutConfirming ? "Tap again to confirm" : "Sign out"}
             </button>
 
-            <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground/60">
-              Password and account changes are managed via your{' '}
+            <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/35">
+              Password and account changes are managed via your{" "}
               <a
                 href="https://myaccount.google.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-muted-foreground"
+                className="underline underline-offset-2 hover:text-muted-foreground/60 transition-colors"
               >
                 Google account
               </a>
@@ -542,4 +623,3 @@ export default function SettingsDrawer({
     </Sheet>
   );
 }
-
