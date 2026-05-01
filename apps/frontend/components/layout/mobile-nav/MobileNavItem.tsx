@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { motion } from 'motion/react';
-import { cn } from '@/lib/utils';
-import type { WorkspaceNavIcon, WorkspaceNavItem } from './workspaceNavConfig';
+import Link from "next/link";
+import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
+import type { WorkspaceNavIcon, WorkspaceNavItem } from "./workspaceNavConfig";
 
 interface MobileNavItemProps {
   item: WorkspaceNavItem;
@@ -21,7 +21,6 @@ function createIconTransition(reduceMotion: boolean | null) {
   if (reduceMotion) {
     return { duration: 0 };
   }
-
   return {
     duration: 0.24,
     ease: [0.22, 1, 0.36, 1] as const,
@@ -30,9 +29,8 @@ function createIconTransition(reduceMotion: boolean | null) {
 
 function MobileIcon({ icon, isActive, reduceMotion }: MobileIconProps) {
   const iconTransition = createIconTransition(reduceMotion);
-
   const circlePath =
-    'M12 3.75C7.44 3.75 3.75 7.44 3.75 12C3.75 16.56 7.44 20.25 12 20.25C16.56 20.25 20.25 16.56 20.25 12C20.25 7.44 16.56 3.75 12 3.75Z';
+    "M12 3.75C7.44 3.75 3.75 7.44 3.75 12C3.75 16.56 7.44 20.25 12 20.25C16.56 20.25 20.25 16.56 20.25 12C20.25 7.44 16.56 3.75 12 3.75Z";
 
   const renderTranslate = () => (
     <>
@@ -182,32 +180,32 @@ function MobileIcon({ icon, isActive, reduceMotion }: MobileIconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      animate={
-        isActive
-          ? { scale: 1, y: -1 }
-          : { scale: 0.95, y: 0 }
-      }
+      animate={isActive ? { scale: 1, y: -1 } : { scale: 0.95, y: 0 }}
       transition={iconTransition}
     >
-      {icon === 'translate' && renderTranslate()}
-      {icon === 'practice' && renderPractice()}
-      {icon === 'history' && renderHistory()}
-      {icon === 'reference' && renderReference()}
+      {icon === "translate" && renderTranslate()}
+      {icon === "practice" && renderPractice()}
+      {icon === "history" && renderHistory()}
+      {icon === "reference" && renderReference()}
     </motion.svg>
   );
 }
 
-export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNavItemProps) {
+export default function MobileNavItem({
+  item,
+  isActive,
+  reduceMotion,
+}: MobileNavItemProps) {
   return (
     <li className="list-none">
       <motion.div whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
         <Link
           href={item.href}
-          aria-current={isActive ? 'page' : undefined}
+          aria-current={isActive ? "page" : undefined}
           className={cn(
-            'relative flex h-[58px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
-            isActive ? 'text-primary' : 'text-muted-foreground',
+            "relative flex h-[58px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+            isActive ? "text-primary" : "text-muted-foreground/60"
           )}
         >
           {isActive && (
@@ -217,13 +215,17 @@ export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNa
               transition={
                 reduceMotion
                   ? { duration: 0 }
-                  : { type: 'spring', stiffness: 420, damping: 32, mass: 0.4 }
+                  : { type: "spring", stiffness: 420, damping: 32, mass: 0.4 }
               }
             />
           )}
 
           <span className="relative z-10 flex items-center justify-center">
-            <MobileIcon icon={item.icon} isActive={isActive} reduceMotion={reduceMotion} />
+            <MobileIcon
+              icon={item.icon}
+              isActive={isActive}
+              reduceMotion={reduceMotion}
+            />
           </span>
 
           <motion.span
@@ -238,5 +240,3 @@ export default function MobileNavItem({ item, isActive, reduceMotion }: MobileNa
     </li>
   );
 }
-
-

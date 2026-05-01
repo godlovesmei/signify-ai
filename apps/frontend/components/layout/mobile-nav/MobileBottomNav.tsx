@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
-import { usePathname } from 'next/navigation';
-import MobileNavItem from './MobileNavItem';
+import { useEffect } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { usePathname } from "next/navigation";
+import MobileNavItem from "./MobileNavItem";
 import {
   getActiveWorkspaceNavItem,
   isWorkspaceRoute,
   WORKSPACE_NAV_ITEMS,
-} from './workspaceNavConfig';
+} from "./workspaceNavConfig";
 
 interface MobileBottomNavProps {
   reserveSpace?: boolean;
@@ -18,7 +18,9 @@ const MOBILE_NAV_HEIGHT_PX = 70;
 const MOBILE_NAV_EXTRA_OFFSET_PX = 2;
 const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px) + ${MOBILE_NAV_EXTRA_OFFSET_PX}px)`;
 
-export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNavProps) {
+export default function MobileBottomNav({
+  reserveSpace = true,
+}: MobileBottomNavProps) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
 
@@ -31,10 +33,10 @@ export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNav
     }
 
     const root = document.documentElement;
-    root.style.setProperty('--workspace-mobile-nav-offset', MOBILE_NAV_OFFSET_VALUE);
+    root.style.setProperty("--workspace-mobile-nav-offset", MOBILE_NAV_OFFSET_VALUE);
 
     return () => {
-      root.style.setProperty('--workspace-mobile-nav-offset', '0px');
+      root.style.setProperty("--workspace-mobile-nav-offset", "0px");
     };
   }, [isWorkspace]);
 
@@ -63,12 +65,13 @@ export default function MobileBottomNav({ reserveSpace = true }: MobileBottomNav
             : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }
         }
       >
+        {/* Gradient fade above nav */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background/55 to-transparent"
+          className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background/60 to-transparent"
         />
 
-        <div className="border-t border-border/50 bg-background/70 pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5 shadow-[0_-10px_30px_-22px_rgba(0,0,0,0.6)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="border-t border-white/10 bg-background/70 pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5 shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
           <div className="mx-auto w-full max-w-md px-2">
             <ul className="grid grid-cols-4 gap-0.5">
               {WORKSPACE_NAV_ITEMS.map((item) => (
