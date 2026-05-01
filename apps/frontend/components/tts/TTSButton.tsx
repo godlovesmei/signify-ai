@@ -13,6 +13,7 @@ export interface TTSButtonProps {
   hasError?: boolean;
   onSpeak: () => void;
   className?: string;
+  size?: 'default' | 'compact';
 }
 
 export default function TTSButton({
@@ -21,12 +22,14 @@ export default function TTSButton({
   hasError = false,
   onSpeak,
   className,
+  size = 'default',
 }: TTSButtonProps) {
   const isEmpty   = sentence.trim().length === 0;
   const isDisabled = isEmpty || isSpeaking;
+  const isCompact = size === 'compact';
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn('flex items-center gap-1.5', className)}>
       <button
         type="button"
         onClick={onSpeak}
@@ -43,7 +46,8 @@ export default function TTSButton({
           : 'Read aloud in Bahasa Indonesia'
         }
         className={cn(
-          'flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-150',
+          'flex items-center justify-center rounded-xl border transition-all duration-150',
+          isCompact ? 'h-9 w-9' : 'h-11 w-11',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-200 focus-visible:ring-offset-1',
 
           // Disabled — empty sentence
@@ -80,7 +84,8 @@ export default function TTSButton({
       <span
         aria-label="Text-to-speech language: Bahasa Indonesia"
         className={cn(
-          'rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums tracking-wide',
+          'rounded-md px-1.5 py-0.5 font-bold tabular-nums tracking-wide',
+          isCompact ? 'text-[9px]' : 'text-[10px]',
           isSpeaking
             ? 'bg-primary/15 text-primary'
             : 'bg-muted text-muted-foreground',
@@ -90,7 +95,7 @@ export default function TTSButton({
       </span>
 
       {/* Error message */}
-      {hasError && !isSpeaking && (
+      {hasError && !isSpeaking && !isCompact && (
         <p role="alert" className="text-xs text-destructive">
           TTS unavailable. Check your device volume.
         </p>

@@ -7,8 +7,7 @@
  * - Checks session via Supabase browser client on mount
  * - Shows a neutral loading state while the session check is in-flight
  *   (avoids a flash of protected content before the redirect fires)
- * - Redirects unauthenticated users to /auth/login, preserving the
- *   intended destination via ?next= so the callback can restore it
+ * - Shows the LoginModal if the user is unauthenticated.
  *
  * Usage:
  *   export default function ProtectedPage() {
@@ -25,9 +24,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { LoginModal } from '@/components/auth/LoginModal';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -37,7 +37,6 @@ type AuthState = 'checking' | 'authenticated' | 'unauthenticated';
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router   = useRouter();
-  const pathname = usePathname();
   const [authState, setAuthState] = useState<AuthState>('checking');
 
   useEffect(() => {
@@ -49,8 +48,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         setAuthState('authenticated');
       } else {
         setAuthState('unauthenticated');
-        const loginUrl = `/auth/login?next=${encodeURIComponent(pathname)}`;
-        router.replace(loginUrl);
       }
     });
 
@@ -59,17 +56,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       (_event, session) => {
         if (!session) {
           setAuthState('unauthenticated');
-          const loginUrl = `/auth/login?next=${encodeURIComponent(pathname)}`;
-          router.replace(loginUrl);
         }
       },
     );
 
     return () => subscription.unsubscribe();
-  }, [router, pathname]);
+  }, [router]);
 
   // Neutral loading screen — no flash of protected content
-  if (authState === 'checking' || authState === 'unauthenticated') {
+  if (authState === 'checking') {
     return (
       <div
         className="flex h-dvh w-full items-center justify-center bg-background"
@@ -81,6 +76,16 @@ export default function AuthGuard({ children }: AuthGuardProps) {
           aria-hidden="true"
         />
       </div>
+    );
+  }
+
+  // Show LoginModal over a neutral background if unauthenticated
+  if (authState === 'unauthenticated') {
+    return (
+      <>
+        <div className="h-dvh w-full bg-background" />
+        <LoginModal open={true} onClose={() => router.push('/')} />
+      </>
     );
   }
 

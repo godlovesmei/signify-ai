@@ -23,6 +23,6 @@ export async function GET(request: NextRequest) {
 
   // Exchange failed — redirect back to login with a plain error signal
   return NextResponse.redirect(
-    `${origin}/auth/login?error=auth_callback_failed`,
+    `${origin}/?error=auth_callback_failed`,
   );
 }
