@@ -13,7 +13,7 @@ const PROTECTED_PREFIXES = [
 
 // ─── Auth-only routes ─────────────────────────────────────────────────────────
 // Authenticated users visiting these are redirected away (e.g. back to app).
-const AUTH_PREFIXES = ['/auth/login', '/auth/signup'];
+const AUTH_PREFIXES = ['/auth/signup'];
 
 export async function proxy(request: NextRequest) {
   const { supabase, supabaseResponse } = createClient(request);
@@ -27,16 +27,11 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // 1. Redirect unauthenticated users away from protected pages
+  // 1. (Removed) Unauthenticated users are no longer redirected here.
+  // AuthGuard component will handle showing the LoginModal on the client.
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix),
   );
-  if (!user && isProtected) {
-    const loginUrl = new URL('/auth/login', request.url);
-    // Preserve the intended destination so we can redirect back after login
-    loginUrl.searchParams.set('next', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
 
   // 2. Redirect authenticated users away from login / signup pages
   const isAuthPage = AUTH_PREFIXES.some((prefix) =>
