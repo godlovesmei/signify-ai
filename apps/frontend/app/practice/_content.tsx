@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';                    // ← DITAMBAHKAN
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMotionValue } from 'motion/react';
-import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera } from 'lucide-react';
+import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2 } from 'lucide-react';
 
 import {
   WebcamCapture,
@@ -243,8 +243,9 @@ export default function PracticePageContent() {
   const [holdProgress, setHoldProgress] = useState(0);
   const [isSuccessFlash, setSuccessFlash] = useState(false);
   const [trail, setTrail] = useState<AlphabetLetter[]>(() => [target]);
-  const [ghostVisible, setGhostVisible] = useState(true);
+  const [ghostVisible, setGhostVisible] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // ── Micro feedback ───────────────────────────────────────────────
   const microX = useMotionValue(50);
@@ -254,6 +255,7 @@ export default function PracticePageContent() {
 
   // ── Refs ──────────────────────────────────────────────────────────
   const webcamRef = useRef<WebcamCaptureHandle>(null);
+  const cameraFrameRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -555,6 +557,11 @@ export default function PracticePageContent() {
 
   // ── Camera lifecycle ──────────────────────────────────────────────
 
+  const startDetection = useCallback(() => {
+    setAppState('detecting');
+    startInferenceLoop();
+  }, [startInferenceLoop]);
+
   const startCamera = useCallback(async (facing: 'user' | 'environment' = facingMode) => {
     setAppState('requesting');
     setApiError(false);
@@ -573,8 +580,7 @@ export default function PracticePageContent() {
       if (video) { video.srcObject = stream; await video.play(); }
       setAppState('loading');
       setTimeout(() => {
-        setAppState('detecting');
-        startInferenceLoop();
+        startDetection();
       }, MODEL_INIT_MS);
     } catch (err: unknown) {
       const e = err as { name?: string };
@@ -584,7 +590,7 @@ export default function PracticePageContent() {
           : 'error-device',
       );
     }
-  }, [facingMode, stopStream, startInferenceLoop]);
+  }, [facingMode, stopStream, startDetection]);
 
   const stopDetection = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
@@ -621,6 +627,29 @@ export default function PracticePageContent() {
     startCamera(next);
   }, [facingMode, stopDetection, startCamera]);
 
+  const handlePrimaryCameraAction = useCallback(() => {
+    if (appState === 'detecting') {
+      stopDetection();
+      return;
+    }
+
+    if (appState === 'ready') {
+      startDetection();
+      return;
+    }
+
+    startCamera();
+  }, [appState, startCamera, startDetection, stopDetection]);
+
+  const handleToggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      return;
+    }
+
+    cameraFrameRef.current?.requestFullscreen().catch(() => {});
+  }, []);
+
   const handleResetProgress = useCallback(() => {
     const next = resetPracticeStats();
     setStats(next);
@@ -636,9 +665,19 @@ export default function PracticePageContent() {
     }
   }, [appState, clearMicroFeedback]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === cameraFrameRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   // ── Derived values ────────────────────────────────────────────────
 
   const isActive = appState === 'detecting';
+  const isCameraBusy = appState === 'requesting' || appState === 'loading';
   const statusTone =
     appState === 'requesting' || appState === 'loading'
       ? 'processing'
@@ -668,7 +707,7 @@ export default function PracticePageContent() {
             <div className="grid grid-cols-12 gap-4 h-full">
 
             {/* LEFT SIDEBAR: Target Info (2 cols) */}
-            <aside className="col-span-2 flex flex-col gap-3 min-h-0">
+            <aside className="col-span-2 flex min-h-0 min-w-0 flex-col gap-3">
               <div className="rounded-xl border border-border/60 bg-muted/30 p-4 backdrop-blur-sm">
                 <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3">Target</p>
                 <TargetBlock letter={target} />
@@ -742,7 +781,7 @@ export default function PracticePageContent() {
               </div>
 
               {/* Camera Frame */}
-              <div className="flex-1 relative min-h-0">
+              <div ref={cameraFrameRef} className="flex-1 relative min-h-0">
                 <CameraFrame
                   isActive={isActive}
                   isDetecting={isActive && detections.length > 0}
@@ -760,8 +799,9 @@ export default function PracticePageContent() {
                     hasMultipleCameras={devices.length > 1}
                     languageLabel="BISINDO"
                     voiceEnabled={false}
+                    showControls={false}
                     onRequestCamera={() => startCamera()}
-                    onStartDetection={() => { setAppState('detecting'); startInferenceLoop(); }}
+                    onStartDetection={startDetection}
                     onStopDetection={stopDetection}
                     onFlipCamera={flipCamera}
                     onReset={handleReset}
@@ -787,6 +827,7 @@ export default function PracticePageContent() {
                 <button
                   type="button"
                   onClick={flipCamera}
+                  disabled={isCameraBusy}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/40 text-foreground/60 transition hover:border-border hover:bg-background/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
                   aria-label="Flip camera"
                 >
@@ -795,9 +836,11 @@ export default function PracticePageContent() {
 
                 <button
                   type="button"
-                  onClick={isActive ? stopDetection : () => startCamera()}
+                  onClick={handlePrimaryCameraAction}
+                  disabled={isCameraBusy}
                   className={cn(
                     "flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200",
+                    isCameraBusy && "cursor-wait opacity-60",
                     isActive
                       ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
                       : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30"
@@ -813,10 +856,11 @@ export default function PracticePageContent() {
 
                 <button
                   type="button"
+                  onClick={handleToggleFullscreen}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/40 text-foreground/60 transition hover:border-border hover:bg-background/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label="Fullscreen"
+                  aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </button>
               </div>
             </section>
@@ -824,31 +868,44 @@ export default function PracticePageContent() {
             {/* RIGHT SIDEBAR: Progress & Actions (2 cols) */}
             <aside className="col-span-2 flex flex-col gap-3 min-h-0">
               {/* Progress Ring */}
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 backdrop-blur-sm flex flex-col items-center">
-                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3">Hold Progress</p>
-                <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="lg" />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {holdProgress}/{HOLD_FRAMES_NEEDED} frames
-                </p>
+              <div className="shrink-0 rounded-xl border border-border/60 bg-muted/30 p-3 backdrop-blur-sm">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">Hold Progress</p>
+                  <span className="rounded-md border border-white/5 bg-white/[0.03] px-2 py-1 text-[10px] font-semibold tabular-nums text-muted-foreground">
+                    {holdProgress}/{HOLD_FRAMES_NEEDED}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="md" />
+                  <div className="min-w-0 flex-1">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-warning transition-all duration-200"
+                        style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs leading-snug text-muted-foreground/70">Hold until the meter fills.</p>
+                  </div>
+                </div>
               </div>
 
               {/* Actions */}
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 backdrop-blur-sm">
-                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3">Actions</p>
+              <div className="shrink-0 rounded-xl border border-border/60 bg-muted/30 p-3 backdrop-blur-sm">
+                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">Actions</p>
                 <div className="flex flex-col gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleSkip}
                     disabled={!isActive || isSuccessFlash}
-                    className="w-full justify-between"
+                    className="h-9 w-full justify-between"
                   >
                     Skip <ChevronRight className="h-4 w-4" />
                   </Button>
 
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-between">
+                      <Button variant="outline" size="sm" className="h-9 w-full justify-between">
                         Settings <Sliders className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
@@ -858,7 +915,7 @@ export default function PracticePageContent() {
                       </DialogHeader>
                       <div className="mt-4 space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">Show reference overlay</span>
+                          <span className="text-sm">Show guide overlay</span>
                           <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
                         </div>
                         <div className="flex items-center justify-between">
@@ -883,7 +940,7 @@ export default function PracticePageContent() {
                     variant="ghost"
                     size="sm"
                     onClick={handleReset}
-                    className="w-full text-xs text-muted-foreground/50 hover:text-destructive"
+                    className="h-8 w-full text-xs text-muted-foreground/50 hover:text-destructive"
                   >
                     Reset Camera
                   </Button>
@@ -896,7 +953,6 @@ export default function PracticePageContent() {
                 stats={stats}
                 weakLetters={weakLetters}
                 target={target}
-                onReset={handleResetProgress}
               />
             </aside>
             </div>
@@ -930,7 +986,7 @@ export default function PracticePageContent() {
                   languageLabel="BISINDO"
                   voiceEnabled={false}
                   onRequestCamera={() => startCamera()}
-                  onStartDetection={() => { setAppState('detecting'); startInferenceLoop(); }}
+                  onStartDetection={startDetection}
                   onStopDetection={stopDetection}
                   onFlipCamera={flipCamera}
                   onReset={handleReset}
@@ -1005,7 +1061,7 @@ export default function PracticePageContent() {
                   </DialogHeader>
                   <div className="mt-4 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Show reference overlay</span>
+                      <span className="text-sm">Show guide overlay</span>
                       <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
                     </div>
                     <DialogClose asChild>

@@ -79,15 +79,7 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
           {LetterSvg ? (
             <LetterSvg className="h-[70%] w-auto text-white" />
           ) : (
-            <div className="relative flex items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/alfabet/${letter}.jpg`}
-                alt=""
-                className="h-[75%] w-auto object-contain opacity-60"
-              />
-              <GenericSkeleton className="absolute left-1/2 top-1/2 h-[70%] w-auto -translate-x-1/2 -translate-y-1/2" />
-            </div>
+            <GenericSkeleton />
           )}
         </motion.div>
       </AnimatePresence>

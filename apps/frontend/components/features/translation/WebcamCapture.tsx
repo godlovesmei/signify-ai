@@ -37,6 +37,7 @@ export interface WebcamCaptureProps {
   hasMultipleCameras: boolean;
   languageLabel: string;
   voiceEnabled: boolean;
+  showControls?: boolean;
   onRequestCamera: () => void;
   onStartDetection: () => void;
   onStopDetection: () => void;
@@ -102,9 +103,11 @@ function LoadingState({ label }: { label?: string }) {
 function ErrorState({
   type,
   onRetry,
+  showAction = true,
 }: {
   type: "error-permission" | "error-device";
   onRetry: () => void;
+  showAction?: boolean;
 }) {
   const isPermission = type === "error-permission";
   return (
@@ -122,18 +125,26 @@ function ErrorState({
             : "No camera detected. Please connect one and try again."}
         </p>
       </div>
-      <Button
-        variant="default"
-        onClick={onRetry}
-        className="h-10 rounded-xl px-6 text-sm font-medium shadow-glow-primary hover:shadow-glow-primary/80"
-      >
-        <RotateCcw className="mr-2 h-3.5 w-3.5" /> Try Again
-      </Button>
+      {showAction && (
+        <Button
+          variant="default"
+          onClick={onRetry}
+          className="h-10 rounded-xl px-6 text-sm font-medium shadow-glow-primary hover:shadow-glow-primary/80"
+        >
+          <RotateCcw className="mr-2 h-3.5 w-3.5" /> Try Again
+        </Button>
+      )}
     </div>
   );
 }
 
-function IdlePrompt({ onStart }: { onStart: () => void }) {
+function IdlePrompt({
+  onStart,
+  showAction = true,
+}: {
+  onStart: () => void;
+  showAction?: boolean;
+}) {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-3 px-5 py-4 text-center sm:gap-4 sm:py-5">
       <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
@@ -166,13 +177,15 @@ function IdlePrompt({ onStart }: { onStart: () => void }) {
           </li>
         ))}
       </ul>
-      <Button
-        variant="default"
-        onClick={onStart}
-        className="h-10 w-full rounded-xl text-sm font-semibold shadow-glow-primary hover:shadow-glow-primary/80"
-      >
-        <Camera className="h-4 w-4 mr-2" /> Enable Camera
-      </Button>
+      {showAction && (
+        <Button
+          variant="default"
+          onClick={onStart}
+          className="h-10 w-full rounded-xl text-sm font-semibold shadow-glow-primary hover:shadow-glow-primary/80"
+        >
+          <Camera className="h-4 w-4 mr-2" /> Enable Camera
+        </Button>
+      )}
       <p className="text-[11px] leading-relaxed text-muted-foreground/40">
         Camera feed is processed locally and never stored.{" "}
         <Link
@@ -224,6 +237,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       hasMultipleCameras,
       languageLabel,
       voiceEnabled,
+      showControls = true,
       onRequestCamera,
       onStartDetection,
       onStopDetection,
@@ -328,7 +342,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
             key={state}
             className="absolute inset-0 flex items-center justify-center overflow-y-auto p-3 animate-fade-up sm:p-6"
           >
-            {state === "idle" && <IdlePrompt onStart={onRequestCamera} />}
+            {state === "idle" && <IdlePrompt onStart={onRequestCamera} showAction={showControls} />}
             {isLoading && (
               <LoadingState
                 label={
@@ -340,12 +354,13 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
               <ErrorState
                 type={state as "error-permission" | "error-device"}
                 onRetry={onRequestCamera}
+                showAction={showControls}
               />
             )}
           </div>
         )}
 
-        {isLive && (
+        {isLive && showControls && (
           <div
             role="toolbar"
             aria-label="Camera controls"
