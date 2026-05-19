@@ -20,7 +20,12 @@ import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { useTheme } from "@/hooks/useTheme";
 import { captureFrame } from "@/lib/imagePreprocess";
 import { predictFromBlob, type TranslateDetection } from "@/lib/translateApi";
-import { mapCameraStateToDetectionStatus } from "@/lib/translateState";
+import {
+  createLetterAccumulatorState,
+  mapCameraStateToDetectionStatus,
+  reduceLetterAccumulator,
+  type LetterAccumulatorConfig,
+} from "@/lib/translateState";
 import { appendHistoryEntry } from "@/lib/userData";
 import PracticeGuide from "@/components/features/translation/PracticeGuide";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
@@ -32,10 +37,15 @@ const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200;
 const VOTE_BUFFER_SIZE = 3;
 const WEIGHTED_VOTE_THRESHOLD = 0.67;
 const FAST_COMMIT_THRESHOLD = 0.92;
-const SAME_LETTER_COOLDOWN_MS = 900;
+const RELEASE_FRAME_COUNT = 3;
+const LETTER_ACCUMULATOR_CONFIG: LetterAccumulatorConfig = {
+  voteBufferSize: VOTE_BUFFER_SIZE,
+  weightedVoteThreshold: WEIGHTED_VOTE_THRESHOLD,
+  fastCommitThreshold: FAST_COMMIT_THRESHOLD,
+  releaseFrameCount: RELEASE_FRAME_COUNT,
+};
 
 type Language = "ASL" | "BISINDO";
-type VoteEntry = { letter: string; confidence: number };
 
 let _id = 0;
 function uid() {
@@ -72,10 +82,7 @@ export default function TranslatePageContent() {
   const fpsCountRef = useRef(0);
   const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef = useRef<string | null>(null);
-  const lastCommittedRef = useRef<{ letter: string | null; at: number }>({
-    letter: null,
-    at: 0,
-  });
+  const letterAccumulatorRef = useRef(createLetterAccumulatorState());
 
   const languageRef = useRef(language);
   const voiceEnabledRef = useRef(voiceEnabled);
@@ -132,9 +139,6 @@ export default function TranslatePageContent() {
       window.speechSynthesis.speak(u);
     }
   }, []);
-
-  const voteBuffer = useRef<VoteEntry[]>([]);
-
   useEffect(() => {
     captureCanvasRef.current = document.createElement("canvas");
     return () => {
@@ -246,9 +250,8 @@ export default function TranslatePageContent() {
     setApiError(false);
     setDetections([]);
     setSessionStart(null);
-    voteBuffer.current = [];
+    letterAccumulatorRef.current = createLetterAccumulatorState();
     sessionIdRef.current = null;
-    lastCommittedRef.current = { letter: null, at: 0 };
   }, [stopStream]);
 
   const startDetection = useCallback(
@@ -261,6 +264,7 @@ export default function TranslatePageContent() {
       setSessionStart(new Date());
       sessionIdRef.current =
         "sess-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      letterAccumulatorRef.current = createLetterAccumulatorState();
 
       fpsCountRef.current = 0;
       fpsIntervalRef.current = setInterval(() => {
@@ -307,8 +311,12 @@ export default function TranslatePageContent() {
           if (nextDetections.length === 0) {
             setCurrentLetter(null);
             setCurrentConfidence(null);
-            voteBuffer.current = [];
-            lastCommittedRef.current = { letter: null, at: 0 };
+            const nextAccumulator = reduceLetterAccumulator(
+              letterAccumulatorRef.current,
+              { letter: null, confidence: null },
+              LETTER_ACCUMULATOR_CONFIG
+            );
+            letterAccumulatorRef.current = nextAccumulator.state;
             return;
           }
 
@@ -322,58 +330,18 @@ export default function TranslatePageContent() {
           setCurrentLetter(predictedLetter);
           setCurrentConfidence(predictedConfidence);
 
-          const now = Date.now();
-          const canFastCommit = !(
-            lastCommittedRef.current.letter === predictedLetter &&
-            now - lastCommittedRef.current.at < SAME_LETTER_COOLDOWN_MS
+          const nextAccumulator = reduceLetterAccumulator(
+            letterAccumulatorRef.current,
+            { letter: predictedLetter, confidence: predictedConfidence },
+            LETTER_ACCUMULATOR_CONFIG
           );
-
-          if (predictedConfidence >= FAST_COMMIT_THRESHOLD) {
-            if (canFastCommit) {
-              commitLetter(predictedLetter, predictedConfidence);
-              lastCommittedRef.current = { letter: predictedLetter, at: now };
-              voteBuffer.current = [];
-            }
-            return;
+          letterAccumulatorRef.current = nextAccumulator.state;
+          if (nextAccumulator.commit) {
+            commitLetter(
+              nextAccumulator.commit.letter,
+              nextAccumulator.commit.confidence
+            );
           }
-
-          voteBuffer.current.push({
-            letter: predictedLetter,
-            confidence: predictedConfidence,
-          });
-          if (voteBuffer.current.length > VOTE_BUFFER_SIZE)
-            voteBuffer.current.shift();
-          if (voteBuffer.current.length < VOTE_BUFFER_SIZE) return;
-
-          const scores: Record<string, number> = {};
-          const confidencesByLetter: Record<string, number[]> = {};
-          for (const entry of voteBuffer.current) {
-            const weight = Math.pow(entry.confidence, 2);
-            scores[entry.letter] = (scores[entry.letter] ?? 0) + weight;
-            (confidencesByLetter[entry.letter] ??= []).push(entry.confidence);
-          }
-
-          const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-          if (sorted.length === 0) return;
-
-          const [winner, winnerWeight] = sorted[0];
-          const totalWeight = Object.values(scores).reduce((a, b) => a + b, 0);
-          if (totalWeight <= 0) return;
-          if (winnerWeight / totalWeight < WEIGHTED_VOTE_THRESHOLD) return;
-
-          const winnerConf = confidencesByLetter[winner] ?? [predictedConfidence];
-          const committedConfidence =
-            winnerConf.reduce((a, b) => a + b, 0) / winnerConf.length;
-
-          const canVoteCommit = !(
-            lastCommittedRef.current.letter === winner &&
-            now - lastCommittedRef.current.at < SAME_LETTER_COOLDOWN_MS
-          );
-          if (!canVoteCommit) return;
-
-          voteBuffer.current = [];
-          commitLetter(winner, committedConfidence);
-          lastCommittedRef.current = { letter: winner, at: now };
         } finally {
           isBusy.current = false;
         }
@@ -398,9 +366,8 @@ export default function TranslatePageContent() {
     setCurrentLetter(null);
     setCurrentConfidence(null);
     setFps(0);
-    voteBuffer.current = [];
+    letterAccumulatorRef.current = createLetterAccumulatorState();
     sessionIdRef.current = null;
-    lastCommittedRef.current = { letter: null, at: 0 };
     if (appState === "detecting") setAppState("ready");
   }, [appState]);
 
