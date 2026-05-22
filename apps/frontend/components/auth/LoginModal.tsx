@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Shield, Sparkles, ArrowRight, Lock } from "lucide-react";
+import { X, Shield, Sparkles, Lock } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
@@ -70,7 +70,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-4 sm:items-center"
       role="dialog"
       aria-modal="true"
       aria-label="Sign in"
@@ -96,14 +96,13 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
       <div
         className={cn(
           "relative z-10 w-full max-w-[400px]",
-          "flex flex-col items-center",
+          "flex max-h-[calc(100dvh-2rem)] flex-col items-center overflow-y-auto overflow-x-hidden overscroll-contain",
           "rounded-3xl",
           "bg-card/95 dark:bg-card/80",
           "shadow-2xl shadow-black/10 dark:shadow-black/30",
-          "px-8 py-10",
+          "px-5 py-6 sm:px-8 sm:py-10",
           "border border-border/50",
           "animate-in fade-in zoom-in-95 duration-300",
-          "overflow-hidden"
         )}
       >
         {/* Subtle top gradient line */}
@@ -126,11 +125,11 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
         </button>
 
         {/* ── Logo + Identity ────────────────────────────────────────── */}
-        <div className="flex flex-col items-center gap-3 text-center mb-8">
+        <div className="mb-6 flex flex-col items-center gap-3 text-center sm:mb-8">
           {/* Logo container - cleaner, no excessive glow */}
-          <div className="relative mb-1">
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-              <Logo size="md" />
+          <div className="relative mb-1" aria-hidden="true">
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 sm:h-12 sm:w-12">
+              <Logo href={false} size="sm" showWordmark={false} />
             </div>
           </div>
 
