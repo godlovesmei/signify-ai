@@ -1,159 +1,72 @@
 # Signify AI - Project Overview (Prompt-Ready)
 
-Dokumen ini dirancang untuk dipakai langsung sebagai bahan presentasi atau prompt Miro AI.
-Cakupan: user flow produk, arsitektur sistem, pipeline model, dan dataset/preprocessing end-to-end.
+Dokumen ini sudah diselaraskan dengan codebase aktif saat ini. Narasi lama yang menyebut MediaPipe, TensorFlow, database riwayat, atau route `collect` tidak lagi sesuai dengan implementasi sekarang.
 
-## 1. User Journey
+## 1. Gambaran Sistem
 
-### A. Visitor to User
-1. Pengguna membuka landing page Signify AI dan memahami value utama: terjemahan BISINDO real-time dari kamera.
-2. Pengguna dapat melihat halaman edukasi produk (how-it-works, research, terms).
-3. CTA utama mengarahkan pengguna ke fitur inti translasi.
+Signify AI adalah aplikasi web Next.js untuk pengenalan bahasa isyarat BISINDO secara real-time. Pengguna login dengan Google melalui Supabase, lalu membuka halaman Translate untuk memulai sesi kamera. Browser menangkap frame webcam dan mengirimkan gambar ke backend FastAPI. Backend menjalankan inferensi model YOLO11 dan mengembalikan daftar deteksi berisi kelas, confidence, dan bounding box. Frontend memilih prediksi terbaik, menstabilkan hasil dengan vote buffer, lalu menyusun huruf menjadi teks dan opsional membacakan hasil dengan text-to-speech.
 
-### B. Authentication and Access
-1. Halaman inti aplikasi (`/translate`, `/practice`, `/history`, `/reference`, `/collect`) dilindungi auth guard.
-2. Pengguna login via Google OAuth (Supabase) di halaman `/auth/login`.
-3. Setelah callback OAuth berhasil, user diarahkan kembali ke halaman tujuan (`next` path).
+## 2. Alur Pengguna
 
-### C. Real-time Translation Session
-1. User mengaktifkan kamera (desktop/mobile).
-2. Frontend mendeteksi hand landmarks dengan MediaPipe (interval 200ms desktop, 300ms mobile).
-3. Sistem mengambil crop tangan dengan ROI dinamis (landmarks) + fallback guide box.
-4. Frame hasil crop dikirim ke backend untuk inferensi model BISINDO.
-5. UI menampilkan prediksi huruf + confidence, lalu membangun kata/kalimat secara bertahap.
-6. User dapat menghapus karakter, menambah spasi, dan menjalankan TTS (text-to-speech).
-7. Riwayat hasil commit huruf otomatis tersimpan per sesi.
+### A. Akses dan autentikasi
+1. Pengguna membuka landing page publik Signify AI.
+2. Fitur inti berada di route `Translate`, `Practice`, `History`, dan `Reference`.
+3. Route tersebut dibungkus `AuthGuard`, sehingga pengguna yang belum login akan melihat modal login.
+4. Login dilakukan lewat Google OAuth melalui Supabase.
+5. Setelah login berhasil, sesi disimpan oleh Supabase di browser.
 
-### D. Practice, Reference, and Data Contribution
-1. `Practice`: latihan adaptif berdasarkan huruf yang akurasinya rendah.
-2. `Reference`: galeri alfabet BISINDO + statistik performa latihan per huruf.
-3. `History`: melihat sesi terdahulu, copy hasil, hapus sesi, clear all.
-4. `Collect`: mengumpulkan landmark dataset (50 sampel per huruf) untuk eksperimen model berbasis landmarks.
+### B. Translasi real-time
+1. Pengguna mengaktifkan kamera dari browser.
+2. Frontend menangkap frame secara periodik dan mengubahnya menjadi file gambar.
+3. File gambar dikirim sebagai form upload ke endpoint `POST /api/v1/translate/predict`.
+4. Backend melakukan decode gambar dengan OpenCV, menjalankan inferensi YOLO11, lalu mengembalikan hasil deteksi.
+5. Frontend mengambil deteksi dengan confidence tertinggi, menerapkan fast-commit dan weighted vote buffer untuk mengurangi flicker, lalu menambahkan huruf ke transcript.
+6. Setiap huruf yang berhasil di-commit disimpan sebagai history session di browser.
+7. Pengguna dapat menyalin hasil, menghapus riwayat tertentu, dan menjalankan TTS.
 
-### E. Data and Privacy Experience
-1. Video mentah tidak disimpan sebagai riwayat di backend aplikasi.
-2. Data history/practice disimpan lokal di browser (localStorage) untuk pengalaman personal dan ringan.
-3. Token auth dipakai untuk proteksi route dan (opsional) proteksi API backend.
+### C. Practice, History, dan Reference
+1. `Practice` memakai alur inferensi yang sama untuk melatih pengguna mengenali huruf target.
+2. Statistik latihan dan performa per huruf disimpan di `localStorage`, sehingga target latihan bisa dipilih secara adaptif antar sesi.
+3. `History` menampilkan sesi yang sudah tersimpan, lengkap dengan fitur copy, hapus sesi, dan clear all.
+4. `Reference` menampilkan galeri alfabet BISINDO A-Z beserta statistik performa latihan per huruf.
 
-## 2. System Architecture & Tech Stack
+## 3. Arsitektur Sistem
 
-### A. High-level Architecture
-1. Frontend (Next.js) menangani UI, kamera, MediaPipe landmarks, state prediksi, dan UX translasi.
-2. Backend (FastAPI + TensorFlow) menangani inferensi model CNN BISINDO dari image crop.
-3. Supabase menangani autentikasi user (OAuth/session/JWT).
-4. Pipeline ML (packages/ml) menangani training, evaluasi, dan export model untuk deployment.
+### A. Frontend
+1. Dibangun dengan Next.js dan React.
+2. Menangani UI, kamera, stabilisasi prediksi, transcript, TTS, dan navigasi antar workspace.
+3. Menyimpan history, practice stats, tema, dan preferensi aksesibilitas di browser.
 
-### B. Runtime Data Flow
-1. Browser capture frame -> MediaPipe landmarks.
-2. Frontend crop ROI tangan -> kirim image ke endpoint prediksi backend.
-3. Backend preprocess image -> inferensi SavedModel -> return prediction/confidence/top-k.
-4. Frontend melakukan stabilisasi hasil (fast commit + weighted voting) -> update transcript + TTS.
+### B. Backend
+1. Dibangun dengan FastAPI.
+2. Memuat model YOLO11 saat startup melalui service singleton.
+3. Menyediakan endpoint prediksi, daftar kelas, dan health check.
+4. Dapat memvalidasi JWT Supabase pada request yang membawa token; mode auth bisa diwajibkan lewat environment variable.
 
-### C. Tech Stack by Layer
-- Frontend:
-  - Next.js 16, React 19, TypeScript 5
-  - Tailwind CSS 4, shadcn/ui, Radix/Lucide
-  - MediaPipe Tasks Vision (hand landmark detection)
-  - Supabase SSR + Supabase JS client
-- Backend:
-  - FastAPI + Uvicorn
-  - TensorFlow 2.16.2 + Pillow + NumPy
-  - Pydantic Settings, PyJWT
-- ML/Training:
-  - TensorFlow/Keras EfficientNetV2B0
-  - Two-phase transfer learning (feature extraction + fine-tuning)
-  - Mixed precision FP16, class weighting, callbacks (checkpoint/early stopping)
-- Storage and State:
-  - Model artifacts: `models/checkpoints`, `models/exports`
-  - User history/practice/collect: localStorage browser
-  - Dataset manifests: `data/processed/bisindo_v1/manifests/*.csv`
+### C. Auth dan Storage
+1. Supabase dipakai untuk autentikasi pengguna dan sesi login.
+2. Riwayat translasi dan statistik latihan tidak disimpan di database server, melainkan di `localStorage` browser.
+3. Backend tidak menyimpan video mentah; server hanya memproses frame yang dikirim saat inferensi.
 
-### D. API Surface
-1. `POST /api/v1/translate/predict` -> prediksi huruf dari image crop.
-2. `GET /api/v1/translate/classes` -> daftar kelas model.
-3. `GET /health` -> status layanan dan model.
+## 4. Alur Data Runtime
 
-## 3. Model Pipeline
+1. Webcam di browser -> `captureFrame()`.
+2. Blob gambar -> `predictFromBlob()` -> `POST /api/v1/translate/predict`.
+3. Backend decode image -> YOLO11 inference -> return detections.
+4. Frontend memilih kelas teratas -> vote/fast-commit -> append transcript.
+5. Transcript yang sudah di-commit -> `appendHistoryEntry()` -> `localStorage`.
+6. Halaman History, Practice, dan Reference membaca data lokal yang sama agar konsisten antar halaman.
 
-### A. Training Pipeline (Offline)
-1. Data preparation:
-   - Dataset Roboflow BISINDO v1 diubah menjadi manifest `filepath,label`.
-   - Split: train/valid/test.
-2. Input preprocessing:
-   - Decode image, resize ke 224x224, normalisasi ke rentang [0,1].
-3. Augmentation (train only):
-   - Random brightness, contrast, JPEG quality
-   - Gamma adjustment
-   - Gaussian noise (probabilistik)
-4. Model architecture:
-   - EfficientNetV2B0 backbone (ImageNet pretrained, include_preprocessing=False)
-   - Head: GAP -> BatchNorm -> Dropout -> Dense(256) -> Dropout -> Dense(26, softmax)
-5. Two-phase training:
-   - Phase 1 (base frozen): AdamW, lr awal 1e-3
-   - Phase 2 (partial unfreeze dari layer 240): AdamW + cosine decay + warmup
-6. Evaluation and reporting:
-   - Accuracy, per-class precision/recall/F1, confusion matrix
-   - Output report disimpan ke CSV.
-7. Export:
-   - Checkpoint -> SavedModel + label_map.json (opsional TFLite).
+## 5. Catatan Penting untuk Laporan
 
-### B. Inference Pipeline (Online, Production Path)
-1. Frontend:
-   - Hand detection + ROI crop dari webcam.
-   - Gambar dikirim sebagai JPEG crop (transport size 320x320).
-2. Backend canonical preprocessing:
-   - Convert RGB -> grayscale (ditumpuk jadi 3 channel)
-   - Resize ke input model 224x224
-   - Normalize [0,1]
-3. Model inference:
-   - Return prediction, confidence, top-k, inference_ms, low_confidence flag.
-4. Frontend decision logic:
-   - Fast commit jika confidence sangat tinggi.
-   - Confidence-weighted vote buffer untuk menurunkan flicker.
-   - Cooldown anti-duplikasi huruf berulang terlalu cepat.
-5. Output UX:
-   - Huruf terkini + transcript berjalan + TTS opsional.
+1. Implementasi aktif saat ini tidak memakai MediaPipe sebagai jalur utama translasi.
+2. Implementasi aktif saat ini juga tidak memakai pipeline TensorFlow/EfficientNet seperti draft lama.
+3. Tidak ada route `collect` pada codebase aktif.
+4. Gambaran yang paling tepat untuk laporan adalah: frontend menangkap webcam, backend YOLO11 melakukan inferensi, Supabase menangani autentikasi, dan data personal disimpan lokal di browser.
 
-### C. Current Quality Snapshot
-1. Hasil evaluasi test report terbaru: accuracy sekitar 98.86% (1,297 benar dari 1,315 sampel).
-2. Model fokus pada 26 huruf alfabet BISINDO (A-Z).
+## Ringkasan 1 Kalimat per Komponen
 
-## 4. Dataset & Preprocessing
-
-### A. Dataset Scope
-1. Dataset utama: BISINDO v1 (26 kelas huruf A-Z).
-2. Sumber dataset menunjukkan total ekspor Roboflow 22,168 image.
-3. Manifest training aktif di proyek berisi 21,373 image terpakai.
-
-### B. Split Aktif (berdasarkan manifest proyek)
-- Train: 18,723
-- Validation: 1,335
-- Test: 1,315
-- Total: 21,373
-
-### C. Class Distribution and Imbalance
-1. Distribusi kelas belum seimbang.
-2. Contoh ekstrem di train split:
-   - Kelas minimum: C (183)
-   - Kelas maksimum: R (1,722)
-   - Rasio ketimpangan max/min: 9.41x
-3. Dampak:
-   - Perlu class weighting dan evaluasi per kelas (sudah diterapkan di training pipeline).
-
-### D. Preprocessing Contract (Train vs Inference)
-1. Train dan inference sama-sama menggunakan input akhir 224x224, float [0,1].
-2. Inference backend melakukan grayscale normalization secara kanonik agar konsisten.
-3. Frontend hanya melakukan crop ROI dan resize transport; preprocessing model tetap dipusatkan di backend.
-4. Tidak menggunakan horizontal flip untuk training agar orientasi gesture BISINDO tidak berubah makna.
-
-### E. Supporting Data Collection Loop
-1. Halaman `collect` memungkinkan pengumpulan landmark vector per huruf (eksperimen berbasis landmarks).
-2. Data collection ini menjadi loop peningkatan data untuk iterasi model berikutnya.
-
----
-
-## Ringkasan 1 Kalimat per Komponen (untuk slide cepat)
-1. User Journey: dari login cepat, deteksi real-time, hingga latihan dan histori personal dalam satu alur aplikasi.
-2. System Architecture: frontend vision-first + backend inference API + auth Supabase + pipeline ML terpisah.
-3. Model Pipeline: two-phase transfer learning EfficientNetV2B0 dengan preprocessing konsisten train-inference.
-4. Dataset & Preprocessing: 26 kelas BISINDO, 21,373 sampel aktif, class imbalance ditangani class weighting dan evaluasi per kelas.
+1. User journey: login Google, translasi real-time, latihan huruf, dan melihat riwayat dalam satu aplikasi web.
+2. System architecture: Next.js frontend, FastAPI YOLO backend, Supabase untuk auth, dan localStorage untuk data personal.
+3. Runtime pipeline: frame webcam dikirim ke backend, dianalisis YOLO11, lalu hasilnya dipadatkan menjadi teks.
+4. Data persistence: history dan practice stats tersimpan lokal, bukan di database server.

@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Menonaktifkan tombol 'N' dan indikator development di pojok layar
-  devIndicators: false,
 
   images: {
     qualities: [75, 90],

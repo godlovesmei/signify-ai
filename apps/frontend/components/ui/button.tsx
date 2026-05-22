@@ -1,55 +1,48 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md text-sm font-medium outline-none transition-all duration-200 ease-out motion-reduce:transform-none motion-reduce:transition-none disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none hover:-translate-y-px active:translate-y-0 active:scale-[0.98] active:shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md text-sm font-semibold outline-none transition-all duration-200 ease-out focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none motion-reduce:transition-none disabled:pointer-events-none disabled:translate-y-0 disabled:scale-100 disabled:opacity-55 disabled:shadow-none hover:-translate-y-px active:translate-y-0 active:scale-[0.98] aria-invalid:border-destructive aria-invalid:ring-destructive/25 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        // 🔵 PRIMARY
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(59,130,246,0.35),0_12px_24px_-14px_rgba(2,6,23,0.45)] dark:hover:bg-primary/80",
+          "bg-primary text-primary-foreground shadow-[0_10px_22px_-14px_rgba(var(--glow-primary),0.72)] hover:bg-primary/90 hover:shadow-[0_0_0_1px_rgba(var(--glow-primary),0.16),0_18px_34px_-18px_rgba(var(--glow-primary),0.82)] dark:hover:bg-primary/80",
 
-        // 🟢 SUCCESS
         success:
-          "bg-success text-success-foreground shadow-sm hover:bg-success/90 hover:shadow-[0_0_20px_rgba(34,197,94,0.35),0_12px_24px_-14px_rgba(6,95,70,0.45)] dark:hover:bg-success/80",
+          "bg-success text-success-foreground shadow-[0_10px_22px_-14px_rgba(var(--glow-success),0.72)] hover:bg-success/90 hover:shadow-[0_0_0_1px_rgba(var(--glow-success),0.18),0_18px_34px_-18px_rgba(var(--glow-success),0.72)] dark:hover:bg-success/80",
 
-        // 🟡 WARNING
         warning:
-          "bg-warning text-warning-foreground shadow-sm hover:bg-warning/90 hover:shadow-[0_0_20px_rgba(245,158,11,0.35),0_12px_24px_-14px_rgba(120,53,15,0.45)] dark:hover:bg-warning/80",
+          "bg-warning text-warning-foreground shadow-[0_10px_22px_-14px_rgba(var(--glow-warning),0.62)] hover:bg-warning/90 hover:shadow-[0_0_0_1px_rgba(var(--glow-warning),0.18),0_18px_34px_-18px_rgba(var(--glow-warning),0.70)] dark:hover:bg-warning/80",
 
-        // 🔴 DESTRUCTIVE
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.45),0_12px_24px_-14px_rgba(127,29,29,0.5)] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-destructive-foreground shadow-[0_10px_22px_-14px_rgba(var(--glow-error),0.78)] hover:bg-destructive/90 hover:shadow-[0_0_0_1px_rgba(var(--glow-error),0.18),0_18px_34px_-18px_rgba(var(--glow-error),0.78)] focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/45",
 
-        // 🧊 GLASS (REPLACES OUTLINE)
         outline:
-          "border border-white/20 bg-white/10 backdrop-blur-md text-foreground shadow-none " +
-          "hover:bg-white/15 hover:border-white/30 hover:backdrop-blur-lg " +
-          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.08)] " +
-          "active:shadow-[inset_0_2px_6px_rgba(0,0,0,0.25)] " +
-          "dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10",
+          "border border-input bg-background text-foreground shadow-xs hover:border-primary/35 hover:bg-accent/10 hover:text-foreground hover:shadow-[0_12px_24px_-18px_rgba(var(--shadow-color),0.45)] dark:bg-background/70 dark:hover:bg-white/[0.06]",
 
-        // 👻 GHOST
         ghost:
-          "text-foreground shadow-none hover:bg-primary/5 hover:text-primary active:shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]",
+          "text-foreground shadow-none hover:bg-primary/10 hover:text-primary active:bg-primary/15",
 
-        // ⚪ SECONDARY
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 hover:shadow-[0_0_16px_rgba(100,116,139,0.25),0_10px_20px_-16px_rgba(2,6,23,0.4)]",
+          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 hover:shadow-[0_12px_24px_-18px_rgba(var(--shadow-color),0.38)]",
 
-        // 🟣 HIGHLIGHT
         highlight:
-          "bg-highlight text-highlight-foreground shadow-xs hover:bg-highlight/90 hover:shadow-[0_0_16px_rgba(168,85,247,0.3),0_10px_20px_-16px_rgba(2,6,23,0.38)]",
+          "bg-highlight text-highlight-foreground shadow-xs hover:bg-highlight/90 hover:shadow-[0_12px_24px_-18px_rgba(var(--glow-primary),0.45)]",
 
-        // 🪟 SURFACE
         surface:
           "bg-surface-tertiary text-surface-tertiary-foreground shadow-xs hover:bg-surface-tertiary/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(2,6,23,0.1)]",
 
-        // 🔗 LINK
+        glass:
+          "border border-border/50 bg-card/70 text-foreground shadow-xs backdrop-blur-md hover:border-primary/25 hover:bg-card/90 hover:shadow-[0_12px_28px_-20px_rgba(var(--shadow-color),0.52)] dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]",
+
+        signal:
+          "border border-primary/20 bg-primary text-primary-foreground shadow-[0_12px_26px_-14px_rgba(var(--glow-primary),0.82)] hover:bg-primary/90 hover:shadow-[0_0_0_1px_rgba(var(--glow-cyan),0.20),0_18px_38px_-18px_rgba(var(--glow-primary),0.92)] dark:border-primary/35",
+
         link:
           "text-primary underline-offset-4 hover:underline hover:translate-y-0 hover:shadow-none active:scale-100",
       },
@@ -73,26 +66,58 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+    isLoading?: boolean
+    loadingText?: string
+  }
+
 function Button({
   className,
   variant = "default",
   size = "default",
   asChild = false,
+  disabled,
+  isLoading = false,
+  loadingText,
+  children,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot.Root : "button"
+}: ButtonProps) {
+  const isDisabled = disabled || isLoading
+  const classNames = cn(buttonVariants({ variant, size, className }))
+
+  if (asChild) {
+    return (
+      <Slot.Root
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        aria-busy={isLoading || undefined}
+        aria-disabled={isDisabled || undefined}
+        className={classNames}
+        {...props}
+      >
+        {children}
+      </Slot.Root>
+    )
+  }
 
   return (
-    <Comp
+    <button
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={isDisabled}
+      aria-busy={isLoading || undefined}
+      className={classNames}
       {...props}
-    />
+    >
+      {isLoading && (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      )}
+      {isLoading && loadingText ? loadingText : children}
+    </button>
   )
 }
 
