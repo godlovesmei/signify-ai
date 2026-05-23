@@ -16,11 +16,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { TEXT_SCALE_OPTIONS } from "@/hooks/useAccessibilityPrefs";
 import type { ThemeMode } from "@/hooks/useTheme";
@@ -317,7 +317,7 @@ function TextScaleSelector({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SETTINGS DRAWER — Main Component
+   SETTINGS MODAL — Main Component
    ═══════════════════════════════════════════════════════════════ */
 export default function SettingsDrawer({
   open,
@@ -355,26 +355,25 @@ export default function SettingsDrawer({
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent
-        side="right"
-        className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-[380px] glass-strong border-l border-border/40 dark:border-white/[0.06]"
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent
+        className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-2xl border border-border/70 bg-popover/96 p-0 text-popover-foreground shadow-[0_28px_90px_-32px_rgba(var(--shadow-color),0.52)] backdrop-blur-xl sm:max-h-[760px] sm:w-[720px] sm:max-w-[720px]"
         aria-label="App settings"
       >
         {/* Header */}
-        <SheetHeader className="shrink-0 border-b border-border/30 dark:border-white/[0.06] px-6 py-5">
+        <DialogHeader className="shrink-0 border-b border-border/60 px-6 py-5 pr-14">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/[0.08] dark:bg-primary/[0.12] ring-1 ring-primary/15">
               <Sliders className="h-4 w-4 text-primary" aria-hidden="true" />
             </div>
-            <SheetTitle className="text-base font-display font-semibold tracking-tight">
+            <DialogTitle className="text-base font-display font-semibold tracking-tight">
               Settings
-            </SheetTitle>
+            </DialogTitle>
           </div>
-        </SheetHeader>
+        </DialogHeader>
 
         {/* Scrollable Content */}
-        <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-6">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-6">
           {/* ── Camera ── */}
           <section aria-labelledby="settings-camera">
             <SectionHeading
@@ -618,7 +617,7 @@ export default function SettingsDrawer({
             </p>
           </section>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

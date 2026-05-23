@@ -10,6 +10,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 
+const WORKSPACE_USER = { name: "Nama User", email: "user@signify.ai" };
+
 export default function WorkspaceShell({
   children,
 }: {
@@ -21,8 +23,8 @@ export default function WorkspaceShell({
   const { theme, setTheme } = useTheme();
   const prefs = useAccessibilityPrefs();
 
-  // SettingsDrawer props (mirrored from translate page)
-  const [devices, setDevices] = useState<{ deviceId: string; label: string }[]>([]);
+  // Settings modal props (mirrored from translate page)
+  const [devices] = useState<{ deviceId: string; label: string }[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [isMirrored, setIsMirrored] = useState(true);
 
@@ -36,17 +38,19 @@ export default function WorkspaceShell({
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground selection:bg-primary/20 antialiased">
       <TopBar onMenuClick={() => setMobileSidebarOpen(true)} />
 
-      <div className="flex flex-1 overflow-hidden md:pr-3 md:pb-3 md:pt-0 md:pl-2 gap-3">
+      <div className="flex flex-1 overflow-hidden gap-3 md:pr-3 md:pb-3 md:pt-0 md:pl-0">
         {/* Desktop Sidebar */}
         <AppSidebar
           pathname={pathname}
           onSettingsClick={() => setSettingsOpen(true)}
+          onLogout={handleLogout}
           mobileOpen={mobileSidebarOpen}
           onMobileClose={() => setMobileSidebarOpen(false)}
+          user={WORKSPACE_USER}
         />
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 relative bg-background md:rounded-[24px] md:border md:border-border/40 md:shadow-[0_2px_20px_-8px_rgba(0,0,0,0.1)] dark:md:shadow-none overflow-hidden flex flex-col">
+        <main className="flex-1 min-w-0 relative bg-background md:rounded-[24px] md:border md:border-border/70 md:shadow-[0_16px_45px_-34px_rgba(var(--shadow-color),0.5)] dark:md:shadow-none overflow-hidden flex flex-col">
           <div className="flex-1 w-full h-full overflow-auto">
             {children}
           </div>
@@ -56,7 +60,7 @@ export default function WorkspaceShell({
       {/* Mobile Bottom Nav */}
       <MobileBottomNav reserveSpace={false} />
 
-      {/* Settings Drawer */}
+      {/* Settings Modal */}
       <SettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
@@ -75,6 +79,7 @@ export default function WorkspaceShell({
         onTtsSpeedChange={prefs.setTtsSpeed}
         ttsVolume={prefs.ttsVolume}
         onTtsVolumeChange={prefs.setTtsVolume}
+        user={WORKSPACE_USER}
         onLogout={handleLogout}
       />
     </div>
