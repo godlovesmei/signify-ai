@@ -24,7 +24,6 @@ import {
 import { cn } from "@/lib/utils";
 import { TEXT_SCALE_OPTIONS } from "@/hooks/useAccessibilityPrefs";
 import type { ThemeMode } from "@/hooks/useTheme";
-import type { NavUser } from "@/components/layout/Navbar";
 
 export interface MediaDeviceOption {
   deviceId: string;
@@ -51,7 +50,7 @@ export interface SettingsDrawerProps {
   onTtsVolumeChange: (v: number) => void;
   voiceEnabled?: boolean;
   onVoiceEnabledChange?: (enabled: boolean) => void;
-  user?: NavUser | null;
+  user?: { name: string, email: string, avatarUrl?: string } | null;
   onLogout: () => void;
 }
 

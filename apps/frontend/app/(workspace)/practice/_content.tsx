@@ -1,18 +1,16 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';                    // ← DITAMBAHKAN
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useMotionValue } from 'motion/react';
-import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2 } from 'lucide-react';
+import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useMotionValue } from "motion/react";
+import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2 } from "lucide-react";
 
 import {
   WebcamCapture,
   type WebcamCaptureHandle,
   type CameraState,
-} from '@/components/features/translation';
-import WorkspaceTopNav from '@/components/layout/WorkspaceTopNav';
-import MobileBottomNav from '@/components/layout/mobile-nav/MobileBottomNav';
-import { Button } from '@/components/ui/button';
+} from "@/components/features/translation";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -20,10 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
-import { captureFrame } from '@/lib/imagePreprocess';
-import { predictFromBlob, type TranslateDetection } from '@/lib/translateApi';
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { captureFrame } from "@/lib/imagePreprocess";
+import { predictFromBlob, type TranslateDetection } from "@/lib/translateApi";
 import {
   ALPHABET_LETTERS,
   type AlphabetLetter,
@@ -31,26 +29,26 @@ import {
   getPracticeStats,
   recordPracticeAttempt,
   resetPracticeStats,
-} from '@/lib/userData';
-import { CameraFrame } from '@/components/features/practice/CameraFrame';
-import { AmbientStatusStrip, TrailIndicator, StatusBadge } from '@/components/features/practice/AmbientStatusStrip';
-import { HoldProgressRing } from '@/components/features/practice/HoldProgressRing';
-import { GhostSkeleton } from '@/components/features/practice/GhostSkeleton';
-import { MicroFeedback } from '@/components/features/practice/MicroFeedback';
-import { SuccessOverlay } from '@/components/features/practice/SuccessOverlay';
-import { TargetBlock, TargetCompact } from '@/components/features/practice/TargetBlock';
-import { StatsDrawer } from '@/components/features/practice/StatsDrawer';
+} from "@/lib/userData";
+import { CameraFrame } from "@/components/features/practice/CameraFrame";
+import { AmbientStatusStrip, TrailIndicator, StatusBadge } from "@/components/features/practice/AmbientStatusStrip";
+import { HoldProgressRing } from "@/components/features/practice/HoldProgressRing";
+import { GhostSkeleton } from "@/components/features/practice/GhostSkeleton";
+import { MicroFeedback } from "@/components/features/practice/MicroFeedback";
+import { SuccessOverlay } from "@/components/features/practice/SuccessOverlay";
+import { TargetBlock, TargetCompact } from "@/components/features/practice/TargetBlock";
+import { StatsDrawer } from "@/components/features/practice/StatsDrawer";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const PRACTICE_WS_URL = process.env.NEXT_PUBLIC_PRACTICE_WS_URL;
-const PRACTICE_WS_PATH = '/api/v1/translate/stream';
+const PRACTICE_WS_PATH = "/api/v1/translate/stream";
 const MODEL_INIT_MS = 2400;
-const IS_MOBILE = typeof navigator !== 'undefined' && /Android|iPhone|iPad/i.test(navigator.userAgent);
+const IS_MOBILE = typeof navigator !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent);
 const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200;
 const HOLD_FRAMES_NEEDED = 5;
 const HOLD_CONFIDENCE_MIN = 0.78;
 const HOLD_DECAY = 0.5;
-const SUCCESS_PAUSE_MS = 800; // Reduced from 1200ms
+const SUCCESS_PAUSE_MS = 800;
 const RING_FINGER_TIP_INDEX = 16;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,11 +82,11 @@ type MicroFeedbackPayload = {
 };
 
 function toNumber(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function toRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
 function coerceLandmark(value: unknown): LandmarkPoint | null {
@@ -165,13 +163,13 @@ function parsePracticeMessage(raw: unknown): MicroFeedbackPayload | null {
   const fallbackPoint = toRecord(payload.point) ?? toRecord(payload.anchor);
   const feedbackPoint = toRecord(feedback?.point) ?? toRecord(feedback?.anchor);
   const text =
-    (typeof feedback?.text === 'string' ? feedback.text : undefined) ??
-    (typeof payload.text === 'string' ? payload.text : undefined) ??
-    (typeof payload.message === 'string' ? payload.message : undefined) ??
-    '';
+    (typeof feedback?.text === "string" ? feedback.text : undefined) ??
+    (typeof payload.text === "string" ? payload.text : undefined) ??
+    (typeof payload.message === "string" ? payload.message : undefined) ??
+    "";
 
   const visibleRaw = feedback?.visible ?? payload.visible;
-  const visible = typeof visibleRaw === 'boolean' ? visibleRaw : true;
+  const visible = typeof visibleRaw === "boolean" ? visibleRaw : true;
 
   const size = getFrameSize(payload);
 
@@ -212,9 +210,9 @@ function resolvePracticeWsUrl(): string | null {
   if (PRACTICE_WS_URL) return PRACTICE_WS_URL;
   try {
     const url = new URL(API_BASE_URL);
-    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
     url.pathname = PRACTICE_WS_PATH;
-    url.search = '';
+    url.search = "";
     return url.toString();
   } catch {
     return null;
@@ -225,16 +223,15 @@ function resolvePracticeWsUrl(): string | null {
 
 export default function PracticePageContent() {
   // ── Camera state ──────────────────────────────────────────────────
-  const [appState, setAppState] = useState<CameraState>('idle');
+  const [appState, setAppState] = useState<CameraState>("idle");
   const [isMirrored, setIsMirrored] = useState(true);
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [apiError, setApiError] = useState(false);
   const [detections, setDetections] = useState<TranslateDetection[]>([]);
   const [currentLetter, setCurrentLetter] = useState<string | null>(null);
-  const [devices, setDevices] = useState<{ deviceId: string; label: string }[]>([]);
   const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return window.matchMedia('(min-width: 768px)').matches;
+    if (typeof window === "undefined") return true;
+    return window.matchMedia("(min-width: 768px)").matches;
   });
 
   // ── Practice state ────────────────────────────────────────────────
@@ -250,7 +247,7 @@ export default function PracticePageContent() {
   // ── Micro feedback ───────────────────────────────────────────────
   const microX = useMotionValue(50);
   const microY = useMotionValue(40);
-  const [microText, setMicroText] = useState('');
+  const [microText, setMicroText] = useState("");
   const [microVisible, setMicroVisible] = useState(false);
 
   // ── Refs ──────────────────────────────────────────────────────────
@@ -267,10 +264,10 @@ export default function PracticePageContent() {
   const microPayloadRef = useRef<MicroFeedbackPayload>({
     x: 50,
     y: 40,
-    text: '',
+    text: "",
     visible: false,
   });
-  const microTextRef = useRef('');
+  const microTextRef = useRef("");
   const microVisibleRef = useRef(false);
   const microRafRef = useRef<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -311,7 +308,7 @@ export default function PracticePageContent() {
   const clearMicroFeedback = useCallback(() => {
     microPayloadRef.current = {
       ...microPayloadRef.current,
-      text: '',
+      text: "",
       visible: false,
     };
     scheduleMicroUpdate();
@@ -335,26 +332,17 @@ export default function PracticePageContent() {
   }, [target, clearMicroFeedback]);
 
   useEffect(() => {
-    captureCanvasRef.current = document.createElement('canvas');
+    captureCanvasRef.current = document.createElement("canvas");
     return () => { captureCanvasRef.current = null; };
   }, []);
 
   useEffect(() => {
-    navigator.mediaDevices?.enumerateDevices()
-      .then((d) => {
-        const inputs = d.filter((x) => x.kind === 'videoinput');
-        setDevices(inputs.map((x) => ({ deviceId: x.deviceId, label: x.label })));
-      })
-      .catch(() => { });
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
     const handleChange = () => setIsDesktop(mediaQuery.matches);
     handleChange();
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   useEffect(() => {
@@ -378,7 +366,7 @@ export default function PracticePageContent() {
   const wasDetectingRef = useRef(false);
   useEffect(() => {
     function onVisibility() {
-      if (document.hidden && appState === 'detecting') {
+      if (document.hidden && appState === "detecting") {
         wasDetectingRef.current = true;
         if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
       } else if (!document.hidden && wasDetectingRef.current) {
@@ -386,26 +374,26 @@ export default function PracticePageContent() {
         startInferenceLoopRef.current();
       }
     }
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [appState]);
 
   useEffect(() => {
     const wsUrl = resolvePracticeWsUrl();
-    if (!wsUrl || appState !== 'detecting') return;
+    if (!wsUrl || appState !== "detecting") return;
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
-    ws.addEventListener('open', () => {
+    ws.addEventListener("open", () => {
       const letter = pendingTargetRef.current ?? targetRef.current;
       pendingTargetRef.current = null;
-      ws.send(JSON.stringify({ type: 'practice_target', target: letter }));
+      ws.send(JSON.stringify({ type: "practice_target", target: letter }));
     });
 
-    ws.addEventListener('message', (event) => {
+    ws.addEventListener("message", (event) => {
       let decoded: string | null = null;
-      if (typeof event.data === 'string') {
+      if (typeof event.data === "string") {
         decoded = event.data;
       } else if (event.data instanceof ArrayBuffer) {
         decoded = new TextDecoder().decode(event.data);
@@ -420,11 +408,11 @@ export default function PracticePageContent() {
       }
     });
 
-    ws.addEventListener('close', () => {
+    ws.addEventListener("close", () => {
       wsRef.current = null;
     });
 
-    ws.addEventListener('error', () => {
+    ws.addEventListener("error", () => {
       wsRef.current = null;
     });
 
@@ -435,8 +423,8 @@ export default function PracticePageContent() {
   }, [appState, applyMicroFeedback]);
 
   useEffect(() => {
-    if (appState !== 'detecting') return;
-    const payload = JSON.stringify({ type: 'practice_target', target });
+    if (appState !== "detecting") return;
+    const payload = JSON.stringify({ type: "practice_target", target });
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(payload);
     } else {
@@ -558,12 +546,12 @@ export default function PracticePageContent() {
   // ── Camera lifecycle ──────────────────────────────────────────────
 
   const startDetection = useCallback(() => {
-    setAppState('detecting');
+    setAppState("detecting");
     startInferenceLoop();
   }, [startInferenceLoop]);
 
-  const startCamera = useCallback(async (facing: 'user' | 'environment' = facingMode) => {
-    setAppState('requesting');
+  const startCamera = useCallback(async (facing: "user" | "environment" = facingMode) => {
+    setAppState("requesting");
     setApiError(false);
     stopStream();
     isSucceeding.current = false;
@@ -578,16 +566,16 @@ export default function PracticePageContent() {
       streamRef.current = stream;
       const video = webcamRef.current?.videoElement;
       if (video) { video.srcObject = stream; await video.play(); }
-      setAppState('loading');
+      setAppState("loading");
       setTimeout(() => {
         startDetection();
       }, MODEL_INIT_MS);
     } catch (err: unknown) {
       const e = err as { name?: string };
       setAppState(
-        e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError'
-          ? 'error-permission'
-          : 'error-device',
+        e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError"
+          ? "error-permission"
+          : "error-device",
       );
     }
   }, [facingMode, stopStream, startDetection]);
@@ -601,7 +589,7 @@ export default function PracticePageContent() {
     setDetections([]);
     setCurrentLetter(null);
     setHoldProgress(0);
-    if (appState === 'detecting') setAppState('ready');
+    if (appState === "detecting") setAppState("ready");
   }, [appState, clearMicroFeedback]);
 
   const handleReset = useCallback(() => {
@@ -611,7 +599,7 @@ export default function PracticePageContent() {
     holdProgressRef.current = 0;
     isSucceeding.current = false;
     clearMicroFeedback();
-    setAppState('idle');
+    setAppState("idle");
     setDetections([]);
     setCurrentLetter(null);
     setHoldProgress(0);
@@ -620,20 +608,20 @@ export default function PracticePageContent() {
   }, [clearMicroFeedback, stopStream]);
 
   const flipCamera = useCallback(() => {
-    const next = facingMode === 'user' ? 'environment' : 'user';
+    const next = facingMode === "user" ? "environment" : "user";
     setFacingMode(next);
-    setIsMirrored(next === 'user');
+    setIsMirrored(next === "user");
     stopDetection();
     startCamera(next);
   }, [facingMode, stopDetection, startCamera]);
 
   const handlePrimaryCameraAction = useCallback(() => {
-    if (appState === 'detecting') {
+    if (appState === "detecting") {
       stopDetection();
       return;
     }
 
-    if (appState === 'ready') {
+    if (appState === "ready") {
       startDetection();
       return;
     }
@@ -660,7 +648,7 @@ export default function PracticePageContent() {
   }, [clearMicroFeedback]);
 
   useEffect(() => {
-    if (appState !== 'detecting') {
+    if (appState !== "detecting") {
       clearMicroFeedback();
     }
   }, [appState, clearMicroFeedback]);
@@ -670,22 +658,22 @@ export default function PracticePageContent() {
       setIsFullscreen(document.fullscreenElement === cameraFrameRef.current);
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   // ── Derived values ────────────────────────────────────────────────
 
-  const isActive = appState === 'detecting';
-  const isCameraBusy = appState === 'requesting' || appState === 'loading';
+  const isActive = appState === "detecting";
+  const isCameraBusy = appState === "requesting" || appState === "loading";
   const statusTone =
-    appState === 'requesting' || appState === 'loading'
-      ? 'processing'
-      : appState === 'detecting'
+    appState === "requesting" || appState === "loading"
+      ? "processing"
+      : appState === "detecting"
         ? detections.length > 0
-          ? 'hand'
-          : 'no-hand'
-        : 'no-hand';
+          ? "hand"
+          : "no-hand"
+        : "no-hand";
 
   const breadcrumb = trail.length > 0 ? trail : [target];
   const weakLetters = Object.entries(stats.byLetter)
@@ -696,9 +684,7 @@ export default function PracticePageContent() {
   // ── Render ────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
-      <WorkspaceTopNav />
-
+    <div className="flex h-full flex-col overflow-hidden bg-background text-foreground">
       <main className="workspace-height min-h-0 overflow-y-auto md:overflow-hidden">
         <div className="flex h-full flex-col gap-4 px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
 
@@ -748,10 +734,10 @@ export default function PracticePageContent() {
                           <span
                             key={letter}
                             className={cn(
-                              'px-2 py-1 rounded-md text-xs border',
+                              "px-2 py-1 rounded-md text-xs border",
                               letter === target
-                                ? 'border-primary/30 bg-primary/10 font-bold text-primary'
-                                : 'border-white/5 bg-white/[0.02] text-muted-foreground',
+                                ? "border-primary/30 bg-primary/10 font-bold text-primary"
+                                : "border-white/5 bg-white/[0.02] text-muted-foreground",
                             )}
                           >
                             {letter} {pct}%
@@ -796,7 +782,7 @@ export default function PracticePageContent() {
                     detections={detections}
                     showDetectionOverlay={false}
                     apiError={apiError}
-                    hasMultipleCameras={devices.length > 1}
+                    hasMultipleCameras={true}
                     languageLabel="BISINDO"
                     voiceEnabled={false}
                     showControls={false}
@@ -982,7 +968,7 @@ export default function PracticePageContent() {
                   detections={detections}
                   showDetectionOverlay={false}
                   apiError={apiError}
-                  hasMultipleCameras={devices.length > 1}
+                  hasMultipleCameras={true}
                   languageLabel="BISINDO"
                   voiceEnabled={false}
                   onRequestCamera={() => startCamera()}
@@ -1082,8 +1068,6 @@ export default function PracticePageContent() {
           )}
         </div>
       </main>
-
-      <MobileBottomNav reserveSpace={false} />
     </div>
   );
 }

@@ -121,8 +121,8 @@ body,
    2. DARK MODE
    ═══════════════════════════════════════════════════════════════ */
 .dark {
-  --background:          oklch(12.00% 0.0081 310.40);
-  --foreground:          oklch(99.11% 0.0081 310.40);
+  --background:          oklch(16.00% 0.0081 310.40);
+  --foreground:          oklch(88.00% 0.0081 310.40);
 
   --primary:             oklch(58.00% 0.1896 310.40);
   --primary-foreground:  oklch(99.11% 0      0);
@@ -134,12 +134,12 @@ body,
   --accent-foreground:   oklch(99.11% 0      0);
 
   --card:                oklch(21.03% 0.0162 310.40);
-  --card-foreground:     oklch(99.11% 0.0081 310.40);
+  --card-foreground:     oklch(88.00% 0.0081 310.40);
   --popover:             oklch(21.03% 0.0162 310.40);
-  --popover-foreground:  oklch(99.11% 0.0081 310.40);
+  --popover-foreground:  oklch(88.00% 0.0081 310.40);
 
   --surface-tertiary:             oklch(27.21% 0.0121 310.40);
-  --surface-tertiary-foreground:  oklch(99.11% 0.0081 310.40);
+  --surface-tertiary-foreground:  oklch(88.00% 0.0081 310.40);
 
   --muted:               oklch(27.40% 0.0081 310.40);
   --muted-foreground:    oklch(70.50% 0.0162 310.40);
