@@ -19,7 +19,6 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const prefs = useAccessibilityPrefs();
 
@@ -36,7 +35,7 @@ export default function WorkspaceShell({
 
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground selection:bg-primary/20 antialiased">
-      <TopBar onMenuClick={() => setMobileSidebarOpen(true)} />
+      <TopBar />
 
       <div className="flex flex-1 overflow-hidden gap-3 md:pr-3 md:pb-3 md:pt-0 md:pl-0">
         {/* Desktop Sidebar */}
@@ -44,8 +43,8 @@ export default function WorkspaceShell({
           pathname={pathname}
           onSettingsClick={() => setSettingsOpen(true)}
           onLogout={handleLogout}
-          mobileOpen={mobileSidebarOpen}
-          onMobileClose={() => setMobileSidebarOpen(false)}
+          mobileOpen={false}
+          onMobileClose={() => {}}
           user={WORKSPACE_USER}
         />
 

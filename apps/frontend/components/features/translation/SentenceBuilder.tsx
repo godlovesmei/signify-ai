@@ -100,7 +100,7 @@ export default function SentenceBuilder({
                     : "bg-muted/70 dark:bg-white/5 text-muted-foreground/80"
                 )}
               >
-                {token === " " ? "·" : token}
+                {token === " " ? "\u00A0" : token}
               </span>
             );
           })

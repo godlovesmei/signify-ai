@@ -357,8 +357,8 @@ export default function SettingsDrawer({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-2xl border border-border/70 bg-popover/96 p-0 text-popover-foreground shadow-[0_28px_90px_-32px_rgba(var(--shadow-color),0.52)] backdrop-blur-xl sm:max-h-[760px] sm:w-[720px] sm:max-w-[720px]"
-        aria-label="App settings"
+      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-2xl border border-border/70 bg-popover/96 p-0 text-popover-foreground shadow-[0_28px_90px_-32px_rgba(var(--shadow-color),0.52)] backdrop-blur-xl top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[720px] sm:max-w-[720px]"
+      aria-label="App settings"
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border/60 px-6 py-5 pr-14">

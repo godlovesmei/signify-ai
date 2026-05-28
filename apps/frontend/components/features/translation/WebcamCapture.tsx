@@ -35,7 +35,6 @@ export interface WebcamCaptureProps {
   showDetectionOverlay?: boolean;
   apiError: boolean;
   hasMultipleCameras: boolean;
-  languageLabel: string;
   voiceEnabled: boolean;
   showControls?: boolean;
   onRequestCamera: () => void;
@@ -235,7 +234,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       showDetectionOverlay = true,
       apiError,
       hasMultipleCameras,
-      languageLabel,
       voiceEnabled,
       showControls = true,
       onRequestCamera,
@@ -409,13 +407,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 )}
               </OverlayIconBtn>
             </div>
-          </div>
-        )}
-
-        {isLive && (
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 rounded-full glass px-2.5 py-1 text-[11px] font-semibold text-foreground dark:text-white/85">
-            <Hand className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
-            {languageLabel}
           </div>
         )}
 

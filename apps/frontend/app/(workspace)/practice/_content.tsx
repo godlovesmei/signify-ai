@@ -783,7 +783,6 @@ export default function PracticePageContent() {
                     showDetectionOverlay={false}
                     apiError={apiError}
                     hasMultipleCameras={true}
-                    languageLabel="BISINDO"
                     voiceEnabled={false}
                     showControls={false}
                     onRequestCamera={() => startCamera()}
@@ -969,7 +968,6 @@ export default function PracticePageContent() {
                   showDetectionOverlay={false}
                   apiError={apiError}
                   hasMultipleCameras={true}
-                  languageLabel="BISINDO"
                   voiceEnabled={false}
                   onRequestCamera={() => startCamera()}
                   onStartDetection={startDetection}

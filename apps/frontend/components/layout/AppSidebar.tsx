@@ -8,7 +8,9 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type CSSProperties,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   BookOpen,
   Camera,
@@ -25,7 +27,7 @@ import {
   WORKSPACE_NAV_ITEMS,
   isWorkspaceNavActive,
 } from "./mobile-nav/workspaceNavConfig";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 const ICON_MAP: Record<string, ReactNode> = {
   translate: <Camera className="h-[18px] w-[18px]" />,
@@ -61,7 +63,6 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0])
     .join("");
-
   return initials.toUpperCase() || "U";
 }
 
@@ -111,9 +112,11 @@ function UserAccountMenu({
   );
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const [open, setOpen] = useState(false);
   const [rendered, setRendered] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -126,6 +129,24 @@ function UserAccountMenu({
     clearCloseTimer();
     setRendered(true);
     setOpen(true);
+    requestAnimationFrame(() => {
+      if (rootRef.current && menuRef.current) {
+        const rect = rootRef.current.getBoundingClientRect();
+        const menuHeight = menuRef.current.offsetHeight;
+        const gap = 8;
+        let top = rect.top - menuHeight - gap;
+        if (top < 8) {
+          top = rect.bottom + gap;
+        }
+        setMenuStyle({
+          position: "fixed",
+          top,
+          left: rect.left,
+          width: Math.min(rect.width, 292),
+          zIndex: 70,
+        });
+      }
+    });
   }, [clearCloseTimer]);
 
   const closeMenu = useCallback(() => {
@@ -143,22 +164,22 @@ function UserAccountMenu({
 
   useEffect(() => {
     if (!rendered) return;
-
     function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !rootRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
         closeMenu();
       }
     }
-
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         closeMenu();
       }
     }
-
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
@@ -172,8 +193,8 @@ function UserAccountMenu({
         data-state={open ? "open" : "closed"}
         onClick={() => (open ? closeMenu() : openMenu())}
         className={cn(
-          "group mt-2 flex w-full items-center gap-3 rounded-2xl border border-border/65 bg-card/90 px-3 py-2.5 text-left shadow-[0_8px_24px_-20px_rgba(var(--shadow-color),0.45)] backdrop-blur-md transition-all",
-          "hover:border-border hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+          "group mt-2 flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all",
+          "hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
         )}
         aria-label="Open user menu"
         aria-haspopup="menu"
@@ -195,77 +216,90 @@ function UserAccountMenu({
         />
       </button>
 
-      {rendered && (
-        <div
-          id={menuId}
-          role="menu"
-          aria-hidden={!open}
-          data-state={open ? "open" : "closed"}
-          className={cn(
-            "account-menu-popover absolute bottom-[calc(100%+0.375rem)] left-0 z-[70] w-[calc(100vw-24px)] max-w-[292px] rounded-2xl border border-border/70 bg-popover/98 p-2 text-popover-foreground shadow-[0_24px_70px_-28px_rgba(var(--shadow-color),0.45),0_8px_22px_-18px_rgba(var(--shadow-color),0.35)] backdrop-blur-xl"
-          )}
-        >
-          <div className="flex items-center gap-3 rounded-xl px-3 py-3">
-            <UserAvatar user={user} className="size-9 text-xs" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-popover-foreground">
-                {user.name}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {user.email}
-              </p>
-            </div>
-          </div>
-
-          <div className="my-1 h-px bg-border/65" />
-
-          <Link
-            href="/profile"
-            role="menuitem"
-            onClick={() => {
-              closeMenu();
-              onAfterAction?.();
-            }}
-            className={itemClassName}
-          >
-            <User className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            <span>Profile</span>
-          </Link>
-
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              closeMenu();
-              onSettingsClick();
-              onAfterAction?.();
-            }}
-            className={itemClassName}
-          >
-            <Settings className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            <span>Settings</span>
-          </button>
-
-          <div className="my-1 h-px bg-border/65" />
-
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              closeMenu();
-              onAfterAction?.();
-              onLogout();
-            }}
+      {rendered &&
+        createPortal(
+          <div
+            ref={menuRef}
+            id={menuId}
+            role="menu"
+            aria-hidden={!open}
+            data-state={open ? "open" : "closed"}
+            style={menuStyle}
             className={cn(
-              itemClassName,
-              "text-destructive focus:bg-destructive/10 focus:text-destructive hover:bg-destructive/10 hover:text-destructive"
+              "rounded-2xl border border-border/70 bg-popover/98 p-2 text-popover-foreground shadow-[0_24px_70px_-28px_rgba(var(--shadow-color),0.45),0_8px_22px_-18px_rgba(var(--shadow-color),0.35)] backdrop-blur-xl transition-all duration-200",
+              open
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-1 pointer-events-none"
             )}
           >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            <span>Sign out</span>
-          </button>
-        </div>
-      )}
+            <div className="flex items-center gap-3 rounded-xl px-3 py-3">
+              <UserAvatar user={user} className="size-9 text-xs" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-popover-foreground">
+                  {user.name}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="my-1 h-px bg-border/65" />
+
+            <Link
+              href="/profile"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                onAfterAction?.();
+              }}
+              className={itemClassName}
+            >
+              <User
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <span>Profile</span>
+            </Link>
+
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                onSettingsClick();
+                onAfterAction?.();
+              }}
+              className={itemClassName}
+            >
+              <Settings
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <span>Settings</span>
+            </button>
+
+            <div className="my-1 h-px bg-border/65" />
+
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                onAfterAction?.();
+                onLogout();
+              }}
+              className={cn(
+                itemClassName,
+                "text-destructive focus:bg-destructive/10 focus:text-destructive hover:bg-destructive/10 hover:text-destructive"
+              )}
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              <span>Sign out</span>
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
@@ -285,7 +319,6 @@ function NavContent({
 }) {
   return (
     <div className="flex h-full flex-col">
-      {/* Navigation */}
       <nav className="flex-1 space-y-1.5 py-4 pl-2 pr-3">
         {WORKSPACE_NAV_ITEMS.map((item) => {
           const isActive = isWorkspaceNavActive(item.href, pathname);
@@ -305,7 +338,9 @@ function NavContent({
               <span
                 className={cn(
                   "flex items-center justify-center transition-colors relative z-10",
-                  isActive ? "text-primary drop-shadow-[0_0_8px_rgba(var(--glow-primary),0.8)]" : "text-muted-foreground group-hover:text-foreground"
+                  isActive
+                    ? "text-primary drop-shadow-[0_0_8px_rgba(var(--glow-primary),0.8)]"
+                    : "text-muted-foreground group-hover:text-foreground"
                 )}
               >
                 {ICON_MAP[item.icon]}
@@ -319,7 +354,6 @@ function NavContent({
         })}
       </nav>
 
-      {/* Footer */}
       <div className="mt-auto pb-3 pl-2 pr-3 pt-3">
         <UserAccountMenu
           user={user}
@@ -344,8 +378,7 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-[260px] shrink-0 flex-col bg-transparent pb-2 md:flex">
+      <aside className="hidden w-[260px] shrink-0 flex-col bg-background/85 pb-2 md:flex md:border-r md:border-border/55 md:backdrop-blur-xl">
         <NavContent
           pathname={pathname}
           onSettingsClick={onSettingsClick}
@@ -354,11 +387,16 @@ export default function AppSidebar({
         />
       </aside>
 
-      {/* Mobile Drawer */}
       <Sheet open={mobileOpen} onOpenChange={(v) => !v && onMobileClose()}>
-        <SheetContent side="left" className="w-[280px] p-0 border-r border-border/70 bg-background/92 backdrop-blur-xl">
+        <SheetContent
+          side="left"
+          className="w-[280px] p-0 border-r border-border/70 bg-background/92 backdrop-blur-xl"
+        >
+          <SheetTitle className="sr-only">Navigation menu</SheetTitle>
           <div className="flex h-14 items-center justify-between border-b border-border/60 px-5">
-            <span className="text-sm font-semibold tracking-tight">Menu Navigation</span>
+            <span className="text-sm font-semibold tracking-tight">
+              Menu Navigation
+            </span>
             <button
               onClick={onMobileClose}
               className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"

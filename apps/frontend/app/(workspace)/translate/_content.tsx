@@ -540,7 +540,6 @@ export default function TranslatePageContent() {
               detections={detections}
               apiError={apiError}
               hasMultipleCameras={true} /* simplified - devices not tracked here anymore */
-              languageLabel={language}
               voiceEnabled={voiceEnabled}
               onRequestCamera={() => startCamera()}
               onStartDetection={startDetection}
