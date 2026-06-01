@@ -10,7 +10,7 @@ import {
   Minimize2,
   RotateCcw,
   ShieldAlert,
-  Square,
+  type LucideIcon,
   Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -56,17 +56,17 @@ function TechnicalBadge({
   value, 
   variant = "default" 
 }: { 
-  icon?: any; 
+  icon?: LucideIcon; 
   label: string; 
   value?: string | number;
   variant?: "default" | "active" | "error";
 }) {
   return (
     <div className={cn(
-      "flex items-center gap-2 px-2.5 py-1 border-[0.5px] rounded-sm font-mono uppercase text-[9px] tracking-[0.05em]",
+      "flex items-center gap-2 rounded-sm border px-2.5 py-1 font-mono text-[10px] uppercase tracking-normal",
       variant === "default" && "bg-white/5 border-white/10 text-white/50",
       variant === "active" && "bg-white/10 border-white/20 text-white",
-      variant === "error" && "bg-red-500/10 border-red-500/20 text-red-500"
+      variant === "error" && "bg-[color-mix(in_srgb,var(--cohere-error)_10%,transparent)] border-[color-mix(in_srgb,var(--cohere-error)_20%,transparent)] text-[var(--cohere-error)]"
     )}>
       {Icon && <Icon className="size-2.5" />}
       <span>{label}</span>
@@ -83,9 +83,9 @@ function StatusChip({ active }: { active: boolean }) {
     <div className="flex items-center gap-2.5">
       <div className={cn(
         "size-1.5 rounded-full",
-        active ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-white/20"
+        active ? "bg-cohere-coral" : "bg-white/20"
       )} />
-      <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-white/70">
+      <span className="font-mono text-[10px] uppercase tracking-normal text-white/70">
         {active ? "LIVE_FEED" : "STANDBY"}
       </span>
     </div>
@@ -142,10 +142,10 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       <section
         ref={sectionRef}
         aria-label="Agent Vision Interface"
-        className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-md bg-[#17171c] border border-white/5 shadow-2xl"
+        className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[22px] border border-white/10 bg-cohere-primary"
       >
         {/* Header Bar: Enterprise AI Command Style */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 z-20 bg-[#17171c]">
+        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-6 py-4">
           <div className="flex items-center gap-8">
             <StatusChip active={isActive} />
             <div className="hidden lg:flex items-center gap-4">
@@ -163,7 +163,8 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
              <div className="h-4 w-px bg-white/10 hidden md:block" />
              <button 
               onClick={handleFullscreen}
-              className="p-1 text-white/30 hover:text-white transition-colors"
+              className="rounded-sm p-1 text-white/45 transition-colors hover:bg-white/10 hover:text-white"
+              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
              >
                {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
              </button>
@@ -171,7 +172,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
         </div>
 
         {/* Media Container: High Editorial Space */}
-        <div className="relative flex-1 bg-black overflow-hidden m-1 rounded-sm border border-white/5 group">
+        <div className="relative m-1 flex-1 overflow-hidden rounded-sm border border-white/10 bg-black">
           <video
             ref={videoRef}
             className={cn(
@@ -219,7 +220,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 exit={{ opacity: 0, y: 10 }}
                 className="absolute inset-x-0 bottom-6 px-6 z-30 flex justify-center"
               >
-                <div className="flex items-center gap-3 px-4 py-2.5 bg-red-600 text-white rounded-xs text-[10px] font-mono tracking-widest uppercase shadow-xl">
+                <div className="flex items-center gap-3 rounded-sm bg-cohere-error px-4 py-2.5 font-mono text-[10px] uppercase tracking-normal text-white">
                   <ShieldAlert className="size-3.5" />
                   Signal_Lost: Connection_Error
                 </div>
@@ -240,18 +241,18 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
               >
                 {state === "idle" && (
                   <div className="flex flex-col items-center gap-10 max-w-sm text-center px-10">
-                    <div className="size-20 rounded-full border border-white/5 flex items-center justify-center">
+                    <div className="flex size-20 items-center justify-center rounded-sm border border-white/15">
                       <Camera className="size-8 text-white/20" />
                     </div>
                     <div className="space-y-4">
-                      <h3 className="text-3xl font-light text-white tracking-widest uppercase font-mono text-[14px]">Initialize Vision</h3>
+                      <h3 className="font-mono text-[14px] uppercase tracking-normal text-white">Initialize Vision</h3>
                       <p className="text-sm text-white/30 leading-relaxed font-light">
                         Authorize hardware connection to begin real-time gesture analysis.
                       </p>
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="px-10 py-4 bg-white text-[#17171c] rounded-full text-xs font-bold tracking-[0.1em] uppercase hover:bg-neutral-200 transition-all active:scale-[0.98]"
+                      className="rounded-[32px] bg-white px-10 py-4 text-xs font-medium uppercase tracking-normal text-cohere-primary transition-colors hover:bg-cohere-stone"
                     >
                       Connect Hardware
                     </button>
@@ -261,7 +262,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 {isLoading && (
                   <div className="flex flex-col items-center gap-6">
                     <Loader2 className="size-8 text-white/10 animate-spin" />
-                    <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-white/30">
+                    <span className="font-mono text-[10px] uppercase tracking-normal text-white/30">
                       Authenticating_Stream
                     </span>
                   </div>
@@ -269,11 +270,11 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
 
                 {isError && (
                   <div className="flex flex-col items-center gap-8 text-center px-10">
-                    <div className="size-20 rounded-full bg-red-500/5 border border-red-500/10 flex items-center justify-center">
-                      <ShieldAlert className="size-8 text-red-500" />
+                    <div className="size-20 rounded-full bg-[color-mix(in_srgb,var(--cohere-error)_5%,transparent)] border border-[color-mix(in_srgb,var(--cohere-error)_10%,transparent)] flex items-center justify-center">
+                      <ShieldAlert className="size-8 text-cohere-error" />
                     </div>
                     <div className="space-y-3">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-widest font-mono">
+                      <h3 className="font-mono text-sm font-medium uppercase tracking-normal text-white">
                         {state === "error-permission" ? "Access_Denied" : "Device_Not_Found"}
                       </h3>
                       <p className="text-[13px] text-white/30 leading-relaxed">
@@ -284,7 +285,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="px-8 py-3 border border-white/10 text-white rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-white/5 transition-all"
+                      className="rounded-[32px] border border-white/20 px-8 py-3 text-[11px] font-medium uppercase tracking-normal text-white transition-colors hover:bg-white/10"
                     >
                       Retry System Check
                     </button>
@@ -303,14 +304,14 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 {!isActive ? (
                   <button
                     onClick={onStartDetection}
-                    className="flex-1 px-8 py-5 bg-white text-[#17171c] rounded-full text-sm font-bold tracking-tight hover:bg-neutral-200 transition-all uppercase"
+                    className="flex-1 rounded-[32px] bg-white px-8 py-5 text-sm font-medium uppercase tracking-normal text-cohere-primary transition-colors hover:bg-cohere-stone"
                   >
                     Start Translation
                   </button>
                 ) : (
                   <button
                     onClick={onStopDetection}
-                    className="flex-1 px-8 py-5 bg-[#17171c] border border-white/20 text-white rounded-full text-sm font-bold tracking-tight hover:bg-white/5 transition-all uppercase"
+                    className="flex-1 rounded-[32px] border border-white/20 bg-cohere-primary px-8 py-5 text-sm font-medium uppercase tracking-normal text-white transition-colors hover:bg-white/10"
                   >
                     Terminate Session
                   </button>
@@ -342,6 +343,7 @@ WebcamCapture.displayName = "WebcamCapture";
 function ControlIconBtn({ 
   onClick, 
   disabled, 
+  label,
   children 
 }: { 
   onClick: () => void; 
@@ -353,7 +355,8 @@ function ControlIconBtn({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex size-14 items-center justify-center rounded-full border border-white/5 text-white/20 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all disabled:opacity-10 active:scale-95"
+      aria-label={label}
+      className="flex size-12 items-center justify-center rounded-sm border border-white/15 text-white/45 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-20"
     >
       {children}
     </button>

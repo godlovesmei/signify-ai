@@ -1,0 +1,24 @@
+{
+  "name": "SignifyAI",
+  "short_name": "SignifyAI",
+  "description": "Real-time BISINDO sign language translation for browser-based accessibility workflows.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#17171c",
+  "icons": [
+    {
+      "src": "/signify-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/signify-icon-v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

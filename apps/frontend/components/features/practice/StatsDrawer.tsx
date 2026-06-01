@@ -22,12 +22,12 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
         open ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0',
       )}
     >
-      <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5 backdrop-blur-xl shadow-2xl glass-panel">
+      <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Analytics Engine</p>
-          <div className="flex h-2 w-32 overflow-hidden rounded-full bg-white/5">
+          <p className="text-mono-label text-[12px] text-cohere-slate">Analytics Engine</p>
+          <div className="flex h-1 w-32 overflow-hidden bg-cohere-hairline">
              <div 
-               className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-500" 
+               className="h-full bg-cohere-green transition-all duration-500" 
                style={{ width: `${accuracy}%` }}
              />
           </div>
@@ -36,25 +36,25 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
         <div className="grid grid-cols-2 gap-3">
           {(
             [
-              { label: 'Precision', value: `${accuracy}%`, color: 'text-emerald-400' as const },
+              { label: 'Precision', value: `${accuracy}%`, color: 'text-cohere-green' as const },
               { label: 'Samples', value: stats.totalAttempts, color: undefined },
-              { label: 'Momentum', value: stats.currentStreak, color: 'text-amber-400' as const },
+              { label: 'Momentum', value: stats.currentStreak, color: 'text-cohere-coral' as const },
               { label: 'Record', value: stats.bestStreak, color: undefined },
             ]
           ).map(({ label, value, color }) => (
             <div
               key={label}
-              className="rounded-xl border border-white/5 bg-black/40 p-4 transition-all hover:scale-105 hover:bg-white/10"
+              className="rounded-sm border border-cohere-hairline bg-cohere-stone p-4"
             >
-              <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-white/20">{label}</p>
-              <p className={cn('text-2xl font-black tabular-nums tracking-tighter', color ?? 'text-white')}>{value}</p>
+              <p className="mb-2 text-[12px] text-cohere-slate">{label}</p>
+              <p className={cn('text-2xl tabular-nums', color ?? 'text-cohere-ink')}>{value}</p>
             </div>
           ))}
         </div>
 
         {weakLetters.length > 0 && (
-          <div className="mt-5 pt-5 border-t border-white/5">
-            <p className="mb-3 text-[9px] font-black uppercase tracking-widest text-white/20">Optimization Queue</p>
+          <div className="mt-5 border-t border-cohere-hairline pt-5">
+            <p className="mb-3 text-mono-label text-[11px] text-cohere-slate">Optimization Queue</p>
             <div className="flex flex-wrap gap-2">
               {weakLetters.map((letter) => {
                 const s = stats.byLetter[letter];
@@ -63,10 +63,10 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
                   <div
                     key={letter}
                     className={cn(
-                      'px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all',
+                      'rounded-[30px] border px-3 py-1 text-[12px] uppercase',
                       letter === target
-                        ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
-                        : 'border-white/5 bg-white/[0.03] text-white/40',
+                        ? 'border-cohere-green bg-cohere-pale-green text-cohere-green'
+                        : 'border-cohere-hairline bg-cohere-canvas text-cohere-slate',
                     )}
                   >
                    {letter} <span className="ml-1 opacity-40">{pct}%</span>

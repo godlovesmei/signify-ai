@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Sora, Atkinson_Hyperlegible_Next, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/sonner";
 
@@ -29,35 +28,6 @@ const themeInitScript = `
   }
 })();
 `;
-
-/* ───────────────────────────────────────────────────────────────────────────
-   FONTS — BISINDO Design System v2.0
-   Display  → Sora                          → headings, prediction badge, hero
-   Body     → Atkinson Hyperlegible Next    → UI text, body copy, accessibility
-   Mono     → JetBrains Mono                → FPS counter, dev panel, logs
-   ─────────────────────────────────────────────────────────────────────────── */
-const sora = Sora({
-  variable: '--font-sora',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  display: 'swap',
-});
-
-const atkinsonHyperlegibleNext = Atkinson_Hyperlegible_Next({
-  variable: '--font-atkinson-hyperlegible-next',
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  display: 'swap',
-  adjustFontFallback: false,
-  fallback: ['system-ui', 'sans-serif'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-jetbrains-mono',
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  display: 'swap',
-});
 
 /* ───────────────────────────────────────────────────────────────────────────
    METADATA — SEO + Social + PWA
@@ -126,23 +96,22 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/signify-icon.svg', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/signify-icon-v2.svg', type: 'image/svg+xml' },
     ],
     other: [
       {
         rel: 'mask-icon',
-        url: '/safari-pinned-tab.svg',
-        color: '#8b5cf6',
+        url: '/signify-icon.svg',
+        color: '#17171c',
       },
     ],
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'SignifyAI',
   },
   applicationName: 'SignifyAI',
@@ -155,21 +124,22 @@ export const metadata: Metadata = {
   category: 'technology',
   classification: 'Software Application',
   other: {
-    'msapplication-TileColor': '#8b5cf6',
+    'msapplication-TileColor': '#17171c',
     'msapplication-config': '/browserconfig.xml',
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
-    { media: '(prefers-color-scheme: dark)', color: '#020617' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
   ],
   colorScheme: 'dark light',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  viewportFit: 'cover',
 };
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -267,12 +237,7 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body
-        className={[
-          sora.variable,
-          atkinsonHyperlegibleNext.variable,
-          jetbrainsMono.variable,
-          'font-sans antialiased',
-        ].join(' ')}
+        className="font-sans antialiased"
       >
         {/* Critical theme script — must run before any paint */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
@@ -283,7 +248,7 @@ export default function RootLayout({
           closeButton
           toastOptions={{
             classNames: {
-              toast: 'glass-strong border border-white/10 shadow-depth-3',
+              toast: 'rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink shadow-none',
             },
           }}
         />

@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils';
 import TTSSpeakingIndicator from './TTSSpeakingIndicator';
 import { motion, AnimatePresence } from 'motion/react';
 
-const APPLE_SPRING = { stiffness: 260, damping: 30 };
-
 export interface TTSButtonProps {
   sentence: string;
   isSpeaking: boolean;
@@ -34,13 +32,13 @@ export default function TTSButton({
         onClick={onSpeak}
         disabled={isEmpty || isSpeaking}
         className={cn(
-          'flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200',
+          'flex items-center justify-center rounded-[30px] border border-[var(--cohere-hairline)] transition-colors duration-200',
           isCompact ? 'h-8 w-8' : 'h-9 px-5 gap-3',
           isSpeaking 
-            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black border-zinc-900 dark:border-zinc-100' 
-            : 'bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300 hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800',
+            ? 'border-[var(--cohere-primary)] bg-[var(--cohere-primary)] text-white' 
+            : 'bg-[var(--cohere-stone)] text-[var(--cohere-ink)] hover:bg-[var(--cohere-hairline)]',
           isEmpty && !isSpeaking && 'opacity-30 cursor-not-allowed',
-          hasError && !isSpeaking && 'text-red-500 border-red-500/20'
+          hasError && !isSpeaking && 'text-[var(--cohere-error)] border-[color-mix(in_srgb,var(--cohere-error)_20%,transparent)]'
         )}
       >
         <AnimatePresence mode="wait">
@@ -62,7 +60,7 @@ export default function TTSButton({
               className="flex items-center gap-2"
             >
               <Volume2 className="size-4" />
-              {!isCompact && <span className="text-[11px] font-sans font-medium uppercase tracking-tight">Read Aloud</span>}
+              {!isCompact && <span className="text-[11px] font-sans font-medium uppercase tracking-normal">Read Aloud</span>}
             </motion.div>
           )}
         </AnimatePresence>
@@ -70,7 +68,7 @@ export default function TTSButton({
 
       {!isCompact && (
         <div className="hidden sm:flex flex-col ml-2">
-           <span className="text-[10px] uppercase tracking-widest text-[var(--cohere-muted)] font-mono">
+           <span className="text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono">
              {isSpeaking ? "Analyzing..." : "Indonesia v4"}
            </span>
         </div>

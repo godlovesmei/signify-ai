@@ -65,7 +65,7 @@ export default function MobileBottomNav({
             : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }
         }
       >
-        <div className="border-t border-border bg-background pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5">
+        <div className="border-t border-cohere-hairline bg-cohere-canvas pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5">
           <div className="mx-auto w-full max-w-md px-2">
             <ul className="grid grid-cols-5 gap-0.5">
               {WORKSPACE_NAV_ITEMS.map((item) => (

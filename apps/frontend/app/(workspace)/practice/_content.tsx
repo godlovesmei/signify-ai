@@ -681,263 +681,66 @@ export default function PracticePageContent() {
     .map(([l]) => l as AlphabetLetter)
     .slice(0, 5);
 
-  // ── Render ────────────────────────────────────────────────────────
-
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-background text-foreground">
-      <main className="workspace-height min-h-0 overflow-y-auto md:overflow-hidden">
-        <div className="flex h-full flex-col gap-4 px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
-
-          {/* DESKTOP LAYOUT: 3-Column Grid */}
-          {isDesktop && (
-            <div className="grid grid-cols-12 gap-8 h-full">
-
-            {/* LEFT SIDEBAR: Target Info (2 cols) */}
-            <aside className="col-span-3 flex min-h-0 min-w-0 flex-col gap-6">
-              <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-8 text-center">Neural Target</p>
+    <div className="flex h-full flex-col overflow-hidden bg-cohere-canvas text-cohere-ink">
+      <main className="workspace-height min-h-0 overflow-y-auto">
+        <div className="grid min-h-full gap-5 p-4 md:p-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:p-8">
+          <aside className="flex min-w-0 flex-col gap-5">
+            <section className="rounded-sm border border-cohere-hairline bg-cohere-stone p-5">
+              <p className="mb-5 text-mono-label text-[12px] text-cohere-slate">Target</p>
+              <div className="hidden lg:block">
                 <TargetBlock letter={target} />
               </div>
-
-              {/* Quick Stats */}
-              <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl flex-1 overflow-hidden flex flex-col">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6">Real-time Performance</p>
-                <div className="space-y-6">
-                  <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Samples</span>
-                    <span className="text-3xl font-black tracking-tighter tabular-nums">{stats.totalAttempts}</span>
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Precision</span>
-                    <span className="text-3xl font-black tracking-tighter tabular-nums text-emerald-400">
-                      {stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Momentum</span>
-                    <span className="text-3xl font-black tracking-tighter tabular-nums text-amber-500">{stats.currentStreak}</span>
-                  </div>
-                </div>
-
-                {weakLetters.length > 0 && (
-                  <div className="mt-auto pt-8 border-t border-white/5">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">Underperforming</p>
-                    <div className="flex flex-wrap gap-2">
-                      {weakLetters.map((letter) => (
-                        <span
-                          key={letter}
-                          className={cn(
-                            "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
-                            letter === target
-                              ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
-                              : "border-white/5 bg-white/[0.03] text-white/30",
-                          )}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </aside>
-
-            {/* CENTER: Camera (6 cols) - PRIORITIZED */}
-            <section className="col-span-6 flex flex-col gap-6 min-h-0">
-              {/* Camera Header */}
-              <div className="flex items-center justify-between px-2">
-                <StatusBadge status={statusTone} className="shadow-2xl" />
-                <TrailIndicator trail={breadcrumb} />
-              </div>
-
-              {/* Camera Frame */}
-              <div ref={cameraFrameRef} className="flex-1 relative min-h-0">
-                <CameraFrame
-                  isActive={isActive}
-                  isDetecting={isActive && detections.length > 0}
-                  isMatching={isActive && currentLetter === target}
-                  isSuccess={isSuccessFlash}
-                  className="h-full w-full"
-                >
-                  <WebcamCapture
-                    ref={webcamRef}
-                    state={appState}
-                    isMirrored={isMirrored}
-                    detections={detections}
-                    apiError={apiError}
-                    hasMultipleCameras={true}
-                    voiceEnabled={false}
-                    onRequestCamera={() => startCamera()}
-                    onStartDetection={startDetection}
-                    onStopDetection={stopDetection}
-                    onFlipCamera={flipCamera}
-                    onReset={handleReset}
-                  />
-
-                  {isActive && <GhostSkeleton letter={target} visible={ghostVisible} />}
-
-                  {isActive && (
-                    <MicroFeedback
-                      x={microX}
-                      y={microY}
-                      text={microText}
-                      visible={microVisible}
-                    />
-                  )}
-
-                  <SuccessOverlay show={isSuccessFlash} letter={target} />
-                </CameraFrame>
-              </div>
-
-              {/* Camera Controls */}
-              <div className="flex items-center justify-center gap-6 py-4">
-                <button
-                  type="button"
-                  onClick={flipCamera}
-                  disabled={isCameraBusy}
-                  className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03] text-white/40 transition-all hover:bg-white hover:text-black hover:scale-105 active:scale-95"
-                  aria-label="Flip camera"
-                >
-                  <RotateCcw className="h-6 w-6 transition-transform group-hover:rotate-180 duration-500" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePrimaryCameraAction}
-                  disabled={isCameraBusy}
-                  className={cn(
-                    "flex h-20 w-48 items-center justify-center gap-4 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.2em]",
-                    isCameraBusy && "cursor-wait opacity-60",
-                    isActive
-                      ? "bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.3)] hover:scale-105 active:scale-95 border-red-400/50"
-                      : "bg-white text-black shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95"
-                  )}
-                  aria-label={isActive ? "Stop detection" : "Start detection"}
-                >
-                  {isActive ? (
-                    <>
-                      <div className="h-3 w-3 bg-white rounded-sm animate-pulse" />
-                      <span>Stop</span>
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="h-6 w-6" />
-                      <span>Start</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleToggleFullscreen}
-                  className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03] text-white/40 transition-all hover:bg-white hover:text-black hover:scale-105 active:scale-95"
-                  aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                >
-                  {isFullscreen ? <Minimize2 className="h-6 w-6" /> : <Maximize2 className="h-6 w-6" />}
-                </button>
+              <div className="lg:hidden">
+                <TargetCompact letter={target} />
               </div>
             </section>
 
-            {/* RIGHT SIDEBAR: Progress & Actions (3 cols) */}
-            <aside className="col-span-3 flex flex-col gap-6 min-h-0">
-              {/* Progress Ring */}
-              <div className="shrink-0 rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
-                <div className="mb-8 flex items-center justify-between gap-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 text-center flex-1">Neural Lock</p>
-                </div>
-                <div className="flex flex-col items-center gap-8">
-                  <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="xl" />
-                  <div className="w-full">
-                    <div className="h-2 overflow-hidden rounded-full bg-white/5 shadow-inner">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                        style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
-                      />
-                    </div>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-center text-white/20">Maintain gesture focus</p>
+            <section className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
+              <p className="text-mono-label text-[12px] text-cohere-slate">Performance</p>
+              <div className="mt-5 grid grid-cols-3 gap-3 lg:grid-cols-1">
+                {[
+                  ["Samples", stats.totalAttempts],
+                  ["Precision", `${stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%`],
+                  ["Streak", stats.currentStreak],
+                ].map(([label, value]) => (
+                  <div key={label} className="border-t border-cohere-hairline pt-3">
+                    <p className="text-[12px] text-cohere-slate">{label}</p>
+                    <p className="mt-1 text-[28px] leading-none text-cohere-ink tabular-nums">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {weakLetters.length > 0 && (
+                <div className="mt-6 border-t border-cohere-hairline pt-5">
+                  <p className="mb-3 text-mono-label text-[11px] text-cohere-slate">Focus queue</p>
+                  <div className="flex flex-wrap gap-2">
+                    {weakLetters.map((letter) => (
+                      <span
+                        key={letter}
+                        className={cn(
+                          "rounded-[30px] border px-3 py-1 text-[12px]",
+                          letter === target
+                            ? "border-cohere-green bg-cohere-pale-green text-cohere-green"
+                            : "border-cohere-hairline bg-cohere-canvas text-cohere-slate"
+                        )}
+                      >
+                        {letter}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+            </section>
+          </aside>
 
-              {/* Actions */}
-              <div className="shrink-0 rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
-                <p className="mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Mission Control</p>
-                <div className="flex flex-col gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleSkip}
-                    disabled={!isActive || isSuccessFlash}
-                    className="h-16 w-full justify-between rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
-                  >
-                    Skip Target <ChevronRight className="h-4 w-4" />
-                  </Button>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="h-16 w-full justify-between rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-                        Engine Config <Sliders className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-[400px] border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2rem] p-8 shadow-3xl">
-                      <DialogHeader>
-                        <DialogTitle className="text-xl font-black uppercase tracking-[0.2em] mb-4 text-center">Session configuration</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
-                          <span className="text-xs font-black uppercase tracking-widest text-white/60">Guide Overlay</span>
-                          <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
-                        </div>
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
-                          <span className="text-xs font-black uppercase tracking-widest text-white/60">Insight Metrics</span>
-                          <Switch checked={statsOpen} onCheckedChange={setStatsOpen} />
-                        </div>
-                        <div className="pt-4">
-                          <DialogClose asChild>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              className="w-full h-14 rounded-2xl font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
-                              onClick={handleResetProgress}
-                            >
-                              Purge Progress
-                            </Button>
-                          </DialogClose>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-
-                  <Button
-                    variant="ghost"
-                    onClick={handleReset}
-                    className="h-12 w-full text-[9px] font-black uppercase tracking-[0.4em] text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                  >
-                    Initialize Camera System
-                  </Button>
-                </div>
-              </div>
-
-              {/* Stats Drawer (collapsible) */}
-              <StatsDrawer
-                open={statsOpen}
-                stats={stats}
-                weakLetters={weakLetters}
-                target={target}
-              />
-            </aside>
+          <section className="flex min-h-[560px] min-w-0 flex-col gap-4 lg:min-h-0">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <StatusBadge status={statusTone} />
+              <TrailIndicator trail={breadcrumb} />
             </div>
-          )}
 
-          {/* MOBILE LAYOUT: Stack */}
-          {!isDesktop && (
-            <div className="flex flex-col gap-6 h-full overflow-y-auto pb-10">
-
-            {/* Mobile Camera (Prioritized) */}
-            <section className="relative h-[40dvh] xs:h-[45dvh] min-h-[350px] shrink-0">
-              <div className="absolute top-4 left-4 z-40">
-                <StatusBadge status={statusTone} className="shadow-2xl scale-90 origin-top-left" />
-              </div>
-
+            <div ref={cameraFrameRef} className="relative min-h-[420px] flex-1">
               <CameraFrame
                 isActive={isActive}
                 isDetecting={isActive && detections.length > 0}
@@ -952,7 +755,6 @@ export default function PracticePageContent() {
                   detections={detections}
                   apiError={apiError}
                   hasMultipleCameras={true}
-                  voiceEnabled={false}
                   onRequestCamera={() => startCamera()}
                   onStartDetection={startDetection}
                   onStopDetection={stopDetection}
@@ -973,71 +775,133 @@ export default function PracticePageContent() {
 
                 <SuccessOverlay show={isSuccessFlash} letter={target} />
               </CameraFrame>
-            </section>
+            </div>
 
-            {/* Mobile Controls & Target Info */}
-            <div className="flex flex-col gap-6 flex-none px-2">
-              <section className="flex items-center gap-6 p-6 rounded-3xl border border-white/5 bg-white/[0.03] glass-panel shadow-xl">
-                <TargetCompact letter={target} className="border-none bg-transparent p-0 scale-110" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between font-black uppercase tracking-widest text-[9px] text-white/30 mb-2">
-                    <span>Precision {stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%</span>
-                    <span>Streak {stats.currentStreak}</span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/5">
+            <div className="flex flex-wrap items-center justify-center gap-3 border-t border-cohere-hairline pt-4">
+              <button
+                type="button"
+                onClick={flipCamera}
+                disabled={isCameraBusy}
+                className="flex size-12 items-center justify-center rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink transition-colors hover:bg-cohere-stone disabled:opacity-40"
+                aria-label="Flip camera"
+              >
+                <RotateCcw className="size-5" />
+              </button>
+
+              <Button
+                type="button"
+                onClick={handlePrimaryCameraAction}
+                disabled={isCameraBusy}
+                className={cn("min-w-44", isActive && "bg-cohere-error hover:bg-cohere-error/90")}
+                aria-label={isActive ? "Stop detection" : "Start detection"}
+              >
+                {isActive ? (
+                  <>
+                    <span className="size-2 rounded-sm bg-white" />
+                    Stop session
+                  </>
+                ) : (
+                  <>
+                    <Camera className="size-4" />
+                    Start practice
+                  </>
+                )}
+              </Button>
+
+              <button
+                type="button"
+                onClick={handleToggleFullscreen}
+                className="flex size-12 items-center justify-center rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink transition-colors hover:bg-cohere-stone"
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="size-5" /> : <Maximize2 className="size-5" />}
+              </button>
+            </div>
+          </section>
+
+          <aside className="flex min-w-0 flex-col gap-5">
+            <section className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
+              <p className="text-mono-label text-[12px] text-cohere-slate">Hold progress</p>
+              <div className="mt-6 flex flex-col items-center gap-6">
+                <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="xl" />
+                <div className="w-full">
+                  <div className="h-1 w-full overflow-hidden bg-cohere-hairline">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                      className="h-full bg-cohere-green transition-all duration-300"
                       style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
                     />
                   </div>
+                  <p className="mt-3 text-center text-[12px] text-cohere-slate">Maintain gesture focus</p>
                 </div>
-              </section>
+              </div>
+            </section>
 
-              <div className="grid grid-cols-2 gap-4">
+            <section className="rounded-sm border border-cohere-hairline bg-cohere-stone p-5">
+              <p className="mb-5 text-mono-label text-[12px] text-cohere-slate">Controls</p>
+              <div className="flex flex-col gap-3">
                 <Button
-                  onClick={handlePrimaryCameraAction}
-                  disabled={isCameraBusy}
-                  className={cn(
-                    "h-16 rounded-2xl font-black uppercase tracking-widest transition-all duration-300",
-                    isActive 
-                      ? "bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.3)]" 
-                      : "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-                  )}
+                  variant="outline"
+                  onClick={handleSkip}
+                  disabled={!isActive || isSuccessFlash}
+                  className="justify-between"
                 >
-                  {isActive ? "End session" : "Initialize"}
+                  Skip target <ChevronRight className="size-4" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleSkip} 
-                  disabled={!isActive || isSuccessFlash} 
-                  className="h-16 rounded-2xl font-black uppercase tracking-widest border-white/5 bg-white/[0.03] hover:bg-white hover:text-black transition-all"
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="justify-between">
+                      Session config <Sliders className="size-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-[420px] rounded-lg border-cohere-hairline bg-cohere-canvas p-6 text-cohere-ink">
+                    <DialogHeader>
+                      <DialogTitle className="text-[24px] leading-[1.3]">Session configuration</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-t border-cohere-hairline pt-4">
+                        <span className="text-[14px] text-cohere-ink">Guide overlay</span>
+                        <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
+                      </div>
+                      <div className="flex items-center justify-between border-t border-cohere-hairline pt-4">
+                        <span className="text-[14px] text-cohere-ink">Insight metrics</span>
+                        <Switch checked={statsOpen} onCheckedChange={setStatsOpen} />
+                      </div>
+                      <DialogClose asChild>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          className="w-full"
+                          onClick={handleResetProgress}
+                        >
+                          Reset practice progress
+                        </Button>
+                      </DialogClose>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button variant="ghost" onClick={handleReset}>
+                  Reset camera
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => setGhostVisible(!ghostVisible)}
+                  className="rounded-sm border border-cohere-hairline bg-cohere-canvas px-4 py-3 text-left text-[14px] text-cohere-ink transition-colors hover:bg-cohere-stone"
                 >
-                  Skip
-                </Button>
+                  {ghostVisible ? "Hide guide overlay" : "Show guide overlay"}
+                </button>
               </div>
+            </section>
 
-              <div className="flex items-center justify-center gap-8 py-2">
-                 <button onClick={flipCamera} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 p-2 flex items-center gap-3 transition-colors hover:text-white">
-                   <RotateCcw className="size-4" /> Flip Optic
-                 </button>
-                 <button onClick={() => setGhostVisible(!ghostVisible)} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 p-2 flex items-center gap-3 transition-colors hover:text-white">
-                   <div className={cn("size-2 rounded-full", ghostVisible ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-white/10")} />
-                   {ghostVisible ? "Hide Guide" : "Show Guide"}
-                 </button>
-              </div>
-            </div>
-
-            {/* Stats drawer for mobile if needed */}
-            <div className="px-2">
-               <StatsDrawer
-                  open={statsOpen}
-                  stats={stats}
-                  weakLetters={weakLetters}
-                  target={target}
-                />
-            </div>
-            </div>
-          )}
+            <StatsDrawer
+              open={statsOpen}
+              stats={stats}
+              weakLetters={weakLetters}
+              target={target}
+            />
+          </aside>
         </div>
       </main>
     </div>

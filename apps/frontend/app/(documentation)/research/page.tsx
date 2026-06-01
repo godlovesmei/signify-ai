@@ -15,7 +15,7 @@ import UseCases from "@/components/features/research/Use-Cases";
 import ResearchDevelopment from "@/components/features/research/Research-Development";
 import Conclusion from "@/components/features/research/Conclusion";
 
-const SECTIONS = [
+const sections = [
   { id: "introduction", title: "Introduction" },
   { id: "why-it-matters", title: "Why It Matters" },
   { id: "how-it-works", title: "How It Works" },
@@ -29,184 +29,119 @@ const SECTIONS = [
 ];
 
 export default function ResearchPage() {
-  const [activeSection, setActiveSection] = useState("");
+  const [activeSection, setActiveSection] = useState(sections[0].id);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         });
       },
       { rootMargin: "-20% 0px -70% 0px" }
     );
 
-    const sections = document.querySelectorAll("article[id]");
-    sections.forEach((section) => observer.observe(section));
-
-    return () => {
-      sections.forEach((section) => observer.unobserve(section));
-    };
+    const nodes = document.querySelectorAll("article[id]");
+    nodes.forEach((node) => observer.observe(node));
+    return () => nodes.forEach((node) => observer.unobserve(node));
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-cohere-canvas text-cohere-ink">
       <LandingNavbar />
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-6 pt-32 pb-16 grid grid-cols-12 gap-8">
-          <aside className="col-span-3 hidden lg:block">
-            <div className="sticky top-28">
-              <div className="bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-sm">
-                <h2 className="text-base font-medium tracking-wide text-muted-foreground mb-2">
-                  Sign Language Research
-                </h2>
-                <p className="text-xs text-muted-foreground/60 mb-6">10 articles</p>
+      <main className="pt-32">
+        <section className="border-b border-cohere-hairline py-16 md:py-24">
+          <div className="cohere-container">
+            <p className="text-mono-label text-[12px] text-cohere-coral">Research</p>
+            <h1 className="mt-5 max-w-4xl font-display text-[52px] leading-none md:text-[72px]">
+              What is a real-time sign language translator?
+            </h1>
+            <div className="mt-8 grid gap-4 border-t border-cohere-hairline pt-5 text-[14px] text-cohere-slate md:grid-cols-3">
+              <span>Signify Team</span>
+              <span>Research & Development</span>
+              <span>12 min read · Updated March 2025</span>
+            </div>
+          </div>
+        </section>
 
-                <nav className="space-y-1 text-sm">
-                  {SECTIONS.map((section) => {
-                    const isActive = activeSection === section.id;
-                    return (
-                      <Link
-                        key={section.id}
-                        href={`#${section.id}`}
-                        className={`group relative block px-3 py-2 rounded-md transition-all duration-200 ${
-                          isActive
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                        }`}
-                      >
-                        {isActive && (
-                          <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-1 bg-primary rounded-full" />
-                        )}
-                        <span className="ml-2">{section.title}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
+        <div className="cohere-container grid gap-12 py-16 lg:grid-cols-[280px_minmax(0,1fr)_280px] lg:py-20">
+          <aside className="hidden lg:block">
+            <div className="sticky top-32">
+              <p className="text-mono-label text-[12px] text-cohere-slate">Contents</p>
+              <nav className="mt-5 border-t border-cohere-hairline">
+                {sections.map((section) => (
+                  <Link
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className={[
+                      "block border-b border-cohere-hairline py-3 text-[14px] transition-colors",
+                      activeSection === section.id
+                        ? "text-cohere-ink"
+                        : "text-cohere-slate hover:text-cohere-ink",
+                    ].join(" ")}
+                  >
+                    {section.title}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </aside>
 
-          <main className="col-span-12 lg:col-span-6 mt-8 lg:mt-12">
-            <h1 className="text-5xl lg:text-6xl font-light tracking-tight leading-tight mb-6">
-              What is a real-time sign language translator?
-            </h1>
-
-            <div className="flex items-center justify-between border-b border-border/40 pb-6 mb-12">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
-                  S
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Signify Team</p>
-                  <p className="text-sm text-muted-foreground">
-                    Research &amp; Development
-                  </p>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                12 min read · Updated March 2025
-              </div>
-            </div>
-
-            <div className="space-y-20">
-              <article id="introduction" className="scroll-mt-28">
+          <div className="min-w-0">
+            <div className="space-y-16">
+              <article id="introduction" className="scroll-mt-32">
                 <Introduction />
               </article>
-              <hr className="border-gray-100" />
-              <article id="why-it-matters" className="scroll-mt-28">
+              <article id="why-it-matters" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <WhyItMatters />
               </article>
-              <hr className="border-gray-100" />
-              <article id="how-it-works" className="scroll-mt-28">
+              <article id="how-it-works" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <HowItWorks />
               </article>
-              <hr className="border-gray-100" />
-              <article
-                id="technology-behind-it"
-                className="scroll-mt-28"
-              >
+              <article id="technology-behind-it" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <TechnologyBehindIt />
               </article>
-              <hr className="border-gray-100" />
-              <article id="ai-machine-learning" className="scroll-mt-28">
+              <article id="ai-machine-learning" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <AIMachineLearning />
               </article>
-              <hr className="border-gray-100" />
-              <article id="model-training" className="scroll-mt-28">
+              <article id="model-training" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <ModelTraining />
               </article>
-              <hr className="border-gray-100" />
-              <article
-                id="accuracy-improvements"
-                className="scroll-mt-28"
-              >
+              <article id="accuracy-improvements" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <AccuracyImprovements />
               </article>
-              <hr className="border-gray-100" />
-              <article id="use-cases" className="scroll-mt-28">
+              <article id="use-cases" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <UseCases />
               </article>
-              <hr className="border-gray-100" />
-              <article
-                id="research-development"
-                className="scroll-mt-28"
-              >
+              <article id="research-development" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <ResearchDevelopment />
               </article>
-              <hr className="border-gray-100" />
-              <article id="conclusion" className="scroll-mt-28">
+              <article id="conclusion" className="scroll-mt-32 border-t border-cohere-hairline pt-16">
                 <Conclusion />
               </article>
             </div>
-          </main>
+          </div>
 
-          <aside className="col-span-3 hidden lg:block">
-            <div className="sticky top-28">
-              <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                  About this research
-                </p>
-                <h3 className="text-2xl font-light text-foreground mb-4">
-                  AI for Accessibility
-                </h3>
-
-                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary text-lg leading-5">•</span>
-                    <span>
-                      Computer vision for real-time gesture recognition
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary text-lg leading-5">•</span>
-                    <span>Ethical AI and inclusive design</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary text-lg leading-5">•</span>
-                    <span>Community-driven data collection</span>
-                  </li>
-                </ul>
-
-                <p className="text-sm text-muted-foreground mb-6">
-                  Supported by 5 research partners across academia and
-                  non-profits.
-                </p>
-
-                <Link
-                  href="/about"
-                  className="inline-block w-full text-center px-4 py-2 border border-border/60 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors duration-200"
-                >
-                  Learn about Signify →
-                </Link>
-              </div>
+          <aside className="hidden lg:block">
+            <div className="sticky top-32 rounded-sm bg-cohere-stone p-6">
+              <p className="text-mono-label text-[12px] text-cohere-slate">About this research</p>
+              <h2 className="mt-4 text-[32px] leading-[1.2]">AI for accessibility</h2>
+              <ul className="mt-6 space-y-3 text-[14px] leading-[1.4] text-cohere-body-muted">
+                <li>Computer vision for gesture recognition</li>
+                <li>Ethical AI and inclusive design</li>
+                <li>Community-driven data collection</li>
+              </ul>
+              <Link
+                href="/how-it-works"
+                className="mt-8 inline-flex text-[14px] text-cohere-blue underline underline-offset-4"
+              >
+                Learn how it works
+              </Link>
             </div>
           </aside>
         </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }

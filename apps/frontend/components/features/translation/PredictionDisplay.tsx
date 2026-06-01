@@ -30,10 +30,10 @@ const COLORS = {
 };
 
 const TYPE = {
-  h1: "text-[32px] leading-[1.2] tracking-[-0.32px] font-normal font-[Unica77,var(--font-atkinson-hyperlegible-next)]",
-  mono: "text-[14px] leading-[1.4] tracking-[0.28px] font-normal font-[CohereMono,var(--font-mono)] uppercase",
-  body: "text-[16px] leading-[1.5] tracking-[0] font-normal font-[Unica77,var(--font-atkinson-hyperlegible-next)]",
-  micro: "text-[12px] leading-[1.4] tracking-[0] font-normal font-[Unica77,var(--font-atkinson-hyperlegible-next)]",
+  h1: "text-[32px] leading-[1.2] tracking-normal font-normal font-[var(--font-sans)]",
+  mono: "text-[14px] leading-[1.4] tracking-normal font-normal font-[var(--font-mono)] uppercase",
+  body: "text-[16px] leading-[1.5] tracking-normal font-normal font-[var(--font-sans)]",
+  micro: "text-[12px] leading-[1.4] tracking-normal font-normal font-[var(--font-sans)]",
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -168,7 +168,7 @@ export function PredictionDisplay({
   const handleShare = async () => {
     const text = transcript.map(e => e.text).join(" ");
     if (navigator.share) {
-      try { await navigator.share({ title: "Signify AI Transcript", text }); } catch (e) {}
+      try { await navigator.share({ title: "Signify AI Transcript", text }); } catch {}
     }
   };
 
@@ -288,32 +288,30 @@ export function PredictionDisplay({
           <button 
             onClick={handleExport}
             disabled={transcript.length === 0}
-            className="flex-1 h-12 flex items-center justify-center gap-2 border transition-colors disabled:opacity-20"
+            className={`flex-1 h-12 flex items-center justify-center gap-2 border transition-colors disabled:opacity-20 ${TYPE.body}`}
             style={{ 
               borderColor: COLORS.primary, 
               color: COLORS.primary,
               borderRadius: "32px",
-              ...TYPE.body,
               fontWeight: 500,
             }}
           >
             <Download size={14} />
-            <span className="uppercase tracking-wider text-[13px]">Export_Log</span>
+            <span className="uppercase tracking-normal text-[13px]">Export_Log</span>
           </button>
 
           <button 
             onClick={handleShare}
             disabled={transcript.length === 0}
-            className="flex-1 h-12 flex items-center justify-center gap-2 transition-colors disabled:opacity-20 text-white"
+            className={`flex-1 h-12 flex items-center justify-center gap-2 transition-colors disabled:opacity-20 text-white ${TYPE.body}`}
             style={{ 
               backgroundColor: COLORS.primary, 
               borderRadius: "32px",
-              ...TYPE.body,
               fontWeight: 500,
             }}
           >
             <Share2 size={14} />
-            <span className="uppercase tracking-wider text-[13px]">Transmit</span>
+            <span className="uppercase tracking-normal text-[13px]">Transmit</span>
           </button>
         </div>
 
@@ -330,4 +328,3 @@ export function PredictionDisplay({
 }
 
 export default PredictionDisplay;
-

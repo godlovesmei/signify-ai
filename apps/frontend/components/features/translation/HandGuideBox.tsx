@@ -63,10 +63,10 @@ export default function HandGuideBox({
         {/* Label */}
         <span
           className={cn(
-            "absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1",
-            "text-[11px] font-medium backdrop-blur-md transition-all duration-300",
+            "absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[30px] px-3 py-1",
+            "text-[11px] font-medium transition-colors duration-300",
             handDetected
-              ? "bg-success/80 text-white shadow-glow-success"
+              ? "bg-success text-white"
               : "bg-black/50 text-white/70"
           )}
         >

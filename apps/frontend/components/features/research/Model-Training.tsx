@@ -1,12 +1,12 @@
 export default function ModelTraining() {
   return (
-    <section id="model-training" className="mb-20 scroll-mt-24">
+    <section id="model-training" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         Model Training
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-foreground">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           Model training is the process through which a sign language translation 
@@ -15,7 +15,7 @@ export default function ModelTraining() {
           its internal parameters by minimizing prediction error across a labeled dataset.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Dataset Collection
         </h3>
         <p>
@@ -25,7 +25,7 @@ export default function ModelTraining() {
           model generalizes across different signers, dialects and environments.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Data Preprocessing
         </h3>
         <p>
@@ -35,7 +35,7 @@ export default function ModelTraining() {
           before training.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Supervised Learning Objective
         </h3>
         <p>
@@ -52,7 +52,7 @@ export default function ModelTraining() {
           sequences with linguistic meaning.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Validation & Generalization
         </h3>
         <p>
@@ -62,7 +62,7 @@ export default function ModelTraining() {
           dropout, regularization and data augmentation further improve robustness.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Fine-Tuning & Continuous Learning
         </h3>
         <p>

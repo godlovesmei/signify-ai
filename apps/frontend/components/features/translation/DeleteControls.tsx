@@ -31,7 +31,8 @@ export default function DeleteControls({
 
   useEffect(() => {
     if (!disabled) return;
-    setConfirming(false);
+    const id = setTimeout(() => setConfirming(false), 0);
+    return () => clearTimeout(id);
   }, [disabled]);
 
   function handleClearClick() {
@@ -53,10 +54,10 @@ export default function DeleteControls({
         onClick={onDeleteLast}
         disabled={disabled}
         className={cn(
-          "flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200",
+          "flex items-center justify-center rounded-[30px] border border-[var(--cohere-hairline)] transition-colors duration-200",
           isCompact ? "h-8 w-8" : "h-9 w-9",
-          "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
-          "hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800",
+          "bg-[var(--cohere-stone)] text-[var(--cohere-ink)]",
+          "hover:bg-[var(--cohere-hairline)]",
           disabled && "opacity-30 cursor-not-allowed"
         )}
       >
@@ -68,12 +69,12 @@ export default function DeleteControls({
         onClick={handleClearClick}
         disabled={disabled}
         className={cn(
-          "relative flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 px-4 transition-all duration-200 font-sans font-medium",
+          "relative flex items-center justify-center rounded-[30px] border border-[var(--cohere-hairline)] px-4 font-sans font-medium transition-colors duration-200",
           isCompact ? "h-8" : "h-9",
           disabled && "opacity-30 cursor-not-allowed",
           confirming 
-            ? "border-red-500 text-red-500 bg-red-50 dark:bg-red-950/20" 
-            : "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300 hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800"
+            ? "border-[var(--cohere-error)] bg-white text-[var(--cohere-error)]" 
+            : "bg-[var(--cohere-stone)] text-[var(--cohere-ink)] hover:bg-[var(--cohere-hairline)]"
         )}
       >
         <AnimatePresence mode="wait">

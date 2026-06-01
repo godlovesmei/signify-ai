@@ -12,7 +12,6 @@ import {
   LogOut,
   Settings,
   Target,
-  User,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -63,6 +62,7 @@ function UserAvatar({ user, className }: { user: SidebarUser; className?: string
       className
     )}>
       {user.avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={user.avatarUrl} alt={user.name} className="size-full object-cover" />
       ) : (
         getInitials(user.name)
@@ -117,7 +117,7 @@ export default function AppSidebar({
               )}>
                 {ICON_MAP[item.key]}
               </span>
-              <span className="text-sm font-medium tracking-tight relative z-10 text-unica-ui">{item.label}</span>
+              <span className="text-sm font-medium tracking-normal relative z-10 text-unica-ui">{item.label}</span>
               {active && <ChevronRight className="ml-auto size-4 opacity-50 relative z-10" />}
             </Link>
           );
@@ -130,10 +130,10 @@ export default function AppSidebar({
           onClick={onSettingsClick}
           className="flex w-full items-center gap-3 px-4 py-3 rounded-md text-cohere-muted hover:bg-cohere-stone hover:text-cohere-ink transition-colors group"
         >
-          <div className="size-9 rounded-md bg-cohere-stone flex items-center justify-center group-hover:bg-neutral-300 transition-colors border border-cohere-hairline">
+          <div className="size-9 rounded-md bg-cohere-stone flex items-center justify-center group-hover:bg-cohere-hairline transition-colors border border-cohere-hairline">
             <Settings className="size-[18px]" />
           </div>
-          <span className="text-sm font-medium tracking-tight text-unica-ui">Settings</span>
+          <span className="text-sm font-medium tracking-normal text-unica-ui">Settings</span>
         </button>
 
         <div className="h-px bg-cohere-hairline mx-2" />
@@ -149,7 +149,7 @@ export default function AppSidebar({
           <Link href="/profile" onClick={onMobileClose} className="flex items-center gap-3 flex-1 min-w-0">
             <UserAvatar user={activeUser} className="size-10" />
             <div className="flex flex-col min-w-0">
-               <span className="text-sm font-bold tracking-tight truncate text-cohere-ink">{activeUser.name}</span>
+               <span className="text-sm font-medium tracking-normal truncate text-cohere-ink">{activeUser.name}</span>
                <span className="text-[10px] text-cohere-muted truncate lowercase font-mono">{activeUser.email.split('@')[0]}</span>
             </div>
           </Link>

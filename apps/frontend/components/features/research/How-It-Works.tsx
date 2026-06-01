@@ -1,12 +1,12 @@
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="mb-20 scroll-mt-24">
+    <section id="how-it-works" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         How It Works
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-foreground">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           A real-time sign language translation system operates through a 
@@ -15,7 +15,7 @@ export default function HowItWorks() {
           modeling and language interpretation within a low-latency framework.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           1. Video Capture
         </h3>
         <p>
@@ -24,7 +24,7 @@ export default function HowItWorks() {
           Frame rate stability is critical to maintaining accurate motion tracking.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           2. Landmark Detection
         </h3>
         <p>
@@ -34,7 +34,7 @@ export default function HowItWorks() {
           noise and standardizes visual input for downstream models.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           3. Temporal Modeling
         </h3>
         <p>
@@ -44,7 +44,7 @@ export default function HowItWorks() {
           motion patterns and contextual dependencies across time.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           4. Gesture Classification
         </h3>
         <p>
@@ -53,7 +53,7 @@ export default function HowItWorks() {
           segmentation algorithms identify boundaries between individual signs.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           5. Language Output
         </h3>
         <p>

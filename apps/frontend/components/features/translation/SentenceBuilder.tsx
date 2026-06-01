@@ -50,12 +50,12 @@ export default function SentenceBuilder({
       aria-label="Sentence builder"
       className={cn(
         "flex flex-col border transition-all duration-300",
-        "bg-[var(--cohere-canvas)] dark:bg-zinc-950",
-        "border-[var(--cohere-hairline)] dark:border-zinc-800",
+        "bg-[var(--cohere-canvas)]",
+        "border-[var(--cohere-hairline)]",
         isSticky
           ? "h-full gap-2 rounded-md p-3"
-          : "gap-3 rounded-lg p-4",
-        isSpeaking && "border-zinc-900 dark:border-zinc-100",
+          : "gap-3 rounded-sm p-4",
+        isSpeaking && "border-[var(--cohere-primary)]",
         className
       )}
     >
@@ -76,7 +76,7 @@ export default function SentenceBuilder({
         role="list"
       >
         {isEmpty ? (
-          <span className="select-none text-[10px] uppercase tracking-wider text-[var(--cohere-muted)] font-mono py-1">
+          <span className="select-none text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono py-1">
             History Empty
           </span>
         ) : (
@@ -91,9 +91,9 @@ export default function SentenceBuilder({
                   "inline-flex shrink-0 items-center justify-center rounded-sm border",
                   isSticky ? "h-7 w-7" : "h-8 w-8",
                   "font-mono text-xs transition-all duration-150",
-                  "border-[var(--cohere-hairline)] dark:border-zinc-800",
-                  "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
-                  isLatest && "font-bold border-zinc-900 dark:border-zinc-100 underline underline-offset-4 decoration-1"
+                  "border-[var(--cohere-hairline)]",
+                  "bg-[var(--cohere-stone)] text-[var(--cohere-ink)]",
+                  isLatest && "border-[var(--cohere-primary)] underline underline-offset-4 decoration-1"
                 )}
               >
                 {token === " " ? "\u00A0" : token}
@@ -108,12 +108,12 @@ export default function SentenceBuilder({
         aria-live="polite"
         aria-label="Built sentence"
         className={cn(
-          "rounded-md border border-[var(--cohere-hairline)] dark:border-zinc-800 bg-transparent",
+          "rounded-sm border border-[var(--cohere-hairline)] bg-transparent",
           "font-sans leading-relaxed break-words transition-colors duration-300",
           isSticky
             ? "min-h-11 flex-1 overflow-y-auto px-3 py-2"
             : "min-h-[52px] px-4 py-3",
-          isEmpty ? "text-[var(--cohere-muted)] italic" : "text-[var(--cohere-ink)] dark:text-zinc-100"
+          isEmpty ? "text-[var(--cohere-muted)] italic" : "text-[var(--cohere-ink)]"
         )}
         style={{ fontSize: sentenceFontSize }}
       >
@@ -134,9 +134,9 @@ export default function SentenceBuilder({
               onClick={onAddSpace}
               aria-label="Add space"
               className={cn(
-                "flex items-center gap-1.5 rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200",
-                "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
-                "hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800",
+                "flex items-center gap-1.5 rounded-[30px] border border-[var(--cohere-hairline)] transition-colors duration-200",
+                "bg-[var(--cohere-stone)] text-[var(--cohere-ink)]",
+                "hover:bg-[var(--cohere-hairline)]",
                 isSticky ? "h-8 px-3 text-xs" : "h-9 px-4 text-sm",
                 "font-sans font-medium"
               )}
@@ -157,7 +157,7 @@ export default function SentenceBuilder({
 
         <div className="flex items-center gap-2">
           {!isEmpty && !isSticky && (
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--cohere-muted)]">
+            <span className="font-mono text-[10px] uppercase tracking-normal text-[var(--cohere-muted)]">
               {sentence.length} TOKENS
             </span>
           )}

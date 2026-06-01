@@ -1,12 +1,12 @@
 export default function ResearchDevelopment() {
   return (
-    <section id="research-development" className="mb-20 scroll-mt-24">
+    <section id="research-development" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         Research & Development
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-foreground">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           Research and development efforts focus on improving recognition 
@@ -15,7 +15,7 @@ export default function ResearchDevelopment() {
           and validation are essential to ensure scalable and inclusive deployment.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Multimodal Learning
         </h3>
         <p>
@@ -25,7 +25,7 @@ export default function ResearchDevelopment() {
           these modalities improves semantic understanding and contextual accuracy.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Transformer-Based Architectures
         </h3>
         <p>
@@ -35,7 +35,7 @@ export default function ResearchDevelopment() {
           than traditional recurrent networks.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Low-Resource Sign Languages
         </h3>
         <p>
@@ -45,7 +45,7 @@ export default function ResearchDevelopment() {
           performance improvements even in data-constrained environments.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Real-Time Optimization
         </h3>
         <p>
@@ -55,7 +55,7 @@ export default function ResearchDevelopment() {
           sacrificing prediction reliability.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Ethical & Inclusive AI
         </h3>
         <p>

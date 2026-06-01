@@ -11,22 +11,20 @@ interface TargetBlockProps {
 export function TargetBlock({ letter, className }: TargetBlockProps) {
   return (
     <div className={cn("flex flex-col items-center gap-6", className)}>
-      <div className="relative group">
-        <span className="text-7xl md:text-8xl font-black text-foreground leading-none tracking-tighter drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all group-hover:scale-110">
+      <div>
+        <span className="font-display text-[96px] font-normal leading-none text-cohere-ink">
           {letter}
         </span>
-        <div className="absolute -inset-8 bg-white/5 rounded-full blur-2xl -z-10 animate-pulse" />
       </div>
       <div className="w-full">
-        <div className="rounded-2xl overflow-hidden border border-white/5 bg-white/[0.03] aspect-[4/3] relative group shadow-2xl">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] border border-cohere-hairline bg-cohere-canvas">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/alfabet/${letter}.jpg`}
             alt={`Reference gesture for ${letter}`}
-            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100 grayscale hover:grayscale-0"
+            className="h-full w-full object-cover grayscale"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <div className="absolute bottom-3 left-3 px-2 py-0.5 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[9px] text-white/70 font-black uppercase tracking-widest">Mastery Guide</div>
+          <div className="absolute bottom-3 left-3 rounded-sm bg-cohere-canvas px-2 py-1 text-mono-label text-[10px] text-cohere-slate">Mastery guide</div>
         </div>
       </div>
     </div>
@@ -41,18 +39,17 @@ interface TargetCompactProps {
 
 export function TargetCompact({ letter, className }: TargetCompactProps) {
   return (
-    <div className={cn("flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-white/[0.03] glass-panel", className)}>
-      <span className="text-5xl font-black text-foreground leading-none tracking-tighter">
+    <div className={cn("flex items-center gap-4 rounded-sm border border-cohere-hairline bg-cohere-canvas p-4", className)}>
+      <span className="font-display text-[48px] font-normal leading-none text-cohere-ink">
         {letter}
       </span>
-      <div className="w-20 h-14 rounded-xl overflow-hidden border border-white/10 bg-black relative shadow-lg">
+      <div className="relative h-14 w-20 overflow-hidden rounded-sm border border-cohere-hairline bg-cohere-stone">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`/alfabet/${letter}.jpg`}
           alt=""
           className="w-full h-full object-cover opacity-80"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
     </div>
   );

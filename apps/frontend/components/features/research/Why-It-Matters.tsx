@@ -1,12 +1,12 @@
 export default function WhyItMatters() {
   return (
-    <section id="why-it-matters" className="mb-20 scroll-mt-24">
+    <section id="why-it-matters" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         Why It Matters
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-foreground">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           Communication is fundamental to education, healthcare, employment 
@@ -16,7 +16,7 @@ export default function WhyItMatters() {
           significant societal impact.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Reducing Communication Barriers
         </h3>
         <p>
@@ -27,7 +27,7 @@ export default function WhyItMatters() {
           is unavailable.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Promoting Inclusive Technology
         </h3>
         <p>
@@ -37,7 +37,7 @@ export default function WhyItMatters() {
           are equitable and usable for everyone.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Supporting Education & Employment
         </h3>
         <p>
@@ -47,7 +47,7 @@ export default function WhyItMatters() {
           and participation.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Advancing AI for Social Good
         </h3>
         <p>

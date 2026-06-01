@@ -24,7 +24,7 @@ function LogoContent({
 
   return (
     <span className="flex items-center gap-2">
-      <span className="relative flex shrink-0 items-center justify-center transition-transform group-hover:scale-105">
+      <span className="relative flex shrink-0 items-center justify-center">
         {/* Light mode logo */}
         <Image
           src="/nobackground-logo.png"
@@ -47,10 +47,10 @@ function LogoContent({
 
       {showWordmark && (
         <span
-          className="font-black tracking-tighter text-foreground leading-none"
+          className="font-display font-normal tracking-normal text-current leading-none"
           style={{ fontSize: size === 'lg' ? '1.75rem' : size === 'md' ? '1.5rem' : '1.25rem' }}
         >
-          Signify<span className="text-muted-foreground/40">AI</span>
+          Signify<span className="opacity-55">AI</span>
         </span>
       )}
     </span>

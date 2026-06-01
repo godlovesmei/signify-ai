@@ -1,12 +1,12 @@
 export default function UseCases() {
   return (
-    <section id="use-cases" className="mb-20 scroll-mt-24">
+    <section id="use-cases" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         Use Cases
       </h2>
 
-      <div className="space-y-8 text-lg leading-relaxed text-foreground">
+      <div className="space-y-8 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           Real-time sign language translation systems enable inclusive communication 
@@ -15,7 +15,7 @@ export default function UseCases() {
         </p>
 
         <div>
-          <h3 className="text-xl font-semibold mt-6">
+          <h3 className="mt-6 text-[24px] leading-[1.3] text-cohere-ink">
             Education
           </h3>
           <p>
@@ -28,7 +28,7 @@ export default function UseCases() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mt-6">
+          <h3 className="mt-6 text-[24px] leading-[1.3] text-cohere-ink">
             Healthcare Communication
           </h3>
           <p>
@@ -40,7 +40,7 @@ export default function UseCases() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mt-6">
+          <h3 className="mt-6 text-[24px] leading-[1.3] text-cohere-ink">
             Customer Service & Public Services
           </h3>
           <p>
@@ -52,7 +52,7 @@ export default function UseCases() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mt-6">
+          <h3 className="mt-6 text-[24px] leading-[1.3] text-cohere-ink">
             Remote Communication
           </h3>
           <p>
@@ -63,7 +63,7 @@ export default function UseCases() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mt-6">
+          <h3 className="mt-6 text-[24px] leading-[1.3] text-cohere-ink">
             Research & Linguistic Analysis
           </h3>
           <p>

@@ -26,7 +26,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
           className="flex items-center gap-2 md:gap-3 transition-opacity hover:opacity-80"
         >
           <Logo href={false} size="sm" showWordmark={false} className="shrink-0" />
-          <span className="text-sm font-display font-medium tracking-tight hidden xs:inline text-cohere-ink">
+          <span className="text-sm font-display font-medium tracking-normal hidden xs:inline text-cohere-ink">
             Signify<span className="text-cohere-slate">AI</span>
           </span>
         </Link>

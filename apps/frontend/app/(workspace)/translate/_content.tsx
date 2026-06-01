@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Zap, Activity, Terminal, Layers } from "lucide-react";
+import { Activity, Layers, Terminal } from "lucide-react";
 
 import {
   WebcamCapture,
   PredictionDisplay,
   PredictionBadge,
   SentenceBuilder,
-  DetectionStatus,
   type WebcamCaptureHandle,
   type CameraState,
   type TranscriptEntry,
@@ -18,7 +17,6 @@ import { captureFrame } from "@/lib/imagePreprocess";
 import { predictFromBlob, type TranslateDetection } from "@/lib/translateApi";
 import {
   createLetterAccumulatorState,
-  mapCameraStateToDetectionStatus,
   reduceLetterAccumulator,
   type LetterAccumulatorConfig,
 } from "@/lib/translateState";
@@ -53,9 +51,9 @@ function uid() {
  */
 function StatusValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-1.5 border-l border-[#d9d9dd] pl-4">
-      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a] leading-none text-nowrap">{label}</p>
-      <p className="text-[12px] font-medium text-[#17171c] tracking-tight truncate">{value}</p>
+    <div className="space-y-1.5 border-l border-cohere-hairline pl-4">
+      <p className="font-mono text-[10px] uppercase tracking-normal text-cohere-slate leading-none text-nowrap">{label}</p>
+      <p className="truncate text-[12px] font-medium text-cohere-primary">{value}</p>
     </div>
   );
 }
@@ -427,65 +425,58 @@ export default function TranslatePageContent() {
     />
   );
 
-  const isLive = appState === "ready" || appState === "detecting";
   const isActive = appState === "detecting";
 
   return (
-    <div className="flex h-full flex-col bg-white overflow-hidden selection:bg-[#ffad9b] selection:text-[#17171c]">
-      {/* 
-        Top Navigation / Technical Header 
-        High editorial space, minimal distractions. 
-      */}
-      <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-[#d9d9dd] px-8 bg-white z-50">
-        <div className="flex items-center gap-12">
+    <div className="flex h-full flex-col overflow-hidden bg-cohere-canvas text-cohere-ink selection:bg-cohere-coral-soft selection:text-cohere-primary">
+      <header className="z-30 flex min-h-[72px] shrink-0 flex-col gap-4 border-b border-cohere-hairline bg-cohere-canvas px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-12">
           <div className="flex flex-col">
-            <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#75758a] leading-none mb-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-normal text-cohere-slate leading-none mb-1.5">
               Protocol // Signify_AI
             </span>
-            <span className="font-mono text-[12px] uppercase tracking-[0.1em] text-[#17171c] font-medium">
+            <span className="font-mono text-[12px] uppercase tracking-normal text-cohere-primary font-medium">
               BISINDO_INTERPRETER_V3.0_PROD
             </span>
           </div>
-          <div className="hidden lg:flex items-center gap-6 border-l border-[#d9d9dd] pl-12">
+          <div className="hidden items-center gap-6 border-l border-cohere-hairline pl-12 lg:flex">
             <div className="space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a]">Active_Engine</p>
-              <p className="text-[13px] font-medium text-[#17171c]">YOLOv11_Direct_RGB</p>
+              <p className="font-mono text-[10px] uppercase tracking-normal text-cohere-slate">Active_Engine</p>
+              <p className="text-[13px] font-medium text-cohere-primary">YOLOv11_Direct_RGB</p>
             </div>
             <div className="space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a]">Language</p>
-              <p className="text-[13px] font-medium text-[#17171c]">{language}</p>
+              <p className="font-mono text-[10px] uppercase tracking-normal text-cohere-slate">Language</p>
+              <p className="text-[13px] font-medium text-cohere-primary">{language}</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-8">
-           <div className="flex items-center gap-3 px-4 py-2 bg-[#eeece7] rounded-sm border border-[#d9d9dd]">
-              <div className={`size-1.5 rounded-full ${isActive ? 'bg-[#003c33] shadow-[0_0_8px_rgba(0,60,51,0.4)]' : 'bg-[#93939f]'}`} />
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#17171c]">
+        <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3 rounded-sm border border-cohere-hairline bg-cohere-stone px-4 py-2">
+              <div className={`size-1.5 rounded-full ${isActive ? 'bg-cohere-green' : 'bg-cohere-muted'}`} />
+              <span className="font-mono text-[10px] uppercase tracking-normal text-cohere-primary">
                 {isActive ? 'Live_Transmission' : 'Standby_Mode'}
               </span>
            </div>
         </div>
       </header>
 
-      <main className="flex flex-1 min-h-0 divide-x divide-[#d9d9dd]">
-        {/* Visual Stream Column */}
-        <section className="flex-[1.4] relative flex flex-col bg-[#eeece7] overflow-hidden">
-          <div className="flex-1 flex flex-col p-8 md:p-10 overflow-y-auto">
+      <main className="flex min-h-0 flex-1 flex-col lg:flex-row lg:divide-x lg:divide-cohere-hairline">
+        <section className="relative flex min-h-0 flex-[1.4] flex-col overflow-hidden bg-cohere-stone">
+          <div className="flex flex-1 flex-col overflow-y-auto p-4 md:p-8 lg:p-10">
             <div className="max-w-[1000px] w-full mx-auto space-y-8">
-              <div className="flex items-baseline justify-between border-b border-[#d9d9dd] pb-6">
+              <div className="flex flex-col gap-4 border-b border-cohere-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-[32px] tracking-tight text-[#17171c] font-normal leading-none font-unica">Vision Interface</h2>
-                  <p className="text-[15px] text-[#616161] mt-2 max-w-md font-unica">Neural interpretation of manual gestural sequences in real-time environment.</p>
+                  <h2 className="text-[32px] text-cohere-primary font-normal leading-none">Vision Interface</h2>
+                  <p className="mt-2 max-w-md text-[15px] leading-[1.5] text-cohere-body-muted">Neural interpretation of manual gestural sequences in real-time environment.</p>
                 </div>
-                <div className="text-right font-mono">
-                  <span className="block text-[9px] uppercase tracking-[0.2em] text-[#75758a] mb-1">Inference_Rate</span>
-                  <span className="text-xl tabular-nums text-[#17171c]">{fps} <span className="text-[10px] opacity-40">FPS</span></span>
+                <div className="font-mono sm:text-right">
+                  <span className="mb-1 block text-[10px] uppercase tracking-normal text-cohere-slate">Inference_Rate</span>
+                  <span className="text-xl tabular-nums text-cohere-primary">{fps} <span className="text-[10px] opacity-40">FPS</span></span>
                 </div>
               </div>
 
-              {/* The Media Interface */}
-              <div className="relative aspect-video w-full rounded-md overflow-hidden bg-black border border-[#d9d9dd] shadow-2xl transition-all duration-700">
+              <div className="relative aspect-video w-full overflow-hidden rounded-[22px] border border-cohere-hairline bg-black transition-colors duration-300">
                 <WebcamCapture
                   ref={webcamRef}
                   state={appState}
@@ -504,9 +495,9 @@ export default function TranslatePageContent() {
                 {/* Minimal HUD overlay for Confidence which is critical for interpretation */}
                 {isActive && currentConfidence !== null && (
                   <div className="absolute top-8 right-8 z-[35]">
-                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-4 py-3 rounded-sm font-mono text-white min-w-[140px]">
+                    <div className="min-w-[140px] rounded-sm border border-white/15 bg-black/70 px-4 py-3 font-mono text-white">
                       <div className="flex items-center justify-between gap-3 mb-2">
-                        <span className="text-[9px] uppercase tracking-[0.2em] opacity-50">Signal_Quality</span>
+                        <span className="text-[10px] uppercase tracking-normal opacity-50">Signal_Quality</span>
                         <span className="text-xs font-bold">{Math.round(currentConfidence * 100)}%</span>
                       </div>
                       <div className="h-0.5 w-full bg-white/10 overflow-hidden">
@@ -521,7 +512,7 @@ export default function TranslatePageContent() {
               </div>
 
               {/* Technical Status Matrix */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+              <div className="grid grid-cols-2 gap-4 pt-4 md:grid-cols-4">
                 <StatusValue label="Engine_Module" value="bisindo_v3_rgb" />
                 <StatusValue label="Input_Source" value={`${facingMode.toUpperCase()}_ARRAY`} />
                 <StatusValue label="Processing" value="QUANTIZED_INT8" />
@@ -531,26 +522,24 @@ export default function TranslatePageContent() {
           </div>
           
           {/* Practice Guide at the bottom of visual space */}
-          <div className="px-8 md:px-10 pb-10">
-             <div className="max-w-[1000px] w-full mx-auto border-t border-[#d9d9dd] pt-10">
+          <div className="px-4 pb-8 md:px-8 lg:px-10 lg:pb-10">
+             <div className="mx-auto w-full max-w-[1000px] border-t border-cohere-hairline pt-8 lg:pt-10">
                 <PracticeGuide />
              </div>
           </div>
         </section>
 
-        {/* Interpretation Ledger Column */}
-        <section className="flex-1 flex flex-col bg-white">
-          {/* Live Analysis Terminal Slot */}
-          <div className="p-10 border-b border-[#d9d9dd]">
+        <section className="flex min-h-[560px] flex-1 flex-col bg-cohere-canvas lg:min-h-0">
+          <div className="border-b border-cohere-hairline p-6 lg:p-10">
             <header className="flex items-center justify-between mb-12">
                <div className="flex items-center gap-3">
-                 <Terminal className="size-3.5 text-[#75758a]" />
-                 <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Session_Buffer</h3>
+                 <Terminal className="size-3.5 text-cohere-slate" />
+                 <h3 className="font-mono text-[11px] uppercase tracking-normal text-cohere-slate">Session_Buffer</h3>
                </div>
                <div className="flex items-center gap-1">
-                 <div className="size-1 bg-[#d9d9dd]" />
-                 <div className="size-1 bg-[#d9d9dd]" />
-                 <div className="size-1 bg-[#17171c]" />
+                 <div className="size-1 bg-cohere-hairline" />
+                 <div className="size-1 bg-cohere-hairline" />
+                 <div className="size-1 bg-cohere-primary" />
                </div>
             </header>
 
@@ -566,25 +555,25 @@ export default function TranslatePageContent() {
           </div>
 
           {/* Sequence Assembler */}
-          <div className="p-10 border-b border-[#d9d9dd] bg-[#eeece7]/20">
+          <div className="border-b border-cohere-hairline bg-cohere-stone/40 p-6 lg:p-10">
             <div className="mb-6 flex items-center gap-3">
-              <Layers className="size-3.5 text-[#75758a]" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Sequence_Assembly</span>
-              <div className="h-px flex-1 bg-[#d9d9dd]" />
+              <Layers className="size-3.5 text-cohere-slate" />
+              <span className="font-mono text-[11px] uppercase tracking-normal text-cohere-slate">Sequence_Assembly</span>
+              <div className="h-px flex-1 bg-cohere-hairline" />
             </div>
             {renderSentenceBuilder("panel")}
           </div>
 
           {/* Interpretation Log */}
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="px-10 py-6 border-b border-[#d9d9dd] flex items-center justify-between bg-white">
+            <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-canvas px-6 py-5 lg:px-10 lg:py-6">
               <div className="flex items-center gap-3">
-                <Activity className="size-3.5 text-[#75758a]" />
-                <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Interpretation_History</h3>
+                <Activity className="size-3.5 text-cohere-slate" />
+                <h3 className="font-mono text-[11px] uppercase tracking-normal text-cohere-slate">Interpretation_History</h3>
               </div>
               <button 
                 onClick={() => setTranscript([])}
-                className="font-mono text-[9px] uppercase tracking-widest text-[#75758a] hover:text-[#17171c] transition-colors"
+                className="font-mono text-[10px] uppercase tracking-normal text-cohere-slate transition-colors hover:text-cohere-primary"
               >
                 Clear_Log
               </button>
@@ -603,7 +592,7 @@ export default function TranslatePageContent() {
       </main>
 
       {/* Mobile assembly footer - persistent control */}
-      <div className="md:hidden border-t border-[#d9d9dd] bg-white p-6 z-50">
+      <div className="z-50 border-t border-cohere-hairline bg-cohere-canvas p-4 md:hidden">
         {renderSentenceBuilder("sticky")}
       </div>
     </div>

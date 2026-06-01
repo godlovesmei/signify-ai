@@ -6,56 +6,53 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-[0.85rem] text-sm font-bold tracking-tight outline-none transition-all duration-300 ease-[cubic-bezier(0.2,1,0.2,1)] focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/20 motion-reduce:transform-none motion-reduce:transition-none disabled:pointer-events-none disabled:opacity-50 hover:scale-[1.02] active:scale-[0.97] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-[32px] text-sm font-medium tracking-normal outline-none transition-colors duration-200 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:shadow-md",
+          "bg-primary text-primary-foreground hover:bg-cohere-ink/90",
 
         success:
-          "bg-success text-success-foreground shadow-sm",
+          "bg-success text-success-foreground hover:bg-success/90",
 
         warning:
-          "bg-warning text-warning-foreground shadow-sm",
+          "bg-warning text-warning-foreground hover:bg-warning/90",
 
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 
         outline:
-          "border border-border bg-background text-foreground shadow-sm hover:bg-secondary/50 hover:border-border",
+          "border border-border bg-transparent text-foreground hover:bg-secondary",
 
         ghost:
-          "text-foreground hover:bg-secondary/80",
+          "text-foreground hover:bg-secondary",
 
         secondary:
-          "bg-secondary text-secondary-foreground border border-border/10",
+          "bg-secondary text-secondary-foreground border border-border",
 
         highlight:
-          "bg-accent text-accent-foreground shadow-sm",
+          "bg-accent text-accent-foreground hover:bg-accent/90",
 
         surface:
-          "bg-surface-tertiary text-surface-tertiary-foreground",
-
-        glass:
-          "border border-border/20 bg-background/50 text-foreground backdrop-blur-xl hover:bg-background/80",
+          "bg-surface-tertiary text-surface-tertiary-foreground border border-border",
 
         signal:
-          "bg-accent text-accent-foreground shadow-lg shadow-accent/20",
+          "bg-accent text-accent-foreground hover:bg-accent/90",
 
         link:
-          "text-primary underline-offset-4 hover:underline hover:scale-100",
+          "text-primary underline-offset-4 hover:underline",
       },
 
       size: {
-        default: "h-11 px-6 text-[13px]",
-        xs: "h-8 gap-1 rounded-lg px-3 text-xs [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-10 rounded-xl gap-1.5 px-5 text-[13px]",
-        lg: "h-14 rounded-2xl px-10 text-base",
+        default: "h-11 px-6 text-[14px]",
+        xs: "h-8 gap-1 rounded-[30px] px-3 text-xs [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-10 rounded-[32px] gap-1.5 px-5 text-[13px]",
+        lg: "h-12 rounded-[32px] px-8 text-[14px]",
         icon: "size-11",
-        "icon-xs": "size-8 rounded-lg",
-        "icon-sm": "size-10 rounded-xl",
-        "icon-lg": "size-14 rounded-2xl",
+        "icon-xs": "size-8 rounded-sm",
+        "icon-sm": "size-10 rounded-sm",
+        "icon-lg": "size-12 rounded-sm",
       },
     },
 

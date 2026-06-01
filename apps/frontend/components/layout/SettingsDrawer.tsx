@@ -96,7 +96,7 @@ function SettingsCard({
       className={cn(
         "rounded-md bg-cohere-canvas border border-cohere-hairline",
         "transition-all duration-200",
-        hover && "hover:border-cohere-ink hover:shadow-sm",
+        hover && "hover:border-cohere-ink",
         className
       )}
     >
@@ -256,7 +256,7 @@ function ThemeSegmentedControl({
             className={cn(
               "relative flex flex-1 items-center justify-center gap-1.5 rounded-sm py-2 text-xs font-semibold transition-all duration-200",
               isActive
-                ? "text-cohere-canvas bg-cohere-ink shadow-sm"
+                ? "text-cohere-canvas bg-cohere-ink"
                 : "text-cohere-muted hover:text-cohere-ink"
             )}
           >
@@ -301,7 +301,7 @@ function TextScaleSelector({
             className={cn(
               "flex flex-1 items-center justify-center rounded-md py-2.5 text-sm font-bold transition-all duration-200",
               isActive
-                ? "bg-cohere-ink text-cohere-canvas shadow-sm"
+                ? "bg-cohere-ink text-cohere-canvas"
                 : "bg-cohere-stone text-cohere-muted hover:text-cohere-ink border border-cohere-hairline"
             )}
           >
@@ -354,7 +354,7 @@ export default function SettingsDrawer({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-lg top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
+      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-none top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
       aria-label="App settings"
       >
         {/* Header */}
@@ -363,7 +363,7 @@ export default function SettingsDrawer({
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
               <Sliders className="h-4 w-4 text-cohere-ink" aria-hidden="true" />
             </div>
-            <DialogTitle className="text-base font-display font-medium tracking-tight text-cohere-ink">
+            <DialogTitle className="text-base font-display font-medium tracking-normal text-cohere-ink">
               Settings
             </DialogTitle>
           </div>
@@ -501,7 +501,7 @@ export default function SettingsDrawer({
                       label="Voice feedback"
                     />
                   </div>
-                  <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+                  <div className="h-px bg-cohere-hairline" />
                 </>
               )}
 
@@ -515,7 +515,7 @@ export default function SettingsDrawer({
                 formatValue={(v) => `${v.toFixed(1)}×`}
               />
 
-              <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+              <div className="h-px bg-cohere-hairline" />
 
               <LabelledSlider
                 label="Volume"

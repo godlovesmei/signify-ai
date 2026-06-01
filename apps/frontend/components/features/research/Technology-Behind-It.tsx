@@ -1,12 +1,12 @@
 export default function TechnologyBehindIt() {
   return (
-    <section id="technology-behind-it" className="mb-20 scroll-mt-24">
+    <section id="technology-behind-it" className="scroll-mt-32">
       
-      <h2 className="text-3xl font-semibold mb-6">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
         Technology Behind It
       </h2>
 
-      <div className="space-y-6 text-lg leading-relaxed text-foreground">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
 
         <p>
           The sign language translation system is powered by an integrated stack 
@@ -15,7 +15,7 @@ export default function TechnologyBehindIt() {
           into structured and meaningful language output.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Computer Vision
         </h3>
         <p>
@@ -25,7 +25,7 @@ export default function TechnologyBehindIt() {
           consistent inputs for sequence modeling.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Deep Learning Models
         </h3>
         <p>
@@ -35,7 +35,7 @@ export default function TechnologyBehindIt() {
           Attention mechanisms further enhance contextual understanding.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Sequence Modeling
         </h3>
         <p>
@@ -45,7 +45,7 @@ export default function TechnologyBehindIt() {
           analyze frame-by-frame transitions to recognize complete sign phrases.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Natural Language Processing
         </h3>
         <p>
@@ -55,7 +55,7 @@ export default function TechnologyBehindIt() {
           real-world communication contexts.
         </p>
 
-        <h3 className="text-xl font-semibold mt-8">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
           Deployment & Infrastructure
         </h3>
         <p>

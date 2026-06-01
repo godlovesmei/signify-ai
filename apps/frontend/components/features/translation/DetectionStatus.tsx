@@ -74,7 +74,7 @@ export default function DetectionStatus({
             aria-label={`${fps} frames per second`}
             className="font-mono text-[11px] tabular-nums text-[#212121] border-l border-[#d9d9dd] pl-3"
           >
-            {fps} <span className="text-[9px] uppercase tracking-tighter opacity-40">fps</span>
+            {fps} <span className="text-[9px] uppercase tracking-normal opacity-40">fps</span>
           </span>
         )}
 
@@ -87,4 +87,3 @@ export default function DetectionStatus({
     </div>
   );
 }
-

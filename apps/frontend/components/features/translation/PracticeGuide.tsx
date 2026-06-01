@@ -293,14 +293,14 @@ export default function PracticeGuide() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="group relative flex w-full items-center gap-4 rounded-lg border border-cohere-hairline bg-cohere-canvas px-4 py-3.5 transition-all hover:bg-cohere-stone active:scale-[0.98]"
+        className="group relative flex w-full items-center gap-4 rounded-sm border border-cohere-hairline bg-cohere-canvas px-4 py-3.5 transition-colors hover:bg-cohere-stone"
       >
-        <div className="flex size-9 items-center justify-center text-cohere-ink transition-transform group-hover:scale-110">
+        <div className="flex size-9 items-center justify-center text-cohere-ink">
           <Sparkles className="size-5 stroke-[1.5]" />
         </div>
         <div className="flex flex-col items-start leading-none text-left">
-           <span className="font-cohere-mono text-[10px] uppercase tracking-[0.2em] text-cohere-muted mb-1.5">Visual Guide</span>
-           <span className="font-unica77 text-[15px] font-medium tracking-tight text-cohere-ink">BISINDO Alphabet</span>
+           <span className="font-cohere-mono text-[10px] uppercase tracking-normal text-cohere-muted mb-1.5">Visual Guide</span>
+           <span className="font-unica77 text-[15px] font-medium tracking-normal text-cohere-ink">BISINDO Alphabet</span>
         </div>
         <Maximize2 className="ml-auto size-4 text-cohere-hairline group-hover:text-cohere-muted transition-colors" />
       </button>
@@ -312,12 +312,12 @@ export default function PracticeGuide() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.3, ease: [0.2, 1, 0.2, 1] }}
-            className="fixed inset-4 md:inset-x-auto md:right-8 md:top-24 md:bottom-24 z-[100] flex w-auto md:w-[420px] flex-col overflow-hidden rounded-lg border border-cohere-hairline bg-cohere-canvas shadow-xl"
+            className="fixed inset-4 md:inset-x-auto md:right-8 md:top-24 md:bottom-24 z-[100] flex w-auto md:w-[420px] flex-col overflow-hidden rounded-lg border border-cohere-hairline bg-cohere-canvas shadow-none"
           >
             <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-stone/30 px-6 py-4">
                <div className="flex items-center gap-3">
                   <div className="size-1.5 rounded-full bg-cohere-ink" />
-                  <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-ink font-medium">Reference Guide</span>
+                  <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-ink font-medium">Reference Guide</span>
                </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -327,7 +327,7 @@ export default function PracticeGuide() {
                   >
                      <Grid className="size-4.5 stroke-[1.5]" />
                   </button>
-                  <Link href="/reference" className="font-cohere-mono text-[10px] uppercase tracking-[0.15em] text-cohere-slate hover:text-cohere-ink transition-colors flex items-center gap-2 px-3">
+                  <Link href="/reference" className="font-cohere-mono text-[10px] uppercase tracking-normal text-cohere-slate hover:text-cohere-ink transition-colors flex items-center gap-2 px-3">
                      Full Index <ExternalLink className="size-3.5 stroke-[1.5]" />
                   </Link>
                   <div className="w-px h-4 bg-cohere-hairline mx-1" />
@@ -348,27 +348,26 @@ export default function PracticeGuide() {
                     alt={active.name}
                     className="size-full object-cover grayscale-[0.2] contrast-[1.05]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-cohere-canvas/20 to-transparent pointer-events-none" />
                   <div className="absolute top-6 left-6">
-                     <span className="font-unica77 text-[64px] font-normal text-cohere-ink leading-none tracking-[-0.04em] drop-shadow-sm">{active.label}</span>
+                     <span className="font-unica77 text-[64px] font-normal text-cohere-ink leading-none tracking-normal">{active.label}</span>
                   </div>
                </div>
 
                <div className="space-y-6">
                   <div>
-                    <h3 className="font-unica77 text-[32px] font-normal leading-tight tracking-[-0.01em] text-cohere-ink mb-3">{active.name}</h3>
+                    <h3 className="font-unica77 text-[32px] font-normal leading-tight tracking-normal text-cohere-ink mb-3">{active.name}</h3>
                     <p className="font-unica77 text-[16px] leading-[1.6] text-cohere-slate">{active.description}</p>
                   </div>
 
                   <div className="space-y-6 pt-6 border-t border-cohere-hairline">
                     <div>
-                       <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-muted mb-3 block">Technical Instruction</span>
+                       <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Technical Instruction</span>
                        <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink p-4 rounded-md bg-cohere-stone/50 border border-cohere-hairline/50">{active.fingers}</p>
                     </div>
 
                     {active.tip && (
                       <div>
-                         <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-muted mb-3 block">Operational Tip</span>
+                         <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Operational Tip</span>
                          <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink/80 italic pl-4 border-l-2 border-cohere-hairline">{active.tip}</p>
                       </div>
                     )}
@@ -380,14 +379,14 @@ export default function PracticeGuide() {
                <button
                  onClick={() => setActive(index - 1)}
                  disabled={index === 0}
-                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-[0.15em] bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-all disabled:opacity-30 disabled:hover:bg-cohere-canvas"
+                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-normal bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors disabled:opacity-30 disabled:hover:bg-cohere-canvas"
                >
                  <ChevronLeft className="size-4 stroke-[1.5]" /> Previous
                </button>
                <button
                  onClick={() => setActive(index + 1)}
                  disabled={index === items.length - 1}
-                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-[0.15em] bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-all disabled:opacity-30 disabled:hover:bg-cohere-canvas"
+                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-normal bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors disabled:opacity-30 disabled:hover:bg-cohere-canvas"
                >
                  Next <ChevronRight className="size-4 stroke-[1.5]" />
                </button>
@@ -423,12 +422,12 @@ function ChartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-end bg-cohere-ink/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-end bg-cohere-ink/40 sm:items-center"
       onClick={onClose}
     >
       <div
         className={cn(
-          "relative h-[85vh] sm:h-full bg-cohere-canvas shadow-2xl transition-all duration-300 rounded-t-lg sm:rounded-none border-l border-cohere-hairline",
+          "relative h-[85vh] sm:h-full bg-cohere-canvas shadow-none transition-all duration-300 rounded-t-lg sm:rounded-none border-l border-cohere-hairline",
           expanded ? "w-full" : "w-full sm:w-[420px] lg:w-[480px]"
         )}
         onClick={(e) => e.stopPropagation()}
@@ -436,7 +435,7 @@ function ChartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-stone/30 px-6 py-4">
             <div className="flex items-center gap-3">
-              <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-ink font-medium">Index A–Z</span>
+              <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-ink font-medium">Index A-Z</span>
             </div>
 
             <div className="flex items-center gap-1">
@@ -470,7 +469,7 @@ function ChartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
           <div className="flex items-center justify-center border-t border-cohere-hairline bg-cohere-stone/20 px-6 py-4">
             <button
               type="button"
-              className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-slate hover:text-cohere-ink transition-colors"
+              className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-slate hover:text-cohere-ink transition-colors"
               onClick={onClose}
             >
               Close Reference

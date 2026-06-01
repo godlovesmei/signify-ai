@@ -6,7 +6,6 @@ import {
   ArrowRight,
   BookOpen,
   Clock3,
-  Flame,
   History,
   Languages,
   LogOut,
@@ -16,11 +15,10 @@ import {
   Target,
   TrendingUp,
   User,
+  Volume2,
 } from "lucide-react";
-
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   ALPHABET_LETTERS,
   getHistorySessions,
@@ -85,10 +83,8 @@ function createEmptyPracticeStats(): PracticeStats {
 
 function formatUtcDate(value: string | null | undefined) {
   if (!value) return "—";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
@@ -99,10 +95,8 @@ function formatUtcDate(value: string | null | undefined) {
 
 function formatUtcDateTime(value: string | null | undefined) {
   if (!value) return "—";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
@@ -117,19 +111,14 @@ function formatUtcDateTime(value: string | null | undefined) {
 function formatCompactId(value: string | null | undefined) {
   if (!value) return "—";
   if (value.length <= 12) return value;
-  return `${value.slice(0, 8)}…${value.slice(-4)}`;
+  return `${value.slice(0, 8)}...${value.slice(-4)}`;
 }
 
 function describeTextScale(scale: number) {
   const match = Object.entries(TEXT_SCALE_OPTIONS).find(([, value]) =>
     Math.abs(value - scale) < 0.001
   );
-
-  if (match) {
-    return `${match[0]} (${scale.toFixed(2)}x)`;
-  }
-
-  return `${scale.toFixed(2)}x`;
+  return match ? `${match[0]} (${scale.toFixed(2)}x)` : `${scale.toFixed(2)}x`;
 }
 
 function MetricTile({
@@ -144,21 +133,15 @@ function MetricTile({
   helper: string;
 }) {
   return (
-    <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl transition-all hover:bg-white/[0.05] group">
-      <div className="flex items-center gap-4 text-white/40">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white/60 group-hover:bg-white group-hover:text-black transition-all">
+    <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
+      <div className="flex items-center gap-3 text-cohere-slate">
+        <span className="flex size-10 items-center justify-center rounded-sm bg-cohere-stone">
           {icon}
         </span>
-        <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-          {label}
-        </span>
+        <span className="text-mono-label text-[11px]">{label}</span>
       </div>
-      <p className="mt-8 text-5xl font-black tracking-tighter tabular-nums text-white">
-        {value}
-      </p>
-      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-white/20">
-        {helper}
-      </p>
+      <p className="mt-6 text-[40px] leading-none text-cohere-ink tabular-nums">{value}</p>
+      <p className="mt-3 text-[13px] leading-[1.4] text-cohere-body-muted">{helper}</p>
     </div>
   );
 }
@@ -175,20 +158,14 @@ function InfoRow({
   subtle?: string;
 }) {
   return (
-    <div className="flex items-start gap-5 rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04]">
-      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
+    <div className="flex gap-4 border-t border-cohere-hairline pt-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-cohere-stone text-cohere-slate">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-          {label}
-        </p>
-        <p className="mt-1.5 break-words text-sm font-black text-white">
-          {value}
-        </p>
-        {subtle && (
-          <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/10">{subtle}</p>
-        )}
+        <p className="text-mono-label text-[11px] text-cohere-slate">{label}</p>
+        <p className="mt-1 break-words text-[14px] text-cohere-ink">{value}</p>
+        {subtle && <p className="mt-1 text-[12px] text-cohere-slate">{subtle}</p>}
       </div>
     </div>
   );
@@ -206,25 +183,19 @@ function ShortcutButton({
   icon: ReactNode;
 }) {
   return (
-    <Button
-      asChild
-      className="h-auto min-h-20 w-full justify-start rounded-3xl px-6 py-4 border border-white/5 bg-white/[0.03] glass-panel hover:bg-white hover:text-black transition-all group"
+    <Link
+      href={href}
+      className="flex items-center gap-4 rounded-sm border border-cohere-hairline bg-cohere-canvas p-4 transition-colors hover:bg-cohere-stone"
     >
-      <Link href={href}>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 group-hover:bg-black group-hover:text-white transition-all">
-          {icon}
-        </span>
-        <span className="ml-4 min-w-0 flex-1 text-left">
-          <span className="block text-sm font-black uppercase tracking-widest transition-colors">
-            {label}
-          </span>
-          <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/20 group-hover:text-black/40 transition-colors">
-            {description}
-          </span>
-        </span>
-        <ArrowRight className="h-5 w-5 shrink-0 opacity-20 group-hover:opacity-100 transition-all" />
-      </Link>
-    </Button>
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-cohere-stone text-cohere-ink">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[14px] text-cohere-ink">{label}</span>
+        <span className="block text-[12px] text-cohere-slate">{description}</span>
+      </span>
+      <ArrowRight className="size-4 shrink-0 text-cohere-slate" />
+    </Link>
   );
 }
 
@@ -232,33 +203,27 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
   const confidence = Math.round(session.averageConfidence * 100);
   const preview = session.text.trim() || "(empty transcript)";
   const truncatedPreview =
-    preview.length > 86 ? `${preview.slice(0, 86).trimEnd()}…` : preview;
+    preview.length > 100 ? `${preview.slice(0, 100).trimEnd()}...` : preview;
 
   return (
-    <article className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-2xl transition-all hover:bg-white/[0.05] hover:-translate-y-1">
+    <article className="border-t border-cohere-hairline py-5">
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
-          <History className="h-5 w-5" />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-cohere-stone text-cohere-slate">
+          <History className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-4 mb-2">
-            <h3 className="text-xs font-black uppercase tracking-widest text-white/60">
-              Session Trace {formatUtcDateTime(session.endedAt)}
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="text-[14px] text-cohere-ink">
+              Session {formatUtcDateTime(session.endedAt)}
             </h3>
-            <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-white">
+            <span className="rounded-[30px] border border-cohere-hairline px-2.5 py-1 text-[12px] text-cohere-slate">
               {session.language}
             </span>
           </div>
-          <p className="text-sm font-black leading-relaxed text-white">
-            {truncatedPreview}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-white/20">
-            <span className="flex items-center gap-2">
-              <Sparkles className="size-3" /> {session.entries.length} Frames
-            </span>
-            <span className="flex items-center gap-2">
-              <ShieldCheck className="size-3" /> {confidence}% Confidence
-            </span>
+          <p className="mt-3 text-[14px] leading-[1.5] text-cohere-body-muted">{truncatedPreview}</p>
+          <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-cohere-slate">
+            <span>{session.entries.length} frames</span>
+            <span>{confidence}% confidence</span>
           </div>
         </div>
       </div>
@@ -280,30 +245,23 @@ function LetterFocusRow({
   const width = maxAttempts === 0 ? 0 : Math.max(8, Math.round((attempts / maxAttempts) * 100));
 
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.05]">
+    <div className="border-t border-cohere-hairline py-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black text-xl font-black text-white shadow-3xl tracking-tighter">
+          <div className="flex size-12 items-center justify-center rounded-sm bg-cohere-primary text-[20px] text-white">
             {letter}
           </div>
           <div>
-            <p className="text-sm font-black uppercase tracking-widest text-white">
-              Gesture {letter}
-            </p>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-              {attempts} iterations • {accuracy}% accuracy
+            <p className="text-[14px] text-cohere-ink">Gesture {letter}</p>
+            <p className="text-[12px] text-cohere-slate">
+              {attempts} iterations · {accuracy}% accuracy
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-white/20 tabular-nums">
-          #{attempts}
-        </span>
+        <span className="text-[12px] text-cohere-slate tabular-nums">#{attempts}</span>
       </div>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/5 shadow-inner">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-700"
-          style={{ width: `${width}%` }}
-        />
+      <div className="mt-4 h-1 bg-cohere-hairline">
+        <div className="h-full bg-cohere-primary transition-all duration-500" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
@@ -393,8 +351,6 @@ export default function ProfilePageContent() {
     .sort((a, b) => b.attempts - a.attempts || b.correct - a.correct)
     .slice(0, 4);
 
-
-
   const accountRows = [
     {
       icon: <Mail className="h-4 w-4" />,
@@ -406,9 +362,7 @@ export default function ProfilePageContent() {
       icon: <ShieldCheck className="h-4 w-4" />,
       label: "Verification",
       value: profile.verified ? "Verified" : "Pending verification",
-      subtle: profile.verified
-        ? "Signed in with a verified account"
-        : "Verify the address in your inbox",
+      subtle: profile.verified ? "Signed in with a verified account" : "Verify the address in your inbox",
     },
     {
       icon: <Clock3 className="h-4 w-4" />,
@@ -441,253 +395,191 @@ export default function ProfilePageContent() {
       icon: <Sparkles className="h-4 w-4" />,
       label: "High contrast",
       value: prefs.highContrast ? "On" : "Off",
-      subtle: prefs.highContrast
-        ? "Contrast is boosted across the workspace"
-        : "Toggle in Settings for a sharper UI",
     },
     {
       icon: <Target className="h-4 w-4" />,
       label: "Text scale",
       value: describeTextScale(prefs.textScale),
-      subtle: "Controls prediction and sentence sizing",
     },
     {
       icon: <TrendingUp className="h-4 w-4" />,
       label: "TTS speed",
       value: `${prefs.ttsSpeed.toFixed(2)}x`,
-      subtle: "Speech output speed for generated sentences",
     },
     {
-      icon: <Flame className="h-4 w-4" />,
+      icon: <Volume2 className="h-4 w-4" />,
       label: "TTS volume",
       value: `${Math.round(prefs.ttsVolume * 100)}%`,
-      subtle: "Playback loudness for spoken output",
     },
   ];
 
   return (
-    <div className="relative mx-auto w-full max-w-7xl space-y-12 p-6 md:p-12">
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-emerald-500/5 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-cyan-500/5 blur-[120px]" />
+    <div className="mx-auto w-full max-w-7xl space-y-12 p-4 md:p-8">
+      <PageHeader
+        title="Profile"
+        description="Account details, translation history, practice analytics, and workspace preferences."
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
+        <section className="rounded-[22px] border border-cohere-hairline bg-cohere-canvas p-6 md:p-8">
+          <div className="flex flex-col gap-8 md:flex-row md:items-center">
+            <div className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-[22px] bg-cohere-primary text-[40px] text-white">
+              {profile.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.displayName}
+                  className="size-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span>{profile.initials}</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-mono-label text-[12px] text-cohere-slate">Operator ID</p>
+              <h2 className="mt-3 font-display text-[44px] leading-none text-cohere-ink">
+                {profile.displayName}
+              </h2>
+              <p className="mt-3 text-[14px] text-cohere-slate">
+                Sync status: {practiceAccuracy >= 80 ? "Optimized" : practiceAccuracy >= 50 ? "Nominal" : "Initializing"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2">
+            {accountRows.map((row) => (
+              <InfoRow key={row.label} {...row} />
+            ))}
+          </div>
+        </section>
+
+        <div className="grid gap-5">
+          <MetricTile
+            icon={<Sparkles className="size-5" />}
+            label="Precision"
+            value={`${practiceAccuracy}%`}
+            helper="Overall practice accuracy"
+          />
+          <MetricTile
+            icon={<Target className="size-5" />}
+            label="Streak"
+            value={practiceStats.currentStreak.toString()}
+            helper="Current gesture streak"
+          />
+        </div>
       </div>
 
-      <div className="relative z-10 space-y-16">
-        <PageHeader
-          title="Neural Profile"
-          description="Workspace telemetry, gesture analytics, and engine preferences."
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Main ID Card */}
-          <div className="lg:col-span-8">
-            <Card className="relative overflow-hidden rounded-[3.5rem] border border-white/5 bg-white/[0.03] shadow-3xl glass-panel">
-              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-emerald-500 via-cyan-500 to-white" />
-              <CardContent className="relative p-10 md:p-16">
-                <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
-                  <div className="relative shrink-0 mx-auto lg:mx-0">
-                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[2.5rem] bg-black font-black text-4xl text-white shadow-3xl border border-white/10 p-1">
-                      {profile.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={profile.avatarUrl}
-                          alt={profile.displayName}
-                          className="size-full object-cover rounded-[2.2rem]"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <span className="tracking-tighter">{profile.initials}</span>
-                      )}
-                    </div>
-                    {profile.verified && (
-                      <div className="absolute -bottom-2 -right-2 rounded-2xl bg-emerald-500 p-2 text-white shadow-lg border-2 border-black">
-                        <ShieldCheck className="size-5" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1 text-center lg:text-left">
-                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 mb-3">Operator ID</p>
-                    <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-2">
-                      {profile.displayName}
-                    </h2>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400/80 mb-6 font-mono">
-                      SYNC_STATUS: {practiceAccuracy >= 80 ? 'OPTIMIZED' : practiceAccuracy >= 50 ? 'NOMINAL' : 'INITIALIZING'}
-                    </p>
-                    
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                      <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-white/40">
-                         LATENCY: 24MS
-                      </div>
-                      <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-white/40">
-                         STABILITY: 99.8%
-                      </div>
-                      <div className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest text-emerald-400">
-                         ENCRYPTED
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                 <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                   {accountRows.map((row) => (
-                     <InfoRow key={row.label} {...row} />
-                   ))}
-                 </div>
-              </CardContent>
-            </Card>
+      <section>
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-mono-label text-[12px] text-cohere-slate">Gesture analytics</p>
+            <h3 className="mt-2 text-[32px] leading-[1.2]">Most practiced letters</h3>
           </div>
-
-          {/* Quick Stats Column */}
-          <div className="lg:col-span-4 flex flex-col gap-8">
-            <MetricTile
-              icon={<Sparkles className="size-6" />}
-              label="Intelligence"
-              value={`${practiceAccuracy}%`}
-              helper="Overall prediction precision"
-            />
-            <MetricTile
-              icon={<Flame className="size-6" />}
-              label="Momentum"
-              value={practiceStats.currentStreak.toString()}
-              helper="Current gesture accuracy streak"
-            />
-            <div className="flex-1 rounded-[2.5rem] border border-white/5 bg-emerald-500/5 p-8 flex flex-col justify-center items-center text-center">
-               <ShieldCheck className="size-12 text-emerald-400/20 mb-4" />
-               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400/40">Neural Firewall Active</p>
-               <p className="mt-2 text-[9px] font-bold text-white/10 max-w-[180px]">Your translation data is processed locally for maximum privacy.</p>
-            </div>
-          </div>
+          <Link href="/practice" className="text-[14px] text-cohere-blue underline underline-offset-4">
+            Open practice
+          </Link>
         </div>
+        <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
+          {topLetters.map((item) => (
+            <LetterFocusRow
+              key={item.letter}
+              letter={item.letter}
+              attempts={item.attempts}
+              accuracy={item.accuracy}
+              maxAttempts={Math.max(...topLetters.map((letter) => letter.attempts), 1)}
+            />
+          ))}
+          {topLetters.length === 0 && (
+            <p className="py-10 text-center text-[14px] text-cohere-slate">Awaiting practice telemetry.</p>
+          )}
+        </div>
+      </section>
 
-        {/* Intelligence Section */}
-        <section className="space-y-8">
-          <div className="flex items-end justify-between px-2">
+      <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
+        <section>
+          <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Telemetry</p>
-              <h3 className="text-3xl font-black tracking-tighter text-white">Gesture Analytics</h3>
+              <p className="text-mono-label text-[12px] text-cohere-slate">Recent activity</p>
+              <h3 className="mt-2 text-[32px] leading-[1.2]">Session history</h3>
             </div>
-            <Link href="/practice" className="text-[10px] font-black uppercase tracking-widest text-cyan-400 hover:text-white transition-colors">
-              Session Entry →
-            </Link>
+            <div className="text-right text-[12px] text-cohere-slate">
+              <p>Total sessions: {totalSessions}</p>
+              <p>Total frames: {totalEntries}</p>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {topLetters.map((item) => (
-              <LetterFocusRow
-                key={item.letter}
-                letter={item.letter}
-                attempts={item.attempts}
-                accuracy={item.accuracy}
-                maxAttempts={Math.max(...topLetters.map(l => l.attempts), 1)}
-              />
+          <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas px-5">
+            {historySessions.slice(0, 3).map((session) => (
+              <ActivityCardItem key={session.sessionId} session={session} />
             ))}
-            {topLetters.length === 0 && (
-              <div className="col-span-full rounded-3xl border-2 border-dashed border-white/5 p-12 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/20 uppercase">Awaiting practice telemetry...</p>
+            {historySessions.length === 0 && (
+              <div className="py-12 text-center">
+                <History className="mx-auto size-8 text-cohere-slate" />
+                <p className="mt-4 text-[14px] text-cohere-slate">No traces detected in local buffer.</p>
+                <Button asChild variant="link" className="mt-2">
+                  <Link href="/translate">Initialize translate</Link>
+                </Button>
               </div>
             )}
           </div>
         </section>
 
-        {/* Global Controls */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-8 space-y-8">
-              <div className="px-2 flex items-end justify-between">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Sync Trace</p>
-                  <h3 className="text-3xl font-black tracking-tighter text-white">Recent Activity</h3>
+        <aside className="space-y-8">
+          <section>
+            <p className="text-mono-label text-[12px] text-cohere-slate">Quick access</p>
+            <div className="mt-4 space-y-3">
+              <ShortcutButton
+                href="/translate"
+                label="Translate"
+                description="Return to translation core"
+                icon={<Languages className="size-4" />}
+              />
+              <ShortcutButton
+                href="/history"
+                label="History"
+                description="View complete session logs"
+                icon={<History className="size-4" />}
+              />
+              <ShortcutButton
+                href="/reference"
+                label="Reference"
+                description="Browse all sign definitions"
+                icon={<BookOpen className="size-4" />}
+              />
+            </div>
+          </section>
+
+          <section>
+            <p className="text-mono-label text-[12px] text-cohere-slate">Preferences</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {accessibilityRows.map((row) => (
+                <div key={row.label} className="rounded-sm border border-cohere-hairline bg-cohere-stone p-4">
+                  <div className="text-cohere-slate">{row.icon}</div>
+                  <p className="mt-3 text-[12px] text-cohere-slate">{row.label}</p>
+                  <p className="mt-1 text-[14px] text-cohere-ink">{row.value}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-white/30">
-                    Total Sessions: <span className="text-white font-mono">{totalSessions}</span>
-                  </p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mt-0.5">
-                    Total Frames: <span className="text-white font-mono">{totalEntries}</span>
-                  </p>
-                </div>
-              </div>
-             
-             <div className="space-y-4">
-                {historySessions.slice(0, 3).map((session) => (
-                   <ActivityCardItem key={session.sessionId} session={session} />
-                ))}
-                {historySessions.length === 0 && (
-                  <div className="rounded-[2.5rem] border-2 border-dashed border-white/5 p-20 text-center">
-                    <History className="size-12 text-white/5 mx-auto mb-6" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No traces detected in local buffer</p>
-                    <Button asChild variant="link" className="mt-4 text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                      <Link href="/translate">Initialize Translate →</Link>
-                    </Button>
-                  </div>
-                )}
-             </div>
-          </div>
+              ))}
+            </div>
+          </section>
 
-          <div className="lg:col-span-4 space-y-12">
-            <div className="space-y-8">
-              <div className="px-2">
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Navigation</p>
-                 <h3 className="text-2xl font-black tracking-tighter text-white">Quick Access</h3>
-               </div>
-               <div className="space-y-4">
-                 <ShortcutButton
-                   href="/translate"
-                   label="Studio Matrix"
-                   description="Return to translation core"
-                   icon={<Languages />}
-                 />
-                 <ShortcutButton
-                   href="/history"
-                   label="Archive Vault"
-                   description="View complete session logs"
-                   icon={<BookOpen />}
-                 />
-                 <ShortcutButton
-                   href="/reference"
-                   label="Gesture library"
-                   description="Browse all sign definitions"
-                   icon={<BookOpen />}
-                 />
-               </div>
-             </div>
-
-             <div className="space-y-8 pt-8 border-t border-white/5">
-              <div className="px-2">
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Engine</p>
-                 <h3 className="text-2xl font-black tracking-tighter text-white">Workspace Preferences</h3>
-               </div>
-               <div className="grid grid-cols-2 gap-4">
-                 {accessibilityRows.map((row) => (
-                   <div key={row.label} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-left">
-                     <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{row.label}</p>
-                     <p className="mt-1 text-xs font-black text-white">{row.value}</p>
-                   </div>
-                 ))}
-               </div>
-             </div>
-
-             <div className="pt-12 border-t border-white/5">
-                <Button
-                  variant="outline"
-                  className="w-full h-20 rounded-[1.8rem] border-white/5 bg-white/[0.02] text-white/20 font-black uppercase tracking-[0.3em] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-all group"
-                  onClick={async () => {
-                    setIsLoggingOut(true);
-                    try {
-                      const supabase = createSupabaseClient();
-                      await supabase.auth.signOut();
-                    } finally {
-                      window.location.href = "/";
-                    }
-                  }}
-                  disabled={isLoggingOut}
-                >
-                  <LogOut className="size-5 mr-4 group-hover:-translate-x-1 transition-transform" />
-                  {isLoggingOut ? "DISCONNECTING..." : "TERMINATE SESSION"}
-                </Button>
-             </div>
-          </div>
-        </div>
+          <Button
+            variant="outline"
+            className="h-14 w-full text-cohere-error hover:text-cohere-error"
+            onClick={async () => {
+              setIsLoggingOut(true);
+              try {
+                const supabase = createSupabaseClient();
+                await supabase.auth.signOut();
+              } finally {
+                window.location.href = "/";
+              }
+            }}
+            disabled={isLoggingOut}
+          >
+            <LogOut className="size-4" />
+            {isLoggingOut ? "Signing out..." : "Sign out"}
+          </Button>
+        </aside>
       </div>
     </div>
   );

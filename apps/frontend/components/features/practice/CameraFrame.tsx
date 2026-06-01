@@ -23,21 +23,20 @@ export function CameraFrame({
   return (
     <div
       className={cn(
-        'relative h-full w-full overflow-hidden rounded-3xl bg-black',
-        'transition-all duration-700 ease-out border',
-        !isActive && 'border-white/5 opacity-80',
-        isActive && !isDetecting && 'border-white/20 glass-panel',
-        isDetecting && !isMatching && 'border-cyan-500/30 glass-panel shadow-[0_0_50px_rgba(6,182,212,0.1)]',
-        isMatching && !isSuccess && 'border-emerald-500/50 glass-panel shadow-[0_0_60px_rgba(16,185,129,0.15)]',
-        isSuccess && 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_100px_rgba(52,211,153,0.3)]',
+        'relative h-full w-full overflow-hidden rounded-[22px] bg-black',
+        'border transition-colors duration-300',
+        !isActive && 'border-cohere-hairline opacity-90',
+        isActive && !isDetecting && 'border-white/25',
+        isDetecting && !isMatching && 'border-white/35',
+        isMatching && !isSuccess && 'border-cohere-coral',
+        isSuccess && 'border-white bg-cohere-green',
         className,
       )}
     >
-      {/* Decorative corners for that studio look */}
-      <div className="absolute top-6 left-6 size-12 border-t-2 border-l-2 border-white/20 rounded-tl-xl pointer-events-none z-10" />
-      <div className="absolute top-6 right-6 size-12 border-t-2 border-r-2 border-white/20 rounded-tr-xl pointer-events-none z-10" />
-      <div className="absolute bottom-6 left-6 size-12 border-b-2 border-l-2 border-white/20 rounded-bl-xl pointer-events-none z-10" />
-      <div className="absolute bottom-6 right-6 size-12 border-b-2 border-r-2 border-white/20 rounded-br-xl pointer-events-none z-10" />
+      <div className="pointer-events-none absolute left-6 top-6 z-10 size-10 border-l border-t border-white/25" />
+      <div className="pointer-events-none absolute right-6 top-6 z-10 size-10 border-r border-t border-white/25" />
+      <div className="pointer-events-none absolute bottom-6 left-6 z-10 size-10 border-b border-l border-white/25" />
+      <div className="pointer-events-none absolute bottom-6 right-6 z-10 size-10 border-b border-r border-white/25" />
       
       {children}
     </div>

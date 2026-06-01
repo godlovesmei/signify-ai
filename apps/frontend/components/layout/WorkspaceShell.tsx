@@ -8,7 +8,6 @@ import MobileBottomNav from "./mobile-nav/MobileBottomNav";
 import SettingsDrawer from "./SettingsDrawer";
 import { useTheme } from "@/hooks/useTheme";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 
 const WORKSPACE_USER = { name: "User Session", email: "user@signify.ai" };
 
@@ -27,7 +26,7 @@ export default function WorkspaceShell({
     console.log("Logging out...");
   }, []);
 
-  const [devices, setDevices] = useState([]);
+  const [devices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [isMirrored, setIsMirrored] = useState(true);
   const prefs = useAccessibilityPrefs();
@@ -37,7 +36,6 @@ export default function WorkspaceShell({
       <TopBar onMenuClick={() => setSidebarMobileOpen(true)} />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Handles both Desktop Fixed and Mobile Drawer modes */}
         <AppSidebar
           pathname={pathname}
           onSettingsClick={() => setSettingsOpen(true)}
@@ -47,7 +45,6 @@ export default function WorkspaceShell({
           user={WORKSPACE_USER}
         />
 
-        {/* Main Workspace (Clinical & High Contrast) */}
         <main className="flex-1 min-w-0 relative bg-cohere-canvas overflow-hidden flex flex-col">
           <div className="flex-1 w-full h-full overflow-auto">
             {children}

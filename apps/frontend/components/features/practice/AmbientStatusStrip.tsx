@@ -14,20 +14,23 @@ interface AmbientStatusStripProps {
 }
 
 const STATUS_CONFIG: Record<AmbientStatusTone, { dot: string; label: string }> = {
-  'no-hand': { dot: 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]', label: 'Idle' },
-  hand: { dot: 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]', label: 'Tracking' },
-  processing: { dot: 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]', label: 'Analyzing' },
+  'no-hand': { dot: 'bg-cohere-muted', label: 'Idle' },
+  hand: { dot: 'bg-cohere-green', label: 'Tracking' },
+  processing: { dot: 'bg-cohere-blue', label: 'Analyzing' },
 };
 
 export function AmbientStatusStrip({ trail, status, children, actions }: AmbientStatusStripProps) {
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className="relative flex h-20 items-center justify-between rounded-2xl border border-white/5 bg-white/[0.03] px-6 backdrop-blur-xl shadow-2xl">
+    <div
+      className="relative flex h-20 items-center justify-between rounded-sm border border-cohere-hairline bg-cohere-canvas px-6"
+      aria-label={`Practice status ${config.label}. Sequence ${trail.join(", ") || "empty"}.`}
+    >
       {/* Left: Status indicator */}
       <div className="flex items-center gap-3">
         <span className={cn('h-3 w-3 rounded-full', config.dot)} aria-hidden="true" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{config.label}</span>
+        <span className="text-mono-label text-[11px] text-cohere-slate">{config.label}</span>
       </div>
 
       {/* Center: Progress ring */}
@@ -36,7 +39,7 @@ export function AmbientStatusStrip({ trail, status, children, actions }: Ambient
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center justify-end gap-4 font-black">
+      <div className="flex items-center justify-end gap-4 font-medium">
         {actions}
       </div>
     </div>
@@ -54,22 +57,22 @@ export function TrailIndicator({ trail, className }: TrailIndicatorProps) {
 
   return (
     <div className={cn("flex items-center gap-4", className)}>
-      <span className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20">Sequence</span>
+      <span className="text-mono-label text-[11px] text-cohere-slate">Sequence</span>
       <div className="flex items-center gap-2">
         {trail.map((letter, index) => (
           <span key={`${letter}-${index}`} className="flex items-center gap-2">
             <span
               className={cn(
-                "size-10 flex items-center justify-center rounded-xl font-black transition-all duration-500 border",
+                "flex size-10 items-center justify-center rounded-sm border text-[14px] transition-colors duration-200",
                 index === trail.length - 1
-                  ? "bg-white text-black border-white shadow-xl scale-110"
-                  : "bg-white/5 text-white/30 border-white/5"
+                  ? "bg-cohere-primary text-white border-cohere-primary"
+                  : "bg-cohere-stone text-cohere-slate border-cohere-hairline"
               )}
             >
               {letter}
             </span>
             {index < trail.length - 1 && (
-              <span className="text-white/10 font-bold">→</span>
+              <span className="text-cohere-slate">/</span>
             )}
           </span>
         ))}
@@ -88,9 +91,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className={cn("flex items-center gap-3 px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 shadow-3xl", className)}>
-      <span className={cn("w-2 h-2 rounded-full animate-pulse", config.dot)} />
-      <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{config.label}</span>
+    <div className={cn("flex items-center gap-3 rounded-[30px] border border-cohere-hairline bg-cohere-canvas px-4 py-2", className)}>
+      <span className={cn("h-2 w-2 rounded-full", config.dot)} />
+      <span className="text-mono-label text-[11px] text-cohere-ink">{config.label}</span>
     </div>
   );
 }

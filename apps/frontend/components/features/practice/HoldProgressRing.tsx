@@ -22,8 +22,6 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
   const circ = 2 * Math.PI * r;
 
   const progressValue = useMotionValue(pct);
-  const strokeColor = useTransform(progressValue, [0, 1], ['#ffffff', '#10b981']);
-  const dotColor = useTransform(progressValue, [0, 1], ['#ffffff', '#10b981']);
   const dashOffset = useTransform(progressValue, (value) => circ * (1 - value));
 
   useEffect(() => {
@@ -56,8 +54,8 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
       <svg className="absolute inset-0 -rotate-90" viewBox={`0 0 ${dim} ${dim}`}>
         <defs>
           <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="0%" stopColor="#003c33" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#003c33" stopOpacity="1" />
           </linearGradient>
         </defs>
         <circle
@@ -65,7 +63,7 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
           cy={dim / 2}
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.05)"
+          stroke="#d9d9dd"
           strokeWidth="6"
           strokeLinecap="round"
         />
@@ -78,9 +76,8 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
           strokeLinecap="round"
           strokeDasharray={circ}
           style={{ 
-            stroke: isSuccess ? '#10b981' : 'url(#ringGradient)', 
+            stroke: isSuccess ? '#003c33' : 'url(#ringGradient)', 
             strokeDashoffset: dashOffset,
-            filter: isHolding ? 'drop-shadow(0 0 8px rgba(255,255,255,0.4))' : 'none'
           }}
         />
       </svg>
@@ -88,7 +85,7 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
         <motion.div
           className={cn(
             "rounded-full transition-all duration-300",
-            isSuccess ? "h-4 w-4 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" : "h-2 w-2 bg-white"
+            isSuccess ? "h-4 w-4 bg-cohere-green" : "h-2 w-2 bg-cohere-primary"
           )}
         />
       </div>

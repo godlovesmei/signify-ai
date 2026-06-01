@@ -29,11 +29,11 @@ const COHERE = {
   typography: {
     heroDisplay: {
       fontSize: "96px",
-      letterSpacing: "-0.02em",
+      letterSpacing: "0",
     },
     monoLabel: {
       fontSize: "14px",
-      letterSpacing: "0.02em",
+      letterSpacing: "0",
     }
   }
 } as const;
@@ -74,7 +74,7 @@ export default function PredictionBadge({
         {isIdle ? (
           <div className="flex items-center gap-2 select-none">
             <span className="h-1 w-1 rounded-full bg-[#212121]/20" aria-hidden="true" />
-            <p className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+            <p className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
               System Standby
             </p>
           </div>
@@ -83,7 +83,7 @@ export default function PredictionBadge({
             <span className="text-2xl grayscale opacity-20 mb-1" aria-hidden="true">
               ✋
             </span>
-            <p className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+            <p className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
               Awaiting Input
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function PredictionBadge({
       {isDetecting && (
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+              <span className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
               {hasHand ? "Prediction Score" : "Scanning Room"}
             </span>
             {pct > 0 && hasHand && (
@@ -137,4 +137,3 @@ export default function PredictionBadge({
     </div>
   );
 }
-

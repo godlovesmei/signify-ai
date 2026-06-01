@@ -62,7 +62,7 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
   return (
     <div
       className={cn(
-        'pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-60 mix-blend-overlay',
+        'pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-60',
         className,
       )}
       aria-hidden="true"
@@ -77,13 +77,12 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
           transition={{ duration: 0.5, ease: 'backOut' }}
         >
           {LetterSvg ? (
-            <LetterSvg className="h-[60%] w-auto text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]" />
+            <LetterSvg className="h-[60%] w-auto text-white" />
           ) : (
             <div className="relative">
-              <div className="absolute inset-0 bg-cyan-500/10 blur-[100px] -z-10" />
-              <GenericSkeleton className="h-[60%] w-auto text-cyan-500/80 drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]" />
+              <GenericSkeleton className="h-[60%] w-auto text-white/80" />
               <div className="mt-8 flex flex-col items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-cyan-400/60 animate-pulse">Master Guidance</span>
+                <span className="text-mono-label text-[11px] text-white/65">Master Guidance</span>
               </div>
             </div>
           )}
