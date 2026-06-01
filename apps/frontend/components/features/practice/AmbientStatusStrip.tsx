@@ -14,20 +14,20 @@ interface AmbientStatusStripProps {
 }
 
 const STATUS_CONFIG: Record<AmbientStatusTone, { dot: string; label: string }> = {
-  'no-hand': { dot: 'bg-rose-400', label: 'No hand detected' },
-  hand: { dot: 'bg-emerald-400', label: 'Hand detected' },
-  processing: { dot: 'bg-sky-400', label: 'Processing' },
+  'no-hand': { dot: 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]', label: 'Idle' },
+  hand: { dot: 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]', label: 'Tracking' },
+  processing: { dot: 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]', label: 'Analyzing' },
 };
 
 export function AmbientStatusStrip({ trail, status, children, actions }: AmbientStatusStripProps) {
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className="relative flex h-16 items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 backdrop-blur-md text-foreground/70 dark:border-white/10 dark:bg-black/40 dark:text-white/70 md:px-6">
+    <div className="relative flex h-20 items-center justify-between rounded-2xl border border-white/5 bg-white/[0.03] px-6 backdrop-blur-xl shadow-2xl">
       {/* Left: Status indicator */}
-      <div className="flex items-center gap-2 text-xs font-medium">
-        <span className={cn('h-2 w-2 rounded-full', config.dot)} aria-hidden="true" />
-        <span className="sr-only">{config.label}</span>
+      <div className="flex items-center gap-3">
+        <span className={cn('h-3 w-3 rounded-full', config.dot)} aria-hidden="true" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{config.label}</span>
       </div>
 
       {/* Center: Progress ring */}
@@ -36,7 +36,7 @@ export function AmbientStatusStrip({ trail, status, children, actions }: Ambient
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center justify-end gap-4 font-black">
         {actions}
       </div>
     </div>
@@ -53,23 +53,23 @@ export function TrailIndicator({ trail, className }: TrailIndicatorProps) {
   if (trail.length === 0) return null;
 
   return (
-    <div className={cn("flex items-center gap-2 text-sm", className)}>
-      <span className="text-xs uppercase tracking-wider text-muted-foreground/50">Sequence</span>
-      <div className="flex items-center gap-1.5">
+    <div className={cn("flex items-center gap-4", className)}>
+      <span className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20">Sequence</span>
+      <div className="flex items-center gap-2">
         {trail.map((letter, index) => (
-          <span key={`${letter}-${index}`} className="flex items-center gap-1.5">
+          <span key={`${letter}-${index}`} className="flex items-center gap-2">
             <span
               className={cn(
-                "px-2 py-1 rounded-md font-mono text-sm font-semibold transition-colors",
+                "size-10 flex items-center justify-center rounded-xl font-black transition-all duration-500 border",
                 index === trail.length - 1
-                  ? "bg-primary/10 text-primary"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-white text-black border-white shadow-xl scale-110"
+                  : "bg-white/5 text-white/30 border-white/5"
               )}
             >
               {letter}
             </span>
             {index < trail.length - 1 && (
-              <span className="text-muted-foreground/30">→</span>
+              <span className="text-white/10 font-bold">→</span>
             )}
           </span>
         ))}
@@ -88,9 +88,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm", className)}>
+    <div className={cn("flex items-center gap-3 px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 shadow-3xl", className)}>
       <span className={cn("w-2 h-2 rounded-full animate-pulse", config.dot)} />
-      <span className="text-xs font-medium text-white">{config.label}</span>
+      <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{config.label}</span>
     </div>
   );
 }

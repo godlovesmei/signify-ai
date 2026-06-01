@@ -1,5 +1,5 @@
-export type WorkspaceNavKey = 'translate' | 'practice' | 'history' | 'reference';
-export type WorkspaceNavIcon = 'translate' | 'practice' | 'history' | 'reference';
+export type WorkspaceNavKey = 'translate' | 'practice' | 'history' | 'reference' | 'profile';
+export type WorkspaceNavIcon = 'translate' | 'practice' | 'history' | 'reference' | 'user';
 
 export interface WorkspaceNavItem {
   key: WorkspaceNavKey;
@@ -13,6 +13,7 @@ export const WORKSPACE_NAV_ITEMS: readonly WorkspaceNavItem[] = [
   { key: 'practice', label: 'Practice', href: '/practice', icon: 'practice' },
   { key: 'history', label: 'History', href: '/history', icon: 'history' },
   { key: 'reference', label: 'Reference', href: '/reference', icon: 'reference' },
+  { key: 'profile', label: 'Profile', href: '/profile', icon: 'user' },
 ] as const;
 
 function normalizePath(input: string): string {

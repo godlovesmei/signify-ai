@@ -5,32 +5,32 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-2.5 py-1 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-all duration-200 overflow-hidden",
+  "inline-flex items-center justify-center rounded-full border px-2.5 py-1 text-[11px] font-black tracking-widest uppercase w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 transition-all duration-300",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground border-primary [a&]:hover:bg-primary/90 [a&]:hover:border-primary/90 dark:hover:bg-primary/80",
+          "bg-primary text-primary-foreground border-primary",
         secondary:
-          "bg-secondary text-secondary-foreground border-secondary [a&]:hover:bg-secondary/90 [a&]:hover:border-secondary/90 dark:hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground border-border/20",
         destructive:
-          "bg-destructive text-destructive-foreground border-destructive [a&]:hover:bg-destructive/90 [a&]:hover:border-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:hover:bg-destructive/80",
+          "bg-destructive text-destructive-foreground border-destructive",
         outline:
-          "border-border text-foreground bg-background [a&]:hover:bg-accent [a&]:hover:text-accent-foreground dark:bg-background dark:border-border dark:text-foreground",
+          "border-border text-foreground bg-background",
         ghost:
-          "border-transparent text-foreground bg-muted [a&]:hover:bg-accent [a&]:hover:text-accent-foreground dark:bg-muted dark:text-foreground",
+          "border-transparent text-foreground bg-secondary/50",
         link:
-          "border-transparent text-primary bg-transparent underline-offset-4 [a&]:hover:underline dark:text-primary",
+          "border-transparent text-primary bg-transparent underline-offset-4",
         success:
-          "bg-success text-success-foreground border-success [a&]:hover:bg-success/90 [a&]:hover:border-success/90 dark:hover:bg-success/80",
+          "bg-success text-success-foreground border-success",
         warning:
-          "bg-warning text-warning-foreground border-warning [a&]:hover:bg-warning/90 [a&]:hover:border-warning/90 dark:hover:bg-warning/80",
+          "bg-warning text-warning-foreground border-warning",
         highlight:
-          "bg-highlight text-highlight-foreground border-highlight [a&]:hover:bg-highlight/90 [a&]:hover:border-highlight/90 dark:hover:bg-highlight/80",
+          "bg-accent text-accent-foreground border-accent",
         surface:
-          "bg-surface-tertiary text-surface-tertiary-foreground border-surface-tertiary [a&]:hover:bg-surface-tertiary/90 [a&]:hover:border-surface-tertiary/90 dark:hover:bg-surface-tertiary/80",
+          "bg-surface-tertiary text-surface-tertiary-foreground border-surface-tertiary",
         info:
-          "bg-accent text-accent-foreground border-accent [a&]:hover:bg-accent/80 [a&]:hover:border-accent/80 dark:hover:bg-accent/70",
+          "bg-accent/10 text-accent border-accent/20",
       },
     },
     defaultVariants: {
@@ -38,6 +38,7 @@ const badgeVariants = cva(
     },
   }
 )
+
 
 function Badge({
   className,

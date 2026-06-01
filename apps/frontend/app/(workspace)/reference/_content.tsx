@@ -8,6 +8,8 @@ import {
   type PracticeStats,
   getPracticeStats,
 } from '@/lib/userData';
+import { cn } from '@/lib/utils';
+import { motion } from 'motion/react';
 
 export default function ReferencePageContent() {
   const stats = useMemo<PracticeStats>(() => getPracticeStats(), []);
@@ -21,40 +23,40 @@ export default function ReferencePageContent() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-transparent text-foreground">
-      <div className="flex-1 w-full h-full min-h-0 overflow-y-auto">
+      <div className="flex-1 w-full h-full min-h-0 overflow-y-auto custom-scrollbar scroll-smooth">
         <div className="mx-auto w-full max-w-7xl p-4 md:p-6 lg:p-8">
-          {/* Header & Overall Stats (Non-sticky or compact) */}
-          <div className="mb-6 flex flex-col gap-4">
+          {/* Header & Overall Stats */}
+          <div className="mb-8 flex flex-col gap-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">Kamus Isyarat</h1>
-                <p className="text-sm text-muted-foreground mt-1">Review & practice your signs</p>
+              <div className="space-y-1">
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase">
+                  Studio<span className="opacity-20 ml-2">Reference</span>
+                </h1>
+                <p className="text-xs md:text-sm font-bold tracking-widest text-muted-foreground/40 uppercase">Review & Practice your sign accuracy</p>
               </div>
-              <Button variant="secondary" size="sm" className="rounded-xl shadow-sm" asChild>
-                <Link href="/practice">Practice</Link>
+              <Button className="rounded-2xl px-6 py-6 font-bold shadow-xl shadow-primary/10 transition-all hover:-translate-y-1 active:scale-95" asChild>
+                <Link href="/practice">Practice Now</Link>
               </Button>
             </div>
 
-            {/* Compact Stats Row */}
-            <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/10 bg-white/40 dark:bg-zinc-800/40 p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Accuracy</span>
-                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{totals.accuracy}%</span>
+            {/* Premium Stats Row */}
+            <div className="grid grid-cols-3 gap-1 rounded-[2.5rem] border border-white/5 bg-white/5 dark:bg-card/30 p-1.5 shadow-2xl backdrop-blur-3xl">
+              <div className="flex flex-col items-center justify-center py-4 rounded-[2rem] bg-white/5 dark:bg-white/5">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Global Accuracy</span>
+                <span className="text-xl md:text-2xl font-black text-emerald-500 tabular-nums">{totals.accuracy}%</span>
               </div>
-              <div className="w-px h-8 bg-black/5 dark:bg-white/10" />
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Attempts</span>
-                <span className="text-xl font-bold">{totals.totalAttempts}</span>
+              <div className="flex flex-col items-center justify-center py-4 rounded-[2rem]">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Total Attempts</span>
+                <span className="text-xl md:text-2xl font-black tabular-nums">{totals.totalAttempts}</span>
               </div>
-              <div className="w-px h-8 bg-black/5 dark:bg-white/10" />
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Correct</span>
-                <span className="text-xl font-bold">{totals.totalCorrect}</span>
+              <div className="flex flex-col items-center justify-center py-4 rounded-[2rem]">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Verified Signs</span>
+                <span className="text-xl md:text-2xl font-black text-primary tabular-nums">{totals.totalCorrect}</span>
               </div>
             </div>
           </div>
 
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 sm:gap-4">
+          <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {ALPHABET_LETTERS.map((letter) => {
               const letterStats = stats.byLetter[letter];
               const attempts = letterStats.attempts;
@@ -64,23 +66,41 @@ export default function ReferencePageContent() {
               return (
                 <article
                   key={letter}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-black/5 dark:border-white/10 bg-white/40 dark:bg-zinc-800/40 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:bg-white/80 dark:hover:bg-zinc-800/80 hover:-translate-y-1"
+                  className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/5 bg-card/40 shadow-sm transition-all duration-500 hover:shadow-2xl hover:bg-card/60 hover:-translate-y-1"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/alfabet/${letter}.jpg`}
-                    alt={`Referensi isyarat huruf ${letter}`}
-                    className="aspect-square w-full flex-none object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="flex flex-1 flex-col justify-between p-3 sm:p-4 z-10 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border-t border-black/5 dark:border-white/5">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg sm:text-xl font-bold">{letter}</h2>
-                      <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-muted-foreground">{accuracy}%</span>
+                  <div className="aspect-square w-full overflow-hidden">
+                    <img
+                      src={`/alfabet/${letter}.jpg`}
+                      alt={`Reference for letter ${letter}`}
+                      className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  
+                  <div className="flex flex-col p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-2xl font-black tracking-tighter">{letter}</h2>
+                      <div className={cn(
+                        "px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
+                        accuracy >= 80 ? "bg-emerald-500/10 text-emerald-500" : "bg-foreground/5 text-muted-foreground"
+                      )}>
+                        {accuracy}%
+                      </div>
                     </div>
-                    <p className="mt-1 sm:mt-2 text-[10px] sm:text-xs font-medium text-muted-foreground">
-                      <span className="text-foreground">{correct}</span>/{attempts} correct
-                    </p>
+                    
+                    <div className="space-y-1.5">
+                       <div className="h-1 w-full bg-foreground/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${accuracy}%` }}
+                            className="h-full bg-foreground/20 rounded-full"
+                          />
+                       </div>
+                       <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                         {correct} / {attempts} Verified
+                       </p>
+                    </div>
                   </div>
                 </article>
               );

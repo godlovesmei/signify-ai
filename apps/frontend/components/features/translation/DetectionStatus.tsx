@@ -10,12 +10,12 @@ export interface DetectionStatusProps {
   showFps?: boolean;
 }
 
-const DOT_CLASSES: Record<DetectionStatusState, string> = {
-  idle: "bg-muted-foreground/30",
-  loading: "bg-warning",
-  ready: "bg-primary",
-  detecting: "bg-success",
-  error: "bg-destructive",
+const DOT_COLORS: Record<DetectionStatusState, string> = {
+  idle: "bg-[#d9d9dd]", // hairline
+  loading: "bg-[#75758a]", // slate
+  ready: "bg-[#17171c]", // ink / primary
+  detecting: "bg-[#003c33]", // mineral green
+  error: "bg-[#b30000]", // error
 };
 
 const STATE_LABELS: Record<DetectionStatusState, string> = {
@@ -42,65 +42,49 @@ export default function DetectionStatus({
   const isDetecting = state === "detecting";
   const isLoading = state === "loading";
   const isWorking = isDetecting || isLoading;
-  const dotClass = DOT_CLASSES[state];
+  const dotColorClass = DOT_COLORS[state];
 
   return (
     <div
       role="status"
       aria-label={`Detection status: ${STATE_LABELS[state]}`}
       className={cn(
-        "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-300",
-        isWorking
-          ? "border-primary/20 bg-primary/[0.06] shadow-[0_10px_24px_-20px_rgba(var(--glow-primary),0.8)]"
-          : "border-border/70 bg-muted/35 dark:border-white/5 dark:bg-white/[0.03]"
+        "flex h-10 items-center justify-between gap-4 rounded-md border border-[#d9d9dd] bg-[#eeece7] px-3.5 py-1.5 transition-all duration-300"
       )}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-background/70 dark:bg-black/20">
-        <span className="relative flex h-3 w-3 shrink-0">
-          {isWorking && (
-            <span
-              aria-hidden="true"
-              className={cn(
-                "absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping",
-                dotClass
-              )}
-            />
-          )}
-          <span className={cn("relative inline-flex h-3 w-3 rounded-full", dotClass)} />
-        </span>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex shrink-0 items-center justify-center">
+          <span className={cn("h-1.5 w-1.5 rounded-full", dotColorClass)} />
+        </div>
+
+        <div className="min-w-0 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
+          <span className="text-[13px] font-medium text-[#212121] leading-tight">
+            {STATE_LABELS[state]}
+          </span>
+          <span className="truncate text-[11px] text-[#616161] leading-tight opacity-80">
+            {STATE_HINTS[state]}
+          </span>
+        </div>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <span className="block text-xs font-semibold text-foreground/80">
-          {STATE_LABELS[state]}
-        </span>
-        <span className="block truncate text-[11px] text-muted-foreground/55">
-          {STATE_HINTS[state]}
-        </span>
-      </div>
-
-      <div className="flex h-5 items-end gap-0.5" aria-hidden="true">
-        {[0, 0.1, 0.2, 0.3].map((delay, index) => (
+      <div className="flex items-center gap-3">
+        {showFps && isDetecting && fps !== undefined && (
           <span
-            key={delay}
-            className={cn(
-              "w-1 rounded-full bg-primary/60",
-              isWorking ? "animate-wave-bar" : "h-1 bg-muted-foreground/25"
-            )}
-            style={isWorking ? { animationDelay: `${delay}s` } : { height: `${index + 3}px` }}
-          />
-        ))}
-      </div>
+            data-fps-counter
+            aria-label={`${fps} frames per second`}
+            className="font-mono text-[11px] tabular-nums text-[#212121] border-l border-[#d9d9dd] pl-3"
+          >
+            {fps} <span className="text-[9px] uppercase tracking-tighter opacity-40">fps</span>
+          </span>
+        )}
 
-      {showFps && isDetecting && fps !== undefined && (
-        <span
-          data-fps-counter
-          aria-label={`${fps} frames per second`}
-          className="rounded-md bg-info/10 border border-info/20 px-1.5 py-0.5 font-mono text-[10px] font-bold tabular-nums text-info"
-        >
-          {fps} FPS
-        </span>
-      )}
+        {isWorking && (
+          <div className="flex h-3 items-center" aria-hidden="true">
+            <div className="h-full w-[1px] bg-[#003c33]/40 animate-pulse" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+

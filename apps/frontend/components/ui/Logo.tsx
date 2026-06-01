@@ -20,37 +20,37 @@ function LogoContent({
   size = 'md',
   showWordmark = true,
 }: Pick<LogoProps, 'size' | 'showWordmark'>) {
-  const icon = sizeMap[size];
+  const iconSize = sizeMap[size];
 
   return (
-    <span className="flex items-center gap-1.5">
-      <span className="relative shrink-0 transition-transform group-hover:scale-105">
+    <span className="flex items-center gap-2">
+      <span className="relative flex shrink-0 items-center justify-center transition-transform group-hover:scale-105">
         {/* Light mode logo */}
         <Image
           src="/nobackground-logo.png"
           alt="Signify AI logo"
-          width={icon}
-          height={icon}
-          className="block dark:hidden object-contain"
+          width={iconSize}
+          height={iconSize}
+          className="block h-auto w-auto dark:hidden object-contain"
           priority
         />
         {/* Dark mode logo */}
         <Image
           src="/nobackground-logoo.png"
           alt="Signify AI logo"
-          width={icon}
-          height={icon}
-          className="hidden dark:block object-contain"
+          width={iconSize}
+          height={iconSize}
+          className="hidden h-auto w-auto dark:block object-contain"
           priority
         />
       </span>
 
       {showWordmark && (
         <span
-          className="font-bold tracking-normal text-foreground text-xl"
-          style={{ fontFamily: 'var(--font-display)' }} // Sora
+          className="font-black tracking-tighter text-foreground leading-none"
+          style={{ fontSize: size === 'lg' ? '1.75rem' : size === 'md' ? '1.5rem' : '1.25rem' }}
         >
-          Signify<span className="text-primary">AI</span>
+          Signify<span className="text-muted-foreground/40">AI</span>
         </span>
       )}
     </span>

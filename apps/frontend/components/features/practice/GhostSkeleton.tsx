@@ -62,7 +62,7 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
   return (
     <div
       className={cn(
-        'pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-50 mix-blend-soft-light',
+        'pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-60 mix-blend-overlay',
         className,
       )}
       aria-hidden="true"
@@ -70,16 +70,22 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
       <AnimatePresence mode="wait">
         <motion.div
           key={letter}
-          className="flex items-center justify-center"
-          initial={{ opacity: 0, scale: 0.95 }}
+          className="flex flex-col items-center justify-center"
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          exit={{ opacity: 0, scale: 1.1 }}
+          transition={{ duration: 0.5, ease: 'backOut' }}
         >
           {LetterSvg ? (
-            <LetterSvg className="h-[70%] w-auto text-white" />
+            <LetterSvg className="h-[60%] w-auto text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]" />
           ) : (
-            <GenericSkeleton />
+            <div className="relative">
+              <div className="absolute inset-0 bg-cyan-500/10 blur-[100px] -z-10" />
+              <GenericSkeleton className="h-[60%] w-auto text-cyan-500/80 drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]" />
+              <div className="mt-8 flex flex-col items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-cyan-400/60 animate-pulse">Master Guidance</span>
+              </div>
+            </div>
           )}
         </motion.div>
       </AnimatePresence>

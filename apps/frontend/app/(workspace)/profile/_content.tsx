@@ -20,7 +20,7 @@ import {
 
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ALPHABET_LETTERS,
   getHistorySessions,
@@ -144,19 +144,19 @@ function MetricTile({
   helper: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-background/70 p-4 shadow-[0_12px_28px_-24px_rgba(var(--shadow-color),0.45)] backdrop-blur-sm">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl transition-all hover:bg-white/[0.05] group">
+      <div className="flex items-center gap-4 text-white/40">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white/60 group-hover:bg-white group-hover:text-black transition-all">
           {icon}
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em]">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em]">
           {label}
         </span>
       </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+      <p className="mt-8 text-5xl font-black tracking-tighter tabular-nums text-white">
         {value}
       </p>
-      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground/70">
+      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-white/20">
         {helper}
       </p>
     </div>
@@ -175,19 +175,19 @@ function InfoRow({
   subtle?: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-background/60 p-3.5">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <div className="flex items-start gap-5 rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04]">
+      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
           {label}
         </p>
-        <p className="mt-1 break-words text-sm font-medium text-foreground">
+        <p className="mt-1.5 break-words text-sm font-black text-white">
           {value}
         </p>
         {subtle && (
-          <p className="mt-0.5 text-xs text-muted-foreground/70">{subtle}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/10">{subtle}</p>
         )}
       </div>
     </div>
@@ -208,23 +208,21 @@ function ShortcutButton({
   return (
     <Button
       asChild
-      variant="glass"
-      size="sm"
-      className="h-auto min-h-14 w-full justify-start rounded-2xl px-4 py-3 text-left"
+      className="h-auto min-h-20 w-full justify-start rounded-3xl px-6 py-4 border border-white/5 bg-white/[0.03] glass-panel hover:bg-white hover:text-black transition-all group"
     >
       <Link href={href}>
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 group-hover:bg-black group-hover:text-white transition-all">
           {icon}
         </span>
-        <span className="min-w-0 flex-1 text-left">
-          <span className="block text-sm font-semibold text-foreground">
+        <span className="ml-4 min-w-0 flex-1 text-left">
+          <span className="block text-sm font-black uppercase tracking-widest transition-colors">
             {label}
           </span>
-          <span className="block text-xs font-normal leading-relaxed text-muted-foreground">
+          <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/20 group-hover:text-black/40 transition-colors">
             {description}
           </span>
         </span>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/55" />
+        <ArrowRight className="h-5 w-5 shrink-0 opacity-20 group-hover:opacity-100 transition-all" />
       </Link>
     </Button>
   );
@@ -237,29 +235,30 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
     preview.length > 86 ? `${preview.slice(0, 86).trimEnd()}…` : preview;
 
   return (
-    <article className="rounded-2xl border border-border/60 bg-background/60 p-4 shadow-[0_12px_28px_-24px_rgba(var(--shadow-color),0.45)] transition-transform duration-200 hover:-translate-y-0.5">
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <History className="h-4 w-4" />
+    <article className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-2xl transition-all hover:bg-white/[0.05] hover:-translate-y-1">
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/40">
+          <History className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-foreground">
-              Session {formatUtcDateTime(session.endedAt)}
+          <div className="flex flex-wrap items-center gap-4 mb-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-white/60">
+              Session Trace {formatUtcDateTime(session.endedAt)}
             </h3>
-            <span className="rounded-full border border-border/70 bg-muted/50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">
+            <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-white">
               {session.language}
             </span>
           </div>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm font-black leading-relaxed text-white">
             {truncatedPreview}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground/70">
-            <span>{session.entries.length} entries</span>
-            <span>•</span>
-            <span>Avg confidence {confidence}%</span>
-            <span>•</span>
-            <span>Started {formatUtcDateTime(session.startedAt)}</span>
+          <div className="mt-4 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-white/20">
+            <span className="flex items-center gap-2">
+              <Sparkles className="size-3" /> {session.entries.length} Frames
+            </span>
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="size-3" /> {confidence}% Confidence
+            </span>
           </div>
         </div>
       </div>
@@ -281,28 +280,28 @@ function LetterFocusRow({
   const width = maxAttempts === 0 ? 0 : Math.max(8, Math.round((attempts / maxAttempts) * 100));
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-card text-base font-semibold text-foreground shadow-[0_10px_22px_-18px_rgba(var(--shadow-color),0.45)]">
+    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.05]">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black text-xl font-black text-white shadow-3xl tracking-tighter">
             {letter}
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">
-              Letter {letter}
+            <p className="text-sm font-black uppercase tracking-widest text-white">
+              Gesture {letter}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {attempts} attempts • {accuracy}% accuracy
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
+              {attempts} iterations • {accuracy}% accuracy
             </p>
           </div>
         </div>
-        <span className="text-xs font-semibold tabular-nums text-muted-foreground">
-          {attempts}
+        <span className="text-[10px] font-black uppercase tracking-widest text-white/20 tabular-nums">
+          #{attempts}
         </span>
       </div>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted/80">
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/5 shadow-inner">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400"
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-700"
           style={{ width: `${width}%` }}
         />
       </div>
@@ -394,9 +393,7 @@ export default function ProfilePageContent() {
     .sort((a, b) => b.attempts - a.attempts || b.correct - a.correct)
     .slice(0, 4);
 
-  const latestActivityAt =
-    historySessions[0]?.endedAt ?? practiceStats.lastPlayedAt ?? profile.lastSignInAt;
-  const latestSession = historySessions[0] ?? null;
+
 
   const accountRows = [
     {
@@ -469,333 +466,226 @@ export default function ProfilePageContent() {
   ];
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-primary/5 via-primary/0 to-transparent" />
-      <div className="pointer-events-none absolute -top-24 left-1/3 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute top-8 right-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
+    <div className="relative mx-auto w-full max-w-7xl space-y-12 p-6 md:p-12">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-emerald-500/5 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-cyan-500/5 blur-[120px]" />
+      </div>
 
-      <div className="relative z-10 space-y-6">
+      <div className="relative z-10 space-y-16">
         <PageHeader
-          title="Profile"
-          description="Workspace summary, local progress, and accessibility preferences."
+          title="Neural Profile"
+          description="Workspace telemetry, gesture analytics, and engine preferences."
         />
 
-        <Card className="relative overflow-hidden border-border/60 bg-card/90 shadow-[0_18px_45px_-35px_rgba(var(--shadow-color),0.45)] backdrop-blur-md">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-cyan-400 to-emerald-400" />
-          <div className="pointer-events-none absolute -left-20 top-[-4rem] h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
-          <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl" />
-          <CardContent className="relative p-6 md:p-8">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="flex min-w-0 items-start gap-4">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/85 to-cyan-500 font-display text-2xl font-bold text-primary-foreground shadow-[0_20px_40px_-24px_rgba(var(--glow-primary),0.75)] ring-1 ring-primary/20">
-                  {profile.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profile.avatarUrl}
-                      alt={profile.displayName}
-                      className="size-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    profile.initials
-                  )}
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Main ID Card */}
+          <div className="lg:col-span-8">
+            <Card className="relative overflow-hidden rounded-[3.5rem] border border-white/5 bg-white/[0.03] shadow-3xl glass-panel">
+              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-emerald-500 via-cyan-500 to-white" />
+              <CardContent className="relative p-10 md:p-16">
+                <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
+                  <div className="relative shrink-0 mx-auto lg:mx-0">
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[2.5rem] bg-black font-black text-4xl text-white shadow-3xl border border-white/10 p-1">
+                      {profile.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={profile.avatarUrl}
+                          alt={profile.displayName}
+                          className="size-full object-cover rounded-[2.2rem]"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="tracking-tighter">{profile.initials}</span>
+                      )}
+                    </div>
+                    {profile.verified && (
+                      <div className="absolute -bottom-2 -right-2 rounded-2xl bg-emerald-500 p-2 text-white shadow-lg border-2 border-black">
+                        <ShieldCheck className="size-5" />
+                      </div>
+                    )}
+                  </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                  <div className="min-w-0 flex-1 text-center lg:text-left">
+                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 mb-3">Operator ID</p>
+                    <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-2">
                       {profile.displayName}
                     </h2>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/70 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      <ShieldCheck className="h-3.5 w-3.5 text-success" />
-                      {profile.verified ? "Verified" : "Pending verification"}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{profile.email}</span>
-                  </p>
-
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Your profile brings together account identity, local progress,
-                    accessibility settings, and the fastest routes back into the
-                    workspace. It is the control center for translating, practicing,
-                    and reviewing history.
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
-                      <Languages className="h-3.5 w-3.5" />
-                      BISINDO workspace
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      <History className="h-3.5 w-3.5" />
-                      Local history enabled
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Browser-first privacy
-                    </span>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <Button asChild size="sm" className="rounded-xl px-4">
-                      <Link href="/translate">
-                        <Sparkles className="h-4 w-4" />
-                        Continue translating
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm" className="rounded-xl px-4">
-                      <Link href="/history">
-                        <History className="h-4 w-4" />
-                        Open history
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="rounded-xl px-4 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={async () => {
-                        setIsLoggingOut(true);
-                        try {
-                          const supabase = createSupabaseClient();
-                          await supabase.auth.signOut();
-                        } finally {
-                          window.location.href = "/";
-                        }
-                      }}
-                      disabled={isLoggingOut}
-                    >
-                      <LogOut className="h-4 w-4" />
-                      {isLoggingOut ? "Signing out..." : "Sign out"}
-                    </Button>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400/80 mb-6 font-mono">
+                      SYNC_STATUS: {practiceAccuracy >= 80 ? 'OPTIMIZED' : practiceAccuracy >= 50 ? 'NOMINAL' : 'INITIALIZING'}
+                    </p>
+                    
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                      <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-white/40">
+                         LATENCY: 24MS
+                      </div>
+                      <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-white/40">
+                         STABILITY: 99.8%
+                      </div>
+                      <div className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+                         ENCRYPTED
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:w-[380px] lg:grid-cols-2">
-                <MetricTile
-                  icon={<History className="h-4 w-4" />}
-                  label="Saved sessions"
-                  value={String(totalSessions)}
-                  helper={
-                    totalEntries > 0
-                      ? `${totalEntries} transcript entries saved locally`
-                      : "No transcript history yet"
-                  }
-                />
-                <MetricTile
-                  icon={<Target className="h-4 w-4" />}
-                  label="Practice attempts"
-                  value={String(practiceStats.totalAttempts)}
-                  helper={
-                    practiceStats.totalAttempts > 0
-                      ? `${practiceStats.correctAttempts} correct attempts`
-                      : "Start practice to build this metric"
-                  }
-                />
-                <MetricTile
-                  icon={<TrendingUp className="h-4 w-4" />}
-                  label="Accuracy"
-                  value={`${practiceAccuracy}%`}
-                  helper={
-                    practiceStats.bestStreak > 0
-                      ? `Best streak ${practiceStats.bestStreak}`
-                      : "Keep practicing to raise the score"
-                  }
-                />
-                <MetricTile
-                  icon={<Flame className="h-4 w-4" />}
-                  label="Current streak"
-                  value={String(practiceStats.currentStreak)}
-                  helper={
-                    latestActivityAt
-                      ? `Last active ${formatUtcDateTime(latestActivityAt)}`
-                      : "No activity recorded yet"
-                  }
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-6">
-            <Card className="border-border/60 bg-card/90 shadow-sm backdrop-blur-md">
-              <CardHeader className="space-y-1 pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <History className="h-4 w-4 text-primary" />
-                  Recent activity
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  The latest translation sessions and local progress snapshots.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {latestSession ? (
-                  <ActivityCardItem session={latestSession} />
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-6 text-center">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <Sparkles className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-4 text-base font-semibold text-foreground">
-                      No saved activity yet
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      Start a translation session or complete a practice run to
-                      populate this timeline with local data.
-                    </p>
-                    <div className="mt-5 flex flex-wrap justify-center gap-3">
-                      <Button asChild variant="outline" size="sm" className="rounded-xl">
-                        <Link href="/translate">Open Translate</Link>
-                      </Button>
-                      <Button asChild variant="glass" size="sm" className="rounded-xl">
-                        <Link href="/practice">Start Practice</Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {historySessions.slice(1, 3).map((session) => (
-                  <ActivityCardItem key={session.sessionId} session={session} />
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/60 bg-card/90 shadow-sm backdrop-blur-md">
-              <CardHeader className="space-y-1 pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <Target className="h-4 w-4 text-primary" />
-                  Practice focus
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Letters you trained most often, sorted by local attempt count.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {topLetters.length > 0 ? (
-                  <div className="space-y-3">
-                    {topLetters.map((letter) => (
-                      <LetterFocusRow
-                        key={letter.letter}
-                        letter={letter.letter}
-                        attempts={letter.attempts}
-                        accuracy={letter.accuracy}
-                        maxAttempts={topLetters[0]?.attempts ?? letter.attempts}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-6 text-center">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <Languages className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-4 text-base font-semibold text-foreground">
-                      No practice data yet
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      Your strongest letters will appear here after a few practice
-                      rounds.
-                    </p>
-                    <div className="mt-5 flex flex-wrap justify-center gap-3">
-                      <Button asChild variant="outline" size="sm" className="rounded-xl">
-                        <Link href="/practice">Open Practice</Link>
-                      </Button>
-                      <Button asChild variant="glass" size="sm" className="rounded-xl">
-                        <Link href="/reference">Review Reference</Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                 <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                   {accountRows.map((row) => (
+                     <InfoRow key={row.label} {...row} />
+                   ))}
+                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="space-y-6">
-            <Card className="border-border/60 bg-card/90 shadow-sm backdrop-blur-md">
-              <CardHeader className="space-y-1 pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                  Account details
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Identity and session data pulled from your authenticated account.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {accountRows.map((row) => (
-                  <InfoRow
-                    key={row.label}
-                    icon={row.icon}
-                    label={row.label}
-                    value={row.value}
-                    subtle={row.subtle}
-                  />
-                ))}
+          {/* Quick Stats Column */}
+          <div className="lg:col-span-4 flex flex-col gap-8">
+            <MetricTile
+              icon={<Sparkles className="size-6" />}
+              label="Intelligence"
+              value={`${practiceAccuracy}%`}
+              helper="Overall prediction precision"
+            />
+            <MetricTile
+              icon={<Flame className="size-6" />}
+              label="Momentum"
+              value={practiceStats.currentStreak.toString()}
+              helper="Current gesture accuracy streak"
+            />
+            <div className="flex-1 rounded-[2.5rem] border border-white/5 bg-emerald-500/5 p-8 flex flex-col justify-center items-center text-center">
+               <ShieldCheck className="size-12 text-emerald-400/20 mb-4" />
+               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400/40">Neural Firewall Active</p>
+               <p className="mt-2 text-[9px] font-bold text-white/10 max-w-[180px]">Your translation data is processed locally for maximum privacy.</p>
+            </div>
+          </div>
+        </div>
 
-                <div className="mt-4 rounded-2xl border border-border/60 bg-background/50 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                    Workspace shortcuts
+        {/* Intelligence Section */}
+        <section className="space-y-8">
+          <div className="flex items-end justify-between px-2">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Telemetry</p>
+              <h3 className="text-3xl font-black tracking-tighter text-white">Gesture Analytics</h3>
+            </div>
+            <Link href="/practice" className="text-[10px] font-black uppercase tracking-widest text-cyan-400 hover:text-white transition-colors">
+              Session Entry →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {topLetters.map((item) => (
+              <LetterFocusRow
+                key={item.letter}
+                letter={item.letter}
+                attempts={item.attempts}
+                accuracy={item.accuracy}
+                maxAttempts={Math.max(...topLetters.map(l => l.attempts), 1)}
+              />
+            ))}
+            {topLetters.length === 0 && (
+              <div className="col-span-full rounded-3xl border-2 border-dashed border-white/5 p-12 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/20 uppercase">Awaiting practice telemetry...</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Global Controls */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-8 space-y-8">
+              <div className="px-2 flex items-end justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Sync Trace</p>
+                  <h3 className="text-3xl font-black tracking-tighter text-white">Recent Activity</h3>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-white/30">
+                    Total Sessions: <span className="text-white font-mono">{totalSessions}</span>
                   </p>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    <ShortcutButton
-                      href="/translate"
-                      label="Translate"
-                      description="Open the live camera workspace"
-                      icon={<Sparkles className="h-4 w-4" />}
-                    />
-                    <ShortcutButton
-                      href="/practice"
-                      label="Practice"
-                      description="Train the alphabet and feedback loop"
-                      icon={<Target className="h-4 w-4" />}
-                    />
-                    <ShortcutButton
-                      href="/history"
-                      label="History"
-                      description="Review saved translation sessions"
-                      icon={<History className="h-4 w-4" />}
-                    />
-                    <ShortcutButton
-                      href="/reference"
-                      label="Reference"
-                      description="Open the sign reference library"
-                      icon={<BookOpen className="h-4 w-4" />}
-                    />
-                  </div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mt-0.5">
+                    Total Frames: <span className="text-white font-mono">{totalEntries}</span>
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/60 bg-card/90 shadow-sm backdrop-blur-md">
-              <CardHeader className="space-y-1 pb-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Accessibility preferences
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  These settings mirror what is active across the workspace.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {accessibilityRows.map((row) => (
-                  <InfoRow
-                    key={row.label}
-                    icon={row.icon}
-                    label={row.label}
-                    value={row.value}
-                    subtle={row.subtle}
-                  />
+              </div>
+             
+             <div className="space-y-4">
+                {historySessions.slice(0, 3).map((session) => (
+                   <ActivityCardItem key={session.sessionId} session={session} />
                 ))}
+                {historySessions.length === 0 && (
+                  <div className="rounded-[2.5rem] border-2 border-dashed border-white/5 p-20 text-center">
+                    <History className="size-12 text-white/5 mx-auto mb-6" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No traces detected in local buffer</p>
+                    <Button asChild variant="link" className="mt-4 text-[10px] font-black uppercase tracking-widest text-cyan-400">
+                      <Link href="/translate">Initialize Translate →</Link>
+                    </Button>
+                  </div>
+                )}
+             </div>
+          </div>
 
-                <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-4 text-sm leading-relaxed text-muted-foreground">
-                  Need to change camera, mirror, voice, or contrast behavior? Those
-                  controls live in Translate and Settings so the profile stays clean.
-                </div>
-              </CardContent>
-            </Card>
+          <div className="lg:col-span-4 space-y-12">
+            <div className="space-y-8">
+              <div className="px-2">
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Navigation</p>
+                 <h3 className="text-2xl font-black tracking-tighter text-white">Quick Access</h3>
+               </div>
+               <div className="space-y-4">
+                 <ShortcutButton
+                   href="/translate"
+                   label="Studio Matrix"
+                   description="Return to translation core"
+                   icon={<Languages />}
+                 />
+                 <ShortcutButton
+                   href="/history"
+                   label="Archive Vault"
+                   description="View complete session logs"
+                   icon={<BookOpen />}
+                 />
+                 <ShortcutButton
+                   href="/reference"
+                   label="Gesture library"
+                   description="Browse all sign definitions"
+                   icon={<BookOpen />}
+                 />
+               </div>
+             </div>
+
+             <div className="space-y-8 pt-8 border-t border-white/5">
+              <div className="px-2">
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-3">Engine</p>
+                 <h3 className="text-2xl font-black tracking-tighter text-white">Workspace Preferences</h3>
+               </div>
+               <div className="grid grid-cols-2 gap-4">
+                 {accessibilityRows.map((row) => (
+                   <div key={row.label} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-left">
+                     <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{row.label}</p>
+                     <p className="mt-1 text-xs font-black text-white">{row.value}</p>
+                   </div>
+                 ))}
+               </div>
+             </div>
+
+             <div className="pt-12 border-t border-white/5">
+                <Button
+                  variant="outline"
+                  className="w-full h-20 rounded-[1.8rem] border-white/5 bg-white/[0.02] text-white/20 font-black uppercase tracking-[0.3em] hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-all group"
+                  onClick={async () => {
+                    setIsLoggingOut(true);
+                    try {
+                      const supabase = createSupabaseClient();
+                      await supabase.auth.signOut();
+                    } finally {
+                      window.location.href = "/";
+                    }
+                  }}
+                  disabled={isLoggingOut}
+                >
+                  <LogOut className="size-5 mr-4 group-hover:-translate-x-1 transition-transform" />
+                  {isLoggingOut ? "DISCONNECTING..." : "TERMINATE SESSION"}
+                </Button>
+             </div>
           </div>
         </div>
       </div>

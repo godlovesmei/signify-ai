@@ -57,6 +57,9 @@ export interface SettingsDrawerProps {
 /* ═══════════════════════════════════════════════════════════════
    SECTION HEADING — refined with subtle icon glow
    ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION HEADING — Cohere Editorial Style
+   ═══════════════════════════════════════════════════════════════ */
 function SectionHeading({
   icon,
   label,
@@ -66,10 +69,10 @@ function SectionHeading({
 }) {
   return (
     <div className="flex items-center gap-2 mb-3 px-1">
-      <span className="text-primary/60" aria-hidden="true">
+      <span className="text-cohere-muted" aria-hidden="true">
         {icon}
       </span>
-      <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/45">
+      <h3 className="text-mono-label !text-[10px] text-cohere-muted">
         {label}
       </h3>
     </div>
@@ -77,7 +80,7 @@ function SectionHeading({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SETTINGS CARD — glass panel with refined depth
+   SETTINGS CARD — Precise editorial surface
    ═══════════════════════════════════════════════════════════════ */
 function SettingsCard({
   children,
@@ -91,10 +94,9 @@ function SettingsCard({
   return (
     <div
       className={cn(
-        "rounded-2xl glass border border-border/40 dark:border-white/[0.06]",
-        "shadow-[0_1px_3px_rgba(var(--shadow-color),0.04),0_4px_12px_-6px_rgba(var(--shadow-color),0.08)]",
-        "transition-all duration-300",
-        hover && "hover:border-primary/15 dark:hover:border-primary/20 hover:shadow-[0_0_24px_-8px_rgba(var(--glow-primary),0.12)]",
+        "rounded-md bg-cohere-canvas border border-cohere-hairline",
+        "transition-all duration-200",
+        hover && "hover:border-cohere-ink hover:shadow-sm",
         className
       )}
     >
@@ -104,7 +106,7 @@ function SettingsCard({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TOGGLE — refined with spring animation feel
+   TOGGLE — Stark and precise
    ═══════════════════════════════════════════════════════════════ */
 function Toggle({
   checked,
@@ -123,17 +125,17 @@ function Toggle({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-[22px] w-10 shrink-0 cursor-pointer rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "relative inline-flex h-[22px] w-10 shrink-0 cursor-pointer rounded-full transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cohere-ink focus-visible:ring-offset-2",
         checked
-          ? "bg-primary shadow-[0_0_12px_-2px_rgba(var(--glow-primary),0.35)]"
-          : "bg-muted-foreground/20 hover:bg-muted-foreground/30"
+          ? "bg-cohere-ink"
+          : "bg-cohere-stone border border-cohere-hairline"
       )}
     >
       <span
         className={cn(
-          "absolute top-[2px] inline-block h-[18px] w-[18px] rounded-full bg-white shadow-[0_1px_3px_rgba(var(--shadow-color),0.15)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-          checked ? "left-[20px]" : "left-[2px]"
+          "absolute top-[2px] inline-block h-[18px] w-[18px] rounded-full transition-all duration-200",
+          checked ? "left-[20px] bg-cohere-canvas" : "left-[2px] bg-cohere-muted"
         )}
       />
     </button>
@@ -141,7 +143,7 @@ function Toggle({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LABELLED SLIDER — custom styled with glow thumb
+   LABELLED SLIDER — Stark monochrome style
    ═══════════════════════════════════════════════════════════════ */
 function LabelledSlider({
   label,
@@ -165,8 +167,8 @@ function LabelledSlider({
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-foreground/85">{label}</span>
-        <span className="font-mono text-[11px] tabular-nums text-primary/70 font-semibold bg-primary/[0.08] dark:bg-primary/[0.12] px-2 py-0.5 rounded-md">
+        <span className="text-sm font-medium text-cohere-ink text-unica-ui">{label}</span>
+        <span className="font-mono text-[11px] tabular-nums text-cohere-ink bg-cohere-stone px-2 py-0.5 rounded-sm border border-cohere-hairline">
           {formatValue(value)}
         </span>
       </div>
@@ -182,20 +184,20 @@ function LabelledSlider({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
         />
         {/* Track background */}
-        <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 overflow-hidden">
+        <div className="w-full h-1 rounded-full bg-cohere-stone overflow-hidden border border-cohere-hairline">
           {/* Filled track */}
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary transition-all duration-150"
+            className="h-full bg-cohere-ink transition-all duration-150"
             style={{ width: `${percentage}%` }}
           />
         </div>
         {/* Thumb visual */}
         <div
-          className="absolute h-4 w-4 rounded-full bg-primary shadow-[0_0_12px_rgba(var(--glow-primary),0.4)] border-2 border-white dark:border-[oklch(21%_0.0162_310.40)] pointer-events-none transition-all duration-150"
+          className="absolute h-4 w-4 rounded-full bg-cohere-ink border border-cohere-canvas pointer-events-none transition-all duration-150"
           style={{ left: `calc(${percentage}% - 8px)` }}
         />
       </div>
-      <div className="flex justify-between text-[10px] text-muted-foreground/35 font-medium">
+      <div className="flex justify-between text-[10px] text-cohere-muted font-mono lowercase">
         <span>{formatValue(min)}</span>
         <span>{formatValue(max)}</span>
       </div>
@@ -239,7 +241,7 @@ function ThemeSegmentedControl({
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="relative flex w-full gap-1 rounded-xl bg-muted/40 dark:bg-white/[0.03] p-1 border border-border/30 dark:border-white/[0.05]"
+      className="relative flex w-full gap-1 rounded-md bg-cohere-stone p-1 border border-cohere-hairline"
     >
       {THEME_OPTIONS.map((opt) => {
         const isActive = value === opt.value;
@@ -252,17 +254,13 @@ function ThemeSegmentedControl({
             aria-label={`${opt.label} theme`}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              "relative flex flex-1 items-center justify-center gap-1.5 rounded-sm py-2 text-xs font-semibold transition-all duration-200",
               isActive
-                ? "text-primary"
-                : "text-muted-foreground/50 hover:text-foreground/70"
+                ? "text-cohere-canvas bg-cohere-ink shadow-sm"
+                : "text-cohere-muted hover:text-cohere-ink"
             )}
           >
-            {isActive && (
-              <span className="absolute inset-0 rounded-lg bg-primary/[0.08] dark:bg-primary/[0.12] ring-1 ring-primary/15 dark:ring-primary/25 shadow-[0_0_16px_-6px_rgba(var(--glow-primary),0.15)]" />
-            )}
-            <span className="relative z-10 flex items-center gap-1.5">
+            <span className="relative z-10 flex items-center gap-1.5 text-unica-ui">
               {opt.icon}
               {opt.label}
             </span>
@@ -274,7 +272,7 @@ function ThemeSegmentedControl({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TEXT SCALE SELECTOR — refined pill buttons
+   TEXT SCALE SELECTOR — Cohere precise pills
    ═══════════════════════════════════════════════════════════════ */
 function TextScaleSelector({
   value,
@@ -301,14 +299,13 @@ function TextScaleSelector({
             aria-checked={isActive}
             onClick={() => onChange(scale)}
             className={cn(
-              "flex flex-1 items-center justify-center rounded-xl py-2.5 text-sm font-bold transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              "flex flex-1 items-center justify-center rounded-md py-2.5 text-sm font-bold transition-all duration-200",
               isActive
-                ? "bg-primary text-primary-foreground shadow-[0_0_16px_-4px_rgba(var(--glow-primary),0.3)]"
-                : "bg-muted/40 dark:bg-white/[0.04] text-muted-foreground/50 hover:text-foreground/70 hover:bg-muted/60 dark:hover:bg-white/[0.07]"
+                ? "bg-cohere-ink text-cohere-canvas shadow-sm"
+                : "bg-cohere-stone text-cohere-muted hover:text-cohere-ink border border-cohere-hairline"
             )}
           >
-            {key}
+            <span className="text-unica-ui">{key}</span>
           </button>
         );
       })}
@@ -357,16 +354,16 @@ export default function SettingsDrawer({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-2xl border border-border/70 bg-popover/96 p-0 text-popover-foreground shadow-[0_28px_90px_-32px_rgba(var(--shadow-color),0.52)] backdrop-blur-xl top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[720px] sm:max-w-[720px]"
+      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-lg top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
       aria-label="App settings"
       >
         {/* Header */}
-        <DialogHeader className="shrink-0 border-b border-border/60 px-6 py-5 pr-14">
+        <DialogHeader className="shrink-0 border-b border-cohere-hairline px-6 py-5 pr-14">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/[0.08] dark:bg-primary/[0.12] ring-1 ring-primary/15">
-              <Sliders className="h-4 w-4 text-primary" aria-hidden="true" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
+              <Sliders className="h-4 w-4 text-cohere-ink" aria-hidden="true" />
             </div>
-            <DialogTitle className="text-base font-display font-semibold tracking-tight">
+            <DialogTitle className="text-base font-display font-medium tracking-tight text-cohere-ink">
               Settings
             </DialogTitle>
           </div>
@@ -382,10 +379,10 @@ export default function SettingsDrawer({
             />
             <SettingsCard className="overflow-hidden">
               {devices.length > 0 && (
-                <div className="px-4 py-3.5 border-b border-border/30 dark:border-white/[0.06]">
+                <div className="px-4 py-3.5 border-b border-cohere-hairline">
                   <label
                     htmlFor="camera-device"
-                    className="text-[13px] font-medium text-foreground/85 block mb-2"
+                    className="text-sm font-medium text-cohere-ink block mb-2 text-unica-ui"
                   >
                     Camera device
                   </label>
@@ -395,8 +392,8 @@ export default function SettingsDrawer({
                       value={selectedDeviceId}
                       onChange={(e) => onDeviceChange(e.target.value)}
                       className={cn(
-                        "w-full appearance-none rounded-xl border border-border/50 dark:border-white/[0.08] bg-muted/30 dark:bg-white/[0.03]",
-                        "px-4 py-2.5 pr-10 text-sm text-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
+                        "w-full appearance-none rounded-md border border-cohere-hairline bg-cohere-stone",
+                        "px-4 py-2.5 pr-10 text-sm text-cohere-ink focus:outline-none focus:ring-1 focus:ring-cohere-ink transition-all"
                       )}
                     >
                       {devices.map((d) => (
@@ -406,7 +403,7 @@ export default function SettingsDrawer({
                       ))}
                     </select>
                     <ChevronRight
-                      className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 rotate-90 pointer-events-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cohere-muted rotate-90 pointer-events-none"
                       aria-hidden="true"
                     />
                   </div>
@@ -414,8 +411,8 @@ export default function SettingsDrawer({
               )}
               <div className="flex items-center justify-between gap-4 px-4 py-3.5">
                 <div>
-                  <p className="text-[13px] font-medium text-foreground/85">Mirror camera</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                  <p className="text-sm font-medium text-cohere-ink text-unica-ui">Mirror camera</p>
+                  <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
                     Flip horizontally for natural view
                   </p>
                 </div>
@@ -436,7 +433,7 @@ export default function SettingsDrawer({
             />
             <div className="flex flex-col gap-2.5">
               <SettingsCard className="p-4">
-                <p className="text-[13px] font-medium text-foreground/85 mb-3">Theme</p>
+                <p className="text-sm font-medium text-cohere-ink mb-3 text-unica-ui">Theme</p>
                 <ThemeSegmentedControl
                   value={theme}
                   onChange={onThemeChange}
@@ -445,12 +442,12 @@ export default function SettingsDrawer({
 
               <SettingsCard className="flex items-center justify-between gap-4 px-4 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/[0.08] dark:bg-warning/[0.12] ring-1 ring-warning/15">
-                    <Contrast className="h-3.5 w-3.5 text-warning" aria-hidden="true" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
+                    <Contrast className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-[13px] font-medium text-foreground/85">High contrast</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                    <p className="text-sm font-medium text-cohere-ink text-unica-ui">High contrast</p>
+                    <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
                       Increases text and border contrast
                     </p>
                   </div>
@@ -464,10 +461,10 @@ export default function SettingsDrawer({
 
               <SettingsCard className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-info/[0.08] dark:bg-info/[0.12] ring-1 ring-info/15">
-                    <Type className="h-3.5 w-3.5 text-info" aria-hidden="true" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
+                    <Type className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                   </div>
-                  <p className="text-[13px] font-medium text-foreground/85">Prediction text size</p>
+                  <p className="text-sm font-medium text-cohere-ink text-unica-ui">Prediction text size</p>
                 </div>
                 <TextScaleSelector
                   value={textScale}
@@ -488,12 +485,12 @@ export default function SettingsDrawer({
                 <>
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success/[0.08] dark:bg-success/[0.12] ring-1 ring-success/15">
-                        <Volume2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
+                        <Volume2 className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="text-[13px] font-medium text-foreground/85">Voice feedback</p>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground/50">
+                        <p className="text-sm font-medium text-cohere-ink text-unica-ui">Voice feedback</p>
+                        <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
                           Speak detected letters automatically
                         </p>
                       </div>
@@ -530,11 +527,11 @@ export default function SettingsDrawer({
                 formatValue={(v) => `${Math.round(v * 100)}%`}
               />
 
-              <div className="h-px bg-border/30 dark:bg-white/[0.06]" />
+              <div className="h-px bg-cohere-hairline" />
 
               <div className="flex items-center justify-between pt-0.5">
-                <p className="text-[11px] text-muted-foreground/40 font-medium">Language</p>
-                <span className="rounded-lg bg-primary/[0.08] dark:bg-primary/[0.12] px-2.5 py-1 text-[10px] font-bold text-primary ring-1 ring-primary/15">
+                <p className="text-[11px] text-cohere-muted font-mono lowercase">Language</p>
+                <span className="rounded-sm bg-cohere-stone px-2.5 py-1 text-[10px] font-bold text-cohere-ink border border-cohere-hairline lowercase font-mono">
                   Bahasa Indonesia
                 </span>
               </div>
@@ -551,7 +548,7 @@ export default function SettingsDrawer({
             {user && (
               <SettingsCard className="mb-3 p-4" hover>
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-700 text-sm font-bold text-primary-foreground shadow-glow-primary overflow-hidden">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-cohere-ink text-sm font-bold text-cohere-canvas overflow-hidden border border-cohere-hairline">
                     {user.avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -570,14 +567,14 @@ export default function SettingsDrawer({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-display font-semibold text-foreground truncate">
+                    <p className="text-sm font-display font-medium text-cohere-ink truncate">
                       {user.name}
                     </p>
-                    <p className="text-[11px] text-muted-foreground/55 truncate">
+                    <p className="text-[11px] text-cohere-muted truncate font-mono lowercase">
                       {user.email}
                     </p>
                   </div>
-                  <div className="flex h-2 w-2 rounded-full bg-success shadow-[0_0_6px_rgba(var(--glow-success),0.5)]" />
+                  <div className="flex h-2 w-2 rounded-full bg-success opacity-50" />
                 </div>
               </SettingsCard>
             )}
@@ -591,12 +588,12 @@ export default function SettingsDrawer({
                   : "Sign out"
               }
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5",
-                "text-sm font-medium transition-all duration-300",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40",
+                "flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5",
+                "text-sm font-medium transition-colors duration-200",
+                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive",
                 logoutConfirming
-                  ? "bg-destructive/10 text-destructive border border-destructive/25 shadow-[0_0_20px_-6px_rgba(var(--glow-error),0.15)]"
-                  : "glass text-muted-foreground/60 hover:bg-destructive/[0.06] hover:text-destructive/80 border border-border/40 dark:border-white/[0.06]"
+                  ? "bg-destructive/10 text-destructive border border-destructive/25"
+                  : "bg-cohere-stone text-cohere-muted hover:bg-destructive/10 hover:text-destructive/80 border border-cohere-hairline"
               )}
             >
               <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />

@@ -65,15 +65,9 @@ export default function MobileBottomNav({
             : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }
         }
       >
-        {/* Gradient fade above nav */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background/60 to-transparent"
-        />
-
-        <div className="border-t border-white/10 bg-background/70 pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5 shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
+        <div className="border-t border-border bg-background pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5">
           <div className="mx-auto w-full max-w-md px-2">
-            <ul className="grid grid-cols-4 gap-0.5">
+            <ul className="grid grid-cols-5 gap-0.5">
               {WORKSPACE_NAV_ITEMS.map((item) => (
                 <MobileNavItem
                   key={item.key}

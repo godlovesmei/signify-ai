@@ -31,7 +31,7 @@ import {
   resetPracticeStats,
 } from "@/lib/userData";
 import { CameraFrame } from "@/components/features/practice/CameraFrame";
-import { AmbientStatusStrip, TrailIndicator, StatusBadge } from "@/components/features/practice/AmbientStatusStrip";
+import { TrailIndicator, StatusBadge } from "@/components/features/practice/AmbientStatusStrip";
 import { HoldProgressRing } from "@/components/features/practice/HoldProgressRing";
 import { GhostSkeleton } from "@/components/features/practice/GhostSkeleton";
 import { MicroFeedback } from "@/components/features/practice/MicroFeedback";
@@ -690,80 +690,64 @@ export default function PracticePageContent() {
 
           {/* DESKTOP LAYOUT: 3-Column Grid */}
           {isDesktop && (
-            <div className="grid grid-cols-12 gap-4 h-full">
+            <div className="grid grid-cols-12 gap-8 h-full">
 
             {/* LEFT SIDEBAR: Target Info (2 cols) */}
-            <aside className="col-span-2 flex min-h-0 min-w-0 flex-col gap-3">
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 backdrop-blur-sm">
-                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3">Target</p>
+            <aside className="col-span-3 flex min-h-0 min-w-0 flex-col gap-6">
+              <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-8 text-center">Neural Target</p>
                 <TargetBlock letter={target} />
               </div>
 
               {/* Quick Stats */}
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 backdrop-blur-sm flex-1">
-                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3">Quick Stats</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Attempts</span>
-                    <span className="font-semibold">{stats.totalAttempts}</span>
+              <div className="rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl flex-1 overflow-hidden flex flex-col">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6">Real-time Performance</p>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Samples</span>
+                    <span className="text-3xl font-black tracking-tighter tabular-nums">{stats.totalAttempts}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Accuracy</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Precision</span>
+                    <span className="text-3xl font-black tracking-tighter tabular-nums text-emerald-400">
                       {stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Streak</span>
-                    <span className="font-semibold text-warning">{stats.currentStreak}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Best</span>
-                    <span className="font-semibold">{stats.bestStreak}</span>
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Momentum</span>
+                    <span className="text-3xl font-black tracking-tighter tabular-nums text-amber-500">{stats.currentStreak}</span>
                   </div>
                 </div>
 
                 {weakLetters.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-border/30">
-                    <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.2em] mb-2">Needs Practice</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {weakLetters.map((letter) => {
-                        const s = stats.byLetter[letter];
-                        const pct = s.attempts === 0 ? 0 : Math.round((s.correct / s.attempts) * 100);
-                        return (
-                          <span
-                            key={letter}
-                            className={cn(
-                              "px-2 py-1 rounded-md text-xs border",
-                              letter === target
-                                ? "border-primary/30 bg-primary/10 font-bold text-primary"
-                                : "border-white/5 bg-white/[0.02] text-muted-foreground",
-                            )}
-                          >
-                            {letter} {pct}%
-                          </span>
-                        );
-                      })}
+                  <div className="mt-auto pt-8 border-t border-white/5">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">Underperforming</p>
+                    <div className="flex flex-wrap gap-2">
+                      {weakLetters.map((letter) => (
+                        <span
+                          key={letter}
+                          className={cn(
+                            "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
+                            letter === target
+                              ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                              : "border-white/5 bg-white/[0.03] text-white/30",
+                          )}
+                        >
+                          {letter}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
               </div>
             </aside>
 
-            {/* CENTER: Camera (8 cols) - PRIORITIZED */}
-            <section className="col-span-8 flex flex-col gap-3 min-h-0">
+            {/* CENTER: Camera (6 cols) - PRIORITIZED */}
+            <section className="col-span-6 flex flex-col gap-6 min-h-0">
               {/* Camera Header */}
-              <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={statusTone} />
-                  <TrailIndicator trail={breadcrumb} />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Camera className="w-3.5 h-3.5" />
-                    BISINDO
-                  </span>
-                </div>
+              <div className="flex items-center justify-between px-2">
+                <StatusBadge status={statusTone} className="shadow-2xl" />
+                <TrailIndicator trail={breadcrumb} />
               </div>
 
               {/* Camera Frame */}
@@ -780,11 +764,9 @@ export default function PracticePageContent() {
                     state={appState}
                     isMirrored={isMirrored}
                     detections={detections}
-                    showDetectionOverlay={false}
                     apiError={apiError}
                     hasMultipleCameras={true}
                     voiceEnabled={false}
-                    showControls={false}
                     onRequestCamera={() => startCamera()}
                     onStartDetection={startDetection}
                     onStopDetection={stopDetection}
@@ -808,15 +790,15 @@ export default function PracticePageContent() {
               </div>
 
               {/* Camera Controls */}
-              <div className="flex items-center justify-center gap-4 py-2">
+              <div className="flex items-center justify-center gap-6 py-4">
                 <button
                   type="button"
                   onClick={flipCamera}
                   disabled={isCameraBusy}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/40 text-foreground/60 transition hover:border-border hover:bg-background/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
+                  className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03] text-white/40 transition-all hover:bg-white hover:text-black hover:scale-105 active:scale-95"
                   aria-label="Flip camera"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="h-6 w-6 transition-transform group-hover:rotate-180 duration-500" />
                 </button>
 
                 <button
@@ -824,110 +806,113 @@ export default function PracticePageContent() {
                   onClick={handlePrimaryCameraAction}
                   disabled={isCameraBusy}
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200",
+                    "flex h-20 w-48 items-center justify-center gap-4 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.2em]",
                     isCameraBusy && "cursor-wait opacity-60",
                     isActive
-                      ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
-                      : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30"
+                      ? "bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.3)] hover:scale-105 active:scale-95 border-red-400/50"
+                      : "bg-white text-black shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95"
                   )}
                   aria-label={isActive ? "Stop detection" : "Start detection"}
                 >
                   {isActive ? (
-                    <span className="h-4 w-4 bg-white rounded-sm" />
+                    <>
+                      <div className="h-3 w-3 bg-white rounded-sm animate-pulse" />
+                      <span>Stop</span>
+                    </>
                   ) : (
-                    <Camera className="h-6 w-6" />
+                    <>
+                      <Camera className="h-6 w-6" />
+                      <span>Start</span>
+                    </>
                   )}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleToggleFullscreen}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/40 text-foreground/60 transition hover:border-border hover:bg-background/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
+                  className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03] text-white/40 transition-all hover:bg-white hover:text-black hover:scale-105 active:scale-95"
                   aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                 >
-                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  {isFullscreen ? <Minimize2 className="h-6 w-6" /> : <Maximize2 className="h-6 w-6" />}
                 </button>
               </div>
             </section>
 
-            {/* RIGHT SIDEBAR: Progress & Actions (2 cols) */}
-            <aside className="col-span-2 flex flex-col gap-3 min-h-0">
+            {/* RIGHT SIDEBAR: Progress & Actions (3 cols) */}
+            <aside className="col-span-3 flex flex-col gap-6 min-h-0">
               {/* Progress Ring */}
-              <div className="shrink-0 rounded-xl border border-border/60 bg-muted/30 p-3 backdrop-blur-sm">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">Hold Progress</p>
-                  <span className="rounded-md border border-white/5 bg-white/[0.03] px-2 py-1 text-[10px] font-semibold tabular-nums text-muted-foreground">
-                    {holdProgress}/{HOLD_FRAMES_NEEDED}
-                  </span>
+              <div className="shrink-0 rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
+                <div className="mb-8 flex items-center justify-between gap-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 text-center flex-1">Neural Lock</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="md" />
-                  <div className="min-w-0 flex-1">
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div className="flex flex-col items-center gap-8">
+                  <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="xl" />
+                  <div className="w-full">
+                    <div className="h-2 overflow-hidden rounded-full bg-white/5 shadow-inner">
                       <div
-                        className="h-full rounded-full bg-warning transition-all duration-200"
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
                         style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
                       />
                     </div>
-                    <p className="mt-2 text-xs leading-snug text-muted-foreground/70">Hold until the meter fills.</p>
+                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-center text-white/20">Maintain gesture focus</p>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="shrink-0 rounded-xl border border-border/60 bg-muted/30 p-3 backdrop-blur-sm">
-                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">Actions</p>
-                <div className="flex flex-col gap-2">
+              <div className="shrink-0 rounded-3xl border border-white/5 bg-white/[0.03] p-8 glass-panel shadow-2xl">
+                <p className="mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Mission Control</p>
+                <div className="flex flex-col gap-4">
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={handleSkip}
                     disabled={!isActive || isSuccessFlash}
-                    className="h-9 w-full justify-between"
+                    className="h-16 w-full justify-between rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
                   >
-                    Skip <ChevronRight className="h-4 w-4" />
+                    Skip Target <ChevronRight className="h-4 w-4" />
                   </Button>
 
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9 w-full justify-between">
-                        Settings <Sliders className="h-4 w-4" />
+                      <Button variant="outline" className="h-16 w-full justify-between rounded-2xl border-white/5 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">
+                        Engine Config <Sliders className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-[360px] rounded-2xl">
+                    <DialogContent className="max-w-[400px] border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2rem] p-8 shadow-3xl">
                       <DialogHeader>
-                        <DialogTitle className="text-base">Practice settings</DialogTitle>
+                        <DialogTitle className="text-xl font-black uppercase tracking-[0.2em] mb-4 text-center">Session configuration</DialogTitle>
                       </DialogHeader>
-                      <div className="mt-4 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Show guide overlay</span>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
+                          <span className="text-xs font-black uppercase tracking-widest text-white/60">Guide Overlay</span>
                           <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Show statistics</span>
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
+                          <span className="text-xs font-black uppercase tracking-widest text-white/60">Insight Metrics</span>
                           <Switch checked={statsOpen} onCheckedChange={setStatsOpen} />
                         </div>
-                        <DialogClose asChild>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            className="w-full"
-                            onClick={handleResetProgress}
-                          >
-                            Reset progress
-                          </Button>
-                        </DialogClose>
+                        <div className="pt-4">
+                          <DialogClose asChild>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              className="w-full h-14 rounded-2xl font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                              onClick={handleResetProgress}
+                            >
+                              Purge Progress
+                            </Button>
+                          </DialogClose>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
 
                   <Button
                     variant="ghost"
-                    size="sm"
                     onClick={handleReset}
-                    className="h-8 w-full text-xs text-muted-foreground/50 hover:text-destructive"
+                    className="h-12 w-full text-[9px] font-black uppercase tracking-[0.4em] text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
                   >
-                    Reset Camera
+                    Initialize Camera System
                   </Button>
                 </div>
               </div>
@@ -945,12 +930,12 @@ export default function PracticePageContent() {
 
           {/* MOBILE LAYOUT: Stack */}
           {!isDesktop && (
-            <div className="flex flex-col gap-3 h-full">
+            <div className="flex flex-col gap-6 h-full overflow-y-auto pb-10">
 
-            {/* Mobile Camera (Full width, prioritized) */}
-            <section className="relative flex-1 min-h-0">
-              <div className="absolute top-3 left-3 z-20">
-                <StatusBadge status={statusTone} />
+            {/* Mobile Camera (Prioritized) */}
+            <section className="relative h-[40dvh] xs:h-[45dvh] min-h-[350px] shrink-0">
+              <div className="absolute top-4 left-4 z-40">
+                <StatusBadge status={statusTone} className="shadow-2xl scale-90 origin-top-left" />
               </div>
 
               <CameraFrame
@@ -965,7 +950,6 @@ export default function PracticePageContent() {
                   state={appState}
                   isMirrored={isMirrored}
                   detections={detections}
-                  showDetectionOverlay={false}
                   apiError={apiError}
                   hasMultipleCameras={true}
                   voiceEnabled={false}
@@ -991,77 +975,67 @@ export default function PracticePageContent() {
               </CameraFrame>
             </section>
 
-            {/* Mobile Target Info (Compact) */}
-            <section className="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-muted/30">
-              <TargetCompact letter={target} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Attempts: {stats.totalAttempts}</span>
-                  <span>Acc: {stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%</span>
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <TrailIndicator trail={breadcrumb} />
-                </div>
-              </div>
-            </section>
-
-            {/* Mobile Progress */}
-            <section className="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-muted/30">
-              <HoldProgressRing progress={holdProgress} total={HOLD_FRAMES_NEEDED} size="sm" />
-              <div className="flex-1">
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-200"
-                    style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {holdProgress}/{HOLD_FRAMES_NEEDED} frames
-                </p>
-              </div>
-            </section>
-
-            {/* Mobile Actions */}
-            <section className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSkip}
-                disabled={!isActive || isSuccessFlash}
-                className="flex-1"
-              >
-                Skip <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Sliders className="h-4 w-4 mr-1" /> Settings
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[360px] rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="text-base">Practice settings</DialogTitle>
-                  </DialogHeader>
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Show guide overlay</span>
-                      <Switch checked={ghostVisible} onCheckedChange={setGhostVisible} />
-                    </div>
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        className="w-full"
-                        onClick={handleResetProgress}
-                      >
-                        Reset progress
-                      </Button>
-                    </DialogClose>
+            {/* Mobile Controls & Target Info */}
+            <div className="flex flex-col gap-6 flex-none px-2">
+              <section className="flex items-center gap-6 p-6 rounded-3xl border border-white/5 bg-white/[0.03] glass-panel shadow-xl">
+                <TargetCompact letter={target} className="border-none bg-transparent p-0 scale-110" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between font-black uppercase tracking-widest text-[9px] text-white/30 mb-2">
+                    <span>Precision {stats.totalAttempts === 0 ? 0 : Math.round((stats.correctAttempts / stats.totalAttempts) * 100)}%</span>
+                    <span>Streak {stats.currentStreak}</span>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </section>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/5">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                      style={{ width: `${Math.min(100, (holdProgress / HOLD_FRAMES_NEEDED) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  onClick={handlePrimaryCameraAction}
+                  disabled={isCameraBusy}
+                  className={cn(
+                    "h-16 rounded-2xl font-black uppercase tracking-widest transition-all duration-300",
+                    isActive 
+                      ? "bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.3)]" 
+                      : "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                  )}
+                >
+                  {isActive ? "End session" : "Initialize"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSkip} 
+                  disabled={!isActive || isSuccessFlash} 
+                  className="h-16 rounded-2xl font-black uppercase tracking-widest border-white/5 bg-white/[0.03] hover:bg-white hover:text-black transition-all"
+                >
+                  Skip
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-center gap-8 py-2">
+                 <button onClick={flipCamera} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 p-2 flex items-center gap-3 transition-colors hover:text-white">
+                   <RotateCcw className="size-4" /> Flip Optic
+                 </button>
+                 <button onClick={() => setGhostVisible(!ghostVisible)} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 p-2 flex items-center gap-3 transition-colors hover:text-white">
+                   <div className={cn("size-2 rounded-full", ghostVisible ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" : "bg-white/10")} />
+                   {ghostVisible ? "Hide Guide" : "Show Guide"}
+                 </button>
+              </div>
+            </div>
+
+            {/* Stats drawer for mobile if needed */}
+            <div className="px-2">
+               <StatsDrawer
+                  open={statsOpen}
+                  stats={stats}
+                  weakLetters={weakLetters}
+                  target={target}
+                />
+            </div>
             </div>
           )}
         </div>

@@ -22,8 +22,8 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
   const circ = 2 * Math.PI * r;
 
   const progressValue = useMotionValue(pct);
-  const strokeColor = useTransform(progressValue, [0, 1], ['#f59e0b', '#10b981']);
-  const dotColor = useTransform(progressValue, [0, 1], ['#f59e0b', '#10b981']);
+  const strokeColor = useTransform(progressValue, [0, 1], ['#ffffff', '#10b981']);
+  const dotColor = useTransform(progressValue, [0, 1], ['#ffffff', '#10b981']);
   const dashOffset = useTransform(progressValue, (value) => circ * (1 - value));
 
   useEffect(() => {
@@ -42,24 +42,30 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
       aria-label="Hold progress"
       animate={
         isHolding
-          ? { scale: [0.98, 1.02, 0.98] }
+          ? { scale: [0.95, 1.05, 0.95], rotate: isHolding ? [0, 5, -5, 0] : 0 }
           : isSuccess
-          ? { scale: 1.02 }
+          ? { scale: 1.15 }
           : { scale: 1 }
       }
       transition={
         isHolding
-          ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-          : { duration: 0.2 }
+          ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
+          : { type: 'spring', stiffness: 400, damping: 20 }
       }
     >
       <svg className="absolute inset-0 -rotate-90" viewBox={`0 0 ${dim} ${dim}`}>
+        <defs>
+          <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+          </linearGradient>
+        </defs>
         <circle
           cx={dim / 2}
           cy={dim / 2}
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
+          stroke="rgba(255,255,255,0.05)"
           strokeWidth="6"
           strokeLinecap="round"
         />
@@ -71,13 +77,19 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={circ}
-          style={{ stroke: strokeColor, strokeDashoffset: dashOffset }}
+          style={{ 
+            stroke: isSuccess ? '#10b981' : 'url(#ringGradient)', 
+            strokeDashoffset: dashOffset,
+            filter: isHolding ? 'drop-shadow(0 0 8px rgba(255,255,255,0.4))' : 'none'
+          }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <motion.span
-          className="h-2.5 w-2.5 rounded-full"
-          style={{ backgroundColor: dotColor }}
+        <motion.div
+          className={cn(
+            "rounded-full transition-all duration-300",
+            isSuccess ? "h-4 w-4 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" : "h-2 w-2 bg-white"
+          )}
         />
       </div>
     </motion.div>

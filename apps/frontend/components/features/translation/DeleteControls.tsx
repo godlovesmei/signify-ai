@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Delete, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "motion/react";
 
 export interface DeleteControlsProps {
   onDeleteLast: () => void;
@@ -30,8 +31,7 @@ export default function DeleteControls({
 
   useEffect(() => {
     if (!disabled) return;
-    const timeoutId = setTimeout(() => setConfirming(false), 0);
-    return () => clearTimeout(timeoutId);
+    setConfirming(false);
   }, [disabled]);
 
   function handleClearClick() {
@@ -47,43 +47,60 @@ export default function DeleteControls({
   const isCompact = size === "compact";
 
   return (
-    <div className="flex items-center gap-1.5" role="group" aria-label="Text editing controls">
+    <div className="flex items-center gap-2" role="group" aria-label="Text editing controls">
       <button
         type="button"
         onClick={onDeleteLast}
         disabled={disabled}
-        aria-label="Delete last character"
         className={cn(
-          "flex items-center justify-center rounded-xl border transition-all duration-200",
-          isCompact ? "h-9 w-9" : "h-10 w-10",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/50 focus-visible:ring-offset-1",
-          disabled
-            ? "cursor-not-allowed border-border/60 dark:border-white/5 bg-muted/55 dark:bg-white/5 text-muted-foreground/30 opacity-50"
-            : "border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 text-muted-foreground/75 hover:bg-warning/10 hover:text-warning hover:border-warning/30 active:scale-[0.97]"
+          "flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200",
+          isCompact ? "h-8 w-8" : "h-9 w-9",
+          "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
+          "hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800",
+          disabled && "opacity-30 cursor-not-allowed"
         )}
       >
-        <Delete className="h-4 w-4" aria-hidden="true" />
+        <Delete className="size-4" />
       </button>
 
       <button
         type="button"
         onClick={handleClearClick}
         disabled={disabled}
-        aria-label={confirming ? "Tap again to confirm clear all" : "Clear all text"}
-        aria-pressed={confirming}
         className={cn(
-          "flex items-center gap-1.5 rounded-xl transition-all duration-200",
-          isCompact ? "h-9 px-2.5 text-xs" : "h-10 px-3 text-sm",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 focus-visible:ring-offset-1",
-          disabled && "cursor-not-allowed text-muted-foreground/20 opacity-50 pointer-events-none",
-          !disabled &&
-            !confirming &&
-            "text-muted-foreground/75 hover:bg-destructive/10 hover:text-destructive border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5",
-          !disabled && confirming && "border border-destructive/40 bg-destructive/10 font-medium text-destructive"
+          "relative flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 px-4 transition-all duration-200 font-sans font-medium",
+          isCompact ? "h-8" : "h-9",
+          disabled && "opacity-30 cursor-not-allowed",
+          confirming 
+            ? "border-red-500 text-red-500 bg-red-50 dark:bg-red-950/20" 
+            : "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300 hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800"
         )}
       >
-        <X className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-        <span>{confirming ? "Tap again" : "Clear"}</span>
+        <AnimatePresence mode="wait">
+          {confirming ? (
+            <motion.div
+              key="confirming"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex items-center gap-2"
+            >
+              <X className="size-4" />
+              <span className="uppercase text-[10px]">Confirm?</span>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex items-center gap-2"
+            >
+              <X className="size-4" />
+              <span className="uppercase text-[10px]">Clear</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </button>
     </div>
   );

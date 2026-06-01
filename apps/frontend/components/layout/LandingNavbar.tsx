@@ -5,21 +5,24 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/Logo";
 import { LoginModal } from "@/components/auth/LoginModal";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
+
+import { motion, AnimatePresence } from "motion/react";
 
 export default function LandingNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 40);
+    const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
   const navLinks = [
-    { label: "How It Works", href: "/how-it-works" },
-    { label: "Who It's For", href: "#who-its-for" },
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
     { label: "Research", href: "/research" },
     { label: "About", href: "/about" },
   ];
@@ -28,44 +31,38 @@ export default function LandingNavbar() {
     <header
       role="banner"
       className={[
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        scrolled
-          ? "glass-strong border-b border-white/10 shadow-depth-2"
-          : "border-b border-transparent bg-transparent",
+        "fixed top-0 left-0 w-full z-50 transition-all duration-500",
+        scrolled || mobileMenuOpen
+          ? "glass-strong border-b border-white/10 dark:border-white/5 shadow-lg shadow-black/5"
+          : "bg-transparent border-b border-transparent",
       ].join(" ")}
     >
-      <div
-        className={[
-          "w-full flex items-center justify-between px-6 md:px-12 lg:px-20 transition-all duration-300",
-          scrolled ? "h-14" : "h-16",
-        ].join(" ")}
-      >
+      <div className="flex items-center justify-between px-6 md:px-8 lg:px-12 py-4 w-full">
         {/* Logo */}
         <Logo size="lg" />
 
         {/* Desktop Nav */}
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-1 md:flex"
+          className="hidden items-center gap-2 lg:flex"
         >
           {navLinks.map(({ label, href }) => (
             <Link
               key={label}
               href={href}
-              className="relative px-4 py-2 text-sm font-medium text-muted-foreground/80 transition-all duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl hover:bg-white/5"
+              className="px-5 py-2 text-[13px] font-bold tracking-tight text-muted-foreground/80 transition-all duration-300 hover:text-foreground rounded-full hover:bg-white/5"
             >
               {label}
-              <span className="absolute bottom-1 left-4 right-4 h-px bg-primary scale-x-0 origin-left transition-transform duration-300 hover:scale-x-100" />
             </Link>
           ))}
         </nav>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-4">
           <Button
             variant="ghost"
-            size="default"
-            className="hidden text-sm text-muted-foreground/80 hover:text-foreground hover:bg-white/5 md:inline-flex transition-all duration-200"
+            size="sm"
+            className="text-[13px] font-bold text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full"
             onClick={() => setLoginOpen(true)}
           >
             Sign In
@@ -73,15 +70,72 @@ export default function LandingNavbar() {
 
           <Button
             variant="default"
-            size="default"
-            className="rounded-xl px-5 text-sm font-semibold shadow-glow-primary hover:shadow-glow-primary/80 transition-all duration-300 hover:-translate-y-0.5"
+            size="sm"
+            className="rounded-full px-8 h-10 text-[13px] font-black btn-luxe-primary hover:scale-[1.05] transition-transform active:scale-[0.95]"
             onClick={() => setLoginOpen(true)}
           >
-            Try Free
-            <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            Get Started
           </Button>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <div className="flex lg:hidden items-center">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-foreground/80 hover:text-foreground transition-colors"
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Backdrop & Content */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="lg:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl overflow-hidden"
+          >
+            <div className="flex flex-col p-6 space-y-4">
+              {navLinks.map(({ label, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-bold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
+              <div className="pt-6 flex flex-col gap-4">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-lg font-bold"
+                  onClick={() => {
+                    setLoginOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  className="w-full h-14 rounded-2xl text-lg font-black btn-luxe-primary"
+                  onClick={() => {
+                    setLoginOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Get Started
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </header>

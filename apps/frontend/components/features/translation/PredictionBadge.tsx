@@ -12,55 +12,31 @@ export interface PredictionBadgeProps {
   textScale?: number;
 }
 
-function getTier(
-  confidence: number | null,
-  isDetecting: boolean,
-  hasHand: boolean
-): ConfidenceTier {
-  if (!isDetecting || confidence === null || !hasHand) return "idle";
-  if (confidence >= 0.8) return "high";
-  if (confidence >= 0.5) return "medium";
-  return "low";
-}
-
-const TIER_CONFIG: Record<
-  ConfidenceTier,
-  {
-    card: string;
-    text: string;
-    bar: string;
-    glow?: string;
-    label: string;
+/**
+ * Cohere Design Tokens from DESIGN.md
+ * Aligns with "Interpretation Ledger" aesthetic: Editorial restraint, 
+ * hairline borders, and stark monochromatic surfaces.
+ */
+const COHERE = {
+  colors: {
+    canvas: "#ffffff",
+    softStone: "#eeece7",
+    hairline: "#d9d9dd",
+    ink: "#212121",
+    muted: "#93939f",
+    primary: "#17171c",
+  },
+  typography: {
+    heroDisplay: {
+      fontSize: "96px",
+      letterSpacing: "-0.02em",
+    },
+    monoLabel: {
+      fontSize: "14px",
+      letterSpacing: "0.02em",
+    }
   }
-> = {
-  idle: {
-    card: "bg-card/90 border border-border/80 dark:border-white/10",
-    text: "text-muted-foreground/55",
-    bar: "bg-muted/75 dark:bg-white/10",
-    label: "—",
-  },
-  low: {
-    card: "bg-error/5 border border-error/20",
-    text: "text-error",
-    bar: "bg-error",
-    glow: "shadow-glow-error/30",
-    label: "Low",
-  },
-  medium: {
-    card: "bg-warning/5 border border-warning/20",
-    text: "text-warning",
-    bar: "bg-warning",
-    glow: "shadow-glow-warning/30",
-    label: "Medium",
-  },
-  high: {
-    card: "bg-success/5 border border-success/20",
-    text: "text-success",
-    bar: "bg-success",
-    glow: "shadow-glow-success/40",
-    label: "High",
-  },
-};
+} as const;
 
 export default function PredictionBadge({
   letter,
@@ -69,78 +45,74 @@ export default function PredictionBadge({
   hasHand,
   textScale = 1,
 }: PredictionBadgeProps) {
-  const tier = getTier(confidence, isDetecting, hasHand);
-  const isIdle = tier === "idle";
   const isNoHand = isDetecting && !hasHand;
-  const config = TIER_CONFIG[tier];
-
+  const isIdle = !isDetecting;
+  
   const pct =
     confidence !== null && isDetecting && hasHand
       ? Math.round(confidence * 100)
       : 0;
 
-  const fontSize = `${Math.max(1.875, 4 * textScale)}rem`;
   const letterKey = letter ?? "__idle__";
 
   return (
-    <div role="region" aria-label="Current sign prediction" className="flex flex-col gap-3">
+    <div role="region" aria-label="Current sign prediction" className="flex flex-col gap-4">
       <span className="sr-only" aria-live="assertive" aria-atomic="true">
-        {letter ? `Detected sign: ${letter}, ${config.label} confidence` : ""}
+        {letter ? `Detected sign: ${letter}, ${pct}% confidence` : ""}
       </span>
 
-      {/* Badge card */}
+      {/* Badge card — Editorial Surface */}
       <div
         className={cn(
-          "relative flex items-center justify-center rounded-2xl transition-all duration-300",
-          "min-h-[112px] px-4 py-5 sm:min-h-[120px] sm:p-6",
-          isNoHand
-            ? "border border-dashed border-border/80 dark:border-white/10 bg-muted/55 dark:bg-white/5"
-            : config.card,
-          config.glow
+          "relative flex items-center justify-center transition-all duration-300",
+          "h-40 px-10 rounded-sm overflow-hidden",
+          isNoHand || isIdle
+            ? "bg-[#eeece7] border border-dashed border-[#d9d9dd]" // Soft Stone background, dashed hairline
+            : "bg-white border border-[#d9d9dd] shadow-none"    // Stark White background, hairline border
         )}
       >
-        {isIdle && !isDetecting ? (
+        {isIdle ? (
           <div className="flex items-center gap-2 select-none">
-            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/20" aria-hidden="true" />
-            <p className="text-xs text-muted-foreground/55">Start detection to see results</p>
+            <span className="h-1 w-1 rounded-full bg-[#212121]/20" aria-hidden="true" />
+            <p className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+              System Standby
+            </p>
           </div>
         ) : isNoHand ? (
-          <div className="flex flex-col items-center gap-2 select-none">
-            <span className="text-3xl text-muted-foreground/35" aria-hidden="true">
+          <div className="flex flex-col items-center gap-2 select-none text-center">
+            <span className="text-2xl grayscale opacity-20 mb-1" aria-hidden="true">
               ✋
             </span>
-            <p className="text-xs text-muted-foreground/55">Show your hand to the camera</p>
+            <p className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+              Awaiting Input
+            </p>
           </div>
         ) : (
           <span
             key={letterKey}
             data-prediction-badge
             aria-hidden="true"
-            className={cn(
-              "font-display font-extrabold leading-none tracking-tight animate-prediction-pop",
-              config.text
-            )}
-            style={{ fontSize }}
+            className="font-display leading-none text-[#212121] animate-prediction-pop"
+            style={{ 
+              fontSize: `${96 * textScale}px`, 
+              fontWeight: 400,
+              letterSpacing: COHERE.typography.heroDisplay.letterSpacing 
+            }}
           >
             {letter ?? "—"}
           </span>
         )}
       </div>
 
-      {/* Confidence meter */}
+      {/* Confidence Indicator — Clinical Hairline Progress Bar */}
       {isDetecting && (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <span
-              className={cn(
-                "text-[11px] font-bold uppercase tracking-wide",
-                isIdle ? "text-muted-foreground/55" : config.text
-              )}
-            >
-              {config.label}
+            <span className="font-mono text-[14px] uppercase tracking-[0.02em] text-[#93939f]">
+              {hasHand ? "Prediction Score" : "Scanning Room"}
             </span>
-            {pct > 0 && (
-              <span className="font-mono text-xs tabular-nums text-muted-foreground/50">
+            {pct > 0 && hasHand && (
+              <span className="font-mono text-[14px] text-[#212121] tabular-nums">
                 {pct}%
               </span>
             )}
@@ -152,15 +124,12 @@ export default function PredictionBadge({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={`Detection confidence: ${pct}%`}
-            className="h-1.5 w-full overflow-hidden rounded-full bg-muted/65 dark:bg-white/5"
+            className="h-[1px] w-full bg-[#d9d9dd]" 
           >
             <div
               key={letterKey}
-              className={cn(
-                "h-full rounded-full animate-confidence-fill transition-[width] duration-200 ease-out",
-                config.bar
-              )}
-              style={{ width: `${pct}%` }}
+              className="h-full bg-[#17171c] transition-[width] duration-500 ease-out"
+              style={{ width: `${hasHand ? pct : 0}%` }}
             />
           </div>
         </div>
@@ -168,3 +137,4 @@ export default function PredictionBadge({
     </div>
   );
 }
+

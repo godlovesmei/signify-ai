@@ -8,8 +8,11 @@ import {
   Grid,
   X,
   Maximize2,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "motion/react";
+import Link from "next/link";
 
 type SignCard = {
   id: string;
@@ -275,7 +278,8 @@ const LETTER_IMAGES: Record<string, string> = Object.fromEntries(
 
 export default function PracticeGuide() {
   const [index, setIndex] = useState(0);
-  const [showChart, setShowChart] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
 
   const items = SIGN_LIBRARY;
   const active = items[index] ?? items[0];
@@ -286,112 +290,113 @@ export default function PracticeGuide() {
   };
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <Sparkles className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold">Panduan latihan</p>
-            <p className="text-xs text-muted-foreground/60">
-              Pelajari bentuk tangan sebelum mulai isyarat.
-            </p>
-          </div>
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="group relative flex w-full items-center gap-4 rounded-lg border border-cohere-hairline bg-cohere-canvas px-4 py-3.5 transition-all hover:bg-cohere-stone active:scale-[0.98]"
+      >
+        <div className="flex size-9 items-center justify-center text-cohere-ink transition-transform group-hover:scale-110">
+          <Sparkles className="size-5 stroke-[1.5]" />
         </div>
-
-        <button
-          type="button"
-          onClick={() => setShowChart(true)}
-          className="inline-flex items-center gap-1.5 rounded-full glass px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground whitespace-nowrap transition-all hover:bg-muted/75 dark:hover:bg-white/10 hover:text-foreground"
-        >
-          <Grid className="h-3.5 w-3.5" />
-          Chart A–Z
-        </button>
-      </div>
-
-      <div className="glass rounded-2xl p-4 border border-border/80 dark:border-white/5">
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="rounded-full bg-muted/70 dark:bg-white/5 px-2 py-0.5 text-[11px] font-semibold uppercase text-muted-foreground/65">
-              statis
-            </span>
-            <span className="rounded-full border border-border/80 dark:border-white/10 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground/65">
-              Alfabet
-            </span>
-          </div>
-
-          <p className="text-lg font-bold leading-tight">
-            {active.label} — {active.name}
-          </p>
-          <p className="text-sm text-muted-foreground/75">{active.description}</p>
+        <div className="flex flex-col items-start leading-none text-left">
+           <span className="font-cohere-mono text-[10px] uppercase tracking-[0.2em] text-cohere-muted mb-1.5">Visual Guide</span>
+           <span className="font-unica77 text-[15px] font-medium tracking-tight text-cohere-ink">BISINDO Alphabet</span>
         </div>
-      </div>
+        <Maximize2 className="ml-auto size-4 text-cohere-hairline group-hover:text-cohere-muted transition-colors" />
+      </button>
 
-      <div className="space-y-2">
-        <InfoCard title="Bentuk jari">{active.fingers}</InfoCard>
-        {active.tip && <InfoCard title="Tips" tone="tip">{active.tip}</InfoCard>}
-        {active.variant && <InfoCard title="Varian">{active.variant}</InfoCard>}
-      </div>
-
-      <div className="flex flex-col gap-2 rounded-xl glass px-3 py-2 sm:flex-row sm:items-center sm:justify-between border border-border/80 dark:border-white/5">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setActive(index - 1)}
-            disabled={index === 0}
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 transition hover:bg-muted/80 dark:hover:bg-white/10 disabled:pointer-events-none disabled:opacity-40"
-            )}
-            aria-label="Huruf sebelumnya"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3, ease: [0.2, 1, 0.2, 1] }}
+            className="fixed inset-4 md:inset-x-auto md:right-8 md:top-24 md:bottom-24 z-[100] flex w-auto md:w-[420px] flex-col overflow-hidden rounded-lg border border-cohere-hairline bg-cohere-canvas shadow-xl"
           >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+            <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-stone/30 px-6 py-4">
+               <div className="flex items-center gap-3">
+                  <div className="size-1.5 rounded-full bg-cohere-ink" />
+                  <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-ink font-medium">Reference Guide</span>
+               </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setChartOpen(true)}
+                    className="size-9 rounded-md flex items-center justify-center text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors"
+                    title="Lihat Grid A-Z"
+                  >
+                     <Grid className="size-4.5 stroke-[1.5]" />
+                  </button>
+                  <Link href="/reference" className="font-cohere-mono text-[10px] uppercase tracking-[0.15em] text-cohere-slate hover:text-cohere-ink transition-colors flex items-center gap-2 px-3">
+                     Full Index <ExternalLink className="size-3.5 stroke-[1.5]" />
+                  </Link>
+                  <div className="w-px h-4 bg-cohere-hairline mx-1" />
+                  <button 
+                    onClick={() => setIsOpen(false)} 
+                    className="size-9 rounded-md flex items-center justify-center text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors"
+                  >
+                     <X className="size-4.5 stroke-[1.5]" />
+                  </button>
+                </div>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setActive(index + 1)}
-            disabled={index === items.length - 1}
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full border border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 transition hover:bg-muted/80 dark:hover:bg-white/10 disabled:pointer-events-none disabled:opacity-40"
-            )}
-            aria-label="Huruf berikutnya"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+               <div className="group relative aspect-[4/5] w-full overflow-hidden rounded-md border border-cohere-hairline bg-cohere-stone/50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/alfabet/${active.id}.jpg`}
+                    alt={active.name}
+                    className="size-full object-cover grayscale-[0.2] contrast-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-cohere-canvas/20 to-transparent pointer-events-none" />
+                  <div className="absolute top-6 left-6">
+                     <span className="font-unica77 text-[64px] font-normal text-cohere-ink leading-none tracking-[-0.04em] drop-shadow-sm">{active.label}</span>
+                  </div>
+               </div>
 
-        <p className="text-xs text-muted-foreground/60">
-          {index + 1} / {items.length} · Gunakan ← →
-        </p>
-      </div>
+               <div className="space-y-6">
+                  <div>
+                    <h3 className="font-unica77 text-[32px] font-normal leading-tight tracking-[-0.01em] text-cohere-ink mb-3">{active.name}</h3>
+                    <p className="font-unica77 text-[16px] leading-[1.6] text-cohere-slate">{active.description}</p>
+                  </div>
 
-      <div className="overflow-x-auto pb-1">
-        <div className="flex min-w-full flex-wrap gap-2">
-          {items.map((item, idx) => {
-            const isActive = idx === index;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActive(idx)}
-                className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200",
-                  isActive
-                    ? "border-primary bg-primary text-primary-foreground shadow-glow-primary/30"
-                    : "border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 text-foreground hover:border-primary/40 hover:text-primary"
-                )}
-                aria-label={`Pilih ${item.name}`}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                  <div className="space-y-6 pt-6 border-t border-cohere-hairline">
+                    <div>
+                       <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-muted mb-3 block">Technical Instruction</span>
+                       <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink p-4 rounded-md bg-cohere-stone/50 border border-cohere-hairline/50">{active.fingers}</p>
+                    </div>
 
-      <ChartModal open={showChart} onClose={() => setShowChart(false)} />
-    </section>
+                    {active.tip && (
+                      <div>
+                         <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-muted mb-3 block">Operational Tip</span>
+                         <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink/80 italic pl-4 border-l-2 border-cohere-hairline">{active.tip}</p>
+                      </div>
+                    )}
+                  </div>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-px border-t border-cohere-hairline bg-cohere-hairline mt-auto">
+               <button
+                 onClick={() => setActive(index - 1)}
+                 disabled={index === 0}
+                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-[0.15em] bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-all disabled:opacity-30 disabled:hover:bg-cohere-canvas"
+               >
+                 <ChevronLeft className="size-4 stroke-[1.5]" /> Previous
+               </button>
+               <button
+                 onClick={() => setActive(index + 1)}
+                 disabled={index === items.length - 1}
+                 className="flex h-16 items-center justify-center gap-3 font-cohere-mono text-[11px] uppercase tracking-[0.15em] bg-cohere-canvas text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-all disabled:opacity-30 disabled:hover:bg-cohere-canvas"
+               >
+                 Next <ChevronRight className="size-4 stroke-[1.5]" />
+               </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} />
+    </>
   );
 }
 
@@ -418,61 +423,57 @@ function ChartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-end bg-cohere-ink/40 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         className={cn(
-          "absolute right-0 top-0 h-full glass-strong shadow-depth-4 transition-all duration-300",
+          "relative h-[85vh] sm:h-full bg-cohere-canvas shadow-2xl transition-all duration-300 rounded-t-lg sm:rounded-none border-l border-cohere-hairline",
           expanded ? "w-full" : "w-full sm:w-[420px] lg:w-[480px]"
         )}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-border/80 dark:border-white/10 px-4 py-3">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Grid className="h-4 w-4 text-primary" />
-              <span>Chart Alfabet</span>
-              <span className="rounded-full border border-border/80 dark:border-white/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/65">
-                A–Z
-              </span>
+          <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-stone/30 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <span className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-ink font-medium">Index A–Z</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setExpanded((prev) => !prev)}
-                className="rounded-full p-2 text-muted-foreground/65 transition hover:bg-muted/80 dark:hover:bg-white/10 hover:text-foreground"
+                className="size-9 rounded-md flex items-center justify-center text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors"
                 aria-label="Perbesar"
               >
-                <Maximize2 className="h-4 w-4" />
+                <Maximize2 className="h-4 w-4 stroke-[1.5]" />
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full p-2 text-muted-foreground/65 transition hover:bg-muted/80 dark:hover:bg-white/10 hover:text-foreground"
+                className="size-9 rounded-md flex items-center justify-center text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink transition-colors"
                 aria-label="Tutup chart"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 stroke-[1.5]" />
               </button>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {ALPHABET.map((letter) => (
                 <LetterCard key={letter} letter={letter} src={LETTER_IMAGES[letter]} />
               ))}
             </div>
           </div>
 
-          <div className="flex items-center justify-center border-t border-border/80 dark:border-white/10 px-4 py-3">
+          <div className="flex items-center justify-center border-t border-cohere-hairline bg-cohere-stone/20 px-6 py-4">
             <button
               type="button"
-              className="text-sm font-semibold text-primary hover:underline underline-offset-4"
+              className="font-cohere-mono text-[11px] uppercase tracking-[0.2em] text-cohere-slate hover:text-cohere-ink transition-colors"
               onClick={onClose}
             >
-              Tutup chart
+              Close Reference
             </button>
           </div>
         </div>
@@ -485,50 +486,24 @@ function LetterCard({ letter, src }: { letter: string; src: string }) {
   const [hasError, setHasError] = useState(false);
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl glass p-2 text-center border border-border/80 dark:border-white/5">
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted/60 dark:bg-white/5">
+    <div className="flex flex-col gap-3 rounded-md bg-cohere-stone/30 p-3 text-center border border-cohere-hairline/60 hover:border-cohere-hairline transition-colors">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-cohere-stone">
         {!hasError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
             alt={`Huruf ${letter}`}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover grayscale-[0.3] contrast-[1.05]"
             loading="lazy"
             onError={() => setHasError(true)}
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-lg font-bold text-muted-foreground/40">
+          <div className="flex h-full items-center justify-center font-unica77 text-[24px] text-cohere-muted">
             {letter}
           </div>
         )}
       </div>
-      <p className="text-sm font-semibold text-foreground">{letter}</p>
-    </div>
-  );
-}
-
-function InfoCard({
-  title,
-  children,
-  tone = "default",
-}: {
-  title: string;
-  children: React.ReactNode;
-  tone?: "default" | "tip";
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-xl border px-4 py-3 text-sm",
-        tone === "tip"
-          ? "border-amber-500/30 bg-amber-100/60 text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/5 dark:text-amber-300"
-          : "border-border/80 dark:border-white/10 bg-card/90 dark:bg-white/5 text-foreground/80"
-      )}
-    >
-      <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
-        {title}
-      </p>
-      <p className="leading-relaxed text-sm">{children}</p>
+      <p className="font-unica77 text-[14px] font-medium text-cohere-ink">{letter}</p>
     </div>
   );
 }

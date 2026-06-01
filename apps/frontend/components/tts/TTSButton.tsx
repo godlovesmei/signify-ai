@@ -3,13 +3,13 @@
 import { Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TTSSpeakingIndicator from './TTSSpeakingIndicator';
+import { motion, AnimatePresence } from 'motion/react';
+
+const APPLE_SPRING = { stiffness: 260, damping: 30 };
 
 export interface TTSButtonProps {
-  /** The sentence text that will be spoken. */
   sentence: string;
-  /** Whether TTS is currently playing. */
   isSpeaking: boolean;
-  /** Whether TTS playback failed on the last attempt. */
   hasError?: boolean;
   onSpeak: () => void;
   className?: string;
@@ -25,80 +25,55 @@ export default function TTSButton({
   size = 'default',
 }: TTSButtonProps) {
   const isEmpty   = sentence.trim().length === 0;
-  const isDisabled = isEmpty || isSpeaking;
   const isCompact = size === 'compact';
 
   return (
-    <div className={cn('flex items-center gap-1.5', className)}>
-      <button
+    <div className={cn('flex items-center gap-2', className)}>
+      <motion.button
         type="button"
         onClick={onSpeak}
-        disabled={isDisabled}
-        aria-label={
-          isSpeaking  ? 'Speaking…'
-          : isEmpty   ? 'Build a sentence first'
-          : 'Read aloud in Bahasa Indonesia'
-        }
-        aria-busy={isSpeaking}
-        title={
-          isSpeaking  ? 'Speaking…'
-          : isEmpty   ? 'Build a sentence first'
-          : 'Read aloud in Bahasa Indonesia'
-        }
+        disabled={isEmpty || isSpeaking}
         className={cn(
-          'flex items-center justify-center rounded-xl border transition-all duration-150',
-          isCompact ? 'h-9 w-9' : 'h-11 w-11',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-200 focus-visible:ring-offset-1',
-
-          // Disabled — empty sentence
-          isEmpty && !hasError && [
-            'cursor-not-allowed border-border bg-muted text-muted-foreground/30 opacity-50',
-          ],
-
-          // Error state
-          hasError && !isSpeaking && [
-            'border-destructive/40 bg-destructive/8 text-destructive',
-            'hover:bg-destructive/12',
-          ],
-
-          // Speaking / active
-          isSpeaking && [
-            'border-primary/40 bg-primary/10 text-primary',
-          ],
-
-          // Idle — ready to speak
-          !isEmpty && !isSpeaking && !hasError && [
-            'border-border bg-muted text-muted-foreground',
-            'hover:bg-muted/80 hover:text-foreground hover:border-border/80',
-            'active:scale-[0.97]',
-          ],
+          'flex items-center justify-center rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200',
+          isCompact ? 'h-8 w-8' : 'h-9 px-5 gap-3',
+          isSpeaking 
+            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black border-zinc-900 dark:border-zinc-100' 
+            : 'bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300 hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800',
+          isEmpty && !isSpeaking && 'opacity-30 cursor-not-allowed',
+          hasError && !isSpeaking && 'text-red-500 border-red-500/20'
         )}
       >
-        {isSpeaking
-          ? <TTSSpeakingIndicator active={true} className="text-primary" />
-          : <Volume2 className="h-4 w-4" aria-hidden="true" />
-        }
-      </button>
+        <AnimatePresence mode="wait">
+          {isSpeaking ? (
+            <motion.div
+              key="speaking"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <TTSSpeakingIndicator active={true} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex items-center gap-2"
+            >
+              <Volume2 className="size-4" />
+              {!isCompact && <span className="text-[11px] font-sans font-medium uppercase tracking-tight">Read Aloud</span>}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
 
-      {/* TTS language badge — always visible, informs researchers/devs of active locale */}
-      <span
-        aria-label="Text-to-speech language: Bahasa Indonesia"
-        className={cn(
-          'rounded-md px-1.5 py-0.5 font-bold tabular-nums tracking-wide',
-          isCompact ? 'text-[9px]' : 'text-[10px]',
-          isSpeaking
-            ? 'bg-primary/15 text-primary'
-            : 'bg-muted text-muted-foreground',
-        )}
-      >
-        ID
-      </span>
-
-      {/* Error message */}
-      {hasError && !isSpeaking && !isCompact && (
-        <p role="alert" className="text-xs text-destructive">
-          TTS unavailable. Check your device volume.
-        </p>
+      {!isCompact && (
+        <div className="hidden sm:flex flex-col ml-2">
+           <span className="text-[10px] uppercase tracking-widest text-[var(--cohere-muted)] font-mono">
+             {isSpeaking ? "Analyzing..." : "Indonesia v4"}
+           </span>
+        </div>
       )}
     </div>
   );

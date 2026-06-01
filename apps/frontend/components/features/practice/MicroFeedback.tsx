@@ -29,10 +29,10 @@ export function MicroFeedback({ x, y, text, visible = true, className }: MicroFe
       aria-hidden="true"
     >
       <div className="flex flex-col items-center">
-        <div className="rounded-full bg-black/80 px-3 py-1.5 text-xs font-medium text-white shadow-lg ring-1 ring-white/10">
+        <div className="rounded-xl bg-black/90 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-2xl border border-white/20 backdrop-blur-xl">
           {text}
         </div>
-        <span className="mt-[-2px] h-2 w-2 rotate-45 bg-black/80 ring-1 ring-white/10" />
+        <div className="h-4 w-px bg-gradient-to-b from-white/40 to-transparent" />
       </div>
     </motion.div>
   );

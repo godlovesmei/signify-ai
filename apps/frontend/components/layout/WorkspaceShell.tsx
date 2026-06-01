@@ -10,7 +10,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 
-const WORKSPACE_USER = { name: "Nama User", email: "user@signify.ai" };
+const WORKSPACE_USER = { name: "User Session", email: "user@signify.ai" };
 
 export default function WorkspaceShell({
   children,
@@ -19,47 +19,44 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const prefs = useAccessibilityPrefs();
 
-  // Settings modal props (mirrored from translate page)
-  const [devices] = useState<{ deviceId: string; label: string }[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState("");
-  const [isMirrored, setIsMirrored] = useState(true);
-
-  const handleLogout = useCallback(async () => {
-    const supabase = createSupabaseClient();
-    await supabase.auth.signOut();
-    window.location.href = "/";
+  // Mock handlers
+  const handleLogout = useCallback(() => {
+    console.log("Logging out...");
   }, []);
 
-  return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground selection:bg-primary/20 antialiased">
-      <TopBar />
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [isMirrored, setIsMirrored] = useState(true);
+  const prefs = useAccessibilityPrefs();
 
-      <div className="flex flex-1 overflow-hidden gap-3 md:pr-3 md:pb-3 md:pt-0 md:pl-0">
-        {/* Desktop Sidebar */}
+  return (
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-cohere-canvas text-cohere-ink antialiased">
+      <TopBar onMenuClick={() => setSidebarMobileOpen(true)} />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - Handles both Desktop Fixed and Mobile Drawer modes */}
         <AppSidebar
           pathname={pathname}
           onSettingsClick={() => setSettingsOpen(true)}
           onLogout={handleLogout}
-          mobileOpen={false}
-          onMobileClose={() => {}}
+          mobileOpen={sidebarMobileOpen}
+          onMobileClose={() => setSidebarMobileOpen(false)}
           user={WORKSPACE_USER}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 relative bg-background md:rounded-[24px] md:border md:border-border/70 md:shadow-[0_16px_45px_-34px_rgba(var(--shadow-color),0.5)] dark:md:shadow-none overflow-hidden flex flex-col">
+        {/* Main Workspace (Clinical & High Contrast) */}
+        <main className="flex-1 min-w-0 relative bg-cohere-canvas overflow-hidden flex flex-col">
           <div className="flex-1 w-full h-full overflow-auto">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
       <MobileBottomNav reserveSpace={false} />
 
-      {/* Settings Modal */}
       <SettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Zap } from "lucide-react";
+import { Zap, Activity, Terminal, Layers } from "lucide-react";
 
 import {
   WebcamCapture,
@@ -48,6 +48,18 @@ function uid() {
   return `entry-${Date.now()}-${++_id}`;
 }
 
+/**
+ * Technical Status Value component for the Cohere system.
+ */
+function StatusValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-1.5 border-l border-[#d9d9dd] pl-4">
+      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a] leading-none text-nowrap">{label}</p>
+      <p className="text-[12px] font-medium text-[#17171c] tracking-tight truncate">{value}</p>
+    </div>
+  );
+}
+
 export default function TranslatePageContent() {
   const prefs = useAccessibilityPrefs();
   const [appState, setAppState] = useState<CameraState>("idle");
@@ -60,7 +72,7 @@ export default function TranslatePageContent() {
   const [isTtsError, setIsTtsError] = useState(false);
   const [fps, setFps] = useState(0);
   const [language] = useState<Language>("BISINDO");
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [isMirrored, setIsMirrored] = useState(true);
   const [apiError, setApiError] = useState(false);
@@ -419,222 +431,179 @@ export default function TranslatePageContent() {
   const isActive = appState === "detecting";
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-background text-foreground">
-      {/* ═══════════════════════════════════════════════════════════════
-          MAIN — Translate grid
-          ═══════════════════════════════════════════════════════════════ */}
-      <main className="translate-grid workspace-height">
-        {/* ── Camera Workspace ─────────────────────────────────────── */}
-        <section className="camera-workspace p-3 pb-2 md:p-5">
-          <div className="translate-camera-shell relative w-full max-w-5xl mx-auto rounded-2xl md:rounded-3xl overflow-hidden border border-border/80 dark:border-white/10 shadow-depth-4 bg-card/95 dark:bg-black/40">
-            {/* Scanline */}
-            {isActive && (
-              <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent animate-scan z-20 pointer-events-none" />
-            )}
-
-            {/* Reticle Corners */}
-            <div
-              className={[
-                "absolute inset-0 pointer-events-none z-10 transition-all duration-500",
-                isActive ? "opacity-100" : "opacity-0",
-              ].join(" ")}
-            >
-              <div className="absolute top-5 left-5 w-6 h-6 border-t-2 border-l-2 border-primary/40 rounded-tl-lg transition-all duration-300" />
-              <div className="absolute top-5 right-5 w-6 h-6 border-t-2 border-r-2 border-primary/40 rounded-tr-lg transition-all duration-300" />
-              <div className="absolute bottom-5 left-5 w-6 h-6 border-b-2 border-l-2 border-primary/40 rounded-bl-lg transition-all duration-300" />
-              <div className="absolute bottom-5 right-5 w-6 h-6 border-b-2 border-r-2 border-primary/40 rounded-br-lg transition-all duration-300" />
+    <div className="flex h-full flex-col bg-white overflow-hidden selection:bg-[#ffad9b] selection:text-[#17171c]">
+      {/* 
+        Top Navigation / Technical Header 
+        High editorial space, minimal distractions. 
+      */}
+      <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-[#d9d9dd] px-8 bg-white z-50">
+        <div className="flex items-center gap-12">
+          <div className="flex flex-col">
+            <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#75758a] leading-none mb-1.5">
+              Protocol // Signify_AI
+            </span>
+            <span className="font-mono text-[12px] uppercase tracking-[0.1em] text-[#17171c] font-medium">
+              BISINDO_INTERPRETER_V3.0_PROD
+            </span>
+          </div>
+          <div className="hidden lg:flex items-center gap-6 border-l border-[#d9d9dd] pl-12">
+            <div className="space-y-1">
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a]">Active_Engine</p>
+              <p className="text-[13px] font-medium text-[#17171c]">YOLOv11_Direct_RGB</p>
             </div>
-
-            {/* Status Bar — Live + Language */}
-            <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
-              {isActive && (
-                <span className="badge-live">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
-                  </span>
-                  Live
-                </span>
-              )}
-              {isLive && (
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary border border-primary/20">
-                  {language}
-                </span>
-              )}
+            <div className="space-y-1">
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#75758a]">Language</p>
+              <p className="text-[13px] font-medium text-[#17171c]">{language}</p>
             </div>
+          </div>
+        </div>
 
-            {/* Detection Badge */}
-            <div
-              className={[
-                "absolute top-4 right-4 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full glass text-[11px] font-mono uppercase tracking-wider transition-all duration-500",
-                isActive && detections.length > 0
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-2",
-              ].join(" ")}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              Hand Detected
-            </div>
+        <div className="flex items-center gap-8">
+           <div className="flex items-center gap-3 px-4 py-2 bg-[#eeece7] rounded-sm border border-[#d9d9dd]">
+              <div className={`size-1.5 rounded-full ${isActive ? 'bg-[#003c33] shadow-[0_0_8px_rgba(0,60,51,0.4)]' : 'bg-[#93939f]'}`} />
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#17171c]">
+                {isActive ? 'Live_Transmission' : 'Standby_Mode'}
+              </span>
+           </div>
+        </div>
+      </header>
 
-            {/* Confidence Ring (bottom-center) */}
-            <div
-              className={[
-                "pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 z-30 transition-all duration-500",
-                isActive && currentConfidence !== null
-                  ? "opacity-100 scale-100"
-                  : "opacity-0 scale-90",
-              ].join(" ")}
-            >
-              <div className="relative w-16 h-16">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.1)"
-                    strokeWidth="6"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke={
-                      (currentConfidence ?? 0) > 0.85
-                        ? "#10b981"
-                        : (currentConfidence ?? 0) > 0.6
-                        ? "#06b6d4"
-                        : "#8b5cf6"
-                    }
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray="264"
-                    strokeDashoffset={
-                      264 - (264 * (currentConfidence ?? 0))
-                    }
-                    className="transition-all duration-300"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white tabular-nums">
-                    {currentConfidence !== null
-                      ? Math.round(currentConfidence * 100) + "%"
-                      : "0%"}
-                  </span>
+      <main className="flex flex-1 min-h-0 divide-x divide-[#d9d9dd]">
+        {/* Visual Stream Column */}
+        <section className="flex-[1.4] relative flex flex-col bg-[#eeece7] overflow-hidden">
+          <div className="flex-1 flex flex-col p-8 md:p-10 overflow-y-auto">
+            <div className="max-w-[1000px] w-full mx-auto space-y-8">
+              <div className="flex items-baseline justify-between border-b border-[#d9d9dd] pb-6">
+                <div>
+                  <h2 className="text-[32px] tracking-tight text-[#17171c] font-normal leading-none font-unica">Vision Interface</h2>
+                  <p className="text-[15px] text-[#616161] mt-2 max-w-md font-unica">Neural interpretation of manual gestural sequences in real-time environment.</p>
+                </div>
+                <div className="text-right font-mono">
+                  <span className="block text-[9px] uppercase tracking-[0.2em] text-[#75758a] mb-1">Inference_Rate</span>
+                  <span className="text-xl tabular-nums text-[#17171c]">{fps} <span className="text-[10px] opacity-40">FPS</span></span>
                 </div>
               </div>
-            </div>
 
-            {/* FPS Counter (bottom-left) */}
-            <div className="absolute bottom-5 left-5 z-30 flex items-center gap-2 px-2.5 py-1 rounded-lg glass text-[10px] font-mono text-muted-foreground">
-              <Zap className="w-3 h-3 text-warning" />
-              <span className="tabular-nums">{fps} FPS</span>
-            </div>
+              {/* The Media Interface */}
+              <div className="relative aspect-video w-full rounded-md overflow-hidden bg-black border border-[#d9d9dd] shadow-2xl transition-all duration-700">
+                <WebcamCapture
+                  ref={webcamRef}
+                  state={appState}
+                  isMirrored={isMirrored}
+                  detections={detections}
+                  apiError={apiError}
+                  hasMultipleCameras={true}
+                  onRequestCamera={() => startCamera()}
+                  onStartDetection={startDetection}
+                  onStopDetection={stopDetection}
+                  onFlipCamera={flipCamera}
+                  onReset={handleReset}
+                  fps={fps}
+                />
+                
+                {/* Minimal HUD overlay for Confidence which is critical for interpretation */}
+                {isActive && currentConfidence !== null && (
+                  <div className="absolute top-8 right-8 z-[35]">
+                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-4 py-3 rounded-sm font-mono text-white min-w-[140px]">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <span className="text-[9px] uppercase tracking-[0.2em] opacity-50">Signal_Quality</span>
+                        <span className="text-xs font-bold">{Math.round(currentConfidence * 100)}%</span>
+                      </div>
+                      <div className="h-0.5 w-full bg-white/10 overflow-hidden">
+                        <div 
+                          className="h-full bg-white transition-all duration-300" 
+                          style={{ width: `${currentConfidence * 100}%` }} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Webcam */}
-            <WebcamCapture
-              ref={webcamRef}
-              state={appState}
-              isMirrored={isMirrored}
-              detections={detections}
-              apiError={apiError}
-              hasMultipleCameras={true} /* simplified - devices not tracked here anymore */
-              voiceEnabled={voiceEnabled}
-              onRequestCamera={() => startCamera()}
-              onStartDetection={startDetection}
-              onStopDetection={stopDetection}
-              onFlipCamera={flipCamera}
-              onReset={handleReset}
-            />
+              {/* Technical Status Matrix */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <StatusValue label="Engine_Module" value="bisindo_v3_rgb" />
+                <StatusValue label="Input_Source" value={`${facingMode.toUpperCase()}_ARRAY`} />
+                <StatusValue label="Processing" value="QUANTIZED_INT8" />
+                <StatusValue label="Data_State" value={detections.length > 0 ? "TRANSCEIVING" : "POLLING"} />
+              </div>
+            </div>
+          </div>
+          
+          {/* Practice Guide at the bottom of visual space */}
+          <div className="px-8 md:px-10 pb-10">
+             <div className="max-w-[1000px] w-full mx-auto border-t border-[#d9d9dd] pt-10">
+                <PracticeGuide />
+             </div>
           </div>
         </section>
 
-        {/* ── Sidebar ──────────────────────────────────────────────── */}
-        <section className="translate-results-panel flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-border/70 dark:border-white/5 md:border-t-0 md:border-l">
-          {/* Real-time Detection */}
-          <div className="shrink-0 flex flex-col gap-4 border-b border-border/70 dark:border-white/5 p-4 md:p-5">
-            <div className="rounded-2xl border border-border/80 bg-card/70 p-3 dark:border-white/10 dark:bg-white/[0.03] md:p-4">
-              <div className="mb-4 flex items-center justify-end">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="relative flex h-2.5 w-2.5"
-                    aria-hidden="true"
-                  >
-                    {(appState === "detecting" ||
-                      appState === "loading" ||
-                      appState === "requesting") && (
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-primary/60 animate-ping" />
-                    )}
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
-                  </div>
-                  <div className="flex h-4 items-end gap-0.5">
-                    {[0, 0.1, 0.2, 0.3, 0.4].map((delay) => (
-                      <div
-                        key={delay}
-                        className={[
-                          "w-0.5 rounded-full bg-primary/60",
-                          isActive ? "animate-wave-bar" : "h-1 opacity-40",
-                        ].join(" ")}
-                        style={{
-                          animationDelay: `${delay}s`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+        {/* Interpretation Ledger Column */}
+        <section className="flex-1 flex flex-col bg-white">
+          {/* Live Analysis Terminal Slot */}
+          <div className="p-10 border-b border-[#d9d9dd]">
+            <header className="flex items-center justify-between mb-12">
+               <div className="flex items-center gap-3">
+                 <Terminal className="size-3.5 text-[#75758a]" />
+                 <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Session_Buffer</h3>
+               </div>
+               <div className="flex items-center gap-1">
+                 <div className="size-1 bg-[#d9d9dd]" />
+                 <div className="size-1 bg-[#d9d9dd]" />
+                 <div className="size-1 bg-[#17171c]" />
+               </div>
+            </header>
 
-              <div className="flex flex-col gap-4">
-                <DetectionStatus
-                  state={mapCameraStateToDetectionStatus(appState)}
-                  fps={fps}
-                  showFps={false}
-                />
-
-                <PredictionBadge
-                  letter={currentLetter}
-                  confidence={currentConfidence}
-                  isDetecting={isActive}
-                  hasHand={detections.length > 0}
-                  textScale={prefs.textScale}
-                />
-              </div>
-            </div>
-
-            {/* Flow indicator */}
-            <div className="hidden items-center gap-3 md:flex" aria-hidden="true">
-              <div className="h-px flex-1 bg-border/80 dark:bg-white/5" />
-              <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/45">
-                builds into
-              </span>
-              <div className="h-px flex-1 bg-border/80 dark:bg-white/5" />
-            </div>
-
-            <div className="hidden md:block">
-              {renderSentenceBuilder("panel")}
+            <div className="flex flex-col items-center justify-center min-h-[160px]">
+              <PredictionBadge
+                letter={currentLetter}
+                confidence={currentConfidence}
+                isDetecting={isActive}
+                hasHand={detections.length > 0}
+                textScale={prefs.textScale}
+              />
             </div>
           </div>
 
-          {/* Practice Guide */}
-          <div className="shrink-0 border-b border-border/70 dark:border-white/5 p-5">
-            <PracticeGuide />
+          {/* Sequence Assembler */}
+          <div className="p-10 border-b border-[#d9d9dd] bg-[#eeece7]/20">
+            <div className="mb-6 flex items-center gap-3">
+              <Layers className="size-3.5 text-[#75758a]" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Sequence_Assembly</span>
+              <div className="h-px flex-1 bg-[#d9d9dd]" />
+            </div>
+            {renderSentenceBuilder("panel")}
           </div>
 
-          {/* Transcript */}
-          <div className="flex-1 min-h-[18rem] overflow-hidden">
-            <PredictionDisplay
-              transcript={transcript}
-              appState={appState}
-              onClearTranscript={() => setTranscript([])}
-              sessionStart={sessionStart}
-              onSpeakEntry={handleSpeakEntry}
-            />
+          {/* Interpretation Log */}
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="px-10 py-6 border-b border-[#d9d9dd] flex items-center justify-between bg-white">
+              <div className="flex items-center gap-3">
+                <Activity className="size-3.5 text-[#75758a]" />
+                <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#75758a]">Interpretation_History</h3>
+              </div>
+              <button 
+                onClick={() => setTranscript([])}
+                className="font-mono text-[9px] uppercase tracking-widest text-[#75758a] hover:text-[#17171c] transition-colors"
+              >
+                Clear_Log
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <PredictionDisplay
+                transcript={transcript}
+                appState={appState}
+                onClearTranscript={() => setTranscript([])}
+                sessionStart={sessionStart}
+                onSpeakEntry={handleSpeakEntry}
+              />
+            </div>
           </div>
         </section>
       </main>
 
-      <div className="translate-sticky-sentence md:hidden">
+      {/* Mobile assembly footer - persistent control */}
+      <div className="md:hidden border-t border-[#d9d9dd] bg-white p-6 z-50">
         {renderSentenceBuilder("sticky")}
       </div>
     </div>

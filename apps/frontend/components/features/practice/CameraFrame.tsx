@@ -23,16 +23,22 @@ export function CameraFrame({
   return (
     <div
       className={cn(
-        'relative h-full w-full overflow-hidden rounded-2xl bg-slate-900',
-        'transition-all duration-300 ease-out',
-        !isActive && 'ring-1 ring-white/[0.08] opacity-80',
-        isActive && !isDetecting && 'ring-2 ring-primary/20',
-        isDetecting && !isMatching && 'ring-2 ring-primary/30',
-        isMatching && !isSuccess && 'ring-2 ring-emerald-400/40',
-        isSuccess && 'ring-2 ring-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.15)]',
+        'relative h-full w-full overflow-hidden rounded-3xl bg-black',
+        'transition-all duration-700 ease-out border',
+        !isActive && 'border-white/5 opacity-80',
+        isActive && !isDetecting && 'border-white/20 glass-panel',
+        isDetecting && !isMatching && 'border-cyan-500/30 glass-panel shadow-[0_0_50px_rgba(6,182,212,0.1)]',
+        isMatching && !isSuccess && 'border-emerald-500/50 glass-panel shadow-[0_0_60px_rgba(16,185,129,0.15)]',
+        isSuccess && 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_100px_rgba(52,211,153,0.3)]',
         className,
       )}
     >
+      {/* Decorative corners for that studio look */}
+      <div className="absolute top-6 left-6 size-12 border-t-2 border-l-2 border-white/20 rounded-tl-xl pointer-events-none z-10" />
+      <div className="absolute top-6 right-6 size-12 border-t-2 border-r-2 border-white/20 rounded-tr-xl pointer-events-none z-10" />
+      <div className="absolute bottom-6 left-6 size-12 border-b-2 border-l-2 border-white/20 rounded-bl-xl pointer-events-none z-10" />
+      <div className="absolute bottom-6 right-6 size-12 border-b-2 border-r-2 border-white/20 rounded-br-xl pointer-events-none z-10" />
+      
       {children}
     </div>
   );

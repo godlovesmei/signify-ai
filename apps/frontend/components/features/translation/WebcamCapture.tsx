@@ -3,7 +3,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import {
   Camera,
-  Check,
   FlipHorizontal,
   Hand,
   Loader2,
@@ -12,10 +11,11 @@ import {
   RotateCcw,
   ShieldAlert,
   Square,
+  Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
 import type { TranslateDetection } from "@/lib/translateApi";
+import { cn } from "@/lib/utils";
 
 export type CameraFacingMode = "user" | "environment";
 
@@ -32,11 +32,9 @@ export interface WebcamCaptureProps {
   state: CameraState;
   isMirrored: boolean;
   detections: TranslateDetection[];
-  showDetectionOverlay?: boolean;
   apiError: boolean;
   hasMultipleCameras: boolean;
-  voiceEnabled: boolean;
-  showControls?: boolean;
+  fps?: number;
   onRequestCamera: () => void;
   onStartDetection: () => void;
   onStopDetection: () => void;
@@ -48,181 +46,50 @@ export interface WebcamCaptureHandle {
   videoElement: HTMLVideoElement | null;
 }
 
-function LiveDot() {
+/**
+ * Technical Badge following Cohere's Mono Label style.
+ * Typography: CohereMono, 14px, 400, 0.28px tracking.
+ */
+function TechnicalBadge({ 
+  icon: Icon, 
+  label, 
+  value, 
+  variant = "default" 
+}: { 
+  icon?: any; 
+  label: string; 
+  value?: string | number;
+  variant?: "default" | "active" | "error";
+}) {
   return (
-    <div className="flex items-center gap-1.5 rounded-full glass px-2.5 py-1 text-[11px] font-semibold tracking-wide text-foreground dark:text-white/90">
-      <span className="relative flex h-2 w-2 shrink-0">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-success/80 animate-ping" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+    <div className={cn(
+      "flex items-center gap-2 px-2.5 py-1 border-[0.5px] rounded-sm font-mono uppercase text-[9px] tracking-[0.05em]",
+      variant === "default" && "bg-white/5 border-white/10 text-white/50",
+      variant === "active" && "bg-white/10 border-white/20 text-white",
+      variant === "error" && "bg-red-500/10 border-red-500/20 text-red-500"
+    )}>
+      {Icon && <Icon className="size-2.5" />}
+      <span>{label}</span>
+      {value !== undefined && <span className="opacity-30 ml-1">/ {value}</span>}
+    </div>
+  );
+}
+
+/**
+ * Enterprise Status chip for the live state.
+ */
+function StatusChip({ active }: { active: boolean }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className={cn(
+        "size-1.5 rounded-full",
+        active ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-white/20"
+      )} />
+      <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-white/70">
+        {active ? "LIVE_FEED" : "STANDBY"}
       </span>
-      LIVE
     </div>
   );
-}
-
-function LoadingState({ label }: { label?: string }) {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const start = Date.now();
-    const raf = () => {
-      const p = Math.min(((Date.now() - start) / 2400) * 100, 95);
-      setProgress(p);
-      if (p < 95) requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
-  }, []);
-  return (
-    <div className="flex w-full max-w-xs flex-col items-center gap-4 px-5 py-6 text-center">
-      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      <div>
-        <h3 className="mb-1 text-base font-semibold">{label ?? "Initialising"}</h3>
-        <p className="text-sm text-muted-foreground/60">Just a moment on first load.</p>
-      </div>
-      <div className="w-full space-y-1.5">
-        <div
-          role="progressbar"
-          aria-valuenow={Math.round(progress)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          className="h-1 w-full overflow-hidden rounded-full bg-muted/70 dark:bg-white/10"
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-all duration-150 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="text-right text-[11px] text-muted-foreground/40 tabular-nums">
-          {Math.round(progress)}%
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ErrorState({
-  type,
-  onRetry,
-  showAction = true,
-}: {
-  type: "error-permission" | "error-device";
-  onRetry: () => void;
-  showAction?: boolean;
-}) {
-  const isPermission = type === "error-permission";
-  return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-4 px-5 py-6 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 ring-1 ring-destructive/20">
-        <ShieldAlert className="h-6 w-6 text-destructive" />
-      </div>
-      <div>
-        <h3 className="mb-2 text-base font-semibold">
-          {isPermission ? "Camera Access Denied" : "No Camera Found"}
-        </h3>
-        <p className="text-sm leading-relaxed text-muted-foreground/70">
-          {isPermission
-            ? "Signify needs camera access. Please allow it in your browser settings and try again."
-            : "No camera detected. Please connect one and try again."}
-        </p>
-      </div>
-      {showAction && (
-        <Button
-          variant="default"
-          onClick={onRetry}
-          className="h-10 rounded-xl px-6 text-sm font-medium shadow-glow-primary hover:shadow-glow-primary/80"
-        >
-          <RotateCcw className="mr-2 h-3.5 w-3.5" /> Try Again
-        </Button>
-      )}
-    </div>
-  );
-}
-
-function IdlePrompt({
-  onStart,
-  showAction = true,
-}: {
-  onStart: () => void;
-  showAction?: boolean;
-}) {
-  return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-3 px-5 py-4 text-center sm:gap-4 sm:py-5">
-      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-        <Camera className="h-6 w-6 text-primary" />
-        <span className="absolute -inset-2 rounded-[20px] border border-primary/10 animate-pulse-ring" />
-      </div>
-      <div>
-        <h3 className="mb-2 text-base font-semibold">Start Translating</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground/70">
-          Position your hands in frame. Signify will detect your BISINDO signs in real time.
-        </p>
-      </div>
-      <ul className="hidden w-full space-y-2 text-left sm:block" aria-label="Tips for best results">
-        {[
-          "Face a light source for best accuracy",
-          "Keep your signing hand clearly visible inside the guide box",
-          "Sign at a natural, comfortable pace",
-        ].map((tip) => (
-          <li
-            key={tip}
-            className="flex items-center gap-2.5 text-sm leading-relaxed text-muted-foreground/60"
-          >
-            <span
-              className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10"
-              aria-hidden="true"
-            >
-              <Check className="h-2.5 w-2.5 text-primary" />
-            </span>
-            {tip}
-          </li>
-        ))}
-      </ul>
-      {showAction && (
-        <Button
-          variant="default"
-          onClick={onStart}
-          className="h-10 w-full rounded-xl text-sm font-semibold shadow-glow-primary hover:shadow-glow-primary/80"
-        >
-          <Camera className="h-4 w-4 mr-2" /> Enable Camera
-        </Button>
-      )}
-      <p className="text-[11px] leading-relaxed text-muted-foreground/40">
-        Camera feed is processed locally and never stored.{" "}
-        <Link
-          href="/how-it-works"
-          className="text-muted-foreground/60 underline underline-offset-2 hover:text-foreground"
-        >
-          Learn how it works
-        </Link>
-      </p>
-    </div>
-  );
-}
-
-function OverlayIconBtn({
-  onClick,
-  disabled,
-  label,
-  children,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      className="flex h-10 w-10 items-center justify-center rounded-xl glass text-foreground/80 dark:text-white/80 backdrop-blur-md transition-all hover:bg-muted/80 dark:hover:bg-white/15 hover:text-foreground dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-30"
-    >
-      {children}
-    </button>
-  );
-}
-
-function clampPercent(value: number): number {
-  return Math.max(0, Math.min(100, value));
 }
 
 const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
@@ -231,11 +98,9 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       state,
       isMirrored,
       detections,
-      showDetectionOverlay = true,
       apiError,
       hasMultipleCameras,
-      voiceEnabled,
-      showControls = true,
+      fps = 0,
       onRequestCamera,
       onStartDetection,
       onStopDetection,
@@ -276,170 +141,223 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     return (
       <section
         ref={sectionRef}
-        aria-label="Camera feed"
-        className="relative flex h-full min-h-0 flex-col overflow-hidden bg-card/95 dark:bg-black/60"
-        style={{ minHeight: 0 }}
+        aria-label="Agent Vision Interface"
+        className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-md bg-[#17171c] border border-white/5 shadow-2xl"
       >
-        <video
-          ref={videoRef}
-          className={[
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out",
-            isMirrored ? "-scale-x-100" : "",
-            isLive ? "opacity-100" : "opacity-0",
-          ].join(" ")}
-          autoPlay
-          muted
-          playsInline
-          aria-label="Live camera feed"
-        />
-
-        {isLive && showDetectionOverlay && detections.length > 0 && (
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10">
-            {detections.map((det, index) => {
-              const modelSize = 640;
-              const x1 = clampPercent((det.box.x1 / modelSize) * 100);
-              const y1 = clampPercent((det.box.y1 / modelSize) * 100);
-              const x2 = clampPercent((det.box.x2 / modelSize) * 100);
-              const y2 = clampPercent((det.box.y2 / modelSize) * 100);
-
-              const left = isMirrored ? 100 - x2 : x1;
-              const width = Math.max(0, x2 - x1);
-              const height = Math.max(0, y2 - y1);
-
-              return (
-                <div
-                  key={`${det.class}-${index}`}
-                  className="absolute border-2 border-success/80 rounded-sm"
-                  style={{
-                    left: `${clampPercent(left)}%`,
-                    top: `${y1}%`,
-                    width: `${width}%`,
-                    height: `${height}%`,
-                  }}
-                >
-                  <span className="absolute -top-6 left-0 rounded bg-success px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-glow-success">
-                    {`${det.class} ${(det.confidence * 100).toFixed(0)}%`}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {isActive && apiError && (
-          <div
-            role="alert"
-            className="absolute top-4 left-1/2 z-20 -translate-x-1/2 rounded-full bg-destructive/90 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
-          >
-            Cannot reach backend — retrying…
-          </div>
-        )}
-
-        {!isLive && (
-          <div
-            key={state}
-            className="absolute inset-0 flex items-center justify-center overflow-y-auto p-3 animate-fade-up sm:p-6"
-          >
-            {state === "idle" && <IdlePrompt onStart={onRequestCamera} showAction={showControls} />}
-            {isLoading && (
-              <LoadingState
-                label={
-                  state === "loading" ? "Initialising Camera" : "Requesting Permission"
-                }
-              />
-            )}
-            {isError && (
-              <ErrorState
-                type={state as "error-permission" | "error-device"}
-                onRetry={onRequestCamera}
-                showAction={showControls}
-              />
-            )}
-          </div>
-        )}
-
-        {isLive && showControls && (
-          <div
-            role="toolbar"
-            aria-label="Camera controls"
-            className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-6 pb-6 pt-14 bg-gradient-to-t from-black/60 via-black/15 to-transparent"
-          >
-            <OverlayIconBtn onClick={onReset} label="Stop and reset">
-              <RotateCcw className="h-4 w-4" />
-            </OverlayIconBtn>
-
-            <Button
-              variant={isActive ? "destructive" : "default"}
-              onClick={isActive ? onStopDetection : onStartDetection}
-              aria-label={isActive ? "Stop detection" : "Start detection"}
-              aria-pressed={isActive}
-              className={[
-                "flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200",
-                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                isActive
-                  ? "ring-1 ring-destructive/40 focus-visible:ring-destructive"
-                  : "ring-1 ring-primary/30 focus-visible:ring-primary shadow-glow-primary",
-              ].join(" ")}
-            >
-              {isActive ? (
-                <Square className="h-4 w-4 fill-white text-white" />
-              ) : (
-                <Hand className="h-5 w-5 text-white" />
-              )}
-            </Button>
-
-            <div className="flex items-center gap-2">
-              <OverlayIconBtn
-                onClick={onFlipCamera}
-                disabled={!hasMultipleCameras}
-                label="Switch camera"
-              >
-                <FlipHorizontal className="h-4 w-4" />
-              </OverlayIconBtn>
-              <OverlayIconBtn
-                onClick={handleFullscreen}
-                label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-4 w-4" />
-                ) : (
-                  <Maximize2 className="h-4 w-4" />
-                )}
-              </OverlayIconBtn>
+        {/* Header Bar: Enterprise AI Command Style */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 z-20 bg-[#17171c]">
+          <div className="flex items-center gap-8">
+            <StatusChip active={isActive} />
+            <div className="hidden lg:flex items-center gap-4">
+              <TechnicalBadge label="Engine" value="BISINDO_V3" />
+              <TechnicalBadge label="Mode" value="RGB_DIRECT" />
             </div>
           </div>
-        )}
-
-        {isLive && voiceEnabled && (
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full glass px-2.5 py-1 text-[11px] font-medium text-foreground dark:text-white/85">
-            <svg
-              aria-hidden="true"
-              className="h-2.5 w-2.5 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="23" />
-              <line x1="8" y1="23" x2="16" y2="23" />
-            </svg>
-            Voice On
+          <div className="flex items-center gap-4">
+             <TechnicalBadge 
+               icon={Zap} 
+               label="Inference" 
+               value={isActive ? `${fps} FPS` : "---"} 
+               variant={isActive ? "active" : "default"}
+             />
+             <div className="h-4 w-px bg-white/10 hidden md:block" />
+             <button 
+              onClick={handleFullscreen}
+              className="p-1 text-white/30 hover:text-white transition-colors"
+             >
+               {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+             </button>
           </div>
-        )}
+        </div>
 
-        {isActive && (
-          <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2">
-            <LiveDot />
+        {/* Media Container: High Editorial Space */}
+        <div className="relative flex-1 bg-black overflow-hidden m-1 rounded-sm border border-white/5 group">
+          <video
+            ref={videoRef}
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
+              isMirrored ? "-scale-x-100" : "",
+              isLive ? "opacity-100" : "opacity-0"
+            )}
+            autoPlay
+            muted
+            playsInline
+          />
+
+          {/* HUD Branded Elements - Minimal technical indicators */}
+          <AnimatePresence>
+            {isActive && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 pointer-events-none"
+              >
+                {/* Clean technical frame corners - very subtle */}
+                <div className="absolute top-4 left-4 size-4 border-t border-l border-white/20" />
+                <div className="absolute bottom-4 right-4 size-4 border-b border-r border-white/20" />
+                
+                {detections.length > 0 && (
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="absolute top-6 left-6"
+                  >
+                    <TechnicalBadge icon={Hand} label="Gesture_Detected" variant="active" />
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* API Error Overlay */}
+          <AnimatePresence>
+            {apiError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute inset-x-0 bottom-6 px-6 z-30 flex justify-center"
+              >
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-red-600 text-white rounded-xs text-[10px] font-mono tracking-widest uppercase shadow-xl">
+                  <ShieldAlert className="size-3.5" />
+                  Signal_Lost: Connection_Error
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Interaction Overlays */}
+          <AnimatePresence mode="wait">
+            {(!isLive || isLoading || isError) && (
+              <motion.div
+                key={state}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="absolute inset-0 z-30 flex items-center justify-center bg-[#17171c]"
+              >
+                {state === "idle" && (
+                  <div className="flex flex-col items-center gap-10 max-w-sm text-center px-10">
+                    <div className="size-20 rounded-full border border-white/5 flex items-center justify-center">
+                      <Camera className="size-8 text-white/20" />
+                    </div>
+                    <div className="space-y-4">
+                      <h3 className="text-3xl font-light text-white tracking-widest uppercase font-mono text-[14px]">Initialize Vision</h3>
+                      <p className="text-sm text-white/30 leading-relaxed font-light">
+                        Authorize hardware connection to begin real-time gesture analysis.
+                      </p>
+                    </div>
+                    <button
+                      onClick={onRequestCamera}
+                      className="px-10 py-4 bg-white text-[#17171c] rounded-full text-xs font-bold tracking-[0.1em] uppercase hover:bg-neutral-200 transition-all active:scale-[0.98]"
+                    >
+                      Connect Hardware
+                    </button>
+                  </div>
+                )}
+
+                {isLoading && (
+                  <div className="flex flex-col items-center gap-6">
+                    <Loader2 className="size-8 text-white/10 animate-spin" />
+                    <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-white/30">
+                      Authenticating_Stream
+                    </span>
+                  </div>
+                )}
+
+                {isError && (
+                  <div className="flex flex-col items-center gap-8 text-center px-10">
+                    <div className="size-20 rounded-full bg-red-500/5 border border-red-500/10 flex items-center justify-center">
+                      <ShieldAlert className="size-8 text-red-500" />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-bold text-white uppercase tracking-widest font-mono">
+                        {state === "error-permission" ? "Access_Denied" : "Device_Not_Found"}
+                      </h3>
+                      <p className="text-[13px] text-white/30 leading-relaxed">
+                        {state === "error-permission"
+                          ? "Vision protocol requires active camera authorization."
+                          : "No compatible hardware detected in the local manifest."}
+                      </p>
+                    </div>
+                    <button
+                      onClick={onRequestCamera}
+                      className="px-8 py-3 border border-white/10 text-white rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-white/5 transition-all"
+                    >
+                      Retry System Check
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Footer: Controlled Action Band */}
+        <div className="px-6 py-6 z-40 bg-[#17171c]">
+          <div className="flex items-center gap-4">
+            {isLive && !isLoading && (
+              <>
+                {!isActive ? (
+                  <button
+                    onClick={onStartDetection}
+                    className="flex-1 px-8 py-5 bg-white text-[#17171c] rounded-full text-sm font-bold tracking-tight hover:bg-neutral-200 transition-all uppercase"
+                  >
+                    Start Translation
+                  </button>
+                ) : (
+                  <button
+                    onClick={onStopDetection}
+                    className="flex-1 px-8 py-5 bg-[#17171c] border border-white/20 text-white rounded-full text-sm font-bold tracking-tight hover:bg-white/5 transition-all uppercase"
+                  >
+                    Terminate Session
+                  </button>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <ControlIconBtn onClick={onReset} label="Reset System">
+                    <RotateCcw className="size-5" />
+                  </ControlIconBtn>
+                  <ControlIconBtn 
+                    onClick={onFlipCamera} 
+                    label="Switch Source" 
+                    disabled={!hasMultipleCameras}
+                  >
+                    <FlipHorizontal className="size-5" />
+                  </ControlIconBtn>
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </section>
     );
   }
 );
 
 WebcamCapture.displayName = "WebcamCapture";
+
+function ControlIconBtn({ 
+  onClick, 
+  disabled, 
+  children 
+}: { 
+  onClick: () => void; 
+  disabled?: boolean; 
+  label: string; 
+  children: React.ReactNode; 
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="flex size-14 items-center justify-center rounded-full border border-white/5 text-white/20 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all disabled:opacity-10 active:scale-95"
+    >
+      {children}
+    </button>
+  );
+}
+
 export default WebcamCapture;

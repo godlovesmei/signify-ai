@@ -169,6 +169,37 @@ function MobileIcon({ icon, isActive, reduceMotion }: MobileIconProps) {
     </>
   );
 
+  const renderUser = () => (
+    <>
+      <motion.path
+        d="M17.75 18.75V17.5C17.75 15.42 16.07 13.75 14 13.75H10C7.92 13.75 6.25 15.42 6.25 17.5V18.75"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={
+          isActive
+            ? { pathLength: 1, pathOffset: 0, opacity: 1 }
+            : { pathLength: 0.76, pathOffset: 0.24, opacity: 0.84 }
+        }
+        transition={iconTransition}
+      />
+      <motion.path
+        d="M12 10.75C13.65 10.75 15 9.4 15 7.75C15 6.1 13.65 4.75 12 4.75C10.35 4.75 9 6.1 9 7.75C9 9.4 10.35 10.75 12 10.75Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={
+          isActive
+            ? { pathLength: 1, pathOffset: 0, opacity: 1, scale: 1 }
+            : { pathLength: 0.86, pathOffset: 0.12, opacity: 0.82, scale: 0.95 }
+        }
+        transition={iconTransition}
+      />
+    </>
+  );
+
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -187,6 +218,7 @@ function MobileIcon({ icon, isActive, reduceMotion }: MobileIconProps) {
       {icon === "practice" && renderPractice()}
       {icon === "history" && renderHistory()}
       {icon === "reference" && renderReference()}
+      {icon === "user" && renderUser()}
     </motion.svg>
   );
 }
@@ -203,15 +235,15 @@ export default function MobileNavItem({
           href={item.href}
           aria-current={isActive ? "page" : undefined}
           className={cn(
-            "relative flex h-[58px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-            isActive ? "text-primary" : "text-muted-foreground/60"
+            "relative flex h-[58px] flex-col items-center justify-center gap-0.5 px-1",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+            isActive ? "text-primary" : "text-muted-foreground"
           )}
         >
           {isActive && (
             <motion.span
               layoutId="workspace-mobile-active-indicator"
-              className="absolute inset-0 rounded-2xl bg-primary/14"
+              className="absolute inset-x-1 inset-y-1.5 rounded-sm bg-secondary"
               transition={
                 reduceMotion
                   ? { duration: 0 }
@@ -229,8 +261,8 @@ export default function MobileNavItem({
           </span>
 
           <motion.span
-            className="relative z-10 text-[10px] font-medium tracking-[0.01em]"
-            animate={{ opacity: isActive ? 1 : 0.86, y: isActive ? -1 : 0 }}
+            className="relative z-10 text-mono-label !text-[10px] tracking-wider"
+            animate={{ opacity: isActive ? 1 : 0.6, y: isActive ? -0.5 : 0 }}
             transition={createIconTransition(reduceMotion)}
           >
             {item.label}

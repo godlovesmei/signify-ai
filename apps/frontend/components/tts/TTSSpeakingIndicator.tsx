@@ -1,35 +1,36 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { motion } from 'motion/react';
 
 export interface TTSSpeakingIndicatorProps {
-  /** Controls whether the bars are animating. When false bars render at rest height. */
   active: boolean;
   className?: string;
 }
 
-const BARS = [
-  { delay: '0ms',    height: 'h-2.5' },
-  { delay: '120ms',  height: 'h-4'   },
-  { delay: '60ms',   height: 'h-3'   },
-  { delay: '180ms',  height: 'h-4'   },
-];
-
 export default function TTSSpeakingIndicator({ active, className }: TTSSpeakingIndicatorProps) {
+  const bars = [0, 1, 2, 3];
+  
   return (
     <span
       aria-hidden="true"
-      className={cn('flex items-end gap-[3px]', className)}
+      className={cn('flex items-center gap-[3px] h-4', className)}
     >
-      {BARS.map((bar, i) => (
-        <span
+      {bars.map((i) => (
+        <motion.span
           key={i}
-          className={cn(
-            'w-[3px] rounded-full bg-current origin-bottom transition-all duration-150',
-            bar.height,
-            active && 'animate-tts-wave',
-          )}
-          style={active ? { animationDelay: bar.delay } : undefined}
+          animate={active ? {
+            height: [4, 16, 8, 14, 4],
+          } : {
+            height: 4
+          }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            delay: i * 0.15,
+            ease: "easeInOut"
+          }}
+          className="w-[3px] rounded-full bg-current"
         />
       ))}
     </span>

@@ -49,13 +49,13 @@ export default function SentenceBuilder({
     <div
       aria-label="Sentence builder"
       className={cn(
-        "flex flex-col border bg-card/90 transition-all duration-300",
+        "flex flex-col border transition-all duration-300",
+        "bg-[var(--cohere-canvas)] dark:bg-zinc-950",
+        "border-[var(--cohere-hairline)] dark:border-zinc-800",
         isSticky
-          ? "h-full gap-2 rounded-xl p-3 shadow-[0_-18px_40px_-28px_rgba(var(--shadow-color),0.8)]"
-          : "gap-3 rounded-2xl p-4",
-        isSpeaking
-          ? "border-primary/30 bg-primary/5 shadow-glow-primary/20"
-          : "border-border/80 dark:border-white/10",
+          ? "h-full gap-2 rounded-md p-3"
+          : "gap-3 rounded-lg p-4",
+        isSpeaking && "border-zinc-900 dark:border-zinc-100",
         className
       )}
     >
@@ -76,8 +76,8 @@ export default function SentenceBuilder({
         role="list"
       >
         {isEmpty ? (
-          <span className="select-none text-xs text-muted-foreground/30 tracking-wide">
-            Letters appear here as you sign…
+          <span className="select-none text-[10px] uppercase tracking-wider text-[var(--cohere-muted)] font-mono py-1">
+            History Empty
           </span>
         ) : (
           tokens.map((token, i) => {
@@ -88,16 +88,12 @@ export default function SentenceBuilder({
                 role="listitem"
                 aria-label={`Letter ${token}${isLatest ? ", latest" : ""}`}
                 className={cn(
-                  "inline-flex shrink-0 items-center justify-center rounded-lg",
+                  "inline-flex shrink-0 items-center justify-center rounded-sm border",
                   isSticky ? "h-7 w-7" : "h-8 w-8",
-                  "font-display text-sm font-semibold transition-all duration-150",
-                  token === " "
-                    ? isLatest
-                      ? "bg-primary/15 ring-1 ring-primary/30 scale-105"
-                      : "bg-muted/70 dark:bg-white/5"
-                    : isLatest
-                    ? "bg-primary/15 text-primary ring-1 ring-primary/30 scale-105 animate-prediction-pop"
-                    : "bg-muted/70 dark:bg-white/5 text-muted-foreground/80"
+                  "font-mono text-xs transition-all duration-150",
+                  "border-[var(--cohere-hairline)] dark:border-zinc-800",
+                  "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
+                  isLatest && "font-bold border-zinc-900 dark:border-zinc-100 underline underline-offset-4 decoration-1"
                 )}
               >
                 {token === " " ? "\u00A0" : token}
@@ -112,16 +108,16 @@ export default function SentenceBuilder({
         aria-live="polite"
         aria-label="Built sentence"
         className={cn(
-          "rounded-xl border border-border/70 dark:border-white/5 bg-muted/55 dark:bg-black/20",
-          "font-medium leading-relaxed break-words transition-colors duration-300",
+          "rounded-md border border-[var(--cohere-hairline)] dark:border-zinc-800 bg-transparent",
+          "font-sans leading-relaxed break-words transition-colors duration-300",
           isSticky
             ? "min-h-11 flex-1 overflow-y-auto px-3 py-2"
             : "min-h-[52px] px-4 py-3",
-          isEmpty && "text-muted-foreground/45"
+          isEmpty ? "text-[var(--cohere-muted)] italic" : "text-[var(--cohere-ink)] dark:text-zinc-100"
         )}
         style={{ fontSize: sentenceFontSize }}
       >
-        {isEmpty ? "Your sentence builds here…" : sentence}
+        {isEmpty ? "Interpretation appears here…" : sentence}
       </div>
 
       {/* Quick actions */}
@@ -138,15 +134,14 @@ export default function SentenceBuilder({
               onClick={onAddSpace}
               aria-label="Add space"
               className={cn(
-                "flex items-center gap-1.5 rounded-xl border transition-all duration-200",
-                isSticky ? "h-9 px-2.5 text-xs" : "h-10 px-3 text-sm",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-                "border-border/80 dark:border-white/10 bg-muted/65 dark:bg-white/5 text-muted-foreground/75",
-                "hover:border-primary/30 hover:bg-primary/10 hover:text-primary",
-                "active:scale-[0.97]"
+                "flex items-center gap-1.5 rounded-full border border-[var(--cohere-hairline)] dark:border-zinc-800 transition-all duration-200",
+                "bg-[var(--cohere-stone)] dark:bg-zinc-900 text-[var(--cohere-ink)] dark:text-zinc-300",
+                "hover:bg-[var(--cohere-hairline)] dark:hover:bg-zinc-800",
+                isSticky ? "h-8 px-3 text-xs" : "h-9 px-4 text-sm",
+                "font-sans font-medium"
               )}
             >
-              <span aria-hidden="true" className="text-base leading-none">
+              <span aria-hidden="true" className="font-mono text-base leading-none">
                 ⎵
               </span>
               <span>Space</span>
@@ -162,8 +157,8 @@ export default function SentenceBuilder({
 
         <div className="flex items-center gap-2">
           {!isEmpty && !isSticky && (
-            <span className="font-mono text-xs tabular-nums text-muted-foreground/55">
-              {sentence.length} char{sentence.length !== 1 ? "s" : ""}
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--cohere-muted)]">
+              {sentence.length} TOKENS
             </span>
           )}
           <TTSButton
