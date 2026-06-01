@@ -60,7 +60,7 @@ export default function TTSButton({
               className="flex items-center gap-2"
             >
               <Volume2 className="size-4" />
-              {!isCompact && <span className="text-[11px] font-sans font-medium uppercase tracking-normal">Read Aloud</span>}
+              {!isCompact && <span className="text-[11px] font-sans font-medium">Dengar</span>}
             </motion.div>
           )}
         </AnimatePresence>
@@ -69,7 +69,7 @@ export default function TTSButton({
       {!isCompact && (
         <div className="hidden sm:flex flex-col ml-2">
            <span className="text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono">
-             {isSpeaking ? "Analyzing..." : "Indonesia v4"}
+             {isSpeaking ? "Memutar..." : "Suara Indonesia"}
            </span>
         </div>
       )}

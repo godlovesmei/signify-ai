@@ -7,6 +7,13 @@ interface PageHeaderProps {
   className?: string;
 }
 
+/**
+ * PageHeader — workspace section header.
+ *
+ * Font scale reduced from 48px desktop to 36px to avoid overflow
+ * at 100% zoom on 1280px viewports (sidebar 224px + content).
+ * Still honours the Cohere display type split.
+ */
 export default function PageHeader({
   title,
   description,
@@ -14,17 +21,33 @@ export default function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-6 border-b border-cohere-hairline pb-6 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-3 border-b border-cohere-hairline pb-4",
+        "sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:pb-5",
+        className
+      )}
+    >
       <div className="min-w-0">
-        <p className="text-mono-label text-[12px] text-cohere-slate">Workspace</p>
-        <h1 className="mt-2 font-display text-[40px] leading-none text-cohere-ink md:text-[48px]">
+        <h1
+          className={cn(
+            "break-words font-display leading-none text-cohere-ink",
+            "text-[28px] sm:text-[32px] md:text-[36px]"
+          )}
+        >
           {title}
         </h1>
         {description && (
-          <p className="mt-3 max-w-2xl text-[16px] leading-[1.5] text-cohere-body-muted">{description}</p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-cohere-body-muted">
+            {description}
+          </p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

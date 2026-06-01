@@ -299,8 +299,8 @@ export default function PracticeGuide() {
           <Sparkles className="size-5 stroke-[1.5]" />
         </div>
         <div className="flex flex-col items-start leading-none text-left">
-           <span className="font-cohere-mono text-[10px] uppercase tracking-normal text-cohere-muted mb-1.5">Visual Guide</span>
-           <span className="font-unica77 text-[15px] font-medium tracking-normal text-cohere-ink">BISINDO Alphabet</span>
+           <span className="font-cohere-mono text-[10px] uppercase tracking-normal text-cohere-muted mb-1.5">Panduan</span>
+           <span className="font-unica77 text-[15px] font-medium tracking-normal text-cohere-ink">Alfabet BISINDO</span>
         </div>
         <Maximize2 className="ml-auto size-4 text-cohere-hairline group-hover:text-cohere-muted transition-colors" />
       </button>
@@ -317,7 +317,7 @@ export default function PracticeGuide() {
             <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-stone/30 px-6 py-4">
                <div className="flex items-center gap-3">
                   <div className="size-1.5 rounded-full bg-cohere-ink" />
-                  <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-ink font-medium">Reference Guide</span>
+                  <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-ink font-medium">Panduan isyarat</span>
                </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -328,7 +328,7 @@ export default function PracticeGuide() {
                      <Grid className="size-4.5 stroke-[1.5]" />
                   </button>
                   <Link href="/reference" className="font-cohere-mono text-[10px] uppercase tracking-normal text-cohere-slate hover:text-cohere-ink transition-colors flex items-center gap-2 px-3">
-                     Full Index <ExternalLink className="size-3.5 stroke-[1.5]" />
+                     A-Z <ExternalLink className="size-3.5 stroke-[1.5]" />
                   </Link>
                   <div className="w-px h-4 bg-cohere-hairline mx-1" />
                   <button 
@@ -361,13 +361,13 @@ export default function PracticeGuide() {
 
                   <div className="space-y-6 pt-6 border-t border-cohere-hairline">
                     <div>
-                       <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Technical Instruction</span>
+                       <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Posisi tangan</span>
                        <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink p-4 rounded-md bg-cohere-stone/50 border border-cohere-hairline/50">{active.fingers}</p>
                     </div>
 
                     {active.tip && (
                       <div>
-                         <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Operational Tip</span>
+                         <span className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-muted mb-3 block">Tips</span>
                          <p className="font-unica77 text-[14px] leading-[1.6] text-cohere-ink/80 italic pl-4 border-l-2 border-cohere-hairline">{active.tip}</p>
                       </div>
                     )}
@@ -472,7 +472,7 @@ function ChartModal({ open, onClose }: { open: boolean; onClose: () => void }) {
               className="font-cohere-mono text-[11px] uppercase tracking-normal text-cohere-slate hover:text-cohere-ink transition-colors"
               onClick={onClose}
             >
-              Close Reference
+              Tutup
             </button>
           </div>
         </div>

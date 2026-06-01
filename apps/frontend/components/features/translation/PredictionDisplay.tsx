@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Check,
   Copy,
   Share2,
-  Trash2,
   Volume2,
   Download,
   Activity,
-  Maximize2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import type { CameraState } from "./WebcamCapture";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    COHERE DESIGN SYSTEM TOKENS (DESIGN.md)
@@ -20,13 +17,14 @@ import type { CameraState } from "./WebcamCapture";
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const COLORS = {
-  primary: "#17171c",  // Near-Black Primary
-  canvas: "#ffffff",   // Canvas White
-  stone: "#eeece7",    // Soft Stone
-  hairline: "#d9d9dd", // Hairline Rule
-  ink: "#212121",      // Body Ink
-  muted: "#93939f",    // Muted Slate
-  slate: "#75758a",    // Technical Slate
+  action: "var(--cohere-ink)",
+  actionText: "var(--cohere-canvas)",
+  canvas: "var(--cohere-canvas)",
+  stone: "var(--cohere-stone)",
+  hairline: "var(--cohere-hairline)",
+  ink: "var(--cohere-ink)",
+  muted: "var(--cohere-muted)",
+  slate: "var(--cohere-slate)",
 };
 
 const TYPE = {
@@ -50,42 +48,7 @@ export interface TranscriptEntry {
 
 export interface PredictionDisplayProps {
   transcript: TranscriptEntry[];
-  appState: CameraState;
-  onClearTranscript: () => void;
-  sessionStart?: Date | null;
   onSpeakEntry?: (text: string) => void;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   HELPER LOGIC
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-type ClockListener = () => void;
-const clockListeners = new Set<ClockListener>();
-let clockInterval: ReturnType<typeof setInterval> | null = null;
-
-function subscribeToClock(listener: ClockListener) {
-  clockListeners.add(listener);
-  if (!clockInterval) {
-    clockInterval = setInterval(() => clockListeners.forEach(l => l()), 1000);
-  }
-  return () => {
-    clockListeners.delete(listener);
-    if (clockListeners.size === 0 && clockInterval) {
-      clearInterval(clockInterval);
-      clockInterval = null;
-    }
-  };
-}
-
-function useSystemTime() {
-  return useSyncExternalStore(subscribeToClock, () => Math.floor(Date.now() / 1000), () => 0);
-}
-
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -103,9 +66,13 @@ function TechnicalLabel({ children, className = "" }: { children: React.ReactNod
 function ConfidenceIndicator({ value }: { value: number }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-16 h-[1px] bg-[#d9d9dd] relative overflow-hidden">
-        <motion.div 
-          className="absolute inset-y-0 left-0 bg-[#17171c]"
+      <div
+        className="relative h-[1px] w-16 overflow-hidden"
+        style={{ backgroundColor: COLORS.hairline }}
+      >
+        <motion.div
+          className="absolute inset-y-0 left-0"
+          style={{ backgroundColor: COLORS.action }}
           initial={{ width: 0 }}
           animate={{ width: `${value * 100}%` }}
           transition={{ duration: 0.5, ease: "circOut" }}
@@ -124,13 +91,9 @@ function ConfidenceIndicator({ value }: { value: number }) {
 
 export function PredictionDisplay({
   transcript,
-  appState,
-  onClearTranscript,
-  sessionStart,
   onSpeakEntry,
 }: PredictionDisplayProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const now = useSystemTime();
+  const scrollContainerRef = useRef<HTMLElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Auto-scroll logic
@@ -139,11 +102,6 @@ export function PredictionDisplay({
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   }, [transcript]);
-
-  const sessionDuration = useMemo(() => {
-    if (!sessionStart) return 0;
-    return Math.max(0, now - Math.floor(sessionStart.getTime() / 1000));
-  }, [sessionStart, now]);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -174,46 +132,12 @@ export function PredictionDisplay({
 
   return (
     <div 
-      className="flex flex-col h-full border-l selection:bg-[#17171c] selection:text-white"
+      className="flex min-h-full flex-col selection:bg-cohere-ink selection:text-cohere-canvas"
       style={{ backgroundColor: COLORS.canvas, borderColor: COLORS.hairline }}
     >
-      {/* HEADER: Technical Identity & Status */}
-      <header 
-        className="px-8 py-8 flex items-center justify-between border-b"
-        style={{ borderColor: COLORS.hairline }}
-      >
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <Maximize2 size={14} style={{ color: COLORS.primary }} />
-            <h2 className={TYPE.mono} style={{ color: COLORS.primary }}>
-              System_Output
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
-            <TechnicalLabel>Log_Active // {formatDuration(sessionDuration)}</TechnicalLabel>
-            {appState === "detecting" && (
-              <div className="flex items-center gap-2">
-                <div className="size-1 rounded-full animate-pulse" style={{ backgroundColor: COLORS.primary }} />
-                <span className={TYPE.mono} style={{ color: COLORS.primary }}>Live</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <button 
-          onClick={onClearTranscript}
-          disabled={transcript.length === 0}
-          className="p-2 hover:opacity-50 transition-opacity disabled:opacity-10"
-          title="Flush Buffer"
-        >
-          <Trash2 size={18} strokeWidth={1.5} style={{ color: COLORS.primary }} />
-        </button>
-      </header>
-
-      {/* STREAM: Editorial List with Hairline Rules */}
       <main 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-8 py-12 space-y-16 scroll-smooth scrollbar-none"
+        className="flex-1 min-h-[280px] space-y-10 overflow-y-auto px-4 py-8 scroll-smooth scrollbar-none md:px-6 lg:px-8"
       >
         <AnimatePresence initial={false} mode="popLayout">
           {transcript.length === 0 ? (
@@ -221,15 +145,15 @@ export function PredictionDisplay({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="h-full flex flex-col items-center justify-center space-y-6"
+              className="flex min-h-[220px] flex-col items-center justify-center space-y-6 py-10"
             >
               <Activity size={48} strokeWidth={0.5} style={{ color: COLORS.hairline }} />
               <div className="text-center space-y-2">
                 <p className={TYPE.body} style={{ color: COLORS.muted }}>
-                  Sensor array ready.
+                  Belum ada riwayat.
                 </p>
-                <div className={TYPE.mono} style={{ color: COLORS.slate }}>
-                  Awaiting movement protocol
+                <div className="text-sm" style={{ color: COLORS.slate }}>
+                  Mulai kamera, lalu arahkan tangan.
                 </div>
               </div>
             </motion.div>
@@ -279,25 +203,24 @@ export function PredictionDisplay({
         </AnimatePresence>
       </main>
 
-      {/* FOOTER: Enterprise Actions */}
-      <footer 
-        className="p-8 space-y-8 border-t"
+      <footer
+        className="border-t p-4 md:p-6"
         style={{ backgroundColor: COLORS.stone, borderColor: COLORS.hairline }}
       >
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <button 
             onClick={handleExport}
             disabled={transcript.length === 0}
             className={`flex-1 h-12 flex items-center justify-center gap-2 border transition-colors disabled:opacity-20 ${TYPE.body}`}
             style={{ 
-              borderColor: COLORS.primary, 
-              color: COLORS.primary,
+              borderColor: COLORS.action,
+              color: COLORS.action,
               borderRadius: "32px",
               fontWeight: 500,
             }}
           >
             <Download size={14} />
-            <span className="uppercase tracking-normal text-[13px]">Export_Log</span>
+            <span className="text-[13px]">Unduh</span>
           </button>
 
           <button 
@@ -305,22 +228,15 @@ export function PredictionDisplay({
             disabled={transcript.length === 0}
             className={`flex-1 h-12 flex items-center justify-center gap-2 transition-colors disabled:opacity-20 text-white ${TYPE.body}`}
             style={{ 
-              backgroundColor: COLORS.primary, 
+              backgroundColor: COLORS.action,
+              color: COLORS.actionText,
               borderRadius: "32px",
               fontWeight: 500,
             }}
           >
             <Share2 size={14} />
-            <span className="uppercase tracking-normal text-[13px]">Transmit</span>
+            <span className="text-[13px]">Bagikan</span>
           </button>
-        </div>
-
-        <div className="flex items-center justify-between border-t pt-6" style={{ borderColor: "rgba(0,0,0,0.05)" }}>
-          <div className="flex items-center gap-3">
-             <div className="size-1.5 rounded-full" style={{ backgroundColor: COLORS.primary }} />
-             <TechnicalLabel className="text-[#616161]">Signify_Core // v3.0.4</TechnicalLabel>
-          </div>
-          <TechnicalLabel>Access: Internal_Only</TechnicalLabel>
         </div>
       </footer>
     </div>

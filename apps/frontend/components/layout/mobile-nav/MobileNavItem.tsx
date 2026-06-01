@@ -34,16 +34,16 @@ export default function MobileNavItem({
 
   return (
     <li className="list-none">
-      <motion.div whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+      <motion.div whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
         <Link
           href={item.href}
           aria-current={isActive ? "page" : undefined}
           aria-label={item.label}
           className={cn(
-            "relative flex h-[58px] flex-col items-center justify-center gap-1 rounded-sm px-1 transition-colors duration-200",
+            "relative flex h-[54px] flex-col items-center justify-center gap-0.5 rounded-sm px-1 transition-colors duration-200",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cohere-focus",
             isActive
-              ? "bg-cohere-primary text-cohere-canvas"
+              ? "bg-cohere-primary text-white dark:bg-cohere-ink dark:text-cohere-canvas"
               : "text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink"
           )}
         >
@@ -52,11 +52,11 @@ export default function MobileNavItem({
             animate={isActive ? { y: -1 } : { y: 0 }}
             transition={createTransition(reduceMotion)}
           >
-            <Icon className="size-[19px]" strokeWidth={1.8} />
+            <Icon className="size-[18px]" strokeWidth={1.8} />
           </motion.span>
           <motion.span
-            className="text-mono-label !text-[10px] tracking-normal"
-            animate={{ opacity: isActive ? 1 : 0.72 }}
+            className="text-[9px] font-mono tracking-wide uppercase leading-none"
+            animate={{ opacity: isActive ? 1 : 0.65 }}
             transition={createTransition(reduceMotion)}
           >
             {item.label}

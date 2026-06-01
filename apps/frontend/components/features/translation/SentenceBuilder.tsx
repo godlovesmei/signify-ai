@@ -77,7 +77,7 @@ export default function SentenceBuilder({
       >
         {isEmpty ? (
           <span className="select-none text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono py-1">
-            History Empty
+            Belum ada huruf
           </span>
         ) : (
           tokens.map((token, i) => {
@@ -117,7 +117,7 @@ export default function SentenceBuilder({
         )}
         style={{ fontSize: sentenceFontSize }}
       >
-        {isEmpty ? "Interpretation appears here…" : sentence}
+        {isEmpty ? "Hasil muncul di sini..." : sentence}
       </div>
 
       {/* Quick actions */}
@@ -144,7 +144,7 @@ export default function SentenceBuilder({
               <span aria-hidden="true" className="font-mono text-base leading-none">
                 ⎵
               </span>
-              <span>Space</span>
+              <span>Spasi</span>
             </button>
           )}
           <DeleteControls
@@ -158,7 +158,7 @@ export default function SentenceBuilder({
         <div className="flex items-center gap-2">
           {!isEmpty && !isSticky && (
             <span className="font-mono text-[10px] uppercase tracking-normal text-[var(--cohere-muted)]">
-              {sentence.length} TOKENS
+              {sentence.length} karakter
             </span>
           )}
           <TTSButton

@@ -87,7 +87,7 @@ export default function DeleteControls({
               className="flex items-center gap-2"
             >
               <X className="size-4" />
-              <span className="uppercase text-[10px]">Confirm?</span>
+              <span className="text-[10px]">Yakin?</span>
             </motion.div>
           ) : (
             <motion.div
@@ -98,7 +98,7 @@ export default function DeleteControls({
               className="flex items-center gap-2"
             >
               <X className="size-4" />
-              <span className="uppercase text-[10px]">Clear</span>
+              <span className="text-[10px]">Hapus</span>
             </motion.div>
           )}
         </AnimatePresence>

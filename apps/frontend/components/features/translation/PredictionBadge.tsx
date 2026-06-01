@@ -12,31 +12,7 @@ export interface PredictionBadgeProps {
   textScale?: number;
 }
 
-/**
- * Cohere Design Tokens from DESIGN.md
- * Aligns with "Interpretation Ledger" aesthetic: Editorial restraint, 
- * hairline borders, and stark monochromatic surfaces.
- */
-const COHERE = {
-  colors: {
-    canvas: "#ffffff",
-    softStone: "#eeece7",
-    hairline: "#d9d9dd",
-    ink: "#212121",
-    muted: "#93939f",
-    primary: "#17171c",
-  },
-  typography: {
-    heroDisplay: {
-      fontSize: "96px",
-      letterSpacing: "0",
-    },
-    monoLabel: {
-      fontSize: "14px",
-      letterSpacing: "0",
-    }
-  }
-} as const;
+const HERO_LETTER_SPACING = "0";
 
 export default function PredictionBadge({
   letter,
@@ -67,24 +43,21 @@ export default function PredictionBadge({
           "relative flex items-center justify-center transition-all duration-300",
           "h-40 px-10 rounded-sm overflow-hidden",
           isNoHand || isIdle
-            ? "bg-[#eeece7] border border-dashed border-[#d9d9dd]" // Soft Stone background, dashed hairline
-            : "bg-white border border-[#d9d9dd] shadow-none"    // Stark White background, hairline border
+            ? "border border-dashed border-cohere-hairline bg-cohere-stone"
+            : "border border-cohere-hairline bg-cohere-canvas shadow-none"
         )}
       >
         {isIdle ? (
           <div className="flex items-center gap-2 select-none">
-            <span className="h-1 w-1 rounded-full bg-[#212121]/20" aria-hidden="true" />
-            <p className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
-              System Standby
+            <span className="h-1 w-1 rounded-full bg-cohere-ink/20" aria-hidden="true" />
+            <p className="font-mono text-[14px] uppercase tracking-normal text-cohere-muted">
+              Siap
             </p>
           </div>
         ) : isNoHand ? (
           <div className="flex flex-col items-center gap-2 select-none text-center">
-            <span className="text-2xl grayscale opacity-20 mb-1" aria-hidden="true">
-              ✋
-            </span>
-            <p className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
-              Awaiting Input
+            <p className="font-mono text-[14px] uppercase tracking-normal text-cohere-muted">
+              Arahkan tangan
             </p>
           </div>
         ) : (
@@ -92,11 +65,11 @@ export default function PredictionBadge({
             key={letterKey}
             data-prediction-badge
             aria-hidden="true"
-            className="font-display leading-none text-[#212121] animate-prediction-pop"
+            className="animate-prediction-pop font-display leading-none text-cohere-ink"
             style={{ 
               fontSize: `${96 * textScale}px`, 
               fontWeight: 400,
-              letterSpacing: COHERE.typography.heroDisplay.letterSpacing 
+              letterSpacing: HERO_LETTER_SPACING
             }}
           >
             {letter ?? "—"}
@@ -108,11 +81,11 @@ export default function PredictionBadge({
       {isDetecting && (
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-              <span className="font-mono text-[14px] uppercase tracking-normal text-[#93939f]">
-              {hasHand ? "Prediction Score" : "Scanning Room"}
+              <span className="font-mono text-[14px] uppercase tracking-normal text-cohere-muted">
+              {hasHand ? "Skor" : "Mencari gerakan"}
             </span>
             {pct > 0 && hasHand && (
-              <span className="font-mono text-[14px] text-[#212121] tabular-nums">
+              <span className="font-mono text-[14px] tabular-nums text-cohere-ink">
                 {pct}%
               </span>
             )}
@@ -124,11 +97,11 @@ export default function PredictionBadge({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={`Detection confidence: ${pct}%`}
-            className="h-[1px] w-full bg-[#d9d9dd]" 
+            className="h-[1px] w-full bg-cohere-hairline"
           >
             <div
               key={letterKey}
-              className="h-full bg-[#17171c] transition-[width] duration-500 ease-out"
+              className="h-full bg-cohere-ink transition-[width] duration-500 ease-out"
               style={{ width: `${hasHand ? pct : 0}%` }}
             />
           </div>

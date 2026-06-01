@@ -46,10 +46,6 @@ export interface WebcamCaptureHandle {
   videoElement: HTMLVideoElement | null;
 }
 
-/**
- * Technical Badge following Cohere's Mono Label style.
- * Typography: CohereMono, 14px, 400, 0.28px tracking.
- */
 function TechnicalBadge({ 
   icon: Icon, 
   label, 
@@ -63,31 +59,14 @@ function TechnicalBadge({
 }) {
   return (
     <div className={cn(
-      "flex items-center gap-2 rounded-sm border px-2.5 py-1 font-mono text-[10px] uppercase tracking-normal",
+      "flex items-center gap-2 rounded-sm border px-2.5 py-1 text-[11px]",
       variant === "default" && "bg-white/5 border-white/10 text-white/50",
       variant === "active" && "bg-white/10 border-white/20 text-white",
       variant === "error" && "bg-[color-mix(in_srgb,var(--cohere-error)_10%,transparent)] border-[color-mix(in_srgb,var(--cohere-error)_20%,transparent)] text-[var(--cohere-error)]"
     )}>
       {Icon && <Icon className="size-2.5" />}
       <span>{label}</span>
-      {value !== undefined && <span className="opacity-30 ml-1">/ {value}</span>}
-    </div>
-  );
-}
-
-/**
- * Enterprise Status chip for the live state.
- */
-function StatusChip({ active }: { active: boolean }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className={cn(
-        "size-1.5 rounded-full",
-        active ? "bg-cohere-coral" : "bg-white/20"
-      )} />
-      <span className="font-mono text-[10px] uppercase tracking-normal text-white/70">
-        {active ? "LIVE_FEED" : "STANDBY"}
-      </span>
+      {value !== undefined && <span className="ml-1 opacity-50">{value}</span>}
     </div>
   );
 }
@@ -141,37 +120,31 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     return (
       <section
         ref={sectionRef}
-        aria-label="Agent Vision Interface"
-        className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[22px] border border-white/10 bg-cohere-primary"
+        aria-label="Kamera penerjemah"
+        className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[22px] border border-white/10 bg-cohere-primary"
       >
-        {/* Header Bar: Enterprise AI Command Style */}
-        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-6 py-4">
-          <div className="flex items-center gap-8">
-            <StatusChip active={isActive} />
-            <div className="hidden lg:flex items-center gap-4">
-              <TechnicalBadge label="Engine" value="BISINDO_V3" />
-              <TechnicalBadge label="Mode" value="RGB_DIRECT" />
-            </div>
+        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-4 py-3 md:px-5">
+          <div className="flex items-center gap-2 text-white/45">
+            <span className="size-1.5 rounded-full bg-white/20" aria-hidden="true" />
+            <span className="text-[12px] font-medium">Kamera</span>
           </div>
-          <div className="flex items-center gap-4">
-             <TechnicalBadge 
-               icon={Zap} 
-               label="Inference" 
-               value={isActive ? `${fps} FPS` : "---"} 
-               variant={isActive ? "active" : "default"}
-             />
-             <div className="h-4 w-px bg-white/10 hidden md:block" />
-             <button 
+          <div className="flex items-center gap-3">
+            <TechnicalBadge
+              icon={Zap}
+              label="Kecepatan"
+              value={isActive ? `${fps} FPS` : "0 FPS"}
+              variant={isActive ? "active" : "default"}
+            />
+            <button
               onClick={handleFullscreen}
               className="rounded-sm p-1 text-white/45 transition-colors hover:bg-white/10 hover:text-white"
               aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-             >
-               {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-             </button>
+            >
+              {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+            </button>
           </div>
         </div>
 
-        {/* Media Container: High Editorial Space */}
         <div className="relative m-1 flex-1 overflow-hidden rounded-sm border border-white/10 bg-black">
           <video
             ref={videoRef}
@@ -185,7 +158,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
             playsInline
           />
 
-          {/* HUD Branded Elements - Minimal technical indicators */}
           <AnimatePresence>
             {isActive && (
               <motion.div
@@ -194,7 +166,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 pointer-events-none"
               >
-                {/* Clean technical frame corners - very subtle */}
                 <div className="absolute top-4 left-4 size-4 border-t border-l border-white/20" />
                 <div className="absolute bottom-4 right-4 size-4 border-b border-r border-white/20" />
                 
@@ -204,14 +175,13 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     animate={{ scale: 1, opacity: 1 }}
                     className="absolute top-6 left-6"
                   >
-                    <TechnicalBadge icon={Hand} label="Gesture_Detected" variant="active" />
+                    <TechnicalBadge icon={Hand} label="Gerakan terdeteksi" variant="active" />
                   </motion.div>
                 )}
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* API Error Overlay */}
           <AnimatePresence>
             {apiError && (
               <motion.div
@@ -220,15 +190,14 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 exit={{ opacity: 0, y: 10 }}
                 className="absolute inset-x-0 bottom-6 px-6 z-30 flex justify-center"
               >
-                <div className="flex items-center gap-3 rounded-sm bg-cohere-error px-4 py-2.5 font-mono text-[10px] uppercase tracking-normal text-white">
+                <div className="flex items-center gap-3 rounded-sm bg-cohere-error px-4 py-2.5 text-xs font-medium text-white">
                   <ShieldAlert className="size-3.5" />
-                  Signal_Lost: Connection_Error
+                  Koneksi terputus
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Interaction Overlays */}
           <AnimatePresence mode="wait">
             {(!isLive || isLoading || isError) && (
               <motion.div
@@ -240,21 +209,21 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 className="absolute inset-0 z-30 flex items-center justify-center bg-[#17171c]"
               >
                 {state === "idle" && (
-                  <div className="flex flex-col items-center gap-10 max-w-sm text-center px-10">
-                    <div className="flex size-20 items-center justify-center rounded-sm border border-white/15">
+                  <div className="flex max-w-sm flex-col items-center gap-6 px-8 text-center">
+                    <div className="flex size-16 items-center justify-center rounded-sm border border-white/15 md:size-20">
                       <Camera className="size-8 text-white/20" />
                     </div>
-                    <div className="space-y-4">
-                      <h3 className="font-mono text-[14px] uppercase tracking-normal text-white">Initialize Vision</h3>
-                      <p className="text-sm text-white/30 leading-relaxed font-light">
-                        Authorize hardware connection to begin real-time gesture analysis.
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium text-white">Mulai kamera</h3>
+                      <p className="text-sm leading-relaxed text-white/45">
+                        Izinkan akses kamera untuk mulai menerjemahkan BISINDO.
                       </p>
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="rounded-[32px] bg-white px-10 py-4 text-xs font-medium uppercase tracking-normal text-cohere-primary transition-colors hover:bg-cohere-stone"
+                      className="rounded-[32px] bg-white px-8 py-3 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone"
                     >
-                      Connect Hardware
+                      Aktifkan kamera
                     </button>
                   </div>
                 )}
@@ -262,8 +231,8 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 {isLoading && (
                   <div className="flex flex-col items-center gap-6">
                     <Loader2 className="size-8 text-white/10 animate-spin" />
-                    <span className="font-mono text-[10px] uppercase tracking-normal text-white/30">
-                      Authenticating_Stream
+                    <span className="text-xs text-white/45">
+                      Menyiapkan kamera
                     </span>
                   </div>
                 )}
@@ -274,20 +243,20 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                       <ShieldAlert className="size-8 text-cohere-error" />
                     </div>
                     <div className="space-y-3">
-                      <h3 className="font-mono text-sm font-medium uppercase tracking-normal text-white">
-                        {state === "error-permission" ? "Access_Denied" : "Device_Not_Found"}
+                      <h3 className="text-sm font-medium text-white">
+                        {state === "error-permission" ? "Izin kamera ditolak" : "Kamera tidak ditemukan"}
                       </h3>
                       <p className="text-[13px] text-white/30 leading-relaxed">
                         {state === "error-permission"
-                          ? "Vision protocol requires active camera authorization."
-                          : "No compatible hardware detected in the local manifest."}
+                          ? "Beri izin kamera dari browser, lalu coba lagi."
+                          : "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain."}
                       </p>
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="rounded-[32px] border border-white/20 px-8 py-3 text-[11px] font-medium uppercase tracking-normal text-white transition-colors hover:bg-white/10"
+                      className="rounded-[32px] border border-white/20 px-8 py-3 text-[11px] font-medium text-white transition-colors hover:bg-white/10"
                     >
-                      Retry System Check
+                      Coba lagi
                     </button>
                   </div>
                 )}
@@ -296,34 +265,33 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
           </AnimatePresence>
         </div>
 
-        {/* Footer: Controlled Action Band */}
-        <div className="px-6 py-6 z-40 bg-[#17171c]">
+        <div className="z-40 bg-[#17171c] px-4 py-4 md:px-5">
           <div className="flex items-center gap-4">
             {isLive && !isLoading && (
               <>
                 {!isActive ? (
                   <button
                     onClick={onStartDetection}
-                    className="flex-1 rounded-[32px] bg-white px-8 py-5 text-sm font-medium uppercase tracking-normal text-cohere-primary transition-colors hover:bg-cohere-stone"
+                    className="flex-1 rounded-[32px] bg-white px-6 py-4 text-sm font-medium text-cohere-primary transition-colors hover:bg-cohere-stone"
                   >
-                    Start Translation
+                    Mulai terjemah
                   </button>
                 ) : (
                   <button
                     onClick={onStopDetection}
-                    className="flex-1 rounded-[32px] border border-white/20 bg-cohere-primary px-8 py-5 text-sm font-medium uppercase tracking-normal text-white transition-colors hover:bg-white/10"
+                    className="flex-1 rounded-[32px] border border-white/20 bg-cohere-primary px-6 py-4 text-sm font-medium text-white transition-colors hover:bg-white/10"
                   >
-                    Terminate Session
+                    Jeda terjemah
                   </button>
                 )}
 
                 <div className="flex items-center gap-3">
-                  <ControlIconBtn onClick={onReset} label="Reset System">
+                  <ControlIconBtn onClick={onReset} label="Mulai ulang">
                     <RotateCcw className="size-5" />
                   </ControlIconBtn>
                   <ControlIconBtn 
                     onClick={onFlipCamera} 
-                    label="Switch Source" 
+                    label="Ganti kamera"
                     disabled={!hasMultipleCameras}
                   >
                     <FlipHorizontal className="size-5" />

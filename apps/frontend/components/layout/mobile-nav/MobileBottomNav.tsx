@@ -14,9 +14,8 @@ interface MobileBottomNavProps {
   reserveSpace?: boolean;
 }
 
-const MOBILE_NAV_HEIGHT_PX = 70;
-const MOBILE_NAV_EXTRA_OFFSET_PX = 2;
-const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px) + ${MOBILE_NAV_EXTRA_OFFSET_PX}px)`;
+const MOBILE_NAV_HEIGHT_PX = 64;
+const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px))`;
 
 export default function MobileBottomNav({
   reserveSpace = true,
@@ -28,24 +27,30 @@ export default function MobileBottomNav({
   const isWorkspace = isWorkspaceRoute(pathname);
 
   useEffect(() => {
-    if (!isWorkspace) {
-      return;
-    }
-
+    if (!isWorkspace) return;
     const root = document.documentElement;
-    root.style.setProperty("--workspace-mobile-nav-offset", MOBILE_NAV_OFFSET_VALUE);
+    const media = window.matchMedia("(max-width: 767px)");
+    const syncOffset = () => {
+      root.style.setProperty(
+        "--workspace-mobile-nav-offset",
+        media.matches ? MOBILE_NAV_OFFSET_VALUE : "0px"
+      );
+    };
+
+    syncOffset();
+    media.addEventListener("change", syncOffset);
 
     return () => {
+      media.removeEventListener("change", syncOffset);
       root.style.setProperty("--workspace-mobile-nav-offset", "0px");
     };
   }, [isWorkspace]);
 
-  if (!isWorkspace || !activeItem) {
-    return null;
-  }
+  if (!isWorkspace || !activeItem) return null;
 
   return (
     <>
+      {/* Space reservation: mobile bottom nav only */}
       {reserveSpace && (
         <div
           aria-hidden="true"
@@ -54,6 +59,10 @@ export default function MobileBottomNav({
         />
       )}
 
+      {/*
+       * Visible only on mobile (<768px).
+       * Tablets use the top strip plus drawer; desktop uses the sidebar.
+       */}
       <motion.nav
         aria-label="Workspace mobile navigation"
         className="fixed inset-x-0 bottom-0 z-40 md:hidden"
@@ -65,19 +74,17 @@ export default function MobileBottomNav({
             : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }
         }
       >
-        <div className="border-t border-cohere-hairline bg-cohere-canvas pb-[calc(env(safe-area-inset-bottom,0px)+2px)] pt-1.5">
-          <div className="mx-auto w-full max-w-md px-2">
-            <ul className="grid grid-cols-5 gap-0.5">
-              {WORKSPACE_NAV_ITEMS.map((item) => (
-                <MobileNavItem
-                  key={item.key}
-                  item={item}
-                  isActive={item.key === activeItem.key}
-                  reduceMotion={reduceMotion}
-                />
-              ))}
-            </ul>
-          </div>
+        <div className="border-t border-cohere-hairline bg-cohere-canvas pb-[env(safe-area-inset-bottom,0px)] pt-1">
+          <ul className="grid grid-cols-5 gap-0 px-1">
+            {WORKSPACE_NAV_ITEMS.map((item) => (
+              <MobileNavItem
+                key={item.key}
+                item={item}
+                isActive={item.key === activeItem.key}
+                reduceMotion={reduceMotion}
+              />
+            ))}
+          </ul>
         </div>
       </motion.nav>
     </>
