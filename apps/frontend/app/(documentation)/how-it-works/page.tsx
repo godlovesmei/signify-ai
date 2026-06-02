@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import LandingNavbar from "@/components/layout/LandingNavbar";
 import Footer from "@/components/layout/Footer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const steps = [
   {
@@ -70,6 +72,18 @@ const faqs = [
   ["How accurate is it?", "Accuracy depends on camera quality, lighting, signing speed, and whether the sign is in the trained scope."],
 ];
 
+function StepDetailBadge({ detail }: { detail: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className="gap-2 text-[14px] font-normal normal-case text-cohere-ink"
+    >
+      <CheckCircle2 className="size-3.5" />
+      {detail}
+    </Badge>
+  );
+}
+
 export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-cohere-canvas text-cohere-ink">
@@ -108,12 +122,8 @@ export default function HowItWorksPage() {
                   </div>
                   <ul className="flex flex-wrap gap-2 md:justify-end">
                     {item.details.map((detail) => (
-                      <li
-                        key={detail}
-                        className="inline-flex items-center gap-2 rounded-[30px] border border-cohere-hairline px-3 py-1 text-[14px] text-cohere-ink"
-                      >
-                        <CheckCircle2 className="size-3.5" />
-                        {detail}
+                      <li key={detail}>
+                        <StepDetailBadge detail={detail} />
                       </li>
                     ))}
                   </ul>
@@ -131,11 +141,13 @@ export default function HowItWorksPage() {
             </h2>
             <div className="mt-12 grid gap-4 md:grid-cols-3">
               {limitations.map((item) => (
-                <article key={item.title} className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-6">
+                <Card key={item.title} asChild className="gap-0">
+                <article>
                   <item.icon className="size-5 text-cohere-coral" />
                   <h3 className="mt-6 text-[24px] leading-[1.3]">{item.title}</h3>
                   <p className="mt-3 text-[16px] leading-[1.5] text-cohere-body-muted">{item.desc}</p>
                 </article>
+                </Card>
               ))}
             </div>
           </div>
@@ -165,20 +177,23 @@ export default function HowItWorksPage() {
 
         <section className="py-16 md:py-24">
           <div className="cohere-container">
-            <div className="rounded-[22px] bg-cohere-green p-8 text-white md:p-14">
+            <Card
+              variant="hero"
+              className="gap-0 border-transparent bg-cohere-green p-8 text-white md:p-14"
+            >
               <p className="text-mono-label text-[12px] text-white/55">Try the workspace</p>
               <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
                 <h2 className="max-w-3xl font-display text-[44px] leading-[1.05] md:text-[60px]">
                   Open a camera session and test the recognition loop.
                 </h2>
-                <Button asChild size="lg" className="bg-white text-cohere-primary hover:bg-cohere-stone">
+                <Button asChild variant="surface" size="lg">
                   <Link href="/translate">
                     Start translating
                     <ArrowRight className="size-4" />
                   </Link>
                 </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
       </main>

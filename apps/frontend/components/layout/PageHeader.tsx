@@ -7,13 +7,6 @@ interface PageHeaderProps {
   className?: string;
 }
 
-/**
- * PageHeader — workspace section header.
- *
- * Font scale reduced from 48px desktop to 36px to avoid overflow
- * at 100% zoom on 1280px viewports (sidebar 224px + content).
- * Still honours the Cohere display type split.
- */
 export default function PageHeader({
   title,
   description,
@@ -32,7 +25,7 @@ export default function PageHeader({
         <h1
           className={cn(
             "break-words font-display leading-none text-cohere-ink",
-            "text-[28px] sm:text-[32px] md:text-[36px]"
+            "text-[24px] sm:text-[28px] md:text-[32px] lg:text-[36px]"
           )}
         >
           {title}

@@ -23,6 +23,7 @@ import {
 import { appendHistoryEntry } from "@/lib/userData";
 import PracticeGuide from "@/components/features/translation/PracticeGuide";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
+import { cn } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const MODEL_INIT_MS = 2400;
@@ -40,6 +41,7 @@ const LETTER_ACCUMULATOR_CONFIG: LetterAccumulatorConfig = {
 };
 
 type Language = "ASL" | "BISINDO";
+type MobileTab = "hasil" | "kalimat" | "riwayat";
 
 let _id = 0;
 function uid() {
@@ -62,6 +64,7 @@ export default function TranslatePageContent() {
   const [isMirrored, setIsMirrored] = useState(true);
   const [apiError, setApiError] = useState(false);
   const [detections, setDetections] = useState<TranslateDetection[]>([]);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("hasil");
 
   const webcamRef = useRef<WebcamCaptureHandle>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -412,70 +415,79 @@ export default function TranslatePageContent() {
 
   const isActive = appState === "detecting";
 
+  const TABS = [
+    { key: "hasil" as MobileTab, label: "Hasil", icon: Terminal },
+    { key: "kalimat" as MobileTab, label: "Kalimat", icon: Layers },
+    { key: "riwayat" as MobileTab, label: "Riwayat", icon: Activity },
+  ] as const;
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-cohere-canvas text-cohere-ink selection:bg-cohere-coral-soft selection:text-cohere-primary">
-      <header className="z-30 flex shrink-0 flex-col gap-3 border-b border-cohere-hairline bg-cohere-canvas px-4 py-3 md:px-6 lg:px-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-xl leading-none text-cohere-ink md:text-2xl">
-              Terjemah BISINDO
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-cohere-body-muted">
-              Arahkan tangan ke kamera. Hasilnya muncul di panel kanan.
-            </p>
-          </div>
-
-          <div className="sm:text-right">
-            <span className="mb-1 block text-[11px] text-cohere-slate">Kecepatan</span>
-            <span className="text-xl tabular-nums text-cohere-ink">
-              {fps} <span className="text-[10px] opacity-40">FPS</span>
-            </span>
-          </div>
-        </div>
-      </header>
-
       <main className="flex min-h-0 flex-1 flex-col lg:flex-row lg:divide-x lg:divide-cohere-hairline">
-        <section className="relative flex min-h-0 flex-[1.4] flex-col overflow-hidden bg-cohere-stone">
-          <div className="flex flex-1 flex-col overflow-y-auto p-4 md:p-6 lg:p-8">
-            <div className="mx-auto w-full max-w-[960px] space-y-5 md:space-y-6">
-              <div className="flex flex-col gap-3 border-b border-cohere-hairline pb-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 className="font-display text-2xl leading-none text-cohere-ink md:text-[28px]">Kamera</h2>
-                  <p className="mt-2 max-w-md text-sm leading-6 text-cohere-body-muted">Arahkan tangan ke kamera. Hasilnya muncul di panel kanan.</p>
+        {/* ═══════════════════════════════════════════════════════
+            LEFT COLUMN: Kamera + Panduan
+            Mobile: Full width
+            Desktop: flex-[1.4]
+            ═══════════════════════════════════════════════════════ */}
+        <section className="relative flex min-h-0 flex-col overflow-hidden bg-cohere-stone lg:flex-[1.4]">
+          <div className="flex flex-1 flex-col overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
+            <div className="mx-auto w-full max-w-[960px] space-y-4 sm:space-y-5 md:space-y-6">
+              {/* Header */}
+              <div className="flex flex-col gap-2 border-b border-cohere-hairline pb-3 sm:flex-row sm:items-end sm:justify-between sm:pb-4">
+                <div className="min-w-0">
+                  <h2 className="font-display text-xl leading-none text-cohere-ink sm:text-2xl md:text-[28px]">
+                    Kamera
+                  </h2>
+                  <p className="mt-1.5 max-w-md text-xs leading-5 text-cohere-body-muted sm:mt-2 sm:text-sm sm:leading-6">
+                    Arahkan tangan ke kamera. Hasilnya muncul di panel kanan.
+                  </p>
                 </div>
                 <div className="sm:text-right">
-                  <span className="mb-1 block text-[11px] text-cohere-slate">Kecepatan</span>
-                  <span className="text-xl tabular-nums text-cohere-ink">{fps} <span className="text-[10px] opacity-40">FPS</span></span>
+                  <span className="mb-0.5 block text-[10px] text-cohere-slate sm:text-[11px]">
+                    Kecepatan
+                  </span>
+                  <span className="text-lg tabular-nums text-cohere-ink sm:text-xl">
+                    {fps}{" "}
+                    <span className="text-[9px] opacity-40 sm:text-[10px]">FPS</span>
+                  </span>
                 </div>
               </div>
 
-              <div className="relative aspect-video w-full overflow-hidden rounded-md border border-cohere-hairline bg-black transition-colors duration-300">
-                <WebcamCapture
-                  ref={webcamRef}
-                  state={appState}
-                  isMirrored={isMirrored}
-                  detections={detections}
-                  apiError={apiError}
-                  hasMultipleCameras={true}
-                  onRequestCamera={() => startCamera()}
-                  onStartDetection={startDetection}
-                  onStopDetection={stopDetection}
-                  onFlipCamera={flipCamera}
-                  onReset={handleReset}
-                  fps={fps}
-                />
-                
+              {/* Webcam Container */}
+              <div className="relative w-full overflow-hidden rounded-md border border-cohere-hairline bg-cohere-primary transition-colors duration-300 sm:rounded-lg lg:rounded-[22px]">
+                <div className="aspect-square sm:aspect-video">
+                  <WebcamCapture
+                    ref={webcamRef}
+                    state={appState}
+                    isMirrored={isMirrored}
+                    detections={detections}
+                    apiError={apiError}
+                    hasMultipleCameras={true}
+                    onRequestCamera={() => startCamera()}
+                    onStartDetection={startDetection}
+                    onStopDetection={stopDetection}
+                    onFlipCamera={flipCamera}
+                    onReset={handleReset}
+                    fps={fps}
+                  />
+                </div>
+
+                {/* Confidence Overlay */}
                 {isActive && currentConfidence !== null && (
-                  <div className="absolute right-4 top-4 z-[35] md:right-5 md:top-5">
-                    <div className="min-w-[128px] rounded-sm border border-white/15 bg-black/70 px-3 py-2 text-white">
-                      <div className="flex items-center justify-between gap-3 mb-2">
-                        <span className="text-[11px] opacity-60">Keyakinan</span>
-                        <span className="text-xs font-bold">{Math.round(currentConfidence * 100)}%</span>
+                  <div className="absolute right-3 top-3 z-[35] sm:right-4 sm:top-4 md:right-5 md:top-5">
+                    <div className="min-w-[112px] rounded-sm border border-white/15 bg-cohere-primary/70 px-2.5 py-1.5 text-cohere-canvas backdrop-blur-sm sm:min-w-[128px] sm:px-3 sm:py-2">
+                      <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
+                        <span className="text-[10px] opacity-60 sm:text-[11px]">
+                          Keyakinan
+                        </span>
+                        <span className="text-[11px] font-bold sm:text-xs">
+                          {Math.round(currentConfidence * 100)}%
+                        </span>
                       </div>
-                      <div className="h-0.5 w-full bg-white/10 overflow-hidden">
-                        <div 
-                          className="h-full bg-white transition-all duration-300" 
-                          style={{ width: `${currentConfidence * 100}%` }} 
+                      <div className="h-0.5 w-full overflow-hidden bg-white/10">
+                        <div
+                          className="h-full bg-cohere-canvas transition-all duration-300"
+                          style={{ width: `${currentConfidence * 100}%` }}
                         />
                       </div>
                     </div>
@@ -485,72 +497,175 @@ export default function TranslatePageContent() {
             </div>
           </div>
 
-          <div className="px-4 pb-6 md:px-6 lg:px-8 lg:pb-8">
-             <div className="mx-auto w-full max-w-[960px] border-t border-cohere-hairline pt-5 md:pt-6">
-                <PracticeGuide />
-             </div>
+          {/* Practice Guide */}
+          <div className="px-3 pb-4 sm:px-4 sm:pb-6 md:px-6 lg:px-8 lg:pb-8">
+            <div className="mx-auto w-full max-w-[960px] border-t border-cohere-hairline pt-4 sm:pt-5 md:pt-6">
+              <PracticeGuide />
+            </div>
           </div>
         </section>
 
-        <section className="flex min-h-[520px] flex-1 flex-col bg-cohere-canvas lg:min-h-0">
-          <div className="border-b border-cohere-hairline p-4 md:p-6 lg:p-8">
-            <header className="mb-6 flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                 <Terminal className="size-3.5 text-cohere-slate" />
-                 <h3 className="text-mono-label text-[11px] text-cohere-slate">Hasil saat ini</h3>
-               </div>
-               <div className="flex items-center gap-1">
-                 <div className="size-1 bg-cohere-hairline" />
-                 <div className="size-1 bg-cohere-hairline" />
-                 <div className="size-1 bg-cohere-ink" />
-               </div>
-            </header>
-
-            <div className="flex min-h-[150px] flex-col items-center justify-center">
-              <PredictionBadge
-                letter={currentLetter}
-                confidence={currentConfidence}
-                isDetecting={isActive}
-                hasHand={detections.length > 0}
-                textScale={prefs.textScale}
-              />
-            </div>
-          </div>
-
-          <div className="hidden border-b border-cohere-hairline bg-cohere-stone/40 p-4 md:p-6 lg:block lg:p-8">
-            <div className="mb-4 flex items-center gap-3">
-              <Layers className="size-3.5 text-cohere-slate" />
-              <span className="text-mono-label text-[11px] text-cohere-slate">Susun kalimat</span>
-              <div className="h-px flex-1 bg-cohere-hairline" />
-            </div>
-            {renderSentenceBuilder("panel")}
-          </div>
-
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between border-b border-cohere-hairline bg-cohere-canvas px-4 py-4 md:px-6 lg:px-8">
-              <div className="flex items-center gap-3">
-                <Activity className="size-3.5 text-cohere-slate" />
-                <h3 className="text-mono-label text-[11px] text-cohere-slate">Riwayat</h3>
-              </div>
+        {/* ═══════════════════════════════════════════════════════
+            RIGHT COLUMN: Hasil + Kalimat + Riwayat
+            Mobile: Tab-based navigation
+            Desktop: All panels visible
+            ═══════════════════════════════════════════════════════ */}
+        <section className="flex min-h-0 flex-1 flex-col bg-cohere-canvas">
+          {/* Mobile Tab Navigation */}
+          <div className="flex shrink-0 border-b border-cohere-hairline bg-cohere-canvas lg:hidden">
+            {TABS.map((tab) => (
               <button
-                onClick={() => setTranscript([])}
-                className="text-[11px] font-medium text-cohere-slate transition-colors hover:text-cohere-ink"
+                key={tab.key}
+                onClick={() => setMobileTab(tab.key)}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 py-3 text-[11px] font-medium transition-colors",
+                  mobileTab === tab.key
+                    ? "border-b-2 border-cohere-ink text-cohere-ink"
+                    : "text-cohere-slate hover:text-cohere-body-muted"
+                )}
               >
-                Bersihkan
+                <tab.icon className="size-3.5" />
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
+            ))}
+          </div>
+
+          {/* ═══════ DESKTOP: All panels visible ═══════ */}
+          <div className="hidden min-h-0 flex-1 flex-col lg:flex">
+            {/* Hasil Saat Ini */}
+            <div className="border-b border-cohere-hairline p-6 lg:p-8">
+              <header className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Terminal className="size-3.5 text-cohere-slate" />
+                  <h3 className="text-mono-label text-[11px] text-cohere-slate">
+                    Hasil saat ini
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="size-1 bg-cohere-hairline" />
+                  <div className="size-1 bg-cohere-hairline" />
+                  <div className="size-1 bg-cohere-ink" />
+                </div>
+              </header>
+              <div className="flex min-h-[150px] flex-col items-center justify-center">
+                <PredictionBadge
+                  letter={currentLetter}
+                  confidence={currentConfidence}
+                  isDetecting={isActive}
+                  hasHand={detections.length > 0}
+                  textScale={prefs.textScale}
+                />
+              </div>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <PredictionDisplay
-                transcript={transcript}
-                onSpeakEntry={handleSpeakEntry}
-              />
+
+            {/* Susun Kalimat */}
+            <div className="border-b border-cohere-hairline bg-cohere-stone/40 p-6 lg:p-8">
+              <div className="mb-4 flex items-center gap-3">
+                <Layers className="size-3.5 text-cohere-slate" />
+                <span className="text-mono-label text-[11px] text-cohere-slate">
+                  Susun kalimat
+                </span>
+                <div className="h-px flex-1 bg-cohere-hairline" />
+              </div>
+              {renderSentenceBuilder("panel")}
             </div>
+
+            {/* Riwayat */}
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-4 lg:px-8">
+                <div className="flex items-center gap-3">
+                  <Activity className="size-3.5 text-cohere-slate" />
+                  <h3 className="text-mono-label text-[11px] text-cohere-slate">
+                    Riwayat
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setTranscript([])}
+                  className="text-[11px] font-medium text-cohere-slate transition-colors hover:text-cohere-ink"
+                >
+                  Bersihkan
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <PredictionDisplay
+                  transcript={transcript}
+                  onSpeakEntry={handleSpeakEntry}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ═══════ MOBILE: Tab Content ═══════ */}
+          <div className="flex min-h-0 flex-1 flex-col lg:hidden">
+            {/* Tab: Hasil */}
+            {mobileTab === "hasil" && (
+              <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+                <div className="flex flex-1 flex-col items-center justify-center">
+                  <PredictionBadge
+                    letter={currentLetter}
+                    confidence={currentConfidence}
+                    isDetecting={isActive}
+                    hasHand={detections.length > 0}
+                    textScale={prefs.textScale}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Tab: Kalimat */}
+            {mobileTab === "kalimat" && (
+              <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <Layers className="size-3.5 text-cohere-slate" />
+                  <span className="text-mono-label text-[11px] text-cohere-slate">
+                    Susun kalimat
+                  </span>
+                  <div className="h-px flex-1 bg-cohere-hairline" />
+                </div>
+                {renderSentenceBuilder("panel")}
+              </div>
+            )}
+
+            {/* Tab: Riwayat */}
+            {mobileTab === "riwayat" && (
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex items-center justify-between border-b border-cohere-hairline px-4 py-3 sm:px-6">
+                  <div className="flex items-center gap-3">
+                    <Activity className="size-3.5 text-cohere-slate" />
+                    <h3 className="text-mono-label text-[11px] text-cohere-slate">
+                      Riwayat
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setTranscript([])}
+                    className="text-[11px] font-medium text-cohere-slate transition-colors hover:text-cohere-ink"
+                  >
+                    Bersihkan
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <PredictionDisplay
+                    transcript={transcript}
+                    onSpeakEntry={handleSpeakEntry}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </main>
 
-      {/* Mobile assembly footer - persistent control */}
-      <div className="z-50 border-t border-cohere-hairline bg-cohere-canvas p-4 lg:hidden">
+      {/* Mobile Sticky Sentence Builder */}
+      <div
+        className={cn(
+          "shrink-0 border-t border-cohere-hairline bg-cohere-canvas p-3 sm:p-4 lg:hidden",
+          mobileTab === "hasil" && "hidden"
+        )}
+        style={{
+          paddingBottom:
+            "calc(12px + var(--workspace-mobile-nav-offset, 0px))",
+        }}
+      >
         {renderSentenceBuilder("sticky")}
       </div>
     </div>

@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import LandingNavbar from "@/components/layout/LandingNavbar";
 import Footer from "@/components/layout/Footer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const phrases = [
   "Halo, nama saya Rina.",
@@ -90,36 +92,43 @@ function AgentConsoleCard() {
   const text = useTypewriter();
 
   return (
-    <div className="rounded-lg bg-cohere-primary p-5 text-white md:p-6">
+    <Card variant="agent-console" className="gap-0 p-5 md:p-6">
       <div className="flex items-center justify-between border-b border-white/15 pb-4">
         <div>
           <p className="text-mono-label text-[11px] text-white/50">Agent console</p>
           <h2 className="mt-2 text-[24px] leading-[1.3]">BISINDO interpreter</h2>
         </div>
-        <div className="rounded-[32px] border border-white/20 px-3 py-1 text-[12px] text-white">
+        <Badge variant="outline" className="border-white/20 bg-transparent text-white normal-case">
           Live
-        </div>
+        </Badge>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {["Model", "Latency", "Privacy"].map((label, index) => (
-          <div key={label} className="rounded-sm border border-white/12 p-3">
+          <Card
+            key={label}
+            variant="agent-console"
+            className="gap-0 border-white/12 bg-transparent p-3"
+          >
             <p className="text-mono-label text-[10px] text-white/45">{label}</p>
             <p className="mt-2 text-[14px] text-white">
               {index === 0 ? "YOLOv11" : index === 1 ? "Sub-second" : "Local-first"}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
 
-      <div className="mt-5 rounded-sm border border-white/15 bg-black/25 p-4">
+      <Card
+        variant="agent-console"
+        className="mt-5 gap-0 border-white/15 bg-black/25 p-4"
+      >
         <p className="text-mono-label text-[10px] text-white/45">Generated response</p>
         <p className="mt-3 min-h-8 text-[18px] leading-[1.4] text-white">
           {text}
           <span className="ml-1 inline-block h-5 w-px animate-blink bg-white align-middle" />
         </p>
-      </div>
-    </div>
+      </Card>
+    </Card>
   );
 }
 
@@ -143,18 +152,15 @@ function HeroSection() {
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Link
-              href="/how-it-works"
-              className="text-[16px] text-cohere-ink underline underline-offset-4 transition-colors hover:text-cohere-blue"
-            >
-              Explore the system
-            </Link>
+            <Button asChild variant="text-secondary">
+              <Link href="/how-it-works">Explore the system</Link>
+            </Button>
           </div>
         </div>
 
         <div className="mt-16 grid gap-5 lg:grid-cols-[1.4fr_0.8fr]">
           <AgentConsoleCard />
-          <div className="overflow-hidden rounded-[22px] bg-cohere-stone">
+          <Card variant="hero" className="gap-0 overflow-hidden bg-cohere-stone p-0">
             <Image
               src="/hero.png"
               alt="SignifyAI BISINDO translation interface preview"
@@ -163,7 +169,7 @@ function HeroSection() {
               priority
               className="h-full min-h-[320px] w-full object-cover"
             />
-          </div>
+          </Card>
         </div>
       </div>
     </section>
@@ -226,7 +232,10 @@ function DarkFeatureBand() {
   return (
     <section className="bg-cohere-canvas py-20 md:py-28">
       <div className="cohere-container">
-        <div className="rounded-[22px] bg-cohere-green p-8 text-white md:p-16 lg:p-20">
+        <Card
+          variant="hero"
+          className="gap-0 border-transparent bg-cohere-green p-8 text-white md:p-16 lg:p-20"
+        >
           <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
             <div>
               <p className="text-mono-label text-[12px] text-white/55">Privacy architecture</p>
@@ -247,7 +256,7 @@ function DarkFeatureBand() {
               ))}
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </section>
   );
@@ -264,7 +273,13 @@ function ProductCards() {
 
         <div className="mt-14 grid gap-5 lg:grid-cols-3">
           {products.map((product) => (
-            <article key={product.title} className="rounded-sm bg-cohere-stone p-8 text-cohere-ink">
+            <Card
+              key={product.title}
+              asChild
+              variant="product"
+              className="gap-0 text-cohere-ink"
+            >
+            <article>
               <h3 className="text-[32px] leading-[1.2]">{product.title}</h3>
               <p className="mt-5 text-[16px] leading-[1.5] text-cohere-body-muted">{product.body}</p>
               <ul className="mt-8 space-y-3 border-t border-cohere-hairline pt-6">
@@ -275,13 +290,13 @@ function ProductCards() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href={product.href}
-                className="mt-8 inline-flex items-center gap-2 text-[14px] text-cohere-ink underline underline-offset-4 hover:text-cohere-blue"
-              >
-                Open module <ArrowRight className="size-4" />
-              </Link>
+              <Button asChild variant="text-secondary" size="sm" className="mt-8 justify-start">
+                <Link href={product.href}>
+                  Open module <ArrowRight className="size-4" />
+                </Link>
+              </Button>
             </article>
+            </Card>
           ))}
         </div>
       </div>
@@ -306,9 +321,9 @@ function ResearchRows() {
               Learn how the system behaves.
             </h2>
           </div>
-          <Link href="/research" className="text-[14px] text-cohere-blue underline underline-offset-4">
-            View all research
-          </Link>
+          <Button asChild variant="text-secondary" size="sm">
+            <Link href="/research">View all research</Link>
+          </Button>
         </div>
 
         <div className="border-t border-cohere-hairline">
@@ -319,9 +334,9 @@ function ResearchRows() {
               className="grid gap-3 border-b border-cohere-hairline py-6 text-cohere-ink transition-colors hover:bg-cohere-stone/50 md:grid-cols-[1fr_auto_auto] md:items-center"
             >
               <span className="text-[18px] leading-[1.4]">{title}</span>
-              <span className="w-fit rounded-[30px] border border-cohere-hairline px-3 py-1 text-[14px] text-cohere-slate">
+              <Badge variant="outline" className="text-[14px] font-normal normal-case text-cohere-slate">
                 {topic}
-              </span>
+              </Badge>
               <span className="text-[14px] text-cohere-slate">{date}</span>
             </Link>
           ))}
@@ -335,7 +350,10 @@ function CtaSection() {
   return (
     <section className="bg-cohere-canvas py-20 md:py-28">
       <div className="cohere-container">
-        <div className="rounded-[22px] bg-cohere-pale-blue p-8 md:p-14">
+        <Card
+          variant="hero"
+          className="gap-0 border-transparent bg-cohere-pale-blue p-8 md:p-14"
+        >
           <p className="text-mono-label text-[12px] text-cohere-coral">Start a session</p>
           <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <h2 className="max-w-3xl font-display text-[44px] leading-[1.05] text-cohere-ink md:text-[60px]">
@@ -348,7 +366,7 @@ function CtaSection() {
               </Link>
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </section>
   );

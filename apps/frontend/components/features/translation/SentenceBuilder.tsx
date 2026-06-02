@@ -41,21 +41,22 @@ export default function SentenceBuilder({
     }
   }, [tokens.length]);
 
+  // Responsive font size
   const sentenceFontSize = isSticky
-    ? `${Math.max(1, Math.min(1.35, 1.05 * textScale))}rem`
-    : `${Math.max(1, 1.25 * textScale)}rem`;
+    ? `${Math.max(0.875, Math.min(1.25, 1.05 * textScale))}rem`
+    : `${Math.max(1, Math.min(1.5, 1.25 * textScale))}rem`;
 
   return (
     <div
       aria-label="Sentence builder"
       className={cn(
         "flex flex-col border transition-all duration-300",
-        "bg-[var(--cohere-canvas)]",
-        "border-[var(--cohere-hairline)]",
+        "bg-cohere-canvas",
+        "border-cohere-hairline",
         isSticky
-          ? "h-full gap-2 rounded-md p-3"
-          : "gap-3 rounded-sm p-4",
-        isSpeaking && "border-[var(--cohere-primary)]",
+          ? "h-full gap-2 rounded-md p-2.5 sm:gap-2 sm:p-3"
+          : "gap-2.5 rounded-sm p-3 sm:gap-3 sm:p-4",
+        isSpeaking && "border-cohere-primary",
         className
       )}
     >
@@ -69,14 +70,14 @@ export default function SentenceBuilder({
       <div
         ref={stripRef}
         className={cn(
-          "flex gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          isSticky && "min-h-7"
+          "flex gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          isSticky && "min-h-6 sm:min-h-7"
         )}
         aria-label="Confirmed letter history"
         role="list"
       >
         {isEmpty ? (
-          <span className="select-none text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono py-1">
+          <span className="select-none py-1 font-mono text-[10px] uppercase tracking-normal text-cohere-muted">
             Belum ada huruf
           </span>
         ) : (
@@ -88,12 +89,14 @@ export default function SentenceBuilder({
                 role="listitem"
                 aria-label={`Letter ${token}${isLatest ? ", latest" : ""}`}
                 className={cn(
-                  "inline-flex shrink-0 items-center justify-center rounded-sm border",
-                  isSticky ? "h-7 w-7" : "h-8 w-8",
-                  "font-mono text-xs transition-all duration-150",
-                  "border-[var(--cohere-hairline)]",
-                  "bg-[var(--cohere-stone)] text-[var(--cohere-ink)]",
-                  isLatest && "border-[var(--cohere-primary)] underline underline-offset-4 decoration-1"
+                  "inline-flex shrink-0 items-center justify-center rounded-sm border font-mono text-[10px] transition-all duration-150 sm:text-xs",
+                  isSticky
+                    ? "h-6 w-6 sm:h-7 sm:w-7"
+                    : "h-7 w-7 sm:h-8 sm:w-8",
+                  "border-cohere-hairline",
+                  "bg-cohere-stone text-cohere-ink",
+                  isLatest &&
+                    "border-cohere-primary underline underline-offset-4 decoration-1"
                 )}
               >
                 {token === " " ? "\u00A0" : token}
@@ -108,12 +111,14 @@ export default function SentenceBuilder({
         aria-live="polite"
         aria-label="Built sentence"
         className={cn(
-          "rounded-sm border border-[var(--cohere-hairline)] bg-transparent",
-          "font-sans leading-relaxed break-words transition-colors duration-300",
+          "rounded-sm border border-cohere-hairline bg-transparent",
+          "break-words font-sans leading-relaxed transition-colors duration-300",
           isSticky
-            ? "min-h-11 flex-1 overflow-y-auto px-3 py-2"
-            : "min-h-[52px] px-4 py-3",
-          isEmpty ? "text-[var(--cohere-muted)] italic" : "text-[var(--cohere-ink)]"
+            ? "min-h-9 flex-1 overflow-y-auto px-2.5 py-1.5 sm:min-h-11 sm:px-3 sm:py-2"
+            : "min-h-[44px] px-3 py-2 sm:min-h-[52px] sm:px-4 sm:py-3",
+          isEmpty
+            ? "italic text-cohere-muted"
+            : "text-cohere-ink"
         )}
         style={{ fontSize: sentenceFontSize }}
       >
@@ -124,27 +129,30 @@ export default function SentenceBuilder({
       <div
         className={cn(
           "flex items-center justify-between gap-2",
-          isSticky ? "flex-nowrap" : "flex-wrap"
+          isSticky ? "flex-nowrap" : "flex-wrap sm:flex-nowrap"
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {onAddSpace && (
             <button
               type="button"
               onClick={onAddSpace}
               aria-label="Add space"
               className={cn(
-                "flex items-center gap-1.5 rounded-[30px] border border-[var(--cohere-hairline)] transition-colors duration-200",
-                "bg-[var(--cohere-stone)] text-[var(--cohere-ink)]",
-                "hover:bg-[var(--cohere-hairline)]",
-                isSticky ? "h-8 px-3 text-xs" : "h-9 px-4 text-sm",
-                "font-sans font-medium"
+                "flex items-center gap-1 rounded-[30px] border border-cohere-hairline transition-colors duration-200",
+                "bg-cohere-stone text-cohere-ink",
+                "hover:bg-cohere-hairline",
+                "h-9 px-2.5 text-[11px] font-medium sm:h-9 sm:px-4 sm:text-sm",
+                "min-w-[44px] touch-manipulation"
               )}
             >
-              <span aria-hidden="true" className="font-mono text-base leading-none">
+              <span
+                aria-hidden="true"
+                className="font-mono text-sm leading-none sm:text-base"
+              >
                 ⎵
               </span>
-              <span>Spasi</span>
+              <span className="hidden sm:inline">Spasi</span>
             </button>
           )}
           <DeleteControls
@@ -155,9 +163,9 @@ export default function SentenceBuilder({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {!isEmpty && !isSticky && (
-            <span className="font-mono text-[10px] uppercase tracking-normal text-[var(--cohere-muted)]">
+            <span className="hidden font-mono text-[10px] uppercase tracking-normal text-cohere-muted sm:inline">
               {sentence.length} karakter
             </span>
           )}

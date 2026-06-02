@@ -1,6 +1,12 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import {
   Camera,
   FlipHorizontal,
@@ -46,27 +52,34 @@ export interface WebcamCaptureHandle {
   videoElement: HTMLVideoElement | null;
 }
 
-function TechnicalBadge({ 
-  icon: Icon, 
-  label, 
-  value, 
-  variant = "default" 
-}: { 
-  icon?: LucideIcon; 
-  label: string; 
+function TechnicalBadge({
+  icon: Icon,
+  label,
+  value,
+  variant = "default",
+}: {
+  icon?: LucideIcon;
+  label: string;
   value?: string | number;
   variant?: "default" | "active" | "error";
 }) {
   return (
-    <div className={cn(
-      "flex items-center gap-2 rounded-sm border px-2.5 py-1 text-[11px]",
-      variant === "default" && "bg-white/5 border-white/10 text-white/50",
-      variant === "active" && "bg-white/10 border-white/20 text-white",
-      variant === "error" && "bg-[color-mix(in_srgb,var(--cohere-error)_10%,transparent)] border-[color-mix(in_srgb,var(--cohere-error)_20%,transparent)] text-[var(--cohere-error)]"
-    )}>
-      {Icon && <Icon className="size-2.5" />}
+    <div
+      className={cn(
+        "flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-[10px] sm:gap-2 sm:px-2.5 sm:py-1 sm:text-[11px]",
+        variant === "default" &&
+          "border-white/10 bg-white/5 text-white/50",
+        variant === "active" &&
+          "border-white/20 bg-white/10 text-white",
+        variant === "error" &&
+          "border-cohere-error/20 bg-cohere-error/10 text-cohere-error"
+      )}
+    >
+      {Icon && <Icon className="size-2 sm:size-2.5" />}
       <span>{label}</span>
-      {value !== undefined && <span className="ml-1 opacity-50">{value}</span>}
+      {value !== undefined && (
+        <span className="ml-0.5 opacity-50 sm:ml-1">{value}</span>
+      )}
     </div>
   );
 }
@@ -121,14 +134,20 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       <section
         ref={sectionRef}
         aria-label="Kamera penerjemah"
-        className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[22px] border border-white/10 bg-cohere-primary"
+        className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-md border border-white/10 bg-cohere-primary sm:rounded-lg lg:rounded-[22px]"
       >
-        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-4 py-3 md:px-5">
+        {/* Header */}
+        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-3 py-2.5 sm:px-4 sm:py-3 md:px-5">
           <div className="flex items-center gap-2 text-white/45">
-            <span className="size-1.5 rounded-full bg-white/20" aria-hidden="true" />
-            <span className="text-[12px] font-medium">Kamera</span>
+            <span
+              className="size-1.5 rounded-full bg-white/20"
+              aria-hidden="true"
+            />
+            <span className="text-[11px] font-medium sm:text-[12px]">
+              Kamera
+            </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <TechnicalBadge
               icon={Zap}
               label="Kecepatan"
@@ -138,14 +157,21 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
             <button
               onClick={handleFullscreen}
               className="rounded-sm p-1 text-white/45 transition-colors hover:bg-white/10 hover:text-white"
-              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              aria-label={
+                isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+              }
             >
-              {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+              {isFullscreen ? (
+                <Minimize2 className="size-3.5 sm:size-4" />
+              ) : (
+                <Maximize2 className="size-3.5 sm:size-4" />
+              )}
             </button>
           </div>
         </div>
 
-        <div className="relative m-1 flex-1 overflow-hidden rounded-sm border border-white/10 bg-black">
+        {/* Video Container */}
+        <div className="relative m-0.5 flex-1 overflow-hidden rounded-sm border border-white/10 bg-cohere-primary sm:m-1">
           <video
             ref={videoRef}
             className={cn(
@@ -164,18 +190,22 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 pointer-events-none"
+                className="pointer-events-none absolute inset-0"
               >
-                <div className="absolute top-4 left-4 size-4 border-t border-l border-white/20" />
-                <div className="absolute bottom-4 right-4 size-4 border-b border-r border-white/20" />
-                
+                <div className="absolute left-3 top-3 size-3 border-l border-t border-white/20 sm:left-4 sm:top-4 sm:size-4" />
+                <div className="absolute bottom-3 right-3 size-3 border-b border-r border-white/20 sm:bottom-4 sm:right-4 sm:size-4" />
+
                 {detections.length > 0 && (
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute top-6 left-6"
+                    className="absolute left-3 top-6 sm:left-6 sm:top-8"
                   >
-                    <TechnicalBadge icon={Hand} label="Gerakan terdeteksi" variant="active" />
+                    <TechnicalBadge
+                      icon={Hand}
+                      label="Gerakan terdeteksi"
+                      variant="active"
+                    />
                   </motion.div>
                 )}
               </motion.div>
@@ -188,10 +218,10 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute inset-x-0 bottom-6 px-6 z-30 flex justify-center"
+                className="absolute inset-x-0 bottom-4 z-30 flex justify-center px-4 sm:bottom-6"
               >
-                <div className="flex items-center gap-3 rounded-sm bg-cohere-error px-4 py-2.5 text-xs font-medium text-white">
-                  <ShieldAlert className="size-3.5" />
+                <div className="flex items-center gap-2 rounded-sm bg-cohere-error px-3 py-2 text-[11px] font-medium text-cohere-canvas sm:gap-3 sm:px-4 sm:py-2.5 sm:text-xs">
+                  <ShieldAlert className="size-3 sm:size-3.5" />
                   Koneksi terputus
                 </div>
               </motion.div>
@@ -206,22 +236,24 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="absolute inset-0 z-30 flex items-center justify-center bg-[#17171c]"
+                className="absolute inset-0 z-30 flex items-center justify-center bg-cohere-primary"
               >
                 {state === "idle" && (
-                  <div className="flex max-w-sm flex-col items-center gap-6 px-8 text-center">
-                    <div className="flex size-16 items-center justify-center rounded-sm border border-white/15 md:size-20">
-                      <Camera className="size-8 text-white/20" />
+                  <div className="flex max-w-xs flex-col items-center gap-4 px-6 text-center sm:max-w-sm sm:gap-6 sm:px-8">
+                    <div className="flex size-14 items-center justify-center rounded-sm border border-white/15 sm:size-16 md:size-20">
+                      <Camera className="size-6 text-white/20 sm:size-7 md:size-8" />
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium text-white">Mulai kamera</h3>
-                      <p className="text-sm leading-relaxed text-white/45">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <h3 className="text-sm font-medium text-white sm:text-base">
+                        Mulai kamera
+                      </h3>
+                      <p className="text-xs leading-relaxed text-white/45 sm:text-sm">
                         Izinkan akses kamera untuk mulai menerjemahkan BISINDO.
                       </p>
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="rounded-[32px] bg-white px-8 py-3 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone"
+                      className="rounded-full bg-cohere-canvas px-6 py-2.5 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone sm:px-8 sm:py-3 sm:text-sm"
                     >
                       Aktifkan kamera
                     </button>
@@ -229,24 +261,26 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                 )}
 
                 {isLoading && (
-                  <div className="flex flex-col items-center gap-6">
-                    <Loader2 className="size-8 text-white/10 animate-spin" />
-                    <span className="text-xs text-white/45">
+                  <div className="flex flex-col items-center gap-4 sm:gap-6">
+                    <Loader2 className="size-6 animate-spin text-white/10 sm:size-8" />
+                    <span className="text-[11px] text-white/45 sm:text-xs">
                       Menyiapkan kamera
                     </span>
                   </div>
                 )}
 
                 {isError && (
-                  <div className="flex flex-col items-center gap-8 text-center px-10">
-                    <div className="size-20 rounded-full bg-[color-mix(in_srgb,var(--cohere-error)_5%,transparent)] border border-[color-mix(in_srgb,var(--cohere-error)_10%,transparent)] flex items-center justify-center">
-                      <ShieldAlert className="size-8 text-cohere-error" />
+                  <div className="flex flex-col items-center gap-6 px-6 text-center sm:gap-8 sm:px-10">
+                    <div className="flex size-16 items-center justify-center rounded-full border border-cohere-error/10 bg-cohere-error/5 sm:size-20">
+                      <ShieldAlert className="size-6 text-cohere-error sm:size-8" />
                     </div>
-                    <div className="space-y-3">
-                      <h3 className="text-sm font-medium text-white">
-                        {state === "error-permission" ? "Izin kamera ditolak" : "Kamera tidak ditemukan"}
+                    <div className="space-y-2 sm:space-y-3">
+                      <h3 className="text-sm font-medium text-white sm:text-base">
+                        {state === "error-permission"
+                          ? "Izin kamera ditolak"
+                          : "Kamera tidak ditemukan"}
                       </h3>
-                      <p className="text-[13px] text-white/30 leading-relaxed">
+                      <p className="text-xs leading-relaxed text-white/30 sm:text-[13px]">
                         {state === "error-permission"
                           ? "Beri izin kamera dari browser, lalu coba lagi."
                           : "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain."}
@@ -254,7 +288,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     </div>
                     <button
                       onClick={onRequestCamera}
-                      className="rounded-[32px] border border-white/20 px-8 py-3 text-[11px] font-medium text-white transition-colors hover:bg-white/10"
+                      className="rounded-full border border-white/20 px-6 py-2.5 text-[11px] font-medium text-white transition-colors hover:bg-white/10 sm:px-8 sm:py-3 sm:text-xs"
                     >
                       Coba lagi
                     </button>
@@ -265,36 +299,37 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
           </AnimatePresence>
         </div>
 
-        <div className="z-40 bg-[#17171c] px-4 py-4 md:px-5">
-          <div className="flex items-center gap-4">
+        {/* Controls Footer */}
+        <div className="z-40 bg-cohere-primary px-3 py-3 sm:px-4 sm:py-4 md:px-5">
+          <div className="flex items-center gap-3 sm:gap-4">
             {isLive && !isLoading && (
               <>
                 {!isActive ? (
                   <button
                     onClick={onStartDetection}
-                    className="flex-1 rounded-[32px] bg-white px-6 py-4 text-sm font-medium text-cohere-primary transition-colors hover:bg-cohere-stone"
+                    className="flex-1 rounded-full bg-cohere-canvas px-4 py-3 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone sm:px-6 sm:py-4 sm:text-sm"
                   >
                     Mulai terjemah
                   </button>
                 ) : (
                   <button
                     onClick={onStopDetection}
-                    className="flex-1 rounded-[32px] border border-white/20 bg-cohere-primary px-6 py-4 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                    className="flex-1 rounded-full border border-white/20 bg-cohere-primary px-4 py-3 text-xs font-medium text-white transition-colors hover:bg-white/10 sm:px-6 sm:py-4 sm:text-sm"
                   >
                     Jeda terjemah
                   </button>
                 )}
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <ControlIconBtn onClick={onReset} label="Mulai ulang">
-                    <RotateCcw className="size-5" />
+                    <RotateCcw className="size-4 sm:size-5" />
                   </ControlIconBtn>
-                  <ControlIconBtn 
-                    onClick={onFlipCamera} 
+                  <ControlIconBtn
+                    onClick={onFlipCamera}
                     label="Ganti kamera"
                     disabled={!hasMultipleCameras}
                   >
-                    <FlipHorizontal className="size-5" />
+                    <FlipHorizontal className="size-4 sm:size-5" />
                   </ControlIconBtn>
                 </div>
               </>
@@ -308,23 +343,23 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
 
 WebcamCapture.displayName = "WebcamCapture";
 
-function ControlIconBtn({ 
-  onClick, 
-  disabled, 
+function ControlIconBtn({
+  onClick,
+  disabled,
   label,
-  children 
-}: { 
-  onClick: () => void; 
-  disabled?: boolean; 
-  label: string; 
-  children: React.ReactNode; 
+  children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  label: string;
+  children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex size-12 items-center justify-center rounded-sm border border-white/15 text-white/45 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-20"
+      className="flex size-10 items-center justify-center rounded-sm border border-white/15 text-white/45 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-20 sm:size-12"
     >
       {children}
     </button>
