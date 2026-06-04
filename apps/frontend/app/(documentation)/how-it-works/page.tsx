@@ -10,11 +10,10 @@ import {
   Shield,
   Volume2,
 } from "lucide-react";
-import LandingNavbar from "@/components/layout/LandingNavbar";
-import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
+import DocumentationHero from "../_components/DocumentationHero";
 
 const steps = [
   {
@@ -76,7 +75,7 @@ function StepDetailBadge({ detail }: { detail: string }) {
   return (
     <Badge
       variant="outline"
-      className="gap-2 text-[14px] font-normal normal-case text-cohere-ink"
+      className="gap-2 border-[var(--color-border)] text-[14px] font-normal normal-case text-[var(--color-text-primary)]"
     >
       <CheckCircle2 className="size-3.5" />
       {detail}
@@ -86,39 +85,35 @@ function StepDetailBadge({ detail }: { detail: string }) {
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-cohere-canvas text-cohere-ink">
-      <LandingNavbar />
-      <main id="main-content" className="pt-32">
-        <section className="border-b border-cohere-hairline py-16 md:py-24">
-          <div className="cohere-container">
-            <p className="text-mono-label text-[12px] text-cohere-slate">How it works</p>
-            <h1 className="mt-5 max-w-4xl font-display text-[52px] leading-none md:text-[72px]">
-              From camera frame to spoken sentence.
-            </h1>
-            <p className="mt-6 max-w-2xl text-[18px] leading-[1.4] text-cohere-body-muted">
-              A plain-language breakdown of the recognition loop, the sentence builder, and the
-              limits users should understand before relying on the tool.
-            </p>
-          </div>
-        </section>
+    <main id="main-content" className="pt-32">
+      <DocumentationHero
+        eyebrow="How it works"
+        title="From camera frame to spoken sentence."
+        lead="A plain-language breakdown of the recognition loop, the sentence builder, and the limits users should understand before relying on the tool."
+      />
 
-        <section className="py-16 md:py-24">
+      <section className="py-20 md:py-24">
           <div className="cohere-container">
-            <div className="border-t border-cohere-hairline">
+            <div className="border-t border-[var(--color-border)]">
               {steps.map((item) => (
                 <article
                   key={item.step}
-                  className="grid gap-6 border-b border-cohere-hairline py-8 md:grid-cols-[88px_1fr_1fr] md:items-start"
+                  data-animate
+                  className="grid gap-6 border-b border-[var(--color-border)] py-8 md:grid-cols-[88px_1fr_1fr] md:items-start"
                 >
                   <div>
-                    <div className="flex size-12 items-center justify-center rounded-sm border border-cohere-hairline bg-cohere-stone">
+                    <div className="flex size-12 items-center justify-center rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-subtle)]">
                       <item.icon className="size-5" />
                     </div>
-                    <p className="mt-4 text-mono-label text-[12px] text-cohere-slate">{item.step}</p>
+                    <p className="mt-4 text-mono-label text-[12px] text-[var(--color-text-secondary)]">
+                      {item.step}
+                    </p>
                   </div>
                   <div>
                     <h2 className="text-[32px] leading-[1.2]">{item.title}</h2>
-                    <p className="mt-4 max-w-xl text-[16px] leading-[1.5] text-cohere-body-muted">{item.desc}</p>
+                    <p className="mt-4 max-w-xl text-[16px] leading-[1.5] text-[var(--color-text-secondary)]">
+                      {item.desc}
+                    </p>
                   </div>
                   <ul className="flex flex-wrap gap-2 md:justify-end">
                     {item.details.map((detail) => (
@@ -131,62 +126,88 @@ export default function HowItWorksPage() {
               ))}
             </div>
           </div>
-        </section>
+      </section>
 
-        <section className="bg-cohere-stone py-16 md:py-24">
+      <section className="bg-[var(--color-bg-subtle)] py-20 md:py-24">
           <div className="cohere-container">
-            <p className="text-mono-label text-[12px] text-cohere-coral">Honest limitations</p>
-            <h2 className="mt-4 max-w-3xl text-[40px] leading-[1.2] md:text-[48px]">
-              The product is useful because the boundaries are visible.
-            </h2>
+            <div data-animate>
+              <p className="text-mono-label text-[12px] text-[var(--color-accent)]">
+                Honest limitations
+              </p>
+              <h2 className="mt-4 max-w-3xl text-[40px] leading-[1.2] md:text-[48px]">
+                The product is useful because the boundaries are visible.
+              </h2>
+            </div>
             <div className="mt-12 grid gap-4 md:grid-cols-3">
               {limitations.map((item) => (
-                <Card key={item.title} asChild className="gap-0">
-                <article>
-                  <item.icon className="size-5 text-cohere-coral" />
-                  <h3 className="mt-6 text-[24px] leading-[1.3]">{item.title}</h3>
-                  <p className="mt-3 text-[16px] leading-[1.5] text-cohere-body-muted">{item.desc}</p>
-                </article>
+                <Card
+                  key={item.title}
+                  asChild
+                  data-animate
+                  className="gap-0"
+                >
+                  <article>
+                    <item.icon className="size-5 text-[var(--color-accent)]" />
+                    <h3 className="mt-6 text-[24px] leading-[1.3]">{item.title}</h3>
+                    <p className="mt-3 text-[16px] leading-[1.5] text-[var(--color-text-secondary)]">
+                      {item.desc}
+                    </p>
+                  </article>
                 </Card>
               ))}
             </div>
           </div>
-        </section>
+      </section>
 
-        <section className="py-16 md:py-24">
+      <section className="py-20 md:py-24">
           <div className="cohere-container">
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+            <div data-animate className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
-                <p className="text-mono-label text-[12px] text-cohere-slate">FAQ</p>
+                <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
+                  FAQ
+                </p>
                 <h2 className="mt-4 text-[40px] leading-[1.2] md:text-[48px]">Common questions.</h2>
               </div>
-              <div className="border-t border-cohere-hairline">
+              <div className="border-t border-[var(--color-border)]">
                 {faqs.map(([question, answer]) => (
-                  <details key={question} className="group border-b border-cohere-hairline py-5">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-[18px]">
+                  <details
+                    key={question}
+                    className="group border-b border-[var(--color-border)] py-5"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-[18px] transition-colors hover:text-[var(--color-action)]">
                       {question}
-                      <span className="text-cohere-slate transition-transform group-open:rotate-45">+</span>
+                      <span
+                        aria-hidden="true"
+                        className="text-[var(--color-text-secondary)] transition-transform group-open:rotate-45"
+                      >
+                        +
+                      </span>
                     </summary>
-                    <p className="mt-4 max-w-2xl text-[16px] leading-[1.5] text-cohere-body-muted">{answer}</p>
+                    <p className="mt-4 max-w-2xl text-[16px] leading-[1.5] text-[var(--color-text-secondary)]">
+                      {answer}
+                    </p>
                   </details>
                 ))}
               </div>
             </div>
           </div>
-        </section>
+      </section>
 
-        <section className="py-16 md:py-24">
+      <section className="py-20 md:py-24">
           <div className="cohere-container">
             <Card
               variant="hero"
-              className="gap-0 border-transparent bg-cohere-green p-8 text-white md:p-14"
+              data-animate
+              className="gap-0 border-transparent bg-[var(--color-bg-product)] p-8 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-14"
             >
-              <p className="text-mono-label text-[12px] text-white/55">Try the workspace</p>
+              <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
+                Try the workspace
+              </p>
               <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-                <h2 className="max-w-3xl font-display text-[44px] leading-[1.05] md:text-[60px]">
+                <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
                   Open a camera session and test the recognition loop.
                 </h2>
-                <Button asChild variant="surface" size="lg">
+                <Button asChild variant="primary" size="lg">
                   <Link href="/translate">
                     Start translating
                     <ArrowRight className="size-4" />
@@ -195,9 +216,7 @@ export default function HowItWorksPage() {
               </div>
             </Card>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+      </section>
+    </main>
   );
 }

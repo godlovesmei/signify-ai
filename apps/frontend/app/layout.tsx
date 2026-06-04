@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import './globals.css';
+import '../styles/globals.css';
 import { Toaster } from "@/components/ui/sonner";
 
 const THEME_STORAGE_KEY = 'signify:theme';
@@ -11,18 +11,22 @@ const PREFER_DARK_QUERY = '(prefers-color-scheme: dark)';
 const themeInitScript = `
 (() => {
   try {
-    const stored = localStorage.getItem('${THEME_STORAGE_KEY}');
-    const mode = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
     const mq = window.matchMedia('${PREFER_DARK_QUERY}');
+    const readMode = () => {
+      const stored = localStorage.getItem('${THEME_STORAGE_KEY}');
+      return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+    };
     const apply = () => {
+      const mode = readMode();
       const resolved = mode === 'system' ? (mq.matches ? 'dark' : 'light') : mode;
       document.documentElement.classList.toggle('dark', resolved === 'dark');
       document.documentElement.style.colorScheme = resolved;
     };
     apply();
-    if (mode === 'system') {
-      mq.addEventListener('change', apply);
-    }
+    mq.addEventListener('change', apply);
+    window.addEventListener('storage', (event) => {
+      if (event.key === '${THEME_STORAGE_KEY}') apply();
+    });
   } catch (e) {
     // ignore — leave default light theme
   }
@@ -236,12 +240,14 @@ export default function RootLayout({
       <head>
         <StructuredData />
       </head>
-      <body
-        className="font-sans antialiased"
-      >
+      <body className="font-sans antialiased">
         {/* Critical theme script — must run before any paint */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
+        {/*
+         * Toaster — uses cohere-canvas/cohere-ink/cohere-hairline tokens per DESIGN.md.
+         * rounded-sm (8px) — DESIGN.md sm radius for small UI elements.
+         */}
         <Toaster
           position="bottom-right"
           richColors

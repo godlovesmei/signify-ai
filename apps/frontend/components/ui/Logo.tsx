@@ -1,6 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+/**
+ * Logo — Not explicitly defined as a component in DESIGN.md.
+ * Aligned to documented tokens:
+ *   - font-display (CohereText) for wordmark — DESIGN.md display font
+ *   - font-weight: 400 — DESIGN.md: display type is always weight 400
+ *   - letter-spacing: 0 — DESIGN.md: feature-heading and body use tracking 0
+ *   - sizing via sizeMap: sm=28, md=34, lg=40 — within DESIGN.md spacing system
+ */
+
 type LogoSize = 'sm' | 'md' | 'lg';
 
 interface LogoProps {
@@ -50,7 +59,7 @@ function LogoContent({
           className="font-display font-normal tracking-normal text-current leading-none"
           style={{ fontSize: size === 'lg' ? '1.75rem' : size === 'md' ? '1.5rem' : '1.25rem' }}
         >
-          Signify<span className="opacity-55">AI</span>
+          Signify<span className="brand-ai-gradient">AI</span>
         </span>
       )}
     </span>

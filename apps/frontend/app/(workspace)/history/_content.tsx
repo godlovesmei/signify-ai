@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, Copy, Eye, Trash2, History } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import PageHeader from "@/components/layout/PageHeader";
 import { cn } from "@/lib/utils";
 import {
@@ -108,19 +108,19 @@ export default function HistoryPageContent() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button onClick={() => copySessionText(session)} variant="ghost" size="icon-sm">
+                    <Button onClick={() => copySessionText(session)} variant="secondary" size="icon-sm">
                       {copiedSessionId === session.sessionId ? <Check className="size-4 text-cohere-green" /> : <Copy className="size-4" />}
                     </Button>
                     <Button
                       onClick={() => setExpandedSessionId(isExpanded ? null : session.sessionId)}
-                      variant="ghost"
+                      variant="secondary"
                       size="icon-sm"
                     >
                       <Eye className="size-4" />
                     </Button>
                     <Button
                       onClick={() => handleDeleteSession(session.sessionId)}
-                      variant="ghost"
+                      variant="secondary"
                       size="icon-sm"
                       className="text-cohere-error hover:text-cohere-error"
                     >

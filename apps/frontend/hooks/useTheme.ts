@@ -37,6 +37,7 @@ function getSystemPreference(): 'light' | 'dark' {
 
 function applyTheme(resolved: 'light' | 'dark') {
   document.documentElement.classList.toggle('dark', resolved === 'dark');
+  document.documentElement.style.colorScheme = resolved;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ import {
   Volume2,
 } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   ALPHABET_LETTERS,
   getHistorySessions,
@@ -516,7 +516,7 @@ export default function ProfilePageContent() {
               <div className="py-12 text-center">
                 <History className="mx-auto size-8 text-cohere-slate" />
                 <p className="mt-4 text-[14px] text-cohere-slate">No traces detected in local buffer.</p>
-                <Button asChild variant="link" className="mt-2">
+                <Button asChild variant="secondary" className="mt-2">
                   <Link href="/translate">Initialize translate</Link>
                 </Button>
               </div>

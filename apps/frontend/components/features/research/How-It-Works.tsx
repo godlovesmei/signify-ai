@@ -1,12 +1,12 @@
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-32">
+    <section>
       
-      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
         How It Works
       </h2>
 
-      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
 
         <p>
           A real-time sign language translation system operates through a 
@@ -15,7 +15,7 @@ export default function HowItWorks() {
           modeling and language interpretation within a low-latency framework.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           1. Video Capture
         </h3>
         <p>
@@ -24,7 +24,7 @@ export default function HowItWorks() {
           Frame rate stability is critical to maintaining accurate motion tracking.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           2. Landmark Detection
         </h3>
         <p>
@@ -34,7 +34,7 @@ export default function HowItWorks() {
           noise and standardizes visual input for downstream models.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           3. Temporal Modeling
         </h3>
         <p>
@@ -44,7 +44,7 @@ export default function HowItWorks() {
           motion patterns and contextual dependencies across time.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           4. Gesture Classification
         </h3>
         <p>
@@ -53,7 +53,7 @@ export default function HowItWorks() {
           segmentation algorithms identify boundaries between individual signs.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           5. Language Output
         </h3>
         <p>

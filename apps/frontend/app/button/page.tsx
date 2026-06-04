@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import {
@@ -7,61 +9,49 @@ import {
   Download,
   ExternalLink,
   Heart,
-  Loader2,
-  Plus,
+  Monitor,
+  Moon,
+  Radio,
   RefreshCw,
   Settings,
+  Sun,
   Trash2,
   WandSparkles,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/Button";
+import { useTheme, type ThemeMode } from "@/hooks/useTheme";
 
-type ButtonVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "destructive"
-  | "outline"
-  | "ghost"
-  | "secondary"
-  | "highlight"
-  | "surface"
-  | "signal"
-  | "link";
+type ButtonVariant = NonNullable<ButtonProps["variant"]>;
+type ButtonSize = NonNullable<ButtonProps["size"]>;
 
-type ButtonSize =
-  | "xs"
-  | "sm"
-  | "default"
-  | "lg"
-  | "icon-xs"
-  | "icon-sm"
-  | "icon"
-  | "icon-lg";
-
-const variants: Array<{
+type VariantSample = {
   name: ButtonVariant;
   label: string;
   icon: ComponentType<{ className?: string }>;
-}> = [
-  { name: "default", label: "Default", icon: ArrowRight },
+};
+
+const brandVariants: VariantSample[] = [
+  { name: "primary", label: "Primary", icon: ArrowRight },
+  { name: "secondary", label: "Secondary", icon: Settings },
+  { name: "outline", label: "Outline", icon: Download },
+];
+
+const semanticVariants: VariantSample[] = [
   { name: "success", label: "Success", icon: Check },
   { name: "warning", label: "Warning", icon: Bell },
   { name: "destructive", label: "Destructive", icon: Trash2 },
-  { name: "outline", label: "Outline", icon: Download },
-  { name: "ghost", label: "Ghost", icon: RefreshCw },
-  { name: "secondary", label: "Secondary", icon: Settings },
+  { name: "signal", label: "Signal", icon: Radio },
   { name: "highlight", label: "Highlight", icon: WandSparkles },
   { name: "surface", label: "Surface", icon: Heart },
-  { name: "signal", label: "Signal", icon: Plus },
+  { name: "ghost", label: "Ghost", icon: RefreshCw },
   { name: "link", label: "Link", icon: ExternalLink },
 ];
 
 const textSizes: Array<{ name: ButtonSize; label: string }> = [
   { name: "xs", label: "Extra small" },
   { name: "sm", label: "Small" },
-  { name: "default", label: "Default" },
+  { name: "md", label: "Medium" },
   { name: "lg", label: "Large" },
 ];
 
@@ -70,6 +60,16 @@ const iconSizes: Array<{ name: ButtonSize; label: string }> = [
   { name: "icon-sm", label: "Icon SM" },
   { name: "icon", label: "Icon" },
   { name: "icon-lg", label: "Icon LG" },
+];
+
+const themeOptions: Array<{
+  name: ThemeMode;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+}> = [
+  { name: "light", label: "Light", icon: Sun },
+  { name: "system", label: "System", icon: Monitor },
+  { name: "dark", label: "Dark", icon: Moon },
 ];
 
 function Section({
@@ -126,7 +126,7 @@ function SampleRow({
         <Button variant={variant} disabled>
           Disabled
         </Button>
-        <Button variant={variant} isLoading loadingText="Loading" />
+        <Button variant={variant} isLoading loadingLabel="Loading" />
         <Button variant={variant} size="icon" aria-label={`${label} icon`}>
           <Icon />
         </Button>
@@ -136,6 +136,8 @@ function SampleRow({
 }
 
 export default function ButtonPreviewPage() {
+  const { theme, resolvedTheme, setTheme } = useTheme();
+
   return (
     <main className="min-h-screen bg-cohere-canvas text-cohere-ink">
       <div className="cohere-container py-12 md:py-16">
@@ -153,26 +155,58 @@ export default function ButtonPreviewPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 md:items-end">
+            <div className="rounded-sm border border-cohere-hairline bg-cohere-stone p-3">
+              <p className="mb-2 font-mono text-[11px] text-cohere-slate">
+                Theme / resolved {resolvedTheme}
+              </p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Theme preview">
+                {themeOptions.map(({ name, label, icon: Icon }) => (
+                  <Button
+                    key={name}
+                    variant={theme === name ? "primary" : "outline"}
+                    size="sm"
+                    role="radio"
+                    aria-checked={theme === name}
+                    onClick={() => setTheme(name)}
+                  >
+                    <Icon />
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
             <Button asChild variant="outline">
               <Link href="/">
                 Home
                 <ArrowRight />
               </Link>
             </Button>
-            <Button>
-              Primary action
-              <WandSparkles />
-            </Button>
           </div>
         </header>
 
         <Section
-          title="Variants"
-          description="Setiap baris memperlihatkan tombol normal, disabled, loading, dan icon-only untuk variant yang sama."
+          title="Brand Variants"
+          description="Tiga CTA inti dari DESIGN.md: primary, secondary text action, dan pill outline."
         >
           <div className="border-b border-cohere-hairline">
-            {variants.map((variant) => (
+            {brandVariants.map((variant) => (
+              <SampleRow
+                key={variant.name}
+                variant={variant.name}
+                label={variant.label}
+                icon={variant.icon}
+              />
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          title="Semantic & Utility Variants"
+          description="Variant kontekstual memakai token semantik yang ikut berubah saat theme light, system, atau dark aktif."
+        >
+          <div className="border-b border-cohere-hairline">
+            {semanticVariants.map((variant) => (
               <SampleRow
                 key={variant.name}
                 variant={variant.name}
@@ -185,7 +219,7 @@ export default function ButtonPreviewPage() {
 
         <Section
           title="Text Sizes"
-          description="Ukuran teks memakai variant default supaya perbedaan tinggi dan padding terlihat jelas."
+          description="Ukuran teks memakai variant primary supaya perbedaan tinggi dan padding terlihat jelas."
         >
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {textSizes.map((size) => (
@@ -244,9 +278,8 @@ export default function ButtonPreviewPage() {
               <p className="mb-5 text-mono-label text-[11px] text-cohere-slate">
                 Custom busy label
               </p>
-              <Button variant="signal" disabled>
-                <Loader2 className="animate-spin" />
-                Syncing
+              <Button variant="signal" isLoading loadingLabel="Syncing">
+                Sync data
               </Button>
             </div>
 

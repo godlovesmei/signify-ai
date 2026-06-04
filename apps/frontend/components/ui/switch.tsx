@@ -5,6 +5,14 @@ import { Switch as SwitchPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Switch — Not explicitly defined in DESIGN.md.
+ * Aligned to documented tokens:
+ *   - track bg: input token (#d9d9dd unchecked), primary token (#17171c checked)
+ *   - thumb bg: background/primary-foreground
+ *   - rounded-full (9999px) — DESIGN.md radius scale: "Round status elements and fully pill-shaped controls"
+ *   - focus ring: ring token (#4c6ee6) — DESIGN.md focus-blue
+ */
 function Switch({
   className,
   size = "default",

@@ -1,12 +1,12 @@
 export default function ModelTraining() {
   return (
-    <section id="model-training" className="scroll-mt-32">
+    <section>
       
-      <h2 className="mb-6 text-[32px] leading-[1.2] text-cohere-ink">
+      <h2 className="mb-6 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
         Model Training
       </h2>
 
-      <div className="space-y-6 text-[18px] leading-[1.5] text-cohere-body-muted">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
 
         <p>
           Model training is the process through which a sign language translation 
@@ -15,7 +15,7 @@ export default function ModelTraining() {
           its internal parameters by minimizing prediction error across a labeled dataset.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Dataset Collection
         </h3>
         <p>
@@ -25,7 +25,7 @@ export default function ModelTraining() {
           model generalizes across different signers, dialects and environments.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Data Preprocessing
         </h3>
         <p>
@@ -35,7 +35,7 @@ export default function ModelTraining() {
           before training.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Supervised Learning Objective
         </h3>
         <p>
@@ -52,7 +52,7 @@ export default function ModelTraining() {
           sequences with linguistic meaning.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Validation & Generalization
         </h3>
         <p>
@@ -62,7 +62,7 @@ export default function ModelTraining() {
           dropout, regularization and data augmentation further improve robustness.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-cohere-ink">
+        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Fine-Tuning & Continuous Learning
         </h3>
         <p>

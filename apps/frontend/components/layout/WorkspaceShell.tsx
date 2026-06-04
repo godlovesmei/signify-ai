@@ -67,7 +67,7 @@ export default function WorkspaceShell({
           </button>
           {/* Wordmark only on mobile top bar */}
           <span className="font-display text-sm font-medium tracking-tight text-cohere-ink">
-            Signify<span className="text-cohere-slate">AI</span>
+            Signify<span className="brand-ai-gradient">AI</span>
           </span>
           {/* Right slot — empty, keeps wordmark centered */}
           <div className="size-8" aria-hidden="true" />

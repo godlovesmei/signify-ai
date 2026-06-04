@@ -10,7 +10,7 @@ import {
   type WebcamCaptureHandle,
   type CameraState,
 } from "@/components/features/translation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogClose,
@@ -870,7 +870,7 @@ export default function PracticePageContent() {
                       <DialogClose asChild>
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="outline"
                           className="w-full"
                           onClick={handleResetProgress}
                         >
@@ -881,7 +881,7 @@ export default function PracticePageContent() {
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="ghost" onClick={handleReset}>
+                <Button variant="secondary" onClick={handleReset}>
                   Reset camera
                 </Button>
 

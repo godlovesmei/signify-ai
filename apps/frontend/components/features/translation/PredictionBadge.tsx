@@ -31,10 +31,6 @@ export default function PredictionBadge({
 
   const letterKey = letter ?? "__idle__";
 
-  // Responsive font size: mobile 64px, tablet 80px, desktop 96px
-  const baseFontSize = typeof window !== "undefined" && window.innerWidth < 640 ? 64 : window.innerWidth < 1024 ? 80 : 96;
-  const fontSize = `${baseFontSize * textScale}px`;
-
   return (
     <div role="region" aria-label="Current sign prediction" className="flex w-full flex-col gap-3 sm:gap-4">
       <span className="sr-only" aria-live="assertive" aria-atomic="true">

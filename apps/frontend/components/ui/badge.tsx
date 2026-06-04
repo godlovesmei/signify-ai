@@ -4,33 +4,46 @@ import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * DESIGN.md defines one explicit badge-like pattern:
+ *   blog-filter-chip — xl radius (30px), coral text/border, card-heading typography,
+ *                      transparent or coral-fill bg, no uppercase (card-heading is Unica77 not mono)
+ *
+ * Additional chip patterns derived from DESIGN.md surface tokens:
+ *   default      — primary fill (near-black), on-primary text, pill/xl shape
+ *   outline      — 1px border (hairline), transparent fill, ink text — general outlined chip
+ *   pill-outline — xl radius (30px), primary border+text — maps to button-pill-outline chip style
+ *
+ * Removed variants not in DESIGN.md: secondary, destructive, ghost, link, success,
+ *   warning, highlight, surface, info.
+ *
+ * Typography: micro (Unica77, 12px, weight 400, line-height 1.4) — no uppercase for non-mono labels.
+ * DESIGN.md uppercase is reserved for mono-label (CohereMono) only.
+ */
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[30px] border px-3 py-1 text-[12px] font-medium tracking-normal uppercase transition-colors duration-200 [&>svg]:size-3",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-1 text-[12px] font-normal tracking-normal transition-colors duration-200 [&>svg]:size-3",
   {
     variants: {
       variant: {
+        /**
+         * default — filled near-black chip (primary surface)
+         */
         default:
           "bg-primary text-primary-foreground border-primary",
-        secondary:
-          "bg-secondary text-secondary-foreground border-border",
-        destructive:
-          "bg-destructive text-destructive-foreground border-destructive",
+
+        /**
+         * outline — general outlined chip; hairline border, transparent fill
+         * Used in research-table topic pills and agent-console status chips.
+         */
         outline:
-          "border-border text-foreground bg-background",
-        ghost:
-          "border-transparent text-foreground bg-secondary",
-        link:
-          "border-transparent text-primary bg-transparent underline-offset-4",
-        success:
-          "bg-success text-success-foreground border-success",
-        warning:
-          "bg-warning text-warning-foreground border-warning",
-        highlight:
-          "bg-accent text-accent-foreground border-accent",
-        surface:
-          "bg-surface-tertiary text-surface-tertiary-foreground border-surface-tertiary",
-        info:
-          "bg-transparent text-accent border-accent/30",
+          "border-border text-foreground bg-transparent",
+
+        /**
+         * pill-outline — coral-border chip; maps to blog-filter-chip (inactive state)
+         * DESIGN.md: "inactive chips use coral outline and pale fill"
+         */
+        "pill-outline":
+          "border-cohere-coral/50 text-cohere-coral bg-transparent",
       },
     },
     defaultVariants: {
@@ -38,7 +51,6 @@ const badgeVariants = cva(
     },
   }
 )
-
 
 function Badge({
   className,

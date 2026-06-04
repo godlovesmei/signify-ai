@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import PageHeader from '@/components/layout/PageHeader';
 import {
   ALPHABET_LETTERS,
