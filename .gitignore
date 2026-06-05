@@ -47,7 +47,6 @@ Thumbs.db
 
 # Planning
 PLAN.md
-runs/
 *.pt
 
 # Environment variables — ignore all .env variants except example templates
