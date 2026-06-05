@@ -1,0 +1,39 @@
+name: E2E Cross Browser
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 18 * * 5"
+
+jobs:
+  cross-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/frontend
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: test-publishable-key
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: apps/frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e:cross-browser
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-browser-playwright-report
+          path: |
+            apps/frontend/playwright-report
+            apps/frontend/test-results

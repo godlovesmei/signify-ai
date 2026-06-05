@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -16,13 +16,17 @@ import {
   TrendingUp,
   User,
   Volume2,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import {
-  ALPHABET_LETTERS,
+  createDefaultPracticeStats,
   getHistorySessions,
   getPracticeStats,
+  getTranslationHistoryTotals,
   type HistorySession,
   type PracticeStats,
 } from "@/lib/userData";
@@ -30,6 +34,7 @@ import {
   TEXT_SCALE_OPTIONS,
   useAccessibilityPrefs,
 } from "@/hooks/useAccessibilityPrefs";
+import { getAccountProfile } from "@/lib/accountData";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 
 type ProfileState = {
@@ -63,22 +68,6 @@ function getInitials(name: string) {
     .join("");
 
   return initials.toUpperCase() || "U";
-}
-
-function createEmptyPracticeStats(): PracticeStats {
-  const byLetter = ALPHABET_LETTERS.reduce((accumulator, letter) => {
-    accumulator[letter] = { attempts: 0, correct: 0 };
-    return accumulator;
-  }, {} as PracticeStats["byLetter"]);
-
-  return {
-    totalAttempts: 0,
-    correctAttempts: 0,
-    currentStreak: 0,
-    bestStreak: 0,
-    lastPlayedAt: null,
-    byLetter,
-  };
 }
 
 function formatUtcDate(value: string | null | undefined) {
@@ -222,7 +211,7 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
           </div>
           <p className="mt-3 text-[14px] leading-[1.5] text-cohere-body-muted">{truncatedPreview}</p>
           <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-cohere-slate">
-            <span>{session.entries.length} frames</span>
+            <span>{session.entryCount} frames</span>
             <span>{confidence}% confidence</span>
           </div>
         </div>
@@ -269,70 +258,59 @@ function LetterFocusRow({
 
 export default function ProfilePageContent() {
   const [profile, setProfile] = useState<ProfileState>(FALLBACK_PROFILE);
-  const [practiceStats, setPracticeStats] = useState<PracticeStats>(() =>
-    createEmptyPracticeStats()
+  const [practiceStats, setPracticeStats] = useState<PracticeStats>(
+    createDefaultPracticeStats
   );
   const [historySessions, setHistorySessions] = useState<HistorySession[]>([]);
+  const [historyTotals, setHistoryTotals] = useState({
+    sessionCount: 0,
+    entryCount: 0,
+  });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const prefs = useAccessibilityPrefs();
 
-  useEffect(() => {
-    let active = true;
+  const loadProfile = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(false);
+    try {
+      const [account, stats, history, totals] = await Promise.all([
+        getAccountProfile(),
+        getPracticeStats(),
+        getHistorySessions({ pageSize: 3 }),
+        getTranslationHistoryTotals(),
+      ]);
 
-    async function loadProfile() {
-      const supabase = createSupabaseClient();
-      const { data } = await supabase.auth.getUser();
-
-      if (!active) return;
-
-      setPracticeStats(getPracticeStats());
-      setHistorySessions(getHistorySessions());
-
-      const authUser = data.user;
-      if (!authUser) return;
-
-      const metadata = (authUser.user_metadata ?? {}) as Record<
-        string,
-        string | undefined
-      >;
-      const fullName =
-        metadata.full_name?.trim() ||
-        metadata.name?.trim() ||
-        metadata.display_name?.trim() ||
-        metadata.username?.trim() ||
-        "";
-      const email = authUser.email ?? FALLBACK_PROFILE.email;
-      const displayName = fullName || email.split("@")[0] || FALLBACK_PROFILE.displayName;
-
-      setProfile({
-        displayName,
-        email,
-        initials: getInitials(displayName),
-        avatarUrl:
-          metadata.avatar_url ?? metadata.picture ?? metadata.avatar ?? null,
-        id: authUser.id ?? null,
-        createdAt: authUser.created_at ?? null,
-        lastSignInAt: authUser.last_sign_in_at ?? null,
-        verified: Boolean(authUser.email_confirmed_at),
-      });
+      setPracticeStats(stats);
+      setHistorySessions(history.sessions);
+      setHistoryTotals(totals);
+      if (account) {
+        setProfile({
+          displayName: account.displayName,
+          email: account.email,
+          initials: getInitials(account.displayName),
+          avatarUrl: account.avatarUrl,
+          id: account.id,
+          createdAt: account.createdAt,
+          lastSignInAt: account.lastSignInAt,
+          verified: account.verified,
+        });
+      }
+    } catch {
+      setLoadError(true);
+      toast.error("Profile analytics could not be loaded.");
+    } finally {
+      setIsLoading(false);
     }
-
-    loadProfile().catch(() => {
-      if (!active) return;
-      setPracticeStats(getPracticeStats());
-      setHistorySessions(getHistorySessions());
-    });
-
-    return () => {
-      active = false;
-    };
   }, []);
 
-  const totalSessions = historySessions.length;
-  const totalEntries = historySessions.reduce(
-    (sum, session) => sum + session.entries.length,
-    0
-  );
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
+
+  const totalSessions = historyTotals.sessionCount;
+  const totalEntries = historyTotals.entryCount;
   const practiceAccuracy =
     practiceStats.totalAttempts === 0
       ? 0
@@ -418,6 +396,16 @@ export default function ProfilePageContent() {
       <PageHeader
         title="Profile"
         description="Account details, translation history, practice analytics, and workspace preferences."
+        actions={
+          isLoading ? (
+            <Loader2 className="size-5 animate-spin text-cohere-slate" aria-label="Loading profile" />
+          ) : loadError ? (
+            <Button onClick={() => void loadProfile()} variant="outline" size="sm">
+              <RefreshCw className="size-4" />
+              Retry
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
@@ -515,7 +503,7 @@ export default function ProfilePageContent() {
             {historySessions.length === 0 && (
               <div className="py-12 text-center">
                 <History className="mx-auto size-8 text-cohere-slate" />
-                <p className="mt-4 text-[14px] text-cohere-slate">No traces detected in local buffer.</p>
+                <p className="mt-4 text-[14px] text-cohere-slate">No synced translation sessions yet.</p>
                 <Button asChild variant="secondary" className="mt-2">
                   <Link href="/translate">Initialize translate</Link>
                 </Button>

@@ -50,7 +50,7 @@ export interface SettingsDrawerProps {
   onTtsVolumeChange: (v: number) => void;
   voiceEnabled?: boolean;
   onVoiceEnabledChange?: (enabled: boolean) => void;
-  user?: { name: string, email: string, avatarUrl?: string } | null;
+  user?: { name: string, email: string, avatarUrl?: string | null } | null;
   onLogout: () => void;
 }
 

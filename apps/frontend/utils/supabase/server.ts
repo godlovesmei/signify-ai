@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getSupabaseConfig } from '@/utils/supabase/config';
+import type { Database } from '@/utils/supabase/database.types';
 
 // ─── NOTE ─────────────────────────────────────────────────────────────────────
 // This is async because Next.js 15 made cookies() async.
@@ -10,10 +12,11 @@ import { cookies } from 'next/headers';
 
 export const createClient = async () => {
   const cookieStore = await cookies();
+  const { url, publishableKey } = getSupabaseConfig();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+  return createServerClient<Database>(
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() {

@@ -1,14 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import AppSidebar from "@/components/layout/AppSidebar";
+import type { SidebarUser } from "@/components/layout/AppSidebar";
 import MobileBottomNav from "./mobile-nav/MobileBottomNav";
 import SettingsDrawer from "./SettingsDrawer";
 import { useTheme } from "@/hooks/useTheme";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
+import { getAccountProfile } from "@/lib/accountData";
+import { createClient } from "@/utils/supabase/client";
 
-const WORKSPACE_USER = { name: "User Session", email: "user@signify.ai" };
+const FALLBACK_WORKSPACE_USER: SidebarUser = {
+  name: "User Account",
+  email: "account@signify.ai",
+  avatarUrl: null,
+};
 
 /**
  * WorkspaceShell — full-viewport two-column layout.
@@ -28,9 +36,35 @@ export default function WorkspaceShell({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [user, setUser] = useState<SidebarUser>(FALLBACK_WORKSPACE_USER);
 
   const handleLogout = useCallback(() => {
-    console.log("Logging out...");
+    void createClient()
+      .auth.signOut()
+      .then(({ error }) => {
+        if (error) throw error;
+        window.location.href = "/";
+      })
+      .catch(() => toast.error("Sign out failed. Please try again."));
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void getAccountProfile()
+      .then((profile) => {
+        if (!active || !profile) return;
+        setUser({
+          name: profile.displayName,
+          email: profile.email,
+          avatarUrl: profile.avatarUrl,
+        });
+      })
+      .catch(() => {
+        if (active) toast.error("Account details could not be loaded.");
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const [devices] = useState([]);
@@ -47,7 +81,7 @@ export default function WorkspaceShell({
         onLogout={handleLogout}
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
-        user={WORKSPACE_USER}
+        user={user}
       />
 
       {/* Main content area */}
@@ -102,7 +136,7 @@ export default function WorkspaceShell({
         onTtsSpeedChange={prefs.setTtsSpeed}
         ttsVolume={prefs.ttsVolume}
         onTtsVolumeChange={prefs.setTtsVolume}
-        user={WORKSPACE_USER}
+        user={user}
         onLogout={handleLogout}
       />
     </div>

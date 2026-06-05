@@ -1,6 +1,17 @@
-const HISTORY_STORAGE_KEY = "signify:history:entries:v1";
-const PRACTICE_STORAGE_KEY = "signify:practice:stats:v1";
-const MAX_HISTORY_ENTRIES = 1200;
+import { executeSupabaseRequest } from "@/lib/supabaseRequest";
+import { createSerializedQueue } from "@/lib/serializedQueue";
+import { createClient } from "@/utils/supabase/client";
+
+const LEGACY_STORAGE_KEYS = [
+  "signify:history:entries:v1",
+  "signify:practice:stats:v1",
+  "signify:highContrast",
+  "signify:textScale",
+  "signify:ttsSpeed",
+  "signify:ttsVolume",
+] as const;
+
+export const HISTORY_PAGE_SIZE = 50;
 
 export const ALPHABET_LETTERS = [
   "A",
@@ -30,25 +41,40 @@ export const ALPHABET_LETTERS = [
   "Y",
   "Z",
 ] as const;
-export type AlphabetLetter = (typeof ALPHABET_LETTERS)[number];
 
-export interface StoredHistoryEntry {
+export type AlphabetLetter = (typeof ALPHABET_LETTERS)[number];
+export type SignLanguage = "ASL" | "BISINDO";
+
+export interface TranslationEntryInput {
   id: string;
   sessionId: string;
-  text: string;
+  letter: AlphabetLetter;
   confidence: number;
-  timestamp: string;
-  language: string;
+  committedAt: string;
+  startedAt: string;
+  language: SignLanguage;
+  source?: "webcam" | "upload" | "api";
+  commitMethod?: "weighted_vote" | "fast_commit" | "manual";
 }
 
 export interface HistorySession {
   sessionId: string;
-  entries: StoredHistoryEntry[];
   text: string;
   startedAt: string;
   endedAt: string;
   averageConfidence: number;
-  language: string;
+  language: SignLanguage;
+  entryCount: number;
+}
+
+export interface HistoryPage {
+  sessions: HistorySession[];
+  hasMore: boolean;
+}
+
+export interface TranslationHistoryTotals {
+  sessionCount: number;
+  entryCount: number;
 }
 
 export interface PracticeLetterStats {
@@ -65,96 +91,40 @@ export interface PracticeStats {
   byLetter: Record<AlphabetLetter, PracticeLetterStats>;
 }
 
-function canUseStorage(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+export interface PracticeAttemptInput {
+  id: string;
+  letter: AlphabetLetter;
+  correct: boolean;
+  attemptedAt: string;
+  source?: string;
 }
 
-function readJson<T>(key: string, fallback: T): T {
-  if (!canUseStorage()) return fallback;
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function finiteNumber(value: unknown, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+async function readExpectedUserId(): Promise<string | null> {
   try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
+    const { data, error } = await createClient().auth.getSession();
+    if (error) return null;
+    return data.session?.user.id ?? null;
   } catch {
-    return fallback;
+    return null;
   }
 }
 
-function writeJson<T>(key: string, value: T): void {
-  if (!canUseStorage()) return;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Ignore quota and serialization errors.
-  }
+function requireExpectedUserId(userId: string | null): string {
+  if (!userId) throw new Error("Authentication required before saving user data.");
+  return userId;
 }
 
-function isValidHistoryEntry(value: unknown): value is StoredHistoryEntry {
-  if (!value || typeof value !== "object") return false;
-  const entry = value as Partial<StoredHistoryEntry>;
-  return (
-    typeof entry.id === "string" &&
-    typeof entry.sessionId === "string" &&
-    typeof entry.text === "string" &&
-    typeof entry.confidence === "number" &&
-    Number.isFinite(entry.confidence) &&
-    typeof entry.timestamp === "string" &&
-    typeof entry.language === "string"
-  );
-}
-
-export function getHistoryEntries(): StoredHistoryEntry[] {
-  const parsed = readJson<unknown[]>(HISTORY_STORAGE_KEY, []);
-  return parsed
-    .filter(isValidHistoryEntry)
-    .sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
-}
-
-export function appendHistoryEntry(entry: StoredHistoryEntry): void {
-  const history = getHistoryEntries();
-  history.push(entry);
-  const trimmed = history.slice(-MAX_HISTORY_ENTRIES);
-  writeJson(HISTORY_STORAGE_KEY, trimmed);
-}
-
-export function clearHistoryEntries(): void {
-  writeJson<StoredHistoryEntry[]>(HISTORY_STORAGE_KEY, []);
-}
-
-export function removeHistorySession(sessionId: string): void {
-  const next = getHistoryEntries().filter((entry) => entry.sessionId !== sessionId);
-  writeJson(HISTORY_STORAGE_KEY, next);
-}
-
-export function getHistorySessions(): HistorySession[] {
-  const grouped = new Map<string, StoredHistoryEntry[]>();
-  for (const entry of getHistoryEntries()) {
-    const list = grouped.get(entry.sessionId) ?? [];
-    list.push(entry);
-    grouped.set(entry.sessionId, list);
-  }
-
-  const sessions: HistorySession[] = [];
-  for (const [sessionId, entries] of grouped.entries()) {
-    if (entries.length === 0) continue;
-    entries.sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
-
-    const confidenceSum = entries.reduce((sum, item) => sum + item.confidence, 0);
-    sessions.push({
-      sessionId,
-      entries,
-      text: entries.map((item) => item.text).join(""),
-      startedAt: entries[0].timestamp,
-      endedAt: entries[entries.length - 1].timestamp,
-      averageConfidence: confidenceSum / entries.length,
-      language: entries[entries.length - 1].language,
-    });
-  }
-
-  return sessions.sort((a, b) => Date.parse(b.endedAt) - Date.parse(a.endedAt));
-}
-
-function createDefaultPracticeStats(): PracticeStats {
+export function createDefaultPracticeStats(): PracticeStats {
   const byLetter = {} as Record<AlphabetLetter, PracticeLetterStats>;
   for (const letter of ALPHABET_LETTERS) {
     byLetter[letter] = { attempts: 0, correct: 0 };
@@ -170,76 +140,229 @@ function createDefaultPracticeStats(): PracticeStats {
   };
 }
 
-function normalizePracticeStats(raw: unknown): PracticeStats {
+export function normalizePracticeStats(raw: unknown): PracticeStats {
   const fallback = createDefaultPracticeStats();
-  if (!raw || typeof raw !== "object") return fallback;
+  const value = asRecord(raw);
+  if (!value) return fallback;
 
-  const value = raw as Partial<PracticeStats>;
+  const rawByLetter = asRecord(value.byLetter);
   const byLetter = { ...fallback.byLetter };
-
-  if (value.byLetter && typeof value.byLetter === "object") {
-    for (const letter of ALPHABET_LETTERS) {
-      const entry = (value.byLetter as Partial<Record<AlphabetLetter, PracticeLetterStats>>)[letter];
-      if (!entry) continue;
-      const attempts = Number.isFinite(entry.attempts) ? Math.max(0, entry.attempts) : 0;
-      const correct = Number.isFinite(entry.correct) ? Math.max(0, entry.correct) : 0;
-      byLetter[letter] = {
-        attempts,
-        correct: Math.min(correct, attempts),
-      };
-    }
+  for (const letter of ALPHABET_LETTERS) {
+    const letterValue = asRecord(rawByLetter?.[letter]);
+    if (!letterValue) continue;
+    const attempts = Math.max(0, finiteNumber(letterValue.attempts));
+    const correct = Math.min(
+      attempts,
+      Math.max(0, finiteNumber(letterValue.correct)),
+    );
+    byLetter[letter] = { attempts, correct };
   }
 
   return {
-    totalAttempts: Number.isFinite(value.totalAttempts) ? Math.max(0, value.totalAttempts ?? 0) : 0,
-    correctAttempts: Number.isFinite(value.correctAttempts) ? Math.max(0, value.correctAttempts ?? 0) : 0,
-    currentStreak: Number.isFinite(value.currentStreak) ? Math.max(0, value.currentStreak ?? 0) : 0,
-    bestStreak: Number.isFinite(value.bestStreak) ? Math.max(0, value.bestStreak ?? 0) : 0,
-    lastPlayedAt: typeof value.lastPlayedAt === "string" ? value.lastPlayedAt : null,
+    totalAttempts: Math.max(0, finiteNumber(value.totalAttempts)),
+    correctAttempts: Math.max(0, finiteNumber(value.correctAttempts)),
+    currentStreak: Math.max(0, finiteNumber(value.currentStreak)),
+    bestStreak: Math.max(0, finiteNumber(value.bestStreak)),
+    lastPlayedAt:
+      typeof value.lastPlayedAt === "string" ? value.lastPlayedAt : null,
     byLetter,
   };
 }
 
-export function getPracticeStats(): PracticeStats {
-  const parsed = readJson<unknown>(PRACTICE_STORAGE_KEY, createDefaultPracticeStats());
-  return normalizePracticeStats(parsed);
-}
+export function applyPracticeAttempt(
+  current: PracticeStats,
+  attempt: Pick<PracticeAttemptInput, "letter" | "correct" | "attemptedAt">,
+): PracticeStats {
+  const previousLetter = current.byLetter[attempt.letter];
+  const currentStreak = attempt.correct ? current.currentStreak + 1 : 0;
 
-function persistPracticeStats(stats: PracticeStats): void {
-  writeJson(PRACTICE_STORAGE_KEY, stats);
-}
-
-export function resetPracticeStats(): PracticeStats {
-  const next = createDefaultPracticeStats();
-  persistPracticeStats(next);
-  return next;
-}
-
-export function recordPracticeAttempt(letter: string, correct: boolean): PracticeStats {
-  const normalizedLetter = letter.toUpperCase();
-  if (!ALPHABET_LETTERS.includes(normalizedLetter as AlphabetLetter)) {
-    return getPracticeStats();
-  }
-
-  const key = normalizedLetter as AlphabetLetter;
-  const current = getPracticeStats();
-  const nextByLetter = { ...current.byLetter };
-  const currentLetterStats = nextByLetter[key];
-
-  nextByLetter[key] = {
-    attempts: currentLetterStats.attempts + 1,
-    correct: currentLetterStats.correct + (correct ? 1 : 0),
-  };
-
-  const next: PracticeStats = {
+  return {
     totalAttempts: current.totalAttempts + 1,
-    correctAttempts: current.correctAttempts + (correct ? 1 : 0),
-    currentStreak: correct ? current.currentStreak + 1 : 0,
-    bestStreak: correct ? Math.max(current.bestStreak, current.currentStreak + 1) : current.bestStreak,
-    lastPlayedAt: new Date().toISOString(),
-    byLetter: nextByLetter,
+    correctAttempts: current.correctAttempts + (attempt.correct ? 1 : 0),
+    currentStreak,
+    bestStreak: Math.max(current.bestStreak, currentStreak),
+    lastPlayedAt: attempt.attemptedAt,
+    byLetter: {
+      ...current.byLetter,
+      [attempt.letter]: {
+        attempts: previousLetter.attempts + 1,
+        correct: previousLetter.correct + (attempt.correct ? 1 : 0),
+      },
+    },
   };
+}
 
-  persistPracticeStats(next);
-  return next;
+export function mapHistorySessionRow(row: {
+  average_confidence: number | null;
+  committed_text: string;
+  ended_at: string | null;
+  entry_count: number;
+  id: string;
+  language: string;
+  started_at: string;
+}): HistorySession {
+  return {
+    sessionId: row.id,
+    text: row.committed_text,
+    startedAt: row.started_at,
+    endedAt: row.ended_at ?? row.started_at,
+    averageConfidence: row.average_confidence ?? 0,
+    language: row.language === "ASL" ? "ASL" : "BISINDO",
+    entryCount: row.entry_count,
+  };
+}
+
+export async function getHistorySessions({
+  page = 0,
+  pageSize = HISTORY_PAGE_SIZE,
+}: {
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<HistoryPage> {
+  const safePage = Math.max(0, Math.floor(page));
+  const safePageSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
+  const from = safePage * safePageSize;
+  const to = from + safePageSize;
+  const supabase = createClient();
+
+  const rows = await executeSupabaseRequest(() =>
+    supabase
+      .from("translation_sessions")
+      .select(
+        "id, committed_text, started_at, ended_at, average_confidence, language, entry_count",
+      )
+      .order("ended_at", { ascending: false, nullsFirst: false })
+      .range(from, to),
+  );
+
+  return {
+    sessions: (rows ?? []).slice(0, safePageSize).map(mapHistorySessionRow),
+    hasMore: (rows ?? []).length > safePageSize,
+  };
+}
+
+async function appendTranslationEntryNow(
+  entry: TranslationEntryInput,
+  expectedUserId: string,
+): Promise<void> {
+  const supabase = createClient();
+  await executeSupabaseRequest(() =>
+    supabase.rpc("append_translation_entry", {
+      p_expected_user_id: expectedUserId,
+      p_entry_id: entry.id,
+      p_session_id: entry.sessionId,
+      p_letter_code: entry.letter,
+      p_confidence: entry.confidence,
+      p_language: entry.language,
+      p_source: entry.source ?? "webcam",
+      p_started_at: entry.startedAt,
+      p_committed_at: entry.committedAt,
+      p_commit_method: entry.commitMethod ?? "weighted_vote",
+    }),
+  );
+}
+
+const translationQueues = new Map<string, Promise<void>>();
+
+export function appendHistoryEntry(entry: TranslationEntryInput): Promise<void> {
+  const previous = translationQueues.get(entry.sessionId) ?? Promise.resolve();
+  const expectedUserId = readExpectedUserId();
+  const task = previous.catch(() => undefined).then(async () => {
+    await appendTranslationEntryNow(
+      entry,
+      requireExpectedUserId(await expectedUserId),
+    );
+  });
+
+  translationQueues.set(entry.sessionId, task);
+  const cleanup = () => {
+    if (translationQueues.get(entry.sessionId) === task) {
+      translationQueues.delete(entry.sessionId);
+    }
+  };
+  task.then(cleanup, cleanup);
+  return task;
+}
+
+export async function removeHistorySession(sessionId: string): Promise<void> {
+  const supabase = createClient();
+  await executeSupabaseRequest(() =>
+    supabase.from("translation_sessions").delete().eq("id", sessionId),
+  );
+}
+
+export async function clearHistoryEntries(): Promise<void> {
+  const supabase = createClient();
+  await executeSupabaseRequest(() =>
+    supabase
+      .from("translation_sessions")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000"),
+  );
+}
+
+export async function getTranslationHistoryTotals(): Promise<TranslationHistoryTotals> {
+  const supabase = createClient();
+  const raw = await executeSupabaseRequest(() =>
+    supabase.rpc("get_translation_history_totals"),
+  );
+  const value = asRecord(raw);
+  return {
+    sessionCount: Math.max(0, finiteNumber(value?.session_count)),
+    entryCount: Math.max(0, finiteNumber(value?.entry_count)),
+  };
+}
+
+export async function getPracticeStats(): Promise<PracticeStats> {
+  const supabase = createClient();
+  const raw = await executeSupabaseRequest(() => supabase.rpc("get_practice_stats"));
+  return normalizePracticeStats(raw);
+}
+
+const practiceWriteQueue = createSerializedQueue();
+
+export function recordPracticeAttempt(
+  attempt: PracticeAttemptInput,
+): Promise<PracticeStats> {
+  const expectedUserId = readExpectedUserId();
+  return practiceWriteQueue.enqueue(async () => {
+    const supabase = createClient();
+    const userId = requireExpectedUserId(await expectedUserId);
+    const raw = await executeSupabaseRequest(() =>
+      supabase.rpc("record_practice_attempt", {
+        p_expected_user_id: userId,
+        p_attempt_id: attempt.id,
+        p_letter_code: attempt.letter,
+        p_is_correct: attempt.correct,
+        p_attempted_at: attempt.attemptedAt,
+        p_source: attempt.source ?? "practice_page",
+      }),
+    );
+    return normalizePracticeStats(raw);
+  });
+}
+
+export function resetPracticeStats(): Promise<PracticeStats> {
+  const expectedUserId = readExpectedUserId();
+  return practiceWriteQueue.enqueue(async () => {
+    const supabase = createClient();
+    const userId = requireExpectedUserId(await expectedUserId);
+    const raw = await executeSupabaseRequest(() =>
+      supabase.rpc("reset_practice_stats", {
+        p_expected_user_id: userId,
+      }),
+    );
+    return normalizePracticeStats(raw);
+  });
+}
+
+export function clearLegacyLocalData(): void {
+  if (typeof window === "undefined") return;
+  for (const key of LEGACY_STORAGE_KEYS) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      return;
+    }
+  }
 }

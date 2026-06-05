@@ -1,9 +1,24 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { buildLoginPath } from '@/lib/authRedirect';
 import { createClient } from '@/utils/supabase/middleware';
+
+const PROTECTED_PREFIXES = [
+  '/translate',
+  '/practice',
+  '/history',
+  '/reference',
+  '/profile',
+];
 
 // ─── Auth-only routes ─────────────────────────────────────────────────────────
 // Authenticated users visiting these are redirected away (e.g. back to app).
 const AUTH_PREFIXES = ['/auth/signup'];
+
+function matchesPrefix(pathname: string, prefixes: string[]) {
+  return prefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 export async function proxy(request: NextRequest) {
   const { supabase, supabaseResponse } = createClient(request);
@@ -15,12 +30,16 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
+
+  if (!user && matchesPrefix(pathname, PROTECTED_PREFIXES)) {
+    return NextResponse.redirect(
+      new URL(buildLoginPath(`${pathname}${search}`), request.url),
+    );
+  }
 
   // Redirect authenticated users away from login / signup pages.
-  const isAuthPage = AUTH_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
+  const isAuthPage = matchesPrefix(pathname, AUTH_PREFIXES);
   if (user && isAuthPage) {
     return NextResponse.redirect(new URL('/translate', request.url));
   }

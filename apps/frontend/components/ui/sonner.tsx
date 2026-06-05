@@ -7,8 +7,8 @@ import {
   OctagonXIcon,
   TriangleAlertIcon,
 } from "lucide-react"
-import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { useTheme } from "@/hooks/useTheme"
 
 const MOBILE_TOAST_OFFSET: NonNullable<ToasterProps['mobileOffset']> = {
   left: '0.75rem',

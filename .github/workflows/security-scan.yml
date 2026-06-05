@@ -17,6 +17,19 @@ permissions:
   contents: read
 
 jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan committed history for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --results=verified,unknown
+
   dependency-review:
     runs-on: ubuntu-latest
     continue-on-error: ${{ (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'security-strict')) || (github.event_name == 'workflow_dispatch' && !inputs.strict) }}

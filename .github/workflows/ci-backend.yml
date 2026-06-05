@@ -3,9 +3,6 @@ name: CI Backend
 on:
   pull_request:
     branches: [main]
-    paths:
-      - apps/backend/**
-      - .github/workflows/ci-backend.yml
   push:
     branches: [main]
     paths:
@@ -49,4 +46,14 @@ jobs:
 
       - name: Run backend tests
         run: |
-          python -m pytest apps/backend/tests -q --maxfail=1 --strict-config --strict-markers -W error
+          cd apps/backend
+          python -m pytest tests -q --maxfail=1 --strict-config --strict-markers -W error \
+            --cov=app --cov-branch --cov-report=term-missing --cov-report=json:coverage.json
+          python scripts/check_coverage.py coverage.json
+
+      - name: Upload backend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: apps/backend/coverage.json

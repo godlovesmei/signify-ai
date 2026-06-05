@@ -51,6 +51,7 @@ export default function DeleteControls({
     <div className="flex items-center gap-2" role="group" aria-label="Text editing controls">
       <button
         type="button"
+        aria-label="Delete last letter"
         onClick={onDeleteLast}
         disabled={disabled}
         className={cn(
@@ -66,6 +67,7 @@ export default function DeleteControls({
 
       <button
         type="button"
+        aria-label={confirming ? "Confirm clear sentence" : "Clear sentence"}
         onClick={handleClearClick}
         disabled={disabled}
         className={cn(

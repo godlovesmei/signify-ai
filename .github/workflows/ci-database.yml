@@ -1,0 +1,40 @@
+name: CI Database
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - supabase/**
+      - .github/workflows/ci-database.yml
+
+jobs:
+  migration-and-rls-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset database from migrations
+        run: supabase db reset
+
+      - name: Run pgTAP database tests
+        run: supabase test db
+
+      - name: Lint database schema
+        run: supabase db lint --level warning
+
+      - name: Verify type generation
+        run: |
+          supabase gen types typescript --local > /tmp/database.types.ts
+          test -s /tmp/database.types.ts

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME:    str  = "Signify AI — BISINDO Inference API"
     APP_VERSION: str  = "1.0.0"
-    DEBUG:       bool = False
+    APP_DEBUG:   bool = False
 
     # CORS — comma-separated list of allowed origins.
     # In production, set via env: CORS_ORIGINS=https://yourdomain.com

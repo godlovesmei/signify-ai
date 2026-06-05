@@ -15,31 +15,31 @@ const accumulatorConfig: LetterAccumulatorConfig = {
 };
 
 describe('translateState mapCameraStateToDetectionStatus', () => {
-  it('maps idle to idle', () => {
+  it('TC-006 maps idle to idle', () => {
     expect(mapCameraStateToDetectionStatus('idle')).toBe('idle');
   });
 
-  it('maps requesting and loading to loading', () => {
+  it('TC-006 maps requesting and loading to loading', () => {
     expect(mapCameraStateToDetectionStatus('requesting')).toBe('loading');
     expect(mapCameraStateToDetectionStatus('loading')).toBe('loading');
   });
 
-  it('maps ready to ready', () => {
+  it('TC-006 maps ready to ready', () => {
     expect(mapCameraStateToDetectionStatus('ready')).toBe('ready');
   });
 
-  it('maps detecting to detecting', () => {
+  it('TC-006 maps detecting to detecting', () => {
     expect(mapCameraStateToDetectionStatus('detecting')).toBe('detecting');
   });
 
-  it('maps camera errors to error', () => {
+  it('TC-006 maps camera errors to error', () => {
     expect(mapCameraStateToDetectionStatus('error-permission')).toBe('error');
     expect(mapCameraStateToDetectionStatus('error-device')).toBe('error');
   });
 });
 
 describe('translateState reduceLetterAccumulator', () => {
-  it('commits a high-confidence letter once while the same gesture is held', () => {
+  it('TC-010 commits a high-confidence letter once while the same gesture is held', () => {
     let state = createLetterAccumulatorState();
 
     const first = reduceLetterAccumulator(
@@ -61,7 +61,7 @@ describe('translateState reduceLetterAccumulator', () => {
     }
   });
 
-  it('allows a different stable letter after a committed letter', () => {
+  it('TC-010 allows a different stable letter after a committed letter', () => {
     let state = createLetterAccumulatorState();
 
     const first = reduceLetterAccumulator(
@@ -80,7 +80,7 @@ describe('translateState reduceLetterAccumulator', () => {
     expect(second.commit).toEqual({ letter: 'B', confidence: 0.96 });
   });
 
-  it('requires a deliberate no-hand release before repeating the same letter', () => {
+  it('TC-010 requires a deliberate no-hand release before repeating the same letter', () => {
     let state = createLetterAccumulatorState();
 
     const first = reduceLetterAccumulator(
@@ -125,7 +125,7 @@ describe('translateState reduceLetterAccumulator', () => {
     expect(repeated.commit).toEqual({ letter: 'A', confidence: 0.98 });
   });
 
-  it('uses weighted voting for lower-confidence repeated predictions', () => {
+  it('TC-010 uses weighted voting for lower-confidence repeated predictions', () => {
     let state = createLetterAccumulatorState();
 
     for (const confidence of [0.72, 0.76]) {

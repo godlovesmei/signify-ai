@@ -150,8 +150,9 @@ export default function AppSidebar({
 
       {/* User and actions */}
       <div className="mt-auto shrink-0 space-y-1 p-3">
-        <button
-          onClick={onSettingsClick}
+          <button
+            type="button"
+            onClick={onSettingsClick}
           className="group flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-cohere-muted transition-colors hover:bg-cohere-stone hover:text-cohere-ink"
         >
           <Settings className="size-4 shrink-0" />
@@ -177,6 +178,8 @@ export default function AppSidebar({
             </div>
           </Link>
           <button
+            type="button"
+            aria-label="Sign out"
             onClick={(e) => {
               e.preventDefault();
               onLogout();

@@ -1,0 +1,54 @@
+name: Staging Performance
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 19 * * 5"
+
+jobs:
+  mixed-read:
+    if: ${{ vars.STAGING_FRONTEND_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install locust
+      - name: Run mixed/read profile
+        env:
+          LOCUST_PROFILE: mixed
+        run: |
+          locust -f tests/performance/locustfile.py MixedReadUser \
+            --headless --host "${{ vars.STAGING_FRONTEND_URL }}" \
+            --users 100 --spawn-rate 10 --run-time 5m \
+            --csv performance-mixed
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-mixed
+          path: performance-mixed*.csv
+
+  inference:
+    if: ${{ vars.STAGING_BACKEND_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install locust
+      - name: Run inference profile
+        env:
+          LOCUST_PROFILE: inference
+          PERF_BEARER_TOKEN: ${{ secrets.STAGING_PERF_BEARER_TOKEN }}
+        run: |
+          locust -f tests/performance/locustfile.py InferenceUser \
+            --headless --host "${{ vars.STAGING_BACKEND_URL }}" \
+            --users 50 --spawn-rate 5 --run-time 5m \
+            --csv performance-inference
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-inference
+          path: performance-inference*.csv

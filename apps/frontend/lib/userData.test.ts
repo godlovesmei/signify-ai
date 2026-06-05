@@ -1,122 +1,80 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-
+import { describe, expect, it } from "vitest";
 import {
-  appendHistoryEntry,
-  clearHistoryEntries,
-  getHistoryEntries,
-  getHistorySessions,
-  getPracticeStats,
-  recordPracticeAttempt,
-  resetPracticeStats,
-} from '@/lib/userData';
+  applyPracticeAttempt,
+  createDefaultPracticeStats,
+  mapHistorySessionRow,
+  normalizePracticeStats,
+} from "@/lib/userData";
 
-function installWindowStorageMock() {
-  const store = new Map<string, string>();
+describe("userData mappers", () => {
+  it("TC-012 maps a database translation session into the UI contract", () => {
+    const session = mapHistorySessionRow({
+      average_confidence: 0.82,
+      committed_text: "AB",
+      ended_at: "2026-06-05T02:00:00.000Z",
+      entry_count: 2,
+      id: "session-id",
+      language: "BISINDO",
+      started_at: "2026-06-05T01:00:00.000Z",
+    });
 
-  const localStorage = {
-    getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => {
-      store.set(key, value);
-    },
-    removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => {
-      store.clear();
-    },
-  };
-
-  Object.defineProperty(globalThis, 'window', {
-    value: { localStorage },
-    configurable: true,
-    writable: true,
-  });
-}
-
-describe('userData utilities', () => {
-  beforeEach(() => {
-    installWindowStorageMock();
-    clearHistoryEntries();
-    resetPracticeStats();
+    expect(session).toEqual({
+      sessionId: "session-id",
+      text: "AB",
+      startedAt: "2026-06-05T01:00:00.000Z",
+      endedAt: "2026-06-05T02:00:00.000Z",
+      averageConfidence: 0.82,
+      language: "BISINDO",
+      entryCount: 2,
+    });
   });
 
-  it('records a correct practice attempt and updates streaks', () => {
-    const next = recordPracticeAttempt('a', true);
+  it("TC-017 normalizes missing practice letters and invalid counters", () => {
+    const stats = normalizePracticeStats({
+      totalAttempts: -10,
+      correctAttempts: 2,
+      currentStreak: 1,
+      bestStreak: 2,
+      byLetter: {
+        A: { attempts: 3, correct: 8 },
+      },
+    });
+
+    expect(stats.totalAttempts).toBe(0);
+    expect(stats.byLetter.A).toEqual({ attempts: 3, correct: 3 });
+    expect(stats.byLetter.B).toEqual({ attempts: 0, correct: 0 });
+  });
+});
+
+describe("optimistic practice state", () => {
+  it("TC-015 records a correct attempt and updates streaks", () => {
+    const next = applyPracticeAttempt(createDefaultPracticeStats(), {
+      letter: "A",
+      correct: true,
+      attemptedAt: "2026-06-05T01:00:00.000Z",
+    });
 
     expect(next.totalAttempts).toBe(1);
     expect(next.correctAttempts).toBe(1);
     expect(next.currentStreak).toBe(1);
     expect(next.bestStreak).toBe(1);
-    expect(next.byLetter.A.attempts).toBe(1);
-    expect(next.byLetter.A.correct).toBe(1);
-    expect(next.lastPlayedAt).not.toBeNull();
+    expect(next.byLetter.A).toEqual({ attempts: 1, correct: 1 });
   });
 
-  it('ignores invalid practice letters', () => {
-    const baseline = getPracticeStats();
-    const next = recordPracticeAttempt('#', true);
-
-    expect(next).toEqual(baseline);
-  });
-
-  it('sorts history entries by timestamp ascending', () => {
-    appendHistoryEntry({
-      id: '2',
-      sessionId: 's1',
-      text: 'B',
-      confidence: 0.8,
-      timestamp: '2026-04-12T02:00:00.000Z',
-      language: 'BISINDO',
+  it("TC-015 resets the current streak after an incorrect attempt", () => {
+    const correct = applyPracticeAttempt(createDefaultPracticeStats(), {
+      letter: "A",
+      correct: true,
+      attemptedAt: "2026-06-05T01:00:00.000Z",
+    });
+    const incorrect = applyPracticeAttempt(correct, {
+      letter: "B",
+      correct: false,
+      attemptedAt: "2026-06-05T01:01:00.000Z",
     });
 
-    appendHistoryEntry({
-      id: '1',
-      sessionId: 's1',
-      text: 'A',
-      confidence: 0.9,
-      timestamp: '2026-04-12T01:00:00.000Z',
-      language: 'BISINDO',
-    });
-
-    const entries = getHistoryEntries();
-    expect(entries).toHaveLength(2);
-    expect(entries[0].id).toBe('1');
-    expect(entries[1].id).toBe('2');
-  });
-
-  it('builds grouped history sessions with aggregates', () => {
-    appendHistoryEntry({
-      id: '1',
-      sessionId: 's1',
-      text: 'A',
-      confidence: 0.9,
-      timestamp: '2026-04-12T01:00:00.000Z',
-      language: 'BISINDO',
-    });
-    appendHistoryEntry({
-      id: '2',
-      sessionId: 's1',
-      text: 'B',
-      confidence: 0.7,
-      timestamp: '2026-04-12T01:01:00.000Z',
-      language: 'BISINDO',
-    });
-    appendHistoryEntry({
-      id: '3',
-      sessionId: 's2',
-      text: 'C',
-      confidence: 0.8,
-      timestamp: '2026-04-12T03:00:00.000Z',
-      language: 'BISINDO',
-    });
-
-    const sessions = getHistorySessions();
-
-    expect(sessions).toHaveLength(2);
-    // Sessions are sorted descending by endedAt.
-    expect(sessions[0].sessionId).toBe('s2');
-    expect(sessions[1].sessionId).toBe('s1');
-    expect(sessions[1].text).toBe('AB');
-    expect(sessions[1].averageConfidence).toBeCloseTo(0.8, 4);
+    expect(incorrect.currentStreak).toBe(0);
+    expect(incorrect.bestStreak).toBe(1);
+    expect(incorrect.byLetter.B).toEqual({ attempts: 1, correct: 0 });
   });
 });

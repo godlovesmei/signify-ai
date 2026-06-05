@@ -192,7 +192,7 @@ cp apps/backend/.env.example apps/backend/.env
 cd apps/frontend
 pnpm install
 cp .env.local.example .env.local
-# Edit .env.local and fill in your Supabase URL and anon key
+# Edit .env.local and fill in your Supabase URL and publishable key
 ```
 
 ### 5. Database — Supabase schema
@@ -203,8 +203,7 @@ Run the migration against your Supabase project:
 # Using Supabase CLI
 supabase db push
 
-# Or paste the contents of the file directly in Supabase SQL Editor
-# supabase/migrations/20260422090000_init_signify_erd.sql
+# Or apply every SQL file in supabase/migrations in timestamp order
 ```
 
 ### 6. Model weights
@@ -263,6 +262,32 @@ docker-compose up --build
 ```bash
 docker-compose -f infrastructure/docker-compose.prod.yml up -d
 ```
+
+### Testing and quality gates
+
+The complete production-readiness plan and TC-001 through TC-026 traceability
+matrix are documented in [`docs/rencana-pengujian.md`](docs/rencana-pengujian.md).
+
+```bash
+cd apps/frontend
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:coverage
+pnpm build
+pnpm test:e2e
+
+cd ../backend
+python -m pytest -q --cov=app --cov-branch --cov-report=json:coverage.json
+python scripts/check_coverage.py coverage.json
+
+cd ../..
+supabase db reset
+supabase test db
+supabase db lint --level warning
+```
+
+Staging performance profiles live in `tests/performance/locustfile.py`.
 
 ---
 
@@ -351,7 +376,7 @@ REQUIRE_AUTH=false
 ```dotenv
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
 
 ---
@@ -376,7 +401,7 @@ Browser
 
 ## Database Schema
 
-The Supabase schema lives in `supabase/migrations/20260422090000_init_signify_erd.sql`.
+The versioned Supabase schema lives in `supabase/migrations/`.
 
 | Table | Purpose |
 |---|---|

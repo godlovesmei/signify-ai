@@ -171,12 +171,16 @@ export function PredictionDisplay({
 
                   <div className="flex items-center gap-2 opacity-100 transition-opacity duration-300 sm:gap-4 sm:opacity-0 sm:group-hover:opacity-100">
                     <button
+                      type="button"
+                      aria-label={`Speak transcript entry ${entry.text}`}
                       onClick={() => onSpeakEntry?.(entry.text)}
                       className="p-1.5 text-cohere-slate transition-opacity hover:opacity-60 sm:p-1"
                     >
                       <Volume2 size={15} strokeWidth={1.5} />
                     </button>
                     <button
+                      type="button"
+                      aria-label={`Copy transcript entry ${entry.text}`}
                       onClick={() => handleCopy(entry.text, entry.id)}
                       className="p-1.5 text-cohere-slate transition-opacity hover:opacity-60 sm:p-1"
                     >
@@ -202,6 +206,8 @@ export function PredictionDisplay({
       <footer className="shrink-0 border-t border-cohere-hairline bg-cohere-stone p-3 sm:p-4 md:p-6">
         <div className="flex gap-2 sm:gap-3">
           <button
+            type="button"
+            aria-label="Download translation transcript"
             onClick={handleExport}
             disabled={transcript.length === 0}
             className={cn(
@@ -215,6 +221,8 @@ export function PredictionDisplay({
           </button>
 
           <button
+            type="button"
+            aria-label="Share translation transcript"
             onClick={handleShare}
             disabled={transcript.length === 0}
             className={cn(

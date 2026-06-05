@@ -3,9 +3,6 @@ name: CI Frontend
 on:
   pull_request:
     branches: [main]
-    paths:
-      - apps/frontend/**
-      - .github/workflows/ci-frontend.yml
   push:
     branches: [main]
     paths:
@@ -15,6 +12,11 @@ on:
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: test-publishable-key
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
     defaults:
       run:
         working-directory: apps/frontend
@@ -38,11 +40,36 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run frontend unit tests
-        run: pnpm test
-
       - name: Lint frontend
         run: pnpm lint
 
+      - name: Typecheck frontend
+        run: pnpm typecheck
+
+      - name: Run frontend unit tests
+        run: pnpm test:unit
+
+      - name: Run frontend integration tests
+        run: pnpm test:integration
+
+      - name: Enforce frontend coverage
+        run: pnpm test:coverage
+
       - name: Build frontend
         run: pnpm build
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Chromium E2E and accessibility tests
+        run: pnpm test:e2e
+
+      - name: Upload frontend test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-quality-reports
+          path: |
+            apps/frontend/coverage
+            apps/frontend/playwright-report
+            apps/frontend/test-results

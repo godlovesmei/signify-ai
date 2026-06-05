@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 _bearer = HTTPBearer(auto_error=False)
 
 
-def verify_supabase_token(
+async def verify_supabase_token(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
     settings:    Annotated[Settings, Depends(get_settings)],
 ) -> dict | None:
@@ -42,12 +42,15 @@ def verify_supabase_token(
             )
         return None
 
-    # Ada token — selalu validasi meski REQUIRE_AUTH=False
+    # Ada token — selalu validasi meski REQUIRE_AUTH=False.
     if not settings.SUPABASE_JWT_SECRET:
-        logger.warning(
-            "Token diterima tapi SUPABASE_JWT_SECRET belum dikonfigurasi — melewati validasi."
+        logger.error(
+            "Token diterima tetapi SUPABASE_JWT_SECRET belum dikonfigurasi."
         )
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service is not configured.",
+        )
 
     try:
         payload = jwt.decode(

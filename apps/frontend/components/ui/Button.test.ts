@@ -38,7 +38,7 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ size })).toContain("focus-visible:ring")
   })
 
-  it("keeps default as a compatibility alias for primary", () => {
+  it("TC-025 keeps default as a compatibility alias for primary", () => {
     expect(buttonVariants({ variant: "default" })).toBe(
       buttonVariants({ variant: "primary" }),
     )
@@ -55,7 +55,7 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ variant })).toContain(token)
   })
 
-  it("uses a surface hover instead of an underline for text-action icons", () => {
+  it("TC-025 uses a surface hover instead of an underline for text-action icons", () => {
     expect(buttonVariants({ variant: "secondary", size: "icon" })).toContain(
       "hover:bg-[var(--color-bg-subtle)]",
     )

@@ -29,6 +29,7 @@ export default function TTSButton({
     <div className={cn('flex items-center gap-2', className)}>
       <motion.button
         type="button"
+        aria-label={isSpeaking ? 'Speaking sentence' : 'Speak sentence'}
         onClick={onSpeak}
         disabled={isEmpty || isSpeaking}
         className={cn(

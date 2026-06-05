@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMotionValue } from "motion/react";
-import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2 } from "lucide-react";
+import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2, Loader2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   WebcamCapture,
@@ -26,6 +27,8 @@ import {
   ALPHABET_LETTERS,
   type AlphabetLetter,
   type PracticeStats,
+  applyPracticeAttempt,
+  createDefaultPracticeStats,
   getPracticeStats,
   recordPracticeAttempt,
   resetPracticeStats,
@@ -235,8 +238,10 @@ export default function PracticePageContent() {
   });
 
   // ── Practice state ────────────────────────────────────────────────
-  const [stats, setStats] = useState<PracticeStats>(() => getPracticeStats());
-  const [target, setTarget] = useState<AlphabetLetter>(() => pickAdaptiveLetter(getPracticeStats()));
+  const [stats, setStats] = useState<PracticeStats>(createDefaultPracticeStats);
+  const [target, setTarget] = useState<AlphabetLetter>(randomLetter);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [statsLoadError, setStatsLoadError] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
   const [isSuccessFlash, setSuccessFlash] = useState(false);
   const [trail, setTrail] = useState<AlphabetLetter[]>(() => [target]);
@@ -272,8 +277,70 @@ export default function PracticePageContent() {
   const microRafRef = useRef<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const pendingTargetRef = useRef<AlphabetLetter | null>(null);
+  const statsRef = useRef(stats);
+  const statsRevisionRef = useRef(0);
 
   useEffect(() => { targetRef.current = target; }, [target]);
+  useEffect(() => { statsRef.current = stats; }, [stats]);
+
+  const loadPracticeStats = useCallback(async () => {
+    setIsStatsLoading(true);
+    setStatsLoadError(false);
+    const revision = statsRevisionRef.current;
+    try {
+      const remote = await getPracticeStats();
+      if (revision !== statsRevisionRef.current) return;
+      statsRef.current = remote;
+      setStats(remote);
+      setTarget((current) => pickAdaptiveLetter(remote, current));
+    } catch {
+      setStatsLoadError(true);
+      toast.error("Practice progress could not be loaded.");
+    } finally {
+      setIsStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadPracticeStats();
+  }, [loadPracticeStats]);
+
+  const recordAttemptOptimistically = useCallback(
+    (letter: AlphabetLetter, correct: boolean) => {
+      const attempt = {
+        id: crypto.randomUUID(),
+        letter,
+        correct,
+        attemptedAt: new Date().toISOString(),
+      };
+      const revision = ++statsRevisionRef.current;
+      const optimistic = applyPracticeAttempt(statsRef.current, attempt);
+      statsRef.current = optimistic;
+      setStats(optimistic);
+
+      void recordPracticeAttempt(attempt)
+        .then((remote) => {
+          if (revision !== statsRevisionRef.current) return;
+          statsRef.current = remote;
+          setStats(remote);
+        })
+        .catch(async () => {
+          toast.error("Practice attempt could not be synced.");
+          if (revision !== statsRevisionRef.current) return;
+          try {
+            const remote = await getPracticeStats();
+            if (revision !== statsRevisionRef.current) return;
+            statsRef.current = remote;
+            setStats(remote);
+          } catch {
+            // Keep the optimistic state until the next successful refresh.
+          }
+        });
+
+      return optimistic;
+    },
+    [],
+  );
 
   const isMirroredRef = useRef(isMirrored);
   useEffect(() => {
@@ -449,8 +516,7 @@ export default function PracticePageContent() {
     clearMicroFeedback();
     setSuccessFlash(true);
 
-    const newStats = recordPracticeAttempt(letter, true);
-    setStats(newStats);
+    const newStats = recordAttemptOptimistically(letter, true);
 
     setTimeout(() => {
       const next = pickAdaptiveLetter(newStats, letter);
@@ -464,7 +530,7 @@ export default function PracticePageContent() {
       isSucceeding.current = false;
       startInferenceLoopRef.current();
     }, SUCCESS_PAUSE_MS);
-  }, [clearMicroFeedback]);
+  }, [clearMicroFeedback, recordAttemptOptimistically]);
 
   // ── Inference loop ────────────────────────────────────────────────
 
@@ -532,8 +598,7 @@ export default function PracticePageContent() {
   const handleSkip = useCallback(() => {
     if (isSucceeding.current) return;
     clearMicroFeedback();
-    const newStats = recordPracticeAttempt(target, false);
-    setStats(newStats);
+    const newStats = recordAttemptOptimistically(target, false);
     holdProgressRef.current = 0;
     setHoldProgress(0);
     setCurrentLetter(null);
@@ -541,7 +606,7 @@ export default function PracticePageContent() {
     const next = pickAdaptiveLetter(newStats, target);
     setTarget(next);
     targetRef.current = next;
-  }, [clearMicroFeedback, target]);
+  }, [clearMicroFeedback, recordAttemptOptimistically, target]);
 
   // ── Camera lifecycle ──────────────────────────────────────────────
 
@@ -639,12 +704,33 @@ export default function PracticePageContent() {
   }, []);
 
   const handleResetProgress = useCallback(() => {
-    const next = resetPracticeStats();
+    const revision = ++statsRevisionRef.current;
+    const next = createDefaultPracticeStats();
+    statsRef.current = next;
     setStats(next);
     setTarget(randomLetter());
     holdProgressRef.current = 0;
     setHoldProgress(0);
     clearMicroFeedback();
+    void resetPracticeStats()
+      .then((remote) => {
+        if (revision !== statsRevisionRef.current) return;
+        statsRef.current = remote;
+        setStats(remote);
+        toast.success("Practice progress reset.");
+      })
+      .catch(async () => {
+        toast.error("Practice progress could not be reset.");
+        if (revision !== statsRevisionRef.current) return;
+        try {
+          const remote = await getPracticeStats();
+          if (revision !== statsRevisionRef.current) return;
+          statsRef.current = remote;
+          setStats(remote);
+        } catch {
+          // Keep the empty optimistic state until the next refresh.
+        }
+      });
   }, [clearMicroFeedback]);
 
   useEffect(() => {
@@ -697,7 +783,21 @@ export default function PracticePageContent() {
             </section>
 
             <section className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
-              <p className="text-mono-label text-[12px] text-cohere-slate">Performance</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-mono-label text-[12px] text-cohere-slate">Performance</p>
+                {isStatsLoading ? (
+                  <Loader2 className="size-4 animate-spin text-cohere-slate" aria-label="Loading practice progress" />
+                ) : statsLoadError ? (
+                  <button
+                    type="button"
+                    onClick={() => void loadPracticeStats()}
+                    className="text-cohere-error transition-opacity hover:opacity-70"
+                    aria-label="Retry loading practice progress"
+                  >
+                    <RefreshCw className="size-4" />
+                  </button>
+                ) : null}
+              </div>
               <div className="mt-5 grid grid-cols-3 gap-3 lg:grid-cols-1">
                 {[
                   ["Samples", stats.totalAttempts],

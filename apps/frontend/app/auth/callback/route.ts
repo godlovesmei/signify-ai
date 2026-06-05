@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { sanitizeRelativePath } from '@/lib/authRedirect';
 import { createClient } from '@/utils/supabase/server';
 
 // ─── OAuth callback handler ───────────────────────────────────────────────────
@@ -10,14 +11,14 @@ export async function GET(request: NextRequest) {
 
   const code = searchParams.get('code');
   // `next` is set by middleware when redirecting to login — preserves destination
-  const next = searchParams.get('next') ?? '/translate';
+  const next = sanitizeRelativePath(searchParams.get('next'));
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(new URL(next, origin));
     }
   }
 

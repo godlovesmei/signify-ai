@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Activity, Layers, Terminal } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   WebcamCapture,
@@ -20,7 +21,7 @@ import {
   reduceLetterAccumulator,
   type LetterAccumulatorConfig,
 } from "@/lib/translateState";
-import { appendHistoryEntry } from "@/lib/userData";
+import { appendHistoryEntry, type AlphabetLetter } from "@/lib/userData";
 import PracticeGuide from "@/components/features/translation/PracticeGuide";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
@@ -43,9 +44,8 @@ const LETTER_ACCUMULATOR_CONFIG: LetterAccumulatorConfig = {
 type Language = "ASL" | "BISINDO";
 type MobileTab = "hasil" | "kalimat" | "riwayat";
 
-let _id = 0;
 function uid() {
-  return `entry-${Date.now()}-${++_id}`;
+  return crypto.randomUUID();
 }
 
 export default function TranslatePageContent() {
@@ -74,6 +74,7 @@ export default function TranslatePageContent() {
   const fpsCountRef = useRef(0);
   const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef = useRef<string | null>(null);
+  const sessionStartedAtRef = useRef<string | null>(null);
   const letterAccumulatorRef = useRef(createLetterAccumulatorState());
 
   const languageRef = useRef(language);
@@ -112,13 +113,26 @@ export default function TranslatePageContent() {
     setTokens((prev) => [...prev, letter]);
     setTranscript((prev) => [...prev.slice(-49), committedEntry]);
 
-    appendHistoryEntry({
+    const sessionId = sessionIdRef.current ?? crypto.randomUUID();
+    const startedAt =
+      sessionStartedAtRef.current ?? committedEntry.timestamp.toISOString();
+    sessionIdRef.current = sessionId;
+    sessionStartedAtRef.current = startedAt;
+
+    void appendHistoryEntry({
       id: committedEntry.id,
-      sessionId: sessionIdRef.current ?? "sess-" + Date.now(),
-      text: committedEntry.text,
+      sessionId,
+      letter: committedEntry.text as AlphabetLetter,
       confidence: committedEntry.confidence,
-      timestamp: committedEntry.timestamp.toISOString(),
-      language: committedEntry.language,
+      committedAt: committedEntry.timestamp.toISOString(),
+      startedAt,
+      language: committedEntry.language as Language,
+      commitMethod:
+        confidence >= FAST_COMMIT_THRESHOLD ? "fast_commit" : "weighted_vote",
+    }).catch(() => {
+      toast.error("A translated letter could not be synced.", {
+        id: "translation-sync-error",
+      });
     });
 
     if (voiceEnabledRef.current && "speechSynthesis" in window) {
@@ -232,6 +246,7 @@ export default function TranslatePageContent() {
     setDetections([]);
     letterAccumulatorRef.current = createLetterAccumulatorState();
     sessionIdRef.current = null;
+    sessionStartedAtRef.current = null;
   }, [stopStream]);
 
   const startDetection = useCallback(
@@ -241,8 +256,8 @@ export default function TranslatePageContent() {
       if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
       setAppState("detecting");
       setApiError(false);
-      sessionIdRef.current =
-        "sess-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      sessionIdRef.current = crypto.randomUUID();
+      sessionStartedAtRef.current = new Date().toISOString();
       letterAccumulatorRef.current = createLetterAccumulatorState();
 
       fpsCountRef.current = 0;
@@ -347,6 +362,7 @@ export default function TranslatePageContent() {
     setFps(0);
     letterAccumulatorRef.current = createLetterAccumulatorState();
     sessionIdRef.current = null;
+    sessionStartedAtRef.current = null;
     if (appState === "detecting") setAppState("ready");
   }, [appState]);
 
@@ -435,9 +451,9 @@ export default function TranslatePageContent() {
               {/* Header */}
               <div className="flex flex-col gap-2 border-b border-cohere-hairline pb-3 sm:flex-row sm:items-end sm:justify-between sm:pb-4">
                 <div className="min-w-0">
-                  <h2 className="font-display text-xl leading-none text-cohere-ink sm:text-2xl md:text-[28px]">
+                  <h1 className="font-display text-xl leading-none text-cohere-ink sm:text-2xl md:text-[28px]">
                     Kamera
-                  </h2>
+                  </h1>
                   <p className="mt-1.5 max-w-md text-xs leading-5 text-cohere-body-muted sm:mt-2 sm:text-sm sm:leading-6">
                     Arahkan tangan ke kamera. Hasilnya muncul di panel kanan.
                   </p>

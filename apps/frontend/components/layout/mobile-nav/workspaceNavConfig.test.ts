@@ -6,7 +6,7 @@ import {
 } from './workspaceNavConfig';
 
 describe('workspaceNavConfig', () => {
-  it('matches active workspace routes including querystring input', () => {
+  it('TC-026 matches active workspace routes including querystring input', () => {
     expect(isWorkspaceNavActive('/translate', '/translate')).toBe(true);
     expect(isWorkspaceNavActive('/translate', '/translate?mode=word')).toBe(true);
     expect(isWorkspaceNavActive('/practice', '/practice')).toBe(true);
@@ -14,13 +14,13 @@ describe('workspaceNavConfig', () => {
     expect(isWorkspaceNavActive('/reference', '/reference')).toBe(true);
   });
 
-  it('returns false for non-workspace paths', () => {
+  it('TC-026 returns false for non-workspace paths', () => {
     expect(isWorkspaceNavActive('/translate', '/')).toBe(false);
     expect(isWorkspaceRoute('/auth/login')).toBe(false);
     expect(getActiveWorkspaceNavItem('/collect')).toBeNull();
   });
 
-  it('resolves the active nav item from a pathname', () => {
+  it('TC-026 resolves the active nav item from a pathname', () => {
     expect(getActiveWorkspaceNavItem('/translate')?.key).toBe('translate');
     expect(getActiveWorkspaceNavItem('/translate/session/abc')?.key).toBe('translate');
     expect(getActiveWorkspaceNavItem('/practice')?.key).toBe('practice');

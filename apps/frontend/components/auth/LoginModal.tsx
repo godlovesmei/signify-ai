@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Lock, Shield, Sparkles, X } from "lucide-react";
+import { sanitizeRelativePath } from "@/lib/authRedirect";
 import { createClient } from "@/utils/supabase/client";
 import { Logo } from "@/components/ui/Logo";
 
 interface LoginModalProps {
   open: boolean;
   onClose: () => void;
+  nextPath?: string | null;
 }
 
-export function LoginModal({ open, onClose }: LoginModalProps) {
+export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -39,6 +42,11 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    closeButtonRef.current?.focus();
+  }, [open]);
+
   async function handleGoogleSignIn() {
     setError(null);
     setLoading(true);
@@ -47,7 +55,9 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          sanitizeRelativePath(nextPath),
+        )}`,
         queryParams: {
           access_type: "offline",
           prompt: "select_account",
@@ -68,11 +78,11 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Sign in"
+      aria-labelledby="sign-in-title"
+      aria-describedby="sign-in-description"
     >
-      <button
-        type="button"
-        aria-label="Close sign in"
+      <div
+        aria-hidden="true"
         className="absolute inset-0 cursor-default bg-black/45"
         onClick={onClose}
       />
@@ -81,6 +91,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
         <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-5">
           <Logo href={false} size="md" />
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close sign in"
@@ -92,10 +103,16 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
 
         <div className="px-6 py-8 sm:px-8">
           <p className="text-mono-label text-[12px] text-cohere-coral">Secure workspace</p>
-          <h1 className="mt-3 max-w-sm font-display text-[42px] leading-none text-cohere-ink sm:text-[48px]">
+          <h1
+            id="sign-in-title"
+            className="mt-3 max-w-sm font-display text-[42px] leading-none text-cohere-ink sm:text-[48px]"
+          >
             Sign in to continue.
           </h1>
-          <p className="mt-5 max-w-md text-[16px] leading-[1.5] text-cohere-body-muted">
+          <p
+            id="sign-in-description"
+            className="mt-5 max-w-md text-[16px] leading-[1.5] text-cohere-body-muted"
+          >
             Access history, practice analytics, and saved preferences without changing the
             local camera workflow.
           </p>

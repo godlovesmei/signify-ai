@@ -233,12 +233,21 @@ function ExploreProductsLink() {
 
 export default function LandingNavbar() {
   const [loginOpen, setLoginOpen] = useState(false);
+  const [nextPath, setNextPath] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [navbarVisible, setNavbarVisible] = useState(true);
   const lastScrollY = useRef(0);
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const searchParams = new URLSearchParams(window.location.search);
+      setNextPath(searchParams.get("next"));
+      if (searchParams.get("login") === "1") setLoginOpen(true);
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     const directionThreshold = 8;
@@ -498,7 +507,11 @@ export default function LandingNavbar() {
         </div>
       )}
 
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <LoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        nextPath={nextPath}
+      />
     </header>
   );
 }

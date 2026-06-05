@@ -7,7 +7,7 @@ function makeBlob(): Blob {
 }
 
 describe('translateApi predictFromBlob', () => {
-  it('returns parsed response when first request succeeds', async () => {
+  it('TC-011 returns parsed response when first request succeeds', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       status: 200,
@@ -44,7 +44,7 @@ describe('translateApi predictFromBlob', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
-  it('retries on network error and succeeds on next attempt', async () => {
+  it('TC-011 retries on network error and succeeds on next attempt', async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
       .mockRejectedValueOnce(new Error('network down'))
@@ -75,7 +75,7 @@ describe('translateApi predictFromBlob', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
-  it('retries on 503 and succeeds on next attempt', async () => {
+  it('TC-011 retries on 503 and succeeds on next attempt', async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({}) } as Response)
@@ -106,7 +106,7 @@ describe('translateApi predictFromBlob', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
-  it('does not retry on non-retriable status', async () => {
+  it('TC-011 does not retry on non-retriable status', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue({
       ok: false,
       status: 400,
@@ -124,7 +124,7 @@ describe('translateApi predictFromBlob', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
-  it('returns null after retry attempts are exhausted', async () => {
+  it('TC-011 returns null after retry attempts are exhausted', async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
       .mockRejectedValue(new Error('network down'));

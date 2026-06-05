@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import '../styles/globals.css';
 import { Toaster } from "@/components/ui/sonner";
+import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
 
 const THEME_STORAGE_KEY = 'signify:theme';
 const PREFER_DARK_QUERY = '(prefers-color-scheme: dark)';
@@ -81,23 +82,21 @@ export const metadata: Metadata = {
       'AI-powered BISINDO sign language recognition. Terjemahkan isyarat tangan menjadi teks dan suara secara real-time. Gratis, tanpa unduhan, berbasis browser.',
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/hero.png',
+        width: 928,
+        height: 1232,
         alt: 'SignifyAI — Penerjemah Bahasa Isyarat BISINDO Real-Time',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@signifyai',
-    creator: '@signifyai',
     title: 'SignifyAI — Penerjemah Bahasa Isyarat BISINDO Real-Time',
     description:
       'AI-powered BISINDO sign language recognition. Real-time, accessible, free.',
-    images: ['/og-image.png'],
+    images: ['/hero.png'],
   },
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       { url: '/signify-icon.svg', type: 'image/svg+xml' },
@@ -122,14 +121,10 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  verification: {
-    google: 'your-google-site-verification', // replace with actual
-  },
   category: 'technology',
   classification: 'Software Application',
   other: {
     'msapplication-TileColor': '#17171c',
-    'msapplication-config': '/browserconfig.xml',
   },
 };
 
@@ -162,14 +157,6 @@ function StructuredData() {
           'Penerjemah Bahasa Isyarat BISINDO real-time berbasis AI dan computer vision.',
         publisher: { '@id': 'https://signify.app/#organization' },
         inLanguage: 'id',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://signify.app/search?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
       },
       {
         '@type': 'Organization',
@@ -178,14 +165,8 @@ function StructuredData() {
         url: 'https://signify.app',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://signify.app/logo.png',
-          width: 512,
-          height: 512,
+          url: 'https://signify.app/signify-icon.svg',
         },
-        sameAs: [
-          'https://twitter.com/signifyai',
-          'https://github.com/signifyai',
-        ],
       },
       {
         '@type': 'SoftwareApplication',
@@ -201,15 +182,10 @@ function StructuredData() {
         featureList: [
           'Real-time BISINDO sign language recognition',
           'Text-to-Speech output in Bahasa Indonesia',
-          'Browser-based processing (no cloud)',
+          'Browser camera capture with API-based inference',
           'Practice mode with feedback',
           'Developer panel with inference metrics',
         ],
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          ratingCount: '124',
-        },
         inLanguage: ['id', 'en'],
       },
     ],
@@ -243,21 +219,19 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {/* Critical theme script — must run before any paint */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        {children}
-        {/*
-         * Toaster — uses cohere-canvas/cohere-ink/cohere-hairline tokens per DESIGN.md.
-         * rounded-sm (8px) — DESIGN.md sm radius for small UI elements.
-         */}
-        <Toaster
-          position="bottom-right"
-          richColors
-          closeButton
-          toastOptions={{
-            classNames: {
-              toast: 'rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink shadow-none',
-            },
-          }}
-        />
+        <PreferencesProvider>
+          {children}
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            toastOptions={{
+              classNames: {
+                toast: 'rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink shadow-none',
+              },
+            }}
+          />
+        </PreferencesProvider>
       </body>
     </html>
   );

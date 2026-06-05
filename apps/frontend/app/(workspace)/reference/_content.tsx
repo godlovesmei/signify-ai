@@ -1,20 +1,42 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
+import { Loader2, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import PageHeader from '@/components/layout/PageHeader';
 import {
   ALPHABET_LETTERS,
+  createDefaultPracticeStats,
   type PracticeStats,
   getPracticeStats,
 } from '@/lib/userData';
 import { cn } from '@/lib/utils';
 
 export default function ReferencePageContent() {
-  const stats = useMemo<PracticeStats>(() => getPracticeStats(), []);
+  const [stats, setStats] = useState<PracticeStats>(createDefaultPracticeStats);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  const loadStats = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(false);
+    try {
+      setStats(await getPracticeStats());
+    } catch {
+      setLoadError(true);
+      toast.error('Reference progress could not be loaded.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadStats();
+  }, [loadStats]);
 
   const totals = useMemo(() => {
     const totalAttempts = stats.totalAttempts;
@@ -28,11 +50,20 @@ export default function ReferencePageContent() {
       <div className="mx-auto w-full max-w-7xl p-4 md:p-8">
         <PageHeader
           title="Reference"
-          description="BISINDO alphabet cards with local practice performance for each letter."
+          description="BISINDO alphabet cards with synced practice performance for each letter."
           actions={
-            <Button asChild>
-              <Link href="/practice">Practice now</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              {isLoading && <Loader2 className="size-4 animate-spin text-cohere-slate" aria-label="Loading progress" />}
+              {loadError && (
+                <Button onClick={() => void loadStats()} variant="outline" size="sm">
+                  <RefreshCw className="size-4" />
+                  Retry
+                </Button>
+              )}
+              <Button asChild>
+                <Link href="/practice">Practice now</Link>
+              </Button>
+            </div>
           }
           className="mb-8"
         />
