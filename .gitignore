@@ -21,9 +21,7 @@ dmypy.json
 *.log
 
 # Data (mentah, olahan, augmentasi)
-data/raw/
-data/processed/bisindo_v1/
-data/augmented/
+data/bisindo
 
 # Model checkpoints & hasil training
 models/*
@@ -56,3 +54,6 @@ PLAN.md
 **/.env.*.local
 !**/.env.example
 !**/.env.local.example
+
+# Supabase local/temp files
+supabase/.temp/
