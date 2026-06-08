@@ -497,19 +497,19 @@ function MacSignScannerCard() {
   const text = useTypewriter();
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-black/8 bg-[#f5f3f6] p-3 shadow-[0_20px_70px_rgba(16,16,24,0.08)]">
+    <div className="relative mx-auto max-w-[1120px] overflow-hidden rounded-[24px] border border-black/8 bg-[#f5f3f6] p-2.5 shadow-[0_18px_54px_rgba(16,16,24,0.08)]">
       {/* ambient glow */}
       <div className="pointer-events-none absolute -left-16 top-10 h-40 w-40 rounded-full bg-[#ff8f7b]/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-16 bottom-6 h-40 w-40 rounded-full bg-[#8f7bff]/16 blur-3xl" />
 
       {/* mac shell */}
-      <div className="relative overflow-hidden rounded-[24px] border border-black/8 bg-[#0f1015] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div className="relative overflow-hidden rounded-[20px] border border-black/8 bg-[#0f1015] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
         {/* top chrome */}
-        <div className="flex h-12 items-center justify-between border-b border-white/8 bg-[#15161d] px-4">
+        <div className="flex h-10 items-center justify-between border-b border-white/8 bg-[#15161d] px-4">
           <div className="flex items-center gap-2">
-            <span className="size-3 rounded-full bg-[#ff5f57]" />
-            <span className="size-3 rounded-full bg-[#febc2e]" />
-            <span className="size-3 rounded-full bg-[#28c840]" />
+            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="size-2.5 rounded-full bg-[#febc2e]" />
+            <span className="size-2.5 rounded-full bg-[#28c840]" />
           </div>
 
           <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/70">
@@ -519,15 +519,15 @@ function MacSignScannerCard() {
           <div className="text-[11px] text-white/35">⌘K</div>
         </div>
 
-        <div className="grid gap-0 lg:grid-cols-[1.28fr_0.72fr]">
+        <div className="grid gap-0 lg:h-[min(46vw,480px)] lg:grid-cols-[1.15fr_0.85fr]">
           {/* live camera / scanning panel */}
-          <div className="relative min-h-[440px] overflow-hidden border-r border-white/8 bg-black">
+          <div className="relative min-h-[320px] overflow-hidden border-r border-white/8 bg-[#f4d7cd] md:min-h-[380px] lg:min-h-0">
             <Image
               src="/hero.png"
               alt="Sign language recognition live preview"
               width={1200}
               height={900}
-              className="h-full w-full object-cover opacity-[0.90]"
+              className="h-full w-full object-contain object-center opacity-[0.92]"
               priority
             />
 
@@ -579,37 +579,37 @@ function MacSignScannerCard() {
           </div>
 
           {/* side diagnostic panel */}
-          <div className="flex min-h-[440px] flex-col bg-[#111218] p-5">
-            <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+          <div className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-hidden">
+            <div className="rounded-[16px] border border-white/8 bg-white/[0.03] p-3.5">
               <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">
                 Session
               </p>
-              <h3 className="mt-2 text-[24px] font-medium text-white">
+              <h3 className="mt-1.5 text-[21px] font-medium text-white">
                 BISINDO recognition
               </h3>
-              <p className="mt-2 text-[14px] leading-[1.55] text-white/55">
+              <p className="mt-1.5 text-[13px] leading-[1.5] text-white/55">
                 Real-time camera understanding tuned for hand pose recognition and low-friction output.
               </p>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+            <div className="mt-3 grid gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="rounded-[16px] border border-white/8 bg-white/[0.03] p-3.5">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">Model</p>
-                <p className="mt-2 text-[18px] font-medium text-white">YOLOv11 + landmarks</p>
+                <p className="mt-1.5 text-[16px] font-medium text-white">YOLOv11 + landmarks</p>
               </div>
 
-              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="rounded-[16px] border border-white/8 bg-white/[0.03] p-3.5">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">Latency</p>
-                <p className="mt-2 text-[18px] font-medium text-white">Sub-second</p>
+                <p className="mt-1.5 text-[16px] font-medium text-white">Sub-second</p>
               </div>
 
-              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="rounded-[16px] border border-white/8 bg-white/[0.03] p-3.5">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">Privacy</p>
-                <p className="mt-2 text-[18px] font-medium text-white">Local-first</p>
+                <p className="mt-1.5 text-[16px] font-medium text-white">Local-first</p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-[20px] border border-emerald-400/15 bg-emerald-400/[0.06] p-4">
+            <div className="mt-3 rounded-[18px] border border-emerald-400/15 bg-emerald-400/[0.06] p-3.5">
               <div className="flex items-center justify-between">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-emerald-300/85">
                   Active intent
@@ -618,22 +618,22 @@ function MacSignScannerCard() {
                   Live
                 </span>
               </div>
-              <p className="mt-3 text-[18px] font-medium text-white">Translation ready</p>
-              <p className="mt-2 text-[14px] leading-[1.5] text-white/55">
+              <p className="mt-2.5 text-[16px] font-medium text-white">Translation ready</p>
+              <p className="mt-1.5 text-[13px] leading-[1.45] text-white/55">
                 Hand gesture sequence has been identified and transformed into natural Indonesian output.
               </p>
             </div>
 
-            <div className="mt-auto pt-4">
-              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+            <div className="mt-auto hidden pt-3 xl:block">
+              <div className="rounded-[16px] border border-white/8 bg-white/[0.03] p-3.5">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">
                     Pipeline
                   </p>
-                  <p className="text-[12px] text-white/45">Camera → Detect → Decode → Speak</p>
+                  <p className="text-[11px] text-white/45">Camera → Detect → Decode → Speak</p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   {[
                     "Frame capture stable",
                     "Hands isolated",
@@ -642,7 +642,7 @@ function MacSignScannerCard() {
                   ].map((item) => (
                     <div key={item} className="flex items-center gap-3">
                       <span className="size-2 rounded-full bg-white/75" />
-                      <span className="text-[14px] text-white/72">{item}</span>
+                      <span className="text-[12px] text-white/72">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -678,8 +678,8 @@ function MacSignScannerCard() {
 
 function HeroSection() {
   return (
-    <section className="hero-motion-shell bg-cohere-canvas pt-36 md:pt-40">
-      <div className="hero-motion-content cohere-container pb-20 pt-12 md:pb-28">
+    <section className="hero-motion-shell bg-cohere-canvas pt-28 md:pt-32">
+      <div className="hero-motion-content cohere-container pb-16 pt-10 md:pb-20">
         <div className="mx-auto max-w-5xl text-center">
           {/* hero-display: CohereText, 96px, weight 400, line-height 1 per DESIGN.md */}
           <Reveal delay={90}>
@@ -711,7 +711,7 @@ function HeroSection() {
           </Reveal>
         </div>
 
-        <div className="mt-16">
+        <div className="mt-10 md:mt-12">
           <MacSignScannerCard />
         </div>
       </div>

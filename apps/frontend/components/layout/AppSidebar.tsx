@@ -10,14 +10,12 @@ import {
   LogOut,
   Settings,
   Target,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   WORKSPACE_NAV_ITEMS,
   isWorkspaceNavActive,
 } from "./mobile-nav/workspaceNavConfig";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { motion } from "motion/react";
 import { Logo } from "@/components/ui/Logo";
 
@@ -27,6 +25,10 @@ const ICON_MAP: Record<string, ReactNode> = {
   history: <History className="size-4" />,
   reference: <BookOpen className="size-4" />,
 };
+
+const SIDEBAR_NAV_ITEMS = WORKSPACE_NAV_ITEMS.filter(
+  (item) => item.key !== "profile"
+);
 
 const APPLE_SPRING = { stiffness: 400, damping: 40 };
 
@@ -40,8 +42,6 @@ interface AppSidebarProps {
   pathname: string;
   onSettingsClick: () => void;
   onLogout: () => void;
-  mobileOpen: boolean;
-  onMobileClose: () => void;
   user?: SidebarUser | null;
 }
 
@@ -91,11 +91,10 @@ export default function AppSidebar({
   pathname,
   onSettingsClick,
   onLogout,
-  mobileOpen,
-  onMobileClose,
   user = FALLBACK_USER,
 }: AppSidebarProps) {
   const activeUser = user || FALLBACK_USER;
+  const profileActive = isWorkspaceNavActive("/profile", pathname);
 
   const SidebarContent = (
     <div className="flex h-full w-56 flex-col bg-cohere-canvas">
@@ -106,15 +105,15 @@ export default function AppSidebar({
 
       {/* Nav items */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Workspace navigation">
-        {WORKSPACE_NAV_ITEMS.map((item) => {
+        {SIDEBAR_NAV_ITEMS.map((item) => {
           const active = isWorkspaceNavActive(item.href, pathname);
           return (
             <Link
               key={item.key}
               href={item.href}
-              onClick={onMobileClose}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "group relative flex items-center gap-2.5 rounded-sm px-3 py-2.5 transition-colors duration-200",
+                "group relative isolate flex items-center gap-2.5 overflow-hidden rounded-sm px-3 py-2.5 transition-colors duration-200",
                 active
                   ? "text-white dark:text-cohere-canvas"
                   : "text-cohere-muted hover:bg-cohere-stone hover:text-cohere-ink"
@@ -123,7 +122,7 @@ export default function AppSidebar({
               {active && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className="absolute inset-0 -z-10 rounded-sm bg-cohere-primary dark:bg-cohere-ink"
+                  className="absolute inset-0 z-0 rounded-sm bg-cohere-primary dark:bg-cohere-ink"
                   transition={APPLE_SPRING}
                 />
               )}
@@ -150,9 +149,9 @@ export default function AppSidebar({
 
       {/* User and actions */}
       <div className="mt-auto shrink-0 space-y-1 p-3">
-          <button
-            type="button"
-            onClick={onSettingsClick}
+        <button
+          type="button"
+          onClick={onSettingsClick}
           className="group flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-cohere-muted transition-colors hover:bg-cohere-stone hover:text-cohere-ink"
         >
           <Settings className="size-4 shrink-0" />
@@ -164,15 +163,34 @@ export default function AppSidebar({
         <div className="flex items-center gap-2 rounded-sm px-2 py-2">
           <Link
             href="/profile"
-            onClick={onMobileClose}
-            className="group flex min-w-0 flex-1 items-center gap-2"
+            aria-current={profileActive ? "page" : undefined}
+            className={cn(
+              "group flex min-w-0 flex-1 items-center gap-2 rounded-sm px-1.5 py-1 transition-colors",
+              profileActive && "bg-cohere-primary text-white dark:bg-cohere-ink dark:text-cohere-canvas"
+            )}
           >
-            <UserAvatar user={activeUser} className="size-7 shrink-0" />
+            <UserAvatar
+              user={activeUser}
+              className={cn(
+                "size-7 shrink-0",
+                profileActive && "border-white/35 dark:border-cohere-canvas/35"
+              )}
+            />
             <div className="flex min-w-0 flex-col">
-              <span className="truncate text-xs font-medium leading-tight text-cohere-ink">
+              <span
+                className={cn(
+                  "truncate text-xs font-medium leading-tight text-cohere-ink",
+                  profileActive && "text-white dark:text-cohere-canvas"
+                )}
+              >
                 {activeUser.name}
               </span>
-              <span className="truncate font-mono text-[10px] lowercase leading-tight text-cohere-muted">
+              <span
+                className={cn(
+                  "truncate font-mono text-[10px] lowercase leading-tight text-cohere-muted",
+                  profileActive && "text-white/75 dark:text-cohere-canvas/75"
+                )}
+              >
                 {activeUser.email.split("@")[0]}
               </span>
             </div>
@@ -195,33 +213,11 @@ export default function AppSidebar({
   );
 
   return (
-    <>
-      {/* Desktop sidebar */}
-      <aside
-        className="hidden h-full shrink-0 border-r border-cohere-hairline lg:block"
-        aria-label="Sidebar"
-      >
-        {SidebarContent}
-      </aside>
-
-      {/* Mobile and tablet drawer */}
-      <Sheet open={mobileOpen} onOpenChange={(open) => !open && onMobileClose()}>
-        <SheetContent
-          side="left"
-          showCloseButton={false}
-          className="w-64 border-r border-cohere-hairline bg-cohere-canvas p-0 shadow-none sm:w-72"
-        >
-          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-          {SidebarContent}
-          <button
-            onClick={onMobileClose}
-            className="absolute right-3 top-3 rounded-sm border border-cohere-hairline bg-cohere-stone p-1.5 text-cohere-muted transition-colors hover:text-cohere-ink"
-            aria-label="Close navigation"
-          >
-            <X className="size-4" />
-          </button>
-        </SheetContent>
-      </Sheet>
-    </>
+    <aside
+      className="hidden h-full shrink-0 border-r border-cohere-hairline lg:block"
+      aria-label="Sidebar"
+    >
+      {SidebarContent}
+    </aside>
   );
 }

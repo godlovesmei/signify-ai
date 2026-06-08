@@ -21,11 +21,7 @@ const FALLBACK_WORKSPACE_USER: SidebarUser = {
 /**
  * WorkspaceShell — full-viewport two-column layout.
  *
- * Changes from previous version:
- *  - TopBar removed entirely; logo now lives in AppSidebar header
- *  - No h-dvh + TopBar overhead; the shell itself is h-dvh
- *  - Sidebar controls mobileOpen state here so the shell owns all nav state
- *  - MobileBottomNav only renders on workspace routes (handled internally)
+ * Mobile and tablet navigation lives in MobileBottomNav; desktop uses AppSidebar.
  */
 export default function WorkspaceShell({
   children,
@@ -34,7 +30,6 @@ export default function WorkspaceShell({
 }) {
   const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [user, setUser] = useState<SidebarUser>(FALLBACK_WORKSPACE_USER);
 
@@ -59,9 +54,7 @@ export default function WorkspaceShell({
           avatarUrl: profile.avatarUrl,
         });
       })
-      .catch(() => {
-        if (active) toast.error("Account details could not be loaded.");
-      });
+      .catch(() => undefined);
     return () => {
       active = false;
     };
@@ -74,39 +67,16 @@ export default function WorkspaceShell({
 
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-cohere-canvas text-cohere-ink antialiased">
-      {/* Sidebar: visible on lg+, drawer on mobile/tablet */}
+      {/* Sidebar: desktop only. Mobile/tablet use the bottom nav. */}
       <AppSidebar
         pathname={pathname}
         onSettingsClick={() => setSettingsOpen(true)}
         onLogout={handleLogout}
-        mobileOpen={mobileOpen}
-        onMobileClose={() => setMobileOpen(false)}
         user={user}
       />
 
       {/* Main content area */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Mobile/tablet top strip: hamburger + logo */}
-        <header className="flex h-12 shrink-0 items-center justify-between border-b border-cohere-hairline bg-cohere-canvas px-4 lg:hidden">
-          <button
-            type="button"
-            aria-label="Open navigation"
-            onClick={() => setMobileOpen(true)}
-            className="flex size-8 items-center justify-center rounded-sm border border-cohere-hairline text-cohere-ink transition-colors hover:bg-cohere-stone"
-          >
-            {/* Hamburger icon inline to avoid extra import */}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-          {/* Wordmark only on mobile top bar */}
-          <span className="font-display text-sm font-medium tracking-tight text-cohere-ink">
-            Signify<span className="brand-ai-gradient">AI</span>
-          </span>
-          {/* Right slot — empty, keeps wordmark centered */}
-          <div className="size-8" aria-hidden="true" />
-        </header>
-
         <main
           id="workspace-main"
           className="min-h-0 flex-1 min-w-0 overflow-auto bg-cohere-canvas"

@@ -17,9 +17,9 @@ import {
   RotateCcw,
   ShieldAlert,
   type LucideIcon,
-  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Button } from "@/components/ui/Button";
 import type { TranslateDetection } from "@/lib/translateApi";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +40,6 @@ export interface WebcamCaptureProps {
   detections: TranslateDetection[];
   apiError: boolean;
   hasMultipleCameras: boolean;
-  fps?: number;
   onRequestCamera: () => void;
   onStartDetection: () => void;
   onStopDetection: () => void;
@@ -92,7 +91,6 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
       detections,
       apiError,
       hasMultipleCameras,
-      fps = 0,
       onRequestCamera,
       onStartDetection,
       onStopDetection,
@@ -137,36 +135,33 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
         className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-md border border-white/10 bg-cohere-primary sm:rounded-lg lg:rounded-[22px]"
       >
         {/* Header */}
-        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-3 py-2.5 sm:px-4 sm:py-3 md:px-5">
-          <div className="flex items-center gap-2 text-white/45">
+        <div className="z-20 flex items-center justify-between border-b border-white/10 bg-cohere-primary px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4">
+          <div className="flex items-center gap-1.5 text-white/45">
             <span
-              className="size-1.5 rounded-full bg-white/20"
+              className="size-1 rounded-full bg-white/20"
               aria-hidden="true"
             />
-            <span className="text-[11px] font-medium sm:text-[12px]">
+            <span className="text-[10px] font-medium sm:text-[11px]">
               Kamera
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <TechnicalBadge
-              icon={Zap}
-              label="Kecepatan"
-              value={isActive ? `${fps} FPS` : "0 FPS"}
-              variant={isActive ? "active" : "default"}
-            />
-            <button
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Button
+              type="button"
+              variant="ghostOnDark"
+              size="icon-xs"
               onClick={handleFullscreen}
-              className="rounded-sm p-1 text-white/45 transition-colors hover:bg-white/10 hover:text-white"
+              className="size-6 sm:size-7"
               aria-label={
                 isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
               }
             >
               {isFullscreen ? (
-                <Minimize2 className="size-3.5 sm:size-4" />
+                <Minimize2 className="size-3 sm:size-3.5" />
               ) : (
-                <Maximize2 className="size-3.5 sm:size-4" />
+                <Maximize2 className="size-3 sm:size-3.5" />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -251,12 +246,14 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                         Izinkan akses kamera untuk mulai menerjemahkan BISINDO.
                       </p>
                     </div>
-                    <button
+                    <Button
+                      type="button"
                       onClick={onRequestCamera}
-                      className="rounded-full bg-cohere-canvas px-6 py-2.5 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone sm:px-8 sm:py-3 sm:text-sm"
+                      variant="onDark"
+                      size="sm"
                     >
                       Aktifkan kamera
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -286,12 +283,14 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                           : "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain."}
                       </p>
                     </div>
-                    <button
+                    <Button
+                      type="button"
                       onClick={onRequestCamera}
-                      className="rounded-full border border-white/20 px-6 py-2.5 text-[11px] font-medium text-white transition-colors hover:bg-white/10 sm:px-8 sm:py-3 sm:text-xs"
+                      variant="outlineOnDark"
+                      size="sm"
                     >
                       Coba lagi
-                    </button>
+                    </Button>
                   </div>
                 )}
               </motion.div>
@@ -300,42 +299,46 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
         </div>
 
         {/* Controls Footer */}
-        <div className="z-40 bg-cohere-primary px-3 py-3 sm:px-4 sm:py-4 md:px-5">
-          <div className="flex items-center gap-3 sm:gap-4">
-            {isLive && !isLoading && (
-              <>
-                {!isActive ? (
-                  <button
-                    onClick={onStartDetection}
-                    className="flex-1 rounded-full bg-cohere-canvas px-4 py-3 text-xs font-medium text-cohere-primary transition-colors hover:bg-cohere-stone sm:px-6 sm:py-4 sm:text-sm"
-                  >
-                    Mulai terjemah
-                  </button>
-                ) : (
-                  <button
-                    onClick={onStopDetection}
-                    className="flex-1 rounded-full border border-white/20 bg-cohere-primary px-4 py-3 text-xs font-medium text-white transition-colors hover:bg-white/10 sm:px-6 sm:py-4 sm:text-sm"
-                  >
-                    Jeda terjemah
-                  </button>
-                )}
+        {isLive && !isLoading && (
+          <div className="z-40 bg-cohere-primary px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4">
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              {!isActive ? (
+                <Button
+                  type="button"
+                  onClick={onStartDetection}
+                  variant="onDark"
+                  size="sm"
+                  className="min-h-10 flex-1 py-2 text-[13px] sm:min-h-11 sm:py-2.5"
+                >
+                  Mulai terjemah
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={onStopDetection}
+                  variant="outlineOnDark"
+                  size="sm"
+                  className="min-h-10 flex-1 py-2 text-[13px] sm:min-h-11 sm:py-2.5"
+                >
+                  Jeda terjemah
+                </Button>
+              )}
 
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <ControlIconBtn onClick={onReset} label="Mulai ulang">
-                    <RotateCcw className="size-4 sm:size-5" />
-                  </ControlIconBtn>
-                  <ControlIconBtn
-                    onClick={onFlipCamera}
-                    label="Ganti kamera"
-                    disabled={!hasMultipleCameras}
-                  >
-                    <FlipHorizontal className="size-4 sm:size-5" />
-                  </ControlIconBtn>
-                </div>
-              </>
-            )}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <ControlIconBtn onClick={onReset} label="Mulai ulang">
+                  <RotateCcw className="size-3.5 sm:size-4" />
+                </ControlIconBtn>
+                <ControlIconBtn
+                  onClick={onFlipCamera}
+                  label="Ganti kamera"
+                  disabled={!hasMultipleCameras}
+                >
+                  <FlipHorizontal className="size-3.5 sm:size-4" />
+                </ControlIconBtn>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </section>
     );
   }
@@ -355,14 +358,17 @@ function ControlIconBtn({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex size-10 items-center justify-center rounded-sm border border-white/15 text-white/45 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-20 sm:size-12"
+      variant="ghostOnDark"
+      size="icon-xs"
+      className="size-9 border border-white/15 sm:size-10"
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

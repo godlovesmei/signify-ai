@@ -283,7 +283,9 @@ export default function PracticePageContent() {
   useEffect(() => { targetRef.current = target; }, [target]);
   useEffect(() => { statsRef.current = stats; }, [stats]);
 
-  const loadPracticeStats = useCallback(async () => {
+  const loadPracticeStats = useCallback(async ({
+    notify = false,
+  }: { notify?: boolean } = {}) => {
     setIsStatsLoading(true);
     setStatsLoadError(false);
     const revision = statsRevisionRef.current;
@@ -295,7 +297,11 @@ export default function PracticePageContent() {
       setTarget((current) => pickAdaptiveLetter(remote, current));
     } catch {
       setStatsLoadError(true);
-      toast.error("Practice progress could not be loaded.");
+      if (notify) {
+        toast.error("Practice progress could not be loaded.", {
+          id: "practice-progress-load-error",
+        });
+      }
     } finally {
       setIsStatsLoading(false);
     }
@@ -325,7 +331,9 @@ export default function PracticePageContent() {
           setStats(remote);
         })
         .catch(async () => {
-          toast.error("Practice attempt could not be synced.");
+          toast.error("Practice attempt could not be synced.", {
+            id: "practice-attempt-sync-error",
+          });
           if (revision !== statsRevisionRef.current) return;
           try {
             const remote = await getPracticeStats();
@@ -790,7 +798,7 @@ export default function PracticePageContent() {
                 ) : statsLoadError ? (
                   <button
                     type="button"
-                    onClick={() => void loadPracticeStats()}
+                    onClick={() => void loadPracticeStats({ notify: true })}
                     className="text-cohere-error transition-opacity hover:opacity-70"
                     aria-label="Retry loading practice progress"
                   >
@@ -892,7 +900,8 @@ export default function PracticePageContent() {
                 type="button"
                 onClick={handlePrimaryCameraAction}
                 disabled={isCameraBusy}
-                className={cn("min-w-44", isActive && "bg-cohere-error hover:bg-cohere-error/90")}
+                variant={isActive ? "destructive" : "primary"}
+                className="min-w-44"
                 aria-label={isActive ? "Stop detection" : "Start detection"}
               >
                 {isActive ? (

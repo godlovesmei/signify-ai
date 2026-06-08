@@ -36,7 +36,7 @@ export default function TTSButton({
           'flex items-center justify-center rounded-[30px] border border-[var(--cohere-hairline)] transition-colors duration-200',
           isCompact ? 'h-8 w-8' : 'h-9 px-5 gap-3',
           isSpeaking 
-            ? 'border-[var(--cohere-primary)] bg-[var(--cohere-primary)] text-white' 
+            ? 'border-[var(--cohere-ink)] bg-[var(--cohere-ink)] text-[var(--cohere-canvas)]' 
             : 'bg-[var(--cohere-stone)] text-[var(--cohere-ink)] hover:bg-[var(--cohere-hairline)]',
           isEmpty && !isSpeaking && 'opacity-30 cursor-not-allowed',
           hasError && !isSpeaking && 'text-[var(--cohere-error)] border-[color-mix(in_srgb,var(--cohere-error)_20%,transparent)]'

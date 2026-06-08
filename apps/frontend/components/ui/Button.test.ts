@@ -13,6 +13,9 @@ const variants = [
   "signal",
   "highlight",
   "surface",
+  "onDark",
+  "outlineOnDark",
+  "ghostOnDark",
   "ghost",
   "link",
 ] as const
@@ -53,6 +56,13 @@ describe("buttonVariants", () => {
     ["surface", "--color-bg-tertiary"],
   ] as const)("maps %s to a semantic theme token", (variant, token) => {
     expect(buttonVariants({ variant })).toContain(token)
+  })
+
+  it("keeps on-dark actions readable on the always-dark camera surface", () => {
+    expect(buttonVariants({ variant: "onDark" })).toContain("bg-white")
+    expect(buttonVariants({ variant: "onDark" })).toContain("text-[#17171c]")
+    expect(buttonVariants({ variant: "outlineOnDark" })).toContain("text-white")
+    expect(buttonVariants({ variant: "ghostOnDark" })).toContain("text-white/55")
   })
 
   it("TC-025 uses a surface hover instead of an underline for text-action icons", () => {

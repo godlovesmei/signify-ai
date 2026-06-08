@@ -10,6 +10,7 @@ import {
   Activity,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -205,35 +206,28 @@ export function PredictionDisplay({
       {/* Footer Actions */}
       <footer className="shrink-0 border-t border-cohere-hairline bg-cohere-stone p-3 sm:p-4 md:p-6">
         <div className="flex gap-2 sm:gap-3">
-          <button
+          <Button
             type="button"
             aria-label="Download translation transcript"
             onClick={handleExport}
             disabled={transcript.length === 0}
-            className={cn(
-              "flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-cohere-ink text-cohere-ink transition-colors disabled:opacity-20 sm:h-12 sm:gap-2",
-              "text-xs font-medium sm:text-sm",
-              "hover:bg-cohere-ink hover:text-cohere-canvas"
-            )}
+            variant="outline"
+            className="h-10 flex-1 sm:h-12"
           >
             <Download size={13} className="sm:size-[14px]" />
             <span>Unduh</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             aria-label="Share translation transcript"
             onClick={handleShare}
             disabled={transcript.length === 0}
-            className={cn(
-              "flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-cohere-ink text-cohere-canvas transition-colors disabled:opacity-20 sm:h-12 sm:gap-2",
-              "text-xs font-medium sm:text-sm",
-              "hover:bg-cohere-primary"
-            )}
+            className="h-10 flex-1 sm:h-12"
           >
             <Share2 size={13} className="sm:size-[14px]" />
             <span>Bagikan</span>
-          </button>
+          </Button>
         </div>
       </footer>
     </div>

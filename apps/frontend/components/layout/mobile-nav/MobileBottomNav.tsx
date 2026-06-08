@@ -14,8 +14,8 @@ interface MobileBottomNavProps {
   reserveSpace?: boolean;
 }
 
-const MOBILE_NAV_HEIGHT_PX = 64;
-const MOBILE_NAV_OFFSET_VALUE = `calc(${MOBILE_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px))`;
+const BOTTOM_NAV_HEIGHT_PX = 64;
+const BOTTOM_NAV_OFFSET_VALUE = `calc(${BOTTOM_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px))`;
 
 export default function MobileBottomNav({
   reserveSpace = true,
@@ -29,11 +29,11 @@ export default function MobileBottomNav({
   useEffect(() => {
     if (!isWorkspace) return;
     const root = document.documentElement;
-    const media = window.matchMedia("(max-width: 767px)");
+    const media = window.matchMedia("(max-width: 1023px)");
     const syncOffset = () => {
       root.style.setProperty(
         "--workspace-mobile-nav-offset",
-        media.matches ? MOBILE_NAV_OFFSET_VALUE : "0px"
+        media.matches ? BOTTOM_NAV_OFFSET_VALUE : "0px"
       );
     };
 
@@ -54,18 +54,15 @@ export default function MobileBottomNav({
       {reserveSpace && (
         <div
           aria-hidden="true"
-          className="md:hidden"
-          style={{ height: MOBILE_NAV_OFFSET_VALUE }}
+          className="lg:hidden"
+          style={{ height: BOTTOM_NAV_OFFSET_VALUE }}
         />
       )}
 
-      {/*
-       * Visible only on mobile (<768px).
-       * Tablets use the top strip plus drawer; desktop uses the sidebar.
-       */}
+      {/* Mobile and tablet use the bottom nav; desktop uses the sidebar. */}
       <motion.nav
         aria-label="Workspace mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
         initial={reduceMotion ? undefined : { y: 16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={

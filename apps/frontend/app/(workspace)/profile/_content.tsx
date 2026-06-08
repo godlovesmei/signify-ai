@@ -271,7 +271,9 @@ export default function ProfilePageContent() {
   const [loadError, setLoadError] = useState(false);
   const prefs = useAccessibilityPrefs();
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async ({
+    notify = false,
+  }: { notify?: boolean } = {}) => {
     setIsLoading(true);
     setLoadError(false);
     try {
@@ -299,7 +301,11 @@ export default function ProfilePageContent() {
       }
     } catch {
       setLoadError(true);
-      toast.error("Profile analytics could not be loaded.");
+      if (notify) {
+        toast.error("Profile analytics could not be loaded.", {
+          id: "profile-analytics-load-error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -400,7 +406,7 @@ export default function ProfilePageContent() {
           isLoading ? (
             <Loader2 className="size-5 animate-spin text-cohere-slate" aria-label="Loading profile" />
           ) : loadError ? (
-            <Button onClick={() => void loadProfile()} variant="outline" size="sm">
+            <Button onClick={() => void loadProfile({ notify: true })} variant="outline" size="sm">
               <RefreshCw className="size-4" />
               Retry
             </Button>

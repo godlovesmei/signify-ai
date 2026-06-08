@@ -176,12 +176,13 @@ export function PreferencesProvider({
       setIsLoading(true);
       try {
         const {
-          data: { user },
+          data: { session },
           error,
-        } = await supabase.auth.getUser();
+        } = await supabase.auth.getSession();
         if (error) throw error;
         if (!active) return;
 
+        const user = session?.user ?? null;
         if (!user) {
           hydratedRef.current = false;
           lastSyncedRef.current = null;
@@ -203,7 +204,9 @@ export function PreferencesProvider({
         clearLegacyLocalData();
       } catch {
         if (active) {
-          toast.error("Preferences could not be loaded. Using defaults.");
+          hydratedRef.current = false;
+          lastSyncedRef.current = null;
+          setUserId(null);
         }
       } finally {
         if (active) setIsLoading(false);
@@ -254,7 +257,9 @@ export function PreferencesProvider({
         lastSyncedRef.current = snapshot;
       } catch {
         if (version !== syncVersionRef.current) return;
-        toast.error("Preference sync failed. Restoring saved settings.");
+        toast.error("Preference sync failed. Restoring saved settings.", {
+          id: "preferences-sync-error",
+        });
         try {
           const remote = await loadRemotePreferences(userId);
           if (version !== syncVersionRef.current) return;

@@ -21,14 +21,20 @@ export default function ReferencePageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const loadStats = useCallback(async () => {
+  const loadStats = useCallback(async ({
+    notify = false,
+  }: { notify?: boolean } = {}) => {
     setIsLoading(true);
     setLoadError(false);
     try {
       setStats(await getPracticeStats());
     } catch {
       setLoadError(true);
-      toast.error('Reference progress could not be loaded.');
+      if (notify) {
+        toast.error('Reference progress could not be loaded.', {
+          id: 'reference-progress-load-error',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +61,7 @@ export default function ReferencePageContent() {
             <div className="flex items-center gap-2">
               {isLoading && <Loader2 className="size-4 animate-spin text-cohere-slate" aria-label="Loading progress" />}
               {loadError && (
-                <Button onClick={() => void loadStats()} variant="outline" size="sm">
+                <Button onClick={() => void loadStats({ notify: true })} variant="outline" size="sm">
                   <RefreshCw className="size-4" />
                   Retry
                 </Button>

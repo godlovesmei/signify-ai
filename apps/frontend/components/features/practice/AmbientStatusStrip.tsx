@@ -65,7 +65,7 @@ export function TrailIndicator({ trail, className }: TrailIndicatorProps) {
               className={cn(
                 "flex size-10 items-center justify-center rounded-sm border text-[14px] transition-colors duration-200",
                 index === trail.length - 1
-                  ? "bg-cohere-primary text-white border-cohere-primary"
+                  ? "border-cohere-ink bg-cohere-ink text-cohere-canvas"
                   : "bg-cohere-stone text-cohere-slate border-cohere-hairline"
               )}
             >

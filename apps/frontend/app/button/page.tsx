@@ -5,6 +5,7 @@ import type { ComponentType, ReactNode } from "react";
 import {
   ArrowRight,
   Bell,
+  Camera,
   Check,
   Download,
   ExternalLink,
@@ -21,6 +22,7 @@ import {
 
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { useTheme, type ThemeMode } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 type ButtonVariant = NonNullable<ButtonProps["variant"]>;
 type ButtonSize = NonNullable<ButtonProps["size"]>;
@@ -46,6 +48,12 @@ const semanticVariants: VariantSample[] = [
   { name: "surface", label: "Surface", icon: Heart },
   { name: "ghost", label: "Ghost", icon: RefreshCw },
   { name: "link", label: "Link", icon: ExternalLink },
+];
+
+const darkSurfaceVariants: VariantSample[] = [
+  { name: "onDark", label: "On dark", icon: Camera },
+  { name: "outlineOnDark", label: "Outline on dark", icon: Download },
+  { name: "ghostOnDark", label: "Ghost on dark", icon: RefreshCw },
 ];
 
 const textSizes: Array<{ name: ButtonSize; label: string }> = [
@@ -105,16 +113,27 @@ function SampleRow({
   variant,
   label,
   icon: Icon,
+  surface = "default",
 }: {
   variant: ButtonVariant;
   label: string;
   icon: ComponentType<{ className?: string }>;
+  surface?: "default" | "dark";
 }) {
+  const isDarkSurface = surface === "dark";
+
   return (
-    <article className="grid gap-4 border-t border-cohere-hairline py-5 lg:grid-cols-[160px_1fr] lg:items-center">
+    <article
+      className={cn(
+        "grid gap-4 border-t py-5 lg:grid-cols-[160px_1fr] lg:items-center",
+        isDarkSurface ? "border-white/10" : "border-cohere-hairline"
+      )}
+    >
       <div>
-        <h3 className="text-[16px] leading-6 text-cohere-ink">{label}</h3>
-        <p className="mt-1 font-mono text-[11px] text-cohere-slate">
+        <h3 className={cn("text-[16px] leading-6", isDarkSurface ? "text-white" : "text-cohere-ink")}>
+          {label}
+        </h3>
+        <p className={cn("mt-1 font-mono text-[11px]", isDarkSurface ? "text-white/55" : "text-cohere-slate")}>
           variant=&quot;{variant}&quot;
         </p>
       </div>
@@ -212,6 +231,23 @@ export default function ButtonPreviewPage() {
                 variant={variant.name}
                 label={variant.label}
                 icon={variant.icon}
+              />
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          title="Dark Surface Variants"
+          description="Varian khusus untuk tombol yang berada di atas panel kamera atau surface gelap permanen."
+        >
+          <div className="rounded-md border border-white/10 bg-cohere-primary px-5 text-white">
+            {darkSurfaceVariants.map((variant) => (
+              <SampleRow
+                key={variant.name}
+                variant={variant.name}
+                label={variant.label}
+                icon={variant.icon}
+                surface="dark"
               />
             ))}
           </div>

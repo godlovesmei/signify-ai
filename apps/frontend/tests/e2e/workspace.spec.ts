@@ -18,7 +18,7 @@ test("TC-006 authenticated translation workspace exposes its initial camera stat
 }) => {
   await page.goto("/translate");
 
-  await expect(page.getByRole("heading", { name: "Kamera" })).toBeVisible();
-  await expect(page.getByText("Arahkan tangan ke kamera.")).toBeVisible();
+  await expect(page.getByLabel("Kamera penerjemah")).toBeVisible();
+  await expect(page.getByText("Kecepatan")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Aktifkan kamera" })).toBeVisible();
 });

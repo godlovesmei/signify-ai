@@ -34,7 +34,9 @@ export default function HistoryPageContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  const refreshSessions = useCallback(async () => {
+  const refreshSessions = useCallback(async ({
+    notify = false,
+  }: { notify?: boolean } = {}) => {
     setIsLoading(true);
     setLoadError(false);
     try {
@@ -44,7 +46,11 @@ export default function HistoryPageContent() {
       setHasMore(result.hasMore);
     } catch {
       setLoadError(true);
-      toast.error("Translation history could not be loaded.");
+      if (notify) {
+        toast.error("Translation history could not be loaded.", {
+          id: "history-load-error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +137,7 @@ export default function HistoryPageContent() {
       ) : loadError ? (
         <div className="flex min-h-72 flex-col items-center justify-center rounded-[22px] border border-cohere-hairline bg-cohere-stone text-center">
           <p className="text-[16px] text-cohere-body-muted">History is temporarily unavailable.</p>
-          <Button onClick={() => void refreshSessions()} variant="outline" className="mt-5">
+          <Button onClick={() => void refreshSessions({ notify: true })} variant="outline" className="mt-5">
             <RefreshCw className="size-4" />
             Retry
           </Button>

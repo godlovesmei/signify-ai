@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Lock, Shield, Sparkles, X } from "lucide-react";
 import { sanitizeRelativePath } from "@/lib/authRedirect";
 import { createClient } from "@/utils/supabase/client";
@@ -71,11 +72,11 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
     }
   }
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="sign-in-title"
@@ -87,7 +88,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
         onClick={onClose}
       />
 
-      <div className="relative z-10 w-full max-w-[520px] overflow-hidden rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink">
+      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-[520px] overflow-y-auto rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink">
         <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-5">
           <Logo href={false} size="md" />
           <button
@@ -156,7 +157,8 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

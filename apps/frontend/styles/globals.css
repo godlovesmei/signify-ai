@@ -317,7 +317,7 @@
   }
 
   .workspace-height {
-    height: calc(100dvh - 3.5rem);
+    height: calc(100dvh - var(--workspace-mobile-nav-offset, 0px));
   }
 }
 

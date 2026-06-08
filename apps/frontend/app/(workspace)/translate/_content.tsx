@@ -57,7 +57,6 @@ export default function TranslatePageContent() {
   const [currentConfidence, setCurrentConfidence] = useState<number | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isTtsError, setIsTtsError] = useState(false);
-  const [fps, setFps] = useState(0);
   const [language] = useState<Language>("BISINDO");
   const [voiceEnabled] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
@@ -71,8 +70,6 @@ export default function TranslatePageContent() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isBusy = useRef(false);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const fpsCountRef = useRef(0);
-  const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const sessionStartedAtRef = useRef<string | null>(null);
   const letterAccumulatorRef = useRef(createLetterAccumulatorState());
@@ -157,7 +154,6 @@ export default function TranslatePageContent() {
     return () => {
       stopStream();
       if (timerRef.current) clearInterval(timerRef.current);
-      if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -171,10 +167,6 @@ export default function TranslatePageContent() {
         if (timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
-        }
-        if (fpsIntervalRef.current) {
-          clearInterval(fpsIntervalRef.current);
-          fpsIntervalRef.current = null;
         }
       } else if (!document.hidden && wasDetectingRef.current) {
         wasDetectingRef.current = false;
@@ -231,9 +223,7 @@ export default function TranslatePageContent() {
   const handleReset = useCallback(() => {
     stopStream();
     if (timerRef.current) clearInterval(timerRef.current);
-    if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
     isBusy.current = false;
-    fpsCountRef.current = 0;
     setAppState("idle");
     setTranscript([]);
     setTokens([]);
@@ -241,7 +231,6 @@ export default function TranslatePageContent() {
     setCurrentConfidence(null);
     setIsSpeaking(false);
     setIsTtsError(false);
-    setFps(0);
     setApiError(false);
     setDetections([]);
     letterAccumulatorRef.current = createLetterAccumulatorState();
@@ -253,18 +242,11 @@ export default function TranslatePageContent() {
     (force = false) => {
       if (!force && appState !== "ready") return;
       if (timerRef.current) clearInterval(timerRef.current);
-      if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
       setAppState("detecting");
       setApiError(false);
       sessionIdRef.current = crypto.randomUUID();
       sessionStartedAtRef.current = new Date().toISOString();
       letterAccumulatorRef.current = createLetterAccumulatorState();
-
-      fpsCountRef.current = 0;
-      fpsIntervalRef.current = setInterval(() => {
-        setFps(fpsCountRef.current);
-        fpsCountRef.current = 0;
-      }, 1000);
 
       timerRef.current = setInterval(async () => {
         if (isBusy.current) return;
@@ -297,8 +279,6 @@ export default function TranslatePageContent() {
           }
 
           setApiError(false);
-          fpsCountRef.current += 1;
-
           const nextDetections = yoloResult.detections ?? [];
           setDetections(nextDetections);
 
@@ -353,13 +333,10 @@ export default function TranslatePageContent() {
 
   const stopDetection = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current);
     isBusy.current = false;
-    fpsCountRef.current = 0;
     setDetections([]);
     setCurrentLetter(null);
     setCurrentConfidence(null);
-    setFps(0);
     letterAccumulatorRef.current = createLetterAccumulatorState();
     sessionIdRef.current = null;
     sessionStartedAtRef.current = null;
@@ -415,7 +392,10 @@ export default function TranslatePageContent() {
     [prefs.ttsSpeed, prefs.ttsVolume]
   );
 
-  const renderSentenceBuilder = (variant: "panel" | "sticky" = "panel") => (
+  const renderSentenceBuilder = (
+    variant: "panel" | "sticky" = "panel",
+    className?: string
+  ) => (
     <SentenceBuilder
       tokens={tokens}
       isSpeaking={isSpeaking}
@@ -426,6 +406,7 @@ export default function TranslatePageContent() {
       isTtsError={isTtsError}
       textScale={prefs.textScale}
       variant={variant}
+      className={className}
     />
   );
 
@@ -439,39 +420,21 @@ export default function TranslatePageContent() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-cohere-canvas text-cohere-ink selection:bg-cohere-coral-soft selection:text-cohere-primary">
-      <main className="flex min-h-0 flex-1 flex-col lg:flex-row lg:divide-x lg:divide-cohere-hairline">
+      <main
+        className="flex flex-1 flex-col overflow-y-auto lg:min-h-0 lg:flex-row lg:divide-x lg:divide-cohere-hairline lg:overflow-hidden"
+        style={{ paddingBottom: "var(--workspace-mobile-nav-offset, 0px)" }}
+      >
         {/* ═══════════════════════════════════════════════════════
             LEFT COLUMN: Kamera + Panduan
             Mobile: Full width
             Desktop: flex-[1.4]
             ═══════════════════════════════════════════════════════ */}
-        <section className="relative flex min-h-0 flex-col overflow-hidden bg-cohere-stone lg:flex-[1.4]">
-          <div className="flex flex-1 flex-col overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
-            <div className="mx-auto w-full max-w-[960px] space-y-4 sm:space-y-5 md:space-y-6">
-              {/* Header */}
-              <div className="flex flex-col gap-2 border-b border-cohere-hairline pb-3 sm:flex-row sm:items-end sm:justify-between sm:pb-4">
-                <div className="min-w-0">
-                  <h1 className="font-display text-xl leading-none text-cohere-ink sm:text-2xl md:text-[28px]">
-                    Kamera
-                  </h1>
-                  <p className="mt-1.5 max-w-md text-xs leading-5 text-cohere-body-muted sm:mt-2 sm:text-sm sm:leading-6">
-                    Arahkan tangan ke kamera. Hasilnya muncul di panel kanan.
-                  </p>
-                </div>
-                <div className="sm:text-right">
-                  <span className="mb-0.5 block text-[10px] text-cohere-slate sm:text-[11px]">
-                    Kecepatan
-                  </span>
-                  <span className="text-lg tabular-nums text-cohere-ink sm:text-xl">
-                    {fps}{" "}
-                    <span className="text-[9px] opacity-40 sm:text-[10px]">FPS</span>
-                  </span>
-                </div>
-              </div>
-
+        <section className="relative flex shrink-0 flex-col bg-cohere-stone lg:min-h-0 lg:flex-[1.4] lg:overflow-hidden">
+          <div className="flex flex-col p-2.5 sm:p-4 md:p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:p-6">
+            <div className="mx-auto w-full max-w-[960px] space-y-2.5 sm:space-y-3 lg:max-w-[min(820px,calc(100vh_-_184px))]">
               {/* Webcam Container */}
               <div className="relative w-full overflow-hidden rounded-md border border-cohere-hairline bg-cohere-primary transition-colors duration-300 sm:rounded-lg lg:rounded-[22px]">
-                <div className="aspect-square sm:aspect-video">
+                <div className="aspect-square sm:aspect-[4/3] md:aspect-[16/10] lg:aspect-square">
                   <WebcamCapture
                     ref={webcamRef}
                     state={appState}
@@ -484,7 +447,6 @@ export default function TranslatePageContent() {
                     onStopDetection={stopDetection}
                     onFlipCamera={flipCamera}
                     onReset={handleReset}
-                    fps={fps}
                   />
                 </div>
 
@@ -514,8 +476,8 @@ export default function TranslatePageContent() {
           </div>
 
           {/* Practice Guide */}
-          <div className="px-3 pb-4 sm:px-4 sm:pb-6 md:px-6 lg:px-8 lg:pb-8">
-            <div className="mx-auto w-full max-w-[960px] border-t border-cohere-hairline pt-4 sm:pt-5 md:pt-6">
+          <div className="px-2.5 pb-3 sm:px-4 sm:pb-4 md:px-5 lg:px-6 lg:pb-6">
+            <div className="mx-auto w-full max-w-[960px] border-t border-cohere-hairline pt-2.5 sm:pt-3 lg:max-w-[min(820px,calc(100vh_-_184px))]">
               <PracticeGuide />
             </div>
           </div>
@@ -526,22 +488,24 @@ export default function TranslatePageContent() {
             Mobile: Tab-based navigation
             Desktop: All panels visible
             ═══════════════════════════════════════════════════════ */}
-        <section className="flex min-h-0 flex-1 flex-col bg-cohere-canvas">
+        <section className="flex shrink-0 flex-col bg-cohere-canvas lg:min-h-0 lg:flex-1">
           {/* Mobile Tab Navigation */}
-          <div className="flex shrink-0 border-b border-cohere-hairline bg-cohere-canvas lg:hidden">
+          <div className="sticky top-0 z-20 flex shrink-0 border-b border-cohere-hairline bg-cohere-canvas lg:hidden">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => setMobileTab(tab.key)}
+                aria-current={mobileTab === tab.key ? "page" : undefined}
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-1.5 py-3 text-[11px] font-medium transition-colors",
+                  "flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors sm:flex-row sm:gap-1.5 sm:py-3 sm:text-[11px]",
                   mobileTab === tab.key
                     ? "border-b-2 border-cohere-ink text-cohere-ink"
                     : "text-cohere-slate hover:text-cohere-body-muted"
                 )}
               >
                 <tab.icon className="size-3.5" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
@@ -549,8 +513,8 @@ export default function TranslatePageContent() {
           {/* ═══════ DESKTOP: All panels visible ═══════ */}
           <div className="hidden min-h-0 flex-1 flex-col lg:flex">
             {/* Hasil Saat Ini */}
-            <div className="border-b border-cohere-hairline p-6 lg:p-8">
-              <header className="mb-6 flex items-center justify-between">
+            <div className="border-b border-cohere-hairline p-5 lg:p-6">
+              <header className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Terminal className="size-3.5 text-cohere-slate" />
                   <h3 className="text-mono-label text-[11px] text-cohere-slate">
@@ -563,7 +527,7 @@ export default function TranslatePageContent() {
                   <div className="size-1 bg-cohere-ink" />
                 </div>
               </header>
-              <div className="flex min-h-[150px] flex-col items-center justify-center">
+              <div className="flex min-h-[132px] flex-col items-center justify-center">
                 <PredictionBadge
                   letter={currentLetter}
                   confidence={currentConfidence}
@@ -575,7 +539,7 @@ export default function TranslatePageContent() {
             </div>
 
             {/* Susun Kalimat */}
-            <div className="border-b border-cohere-hairline bg-cohere-stone/40 p-6 lg:p-8">
+            <div className="border-b border-cohere-hairline bg-cohere-stone/40 p-5 lg:p-6">
               <div className="mb-4 flex items-center gap-3">
                 <Layers className="size-3.5 text-cohere-slate" />
                 <span className="text-mono-label text-[11px] text-cohere-slate">
@@ -588,7 +552,7 @@ export default function TranslatePageContent() {
 
             {/* Riwayat */}
             <div className="flex min-h-0 flex-1 flex-col">
-              <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-4 lg:px-8">
+              <div className="flex items-center justify-between border-b border-cohere-hairline px-5 py-4 lg:px-6">
                 <div className="flex items-center gap-3">
                   <Activity className="size-3.5 text-cohere-slate" />
                   <h3 className="text-mono-label text-[11px] text-cohere-slate">
@@ -612,11 +576,11 @@ export default function TranslatePageContent() {
           </div>
 
           {/* ═══════ MOBILE: Tab Content ═══════ */}
-          <div className="flex min-h-0 flex-1 flex-col lg:hidden">
+          <div className="lg:hidden">
             {/* Tab: Hasil */}
             {mobileTab === "hasil" && (
-              <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
-                <div className="flex flex-1 flex-col items-center justify-center">
+              <div className="p-3 sm:p-4 md:p-5">
+                <div className="flex min-h-[148px] flex-col items-center justify-center sm:min-h-[172px]">
                   <PredictionBadge
                     letter={currentLetter}
                     confidence={currentConfidence}
@@ -630,22 +594,22 @@ export default function TranslatePageContent() {
 
             {/* Tab: Kalimat */}
             {mobileTab === "kalimat" && (
-              <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
-                <div className="mb-4 flex items-center gap-3">
+              <div className="p-3 sm:p-4 md:p-5">
+                <div className="mb-3 flex items-center gap-3">
                   <Layers className="size-3.5 text-cohere-slate" />
                   <span className="text-mono-label text-[11px] text-cohere-slate">
                     Susun kalimat
                   </span>
                   <div className="h-px flex-1 bg-cohere-hairline" />
                 </div>
-                {renderSentenceBuilder("panel")}
+                {renderSentenceBuilder("panel", "rounded-md")}
               </div>
             )}
 
             {/* Tab: Riwayat */}
             {mobileTab === "riwayat" && (
-              <div className="flex min-h-0 flex-1 flex-col">
-                <div className="flex items-center justify-between border-b border-cohere-hairline px-4 py-3 sm:px-6">
+              <div className="flex min-h-[240px] flex-col">
+                <div className="flex items-center justify-between border-b border-cohere-hairline px-3 py-3 sm:px-4 md:px-5">
                   <div className="flex items-center gap-3">
                     <Activity className="size-3.5 text-cohere-slate" />
                     <h3 className="text-mono-label text-[11px] text-cohere-slate">
@@ -659,7 +623,7 @@ export default function TranslatePageContent() {
                     Bersihkan
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto">
+                <div className="min-h-[220px] flex-1 overflow-y-auto">
                   <PredictionDisplay
                     transcript={transcript}
                     onSpeakEntry={handleSpeakEntry}
@@ -670,20 +634,6 @@ export default function TranslatePageContent() {
           </div>
         </section>
       </main>
-
-      {/* Mobile Sticky Sentence Builder */}
-      <div
-        className={cn(
-          "shrink-0 border-t border-cohere-hairline bg-cohere-canvas p-3 sm:p-4 lg:hidden",
-          mobileTab === "hasil" && "hidden"
-        )}
-        style={{
-          paddingBottom:
-            "calc(12px + var(--workspace-mobile-nav-offset, 0px))",
-        }}
-      >
-        {renderSentenceBuilder("sticky")}
-      </div>
     </div>
   );
 }
