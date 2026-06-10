@@ -84,11 +84,11 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 cursor-default bg-black/45"
+        className="absolute inset-0 cursor-default bg-black/45 animate-in fade-in duration-200"
         onClick={onClose}
       />
 
-      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-[520px] overflow-y-auto rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink">
+      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-[520px] overflow-y-auto rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-300">
         <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-5">
           <Logo href={false} size="md" />
           <button

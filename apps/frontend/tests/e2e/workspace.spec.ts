@@ -10,7 +10,8 @@ test("TC-003 logout clears the session and returns to the landing page", async (
 
   await expect(page).toHaveURL("/");
   await page.goto("/history");
-  await expect(page).toHaveURL(/\/\?login=1&next=%2Fhistory$/);
+  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page).toHaveURL("/");
 });
 
 test("TC-006 authenticated translation workspace exposes its initial camera state", async ({

@@ -7,9 +7,20 @@ test("TC-004 unauthenticated protected route redirects and preserves a safe retu
 }) => {
   await page.goto("/history?page=2");
 
-  await expect(page).toHaveURL(/\/\?login=1&next=%2Fhistory%3Fpage%3D2$/);
   await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page).toHaveURL("/");
   await expect(page.getByRole("button", { name: "Close sign in" })).toBeFocused();
+});
+
+test("TC-004 landing start translating opens login without a redirect query", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Start translating" }).click();
+
+  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page).toHaveURL("/");
 });
 
 test("TC-001 invalid OAuth callback returns a generic login error signal", async ({

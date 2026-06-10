@@ -6,8 +6,8 @@ setup("TC-002 valid Google OAuth callback creates authenticated storage state", 
   page,
 }) => {
   await page.goto("/history?from=e2e");
-  await expect(page).toHaveURL(/\/\?login=1&next=/);
   await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page).toHaveURL("/");
 
   await page.getByRole("button", { name: "Continue with Google" }).click();
 

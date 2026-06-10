@@ -28,6 +28,7 @@ test("TC-025 @a11y login dialog supports keyboard focus and Escape", async ({
   await page.goto("/?login=1&next=%2Fhistory");
   const closeButton = page.getByRole("button", { name: "Close sign in" });
   await expect(closeButton).toBeFocused();
+  await expect(page).toHaveURL("/");
   await page.keyboard.press("Escape");
   await expect(closeButton).toBeHidden();
 });

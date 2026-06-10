@@ -3,7 +3,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
   Camera,
@@ -16,9 +17,12 @@ import {
 } from "lucide-react";
 import LandingNavbar from "@/components/layout/LandingNavbar";
 import Footer from "@/components/layout/Footer";
+import { LoginModal } from "@/components/auth/LoginModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
+import { sanitizeRelativePath } from "@/lib/authRedirect";
+import { createClient } from "@/utils/supabase/client";
 
 const phrases = [
   "Halo, nama saya Rina.",
@@ -81,6 +85,8 @@ type RevealProps = {
   delay?: number;
   variant?: "fade-up" | "fade-down" | "fade-left" | "fade-right" | "scale-in" | "clip";
 };
+
+type ProtectedNavigateHandler = (nextPath?: string) => void;
 
 function motionStyle(delay = 0): CSSProperties {
   return { "--delay": `${delay}ms` } as CSSProperties;
@@ -676,7 +682,7 @@ function MacSignScannerCard() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavigateHandler }) {
   return (
     <section className="hero-motion-shell bg-cohere-canvas pt-24 md:pt-28">
       <div className="hero-motion-content cohere-container pb-12 pt-8 md:pb-16">
@@ -697,11 +703,9 @@ function HeroSection() {
           <Reveal delay={250}>
             <div className="mt-7 flex flex-col items-center justify-center gap-4 sm:flex-row">
               {/* button-primary: near-black pill, 14px Unica77 500, 32px pill radius */}
-              <Button asChild size="lg">
-                <Link href="/translate" data-arrow-link>
-                  Start translating
-                  <ArrowRight className="size-4" />
-                </Link>
+              <Button size="lg" data-arrow-link onClick={() => onStartTranslating("/translate")}>
+                Start translating
+                <ArrowRight className="size-4" />
               </Button>
               {/* button-secondary: text-only, no fill, ink color */}
               <Button asChild variant="secondary">
@@ -952,7 +956,7 @@ function ResearchRows() {
   );
 }
 
-function CtaSection() {
+function CtaSection({ onOpenWorkspace }: { onOpenWorkspace: ProtectedNavigateHandler }) {
   return (
     <section className="bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
@@ -971,11 +975,9 @@ function CtaSection() {
                 Translate, practice, and review in one calm workspace.
               </h2>
               {/* button-primary: near-black pill */}
-              <Button asChild size="lg">
-                <Link href="/translate" data-arrow-link>
-                  Open SignifyAI
-                  <ArrowRight className="size-4" />
-                </Link>
+              <Button size="lg" data-arrow-link onClick={() => onOpenWorkspace("/translate")}>
+                Open SignifyAI
+                <ArrowRight className="size-4" />
               </Button>
             </div>
           </Card>
@@ -987,22 +989,53 @@ function CtaSection() {
 
 export default function HomePage() {
   useCohereLikeMotion();
+  const router = useRouter();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginNextPath, setLoginNextPath] = useState<string | null>(null);
+
+  const openLogin = useCallback((nextPath: string | null = null) => {
+    setLoginNextPath(nextPath);
+    setLoginOpen(true);
+  }, []);
+
+  const navigateProtected = useCallback(
+    async (nextPath = "/translate") => {
+      const safeNextPath = sanitizeRelativePath(nextPath);
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        router.push(safeNextPath);
+        return;
+      }
+
+      openLogin(safeNextPath);
+    },
+    [openLogin, router],
+  );
 
   return (
-    <div className="min-h-screen bg-cohere-canvas text-cohere-ink">
+    <div className="min-h-screen overflow-x-clip bg-cohere-canvas text-cohere-ink">
       <PageMotionStyles />
       <div className="scroll-progress" aria-hidden="true" />
-      <LandingNavbar />
+      <LandingNavbar onLoginRequest={openLogin} />
       <main id="main-content">
-        <HeroSection />
+        <HeroSection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
         <TrustStrip />
         <CapabilitySection />
         <DarkFeatureBand />
         <ProductCards />
         <ResearchRows />
-        <CtaSection />
+        <CtaSection onOpenWorkspace={(nextPath) => void navigateProtected(nextPath)} />
       </main>
       <Footer />
+      <LoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        nextPath={loginNextPath}
+      />
     </div>
   );
 }

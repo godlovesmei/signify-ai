@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -136,6 +136,10 @@ const utilityLinks = [
   { label: "Research", href: "/research" },
 ];
 
+type LandingNavbarProps = {
+  onLoginRequest?: (nextPath: string | null) => void;
+};
+
 function SignInTrigger({
   onClick,
   mobile = false,
@@ -149,7 +153,11 @@ function SignInTrigger({
       variant="secondary"
       size={mobile ? "lg" : "sm"}
       onClick={onClick}
-      className={mobile ? "w-full justify-start" : undefined}
+      className={
+        mobile
+          ? "w-full justify-start"
+          : "[&_[data-button-underline]]:bg-[linear-gradient(90deg,#ff7a67_0%,#c98cff_52%,#5468ff_100%)] [&_[data-button-underline]]:duration-500"
+      }
     >
       Sign in
     </Button>
@@ -183,20 +191,7 @@ function RequestAccessTrigger({
   );
 }
 
-function ExploreProductsLink() {
-  return (
-    <Button
-      asChild
-      variant="secondary"
-      size="sm"
-      className="[&_[data-button-underline]]:bg-[linear-gradient(90deg,#ff7a67_0%,#c98cff_52%,#5468ff_100%)] [&_[data-button-underline]]:duration-500"
-    >
-      <Link href="/translate">Sign in</Link>
-    </Button>
-  );
-}
-
-export default function LandingNavbar() {
+export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {}) {
   const [loginOpen, setLoginOpen] = useState(false);
   const [nextPath, setNextPath] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -205,15 +200,45 @@ export default function LandingNavbar() {
   const [navbarVisible, setNavbarVisible] = useState(true);
   const lastScrollY = useRef(0);
 
+  const requestLogin = useCallback(
+    (path: string | null = null) => {
+      setNextPath(path);
+      setActiveMenu(null);
+
+      if (onLoginRequest) {
+        onLoginRequest(path);
+        return;
+      }
+
+      setLoginOpen(true);
+    },
+    [onLoginRequest],
+  );
+
   useEffect(() => {
     const id = window.setTimeout(() => {
-      const searchParams = new URLSearchParams(window.location.search);
-      setNextPath(searchParams.get("next"));
-      if (searchParams.get("login") === "1") setLoginOpen(true);
+      const url = new URL(window.location.href);
+      const next = url.searchParams.get("next");
+
+      if (url.searchParams.get("login") === "1") {
+        requestLogin(next);
+        url.searchParams.delete("login");
+        url.searchParams.delete("next");
+
+        const cleanSearch = url.searchParams.toString();
+        window.history.replaceState(
+          window.history.state,
+          "",
+          `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`,
+        );
+        return;
+      }
+
+      setNextPath(next);
     }, 0);
 
     return () => window.clearTimeout(id);
-  }, []);
+  }, [requestLogin]);
 
   useEffect(() => {
     const directionThreshold = 8;
@@ -326,8 +351,8 @@ export default function LandingNavbar() {
             className="hidden items-center justify-end gap-4 lg:flex"
             onMouseEnter={() => setActiveMenu(null)}
           >
-            <ExploreProductsLink />
-            <RequestAccessTrigger onClick={() => setLoginOpen(true)} />
+            <SignInTrigger onClick={() => requestLogin(null)} />
+            <RequestAccessTrigger onClick={() => requestLogin(null)} />
           </div>
 
           <div className="flex justify-end lg:hidden">
@@ -477,7 +502,7 @@ export default function LandingNavbar() {
               <SignInTrigger
                 mobile
                 onClick={() => {
-                  setLoginOpen(true);
+                  requestLogin(null);
                   setMobileOpen(false);
                 }}
               />
@@ -485,7 +510,7 @@ export default function LandingNavbar() {
               <RequestAccessTrigger
                 mobile
                 onClick={() => {
-                  setLoginOpen(true);
+                  requestLogin(null);
                   setMobileOpen(false);
                 }}
               />
@@ -494,11 +519,13 @@ export default function LandingNavbar() {
         </div>
       )}
 
-      <LoginModal
-        open={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        nextPath={nextPath}
-      />
+      {!onLoginRequest && (
+        <LoginModal
+          open={loginOpen}
+          onClose={() => setLoginOpen(false)}
+          nextPath={nextPath}
+        />
+      )}
     </header>
   );
 }
