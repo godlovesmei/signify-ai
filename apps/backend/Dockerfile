@@ -25,8 +25,8 @@ COPY apps/backend/requirements.txt ./requirements.txt
 RUN python -m pip install --upgrade pip \
     && python -m pip install \
       --index-url https://download.pytorch.org/whl/cpu \
-      torch==2.5.1 \
-      torchvision==0.20.1 \
+      torch==2.12.0 \
+      torchvision==0.27.0 \
     && python -m pip install -r requirements.txt
 
 COPY apps/backend/ ./

@@ -50,9 +50,9 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 | FastAPI | latest | REST API framework |
 | Uvicorn | latest | ASGI server |
 | Ultralytics | ≥ 8.3 | YOLO11 inference |
-| PyTorch | ≥ 2.0 | ML runtime |
+| PyTorch | 2.12 | ML runtime |
 | OpenCV | latest | Image decode |
-| PyJWT | 2.9 | Supabase JWT validation |
+| PyJWT | 2.13 | Supabase JWT validation |
 | Python | 3.11 | Runtime |
 
 ### ML
@@ -175,8 +175,8 @@ Or manually:
 conda create -n signify-backend python=3.11
 conda activate signify-backend
 cd apps/backend
-pip install ultralytics>=8.3.0 torch torchvision fastapi "uvicorn[standard]" \
-    python-multipart pillow numpy opencv-python "PyJWT==2.9.0" pydantic-settings
+pip install ultralytics>=8.3.0 torch==2.12.0 torchvision==0.27.0 fastapi "uvicorn[standard]" \
+    python-multipart pillow numpy opencv-python "PyJWT==2.13.0" pydantic-settings
 ```
 
 ### 3. Backend — Environment variables
