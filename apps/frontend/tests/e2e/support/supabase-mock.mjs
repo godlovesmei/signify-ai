@@ -49,7 +49,29 @@ function json(response, status, body, extra = {}) {
 }
 
 function isAuthenticated(request) {
-  return request.headers.authorization === `Bearer ${accessToken}`;
+  const authorization = request.headers.authorization;
+  if (!authorization?.startsWith("Bearer ")) return false;
+
+  const token = authorization.slice("Bearer ".length);
+  if (token === accessToken) return true;
+
+  const [, encodedPayload] = token.split(".");
+  if (!encodedPayload) return false;
+
+  try {
+    const payload = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8"),
+    );
+    return (
+      payload.sub === user.id &&
+      payload.aud === "authenticated" &&
+      payload.role === "authenticated" &&
+      payload.email === user.email &&
+      Number(payload.exp) > Math.floor(Date.now() / 1000)
+    );
+  } catch {
+    return false;
+  }
 }
 
 function restBody(pathname, request) {
