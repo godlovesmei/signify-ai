@@ -43,13 +43,23 @@ class TestVerifySupabaseToken:
 
         assert exc.value.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_tc_023_token_fails_closed_if_secret_not_configured(self):
+    def test_tc_023_token_is_ignored_when_auth_optional_and_secret_missing(self):
+        token = "header.payload.signature"
+        payload = _verify(
+            credentials=_bearer(token),
+            settings=_settings(require_auth=False, secret=""),
+        )
+
+        assert payload is None
+
+    def test_tc_023_token_fails_closed_if_auth_required_and_secret_missing(self):
         token = "header.payload.signature"
         with pytest.raises(HTTPException) as exc:
             _verify(
                 credentials=_bearer(token),
-                settings=_settings(require_auth=False, secret=""),
+                settings=_settings(require_auth=True, secret=""),
             )
+
         assert exc.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
     def test_tc_009_valid_token_returns_payload(self):

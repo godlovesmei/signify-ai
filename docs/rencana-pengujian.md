@@ -95,7 +95,7 @@ Semua nama test otomatis menyertakan Test Case ID agar kegagalan dapat dilacak l
 | TC-020 | Role permission | Admin/user | Pengguna reguler/admin | RLS aktif | Role user/admin | Tulis registry model dan promosi role | User ditolak; admin diterima; self-promotion ditolak | Automated | `supabase/tests/database/production_data_sync.test.sql` |
 | TC-021 | RLS, trigger, RPC idempotency, ownership | Data sync | Dua pengguna | Database reset | User A/User B, duplicate IDs | Jalankan trigger/RPC dan ganti owner | Isolasi terjaga; retry idempotent; queued write lintas akun ditolak | Automated | `supabase/tests/database/production_data_sync.test.sql`, `apps/frontend/tests/integration/userData.integration.test.ts` |
 | TC-022 | Health/classes/error contract | Observability API | Operator/API client | Backend siap | Health, classes, service errors | Panggil endpoint dan simulasi failure | Kontrak valid; 422/503/504/500 generik | Automated | `apps/backend/tests/test_predict.py`, `test_ml_service.py` |
-| TC-023 | Environment/auth hardening | Startup/security | Operator | Variasi env | `DEBUG=release`, secret kosong | Parse settings dan kirim token saat secret kosong | Startup tidak rusak oleh env asing; token fail closed | Automated | `apps/backend/tests/test_settings.py`, `test_auth_deps.py`, `apps/frontend/tests/integration/userData.integration.test.ts` |
+| TC-023 | Environment/auth hardening | Startup/security | Operator | Variasi env | `DEBUG=release`, secret kosong, auth wajib/opsional | Parse settings dan kirim token saat secret kosong | Startup tidak rusak oleh env asing; auth wajib fail closed, auth opsional berjalan anonim | Automated | `apps/backend/tests/test_settings.py`, `test_auth_deps.py`, `apps/frontend/tests/integration/userData.integration.test.ts` |
 | TC-024 | XSS/open redirect protection | Security input | Pengguna/attacker | App berjalan | HTML payload, external `next` | Render payload dan buka callback | Payload di-escape; external redirect ditolak | Automated | `apps/frontend/tests/integration/SentenceBuilder.integration.test.tsx`, `authRoutes.integration.test.ts`, `lib/authRedirect.test.ts` |
 | TC-025 | Aksesibilitas | Akses UI | Keyboard/screen-reader user | Browser test aktif | Landing, dialog, buttons | Scan axe dan navigasi keyboard | Tidak ada serious/critical; fokus/nama kontrol benar | Automated | `apps/frontend/tests/e2e/accessibility.spec.ts`, `tests/integration/LoginModal.integration.test.tsx`, `components/ui/Button.test.ts` |
 | TC-026 | Route/metadata/assets smoke | Navigasi/SEO | Semua pengguna | Frontend berjalan | Route, manifest, hero, icon | Buka route dan aset metadata | Route/aset 200; manifest valid; tidak ada klaim `/search` | Automated | `apps/frontend/tests/e2e/routes.spec.ts`, `components/layout/mobile-nav/workspaceNavConfig.test.ts` |
@@ -160,7 +160,7 @@ Tool: Playwright, `@axe-core/playwright`, keyboard-only checks. Pengujian mencak
 |---|---|
 | Required environment | Helper config gagal jelas saat Supabase frontend belum dikonfigurasi; backend settings diuji terhadap env asing |
 | Secret leakage | TruffleHog memindai history commit pada setiap PR |
-| Unauthorized API | 401/403 dan fail-closed 503 diuji |
+| Unauthorized API | 401/403, fail-closed 503 saat auth wajib, dan fallback anonim saat auth opsional diuji |
 | Invalid input/upload | MIME, decode, ukuran 2 MB, dan RPC constraints diuji |
 | XSS/open redirect | React escaping dan sanitizer relative path diuji |
 | Stack trace | Error inference produksi hanya mengembalikan detail generik |

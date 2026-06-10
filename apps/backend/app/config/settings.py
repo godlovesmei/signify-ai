@@ -1,11 +1,17 @@
 # apps/backend/app/config/settings.py
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+_BACKEND_DIR = Path(__file__).resolve().parents[2]
+_REPO_ROOT = _BACKEND_DIR.parents[1]
+DEFAULT_ENV_FILES = (_REPO_ROOT / ".env", _BACKEND_DIR / ".env")
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=DEFAULT_ENV_FILES, extra="ignore")
 
     # App
     APP_NAME:    str  = "Signify AI — BISINDO Inference API"
@@ -26,8 +32,8 @@ class Settings(BaseSettings):
     SUPABASE_JWT_SECRET: str  = ""
 
     # Auth — set REQUIRE_AUTH=true in production to enforce JWT on /predict.
-    # When false, unauthenticated requests are allowed (tokens still validated
-    # if present, so a forged token is always rejected).
+    # When false, unauthenticated requests are allowed. Tokens are validated
+    # only when SUPABASE_JWT_SECRET is configured.
     REQUIRE_AUTH: bool = False
 
     # Model path

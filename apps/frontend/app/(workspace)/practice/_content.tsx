@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMotionValue } from "motion/react";
-import { ChevronRight, Sliders, RotateCcw, Maximize2, Camera, Minimize2, Loader2, RefreshCw } from "lucide-react";
+import { ChevronRight, Sliders, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -247,7 +247,6 @@ export default function PracticePageContent() {
   const [trail, setTrail] = useState<AlphabetLetter[]>(() => [target]);
   const [ghostVisible, setGhostVisible] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // ── Micro feedback ───────────────────────────────────────────────
   const microX = useMotionValue(50);
@@ -257,7 +256,6 @@ export default function PracticePageContent() {
 
   // ── Refs ──────────────────────────────────────────────────────────
   const webcamRef = useRef<WebcamCaptureHandle>(null);
-  const cameraFrameRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -688,29 +686,6 @@ export default function PracticePageContent() {
     startCamera(next);
   }, [facingMode, stopDetection, startCamera]);
 
-  const handlePrimaryCameraAction = useCallback(() => {
-    if (appState === "detecting") {
-      stopDetection();
-      return;
-    }
-
-    if (appState === "ready") {
-      startDetection();
-      return;
-    }
-
-    startCamera();
-  }, [appState, startCamera, startDetection, stopDetection]);
-
-  const handleToggleFullscreen = useCallback(() => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-      return;
-    }
-
-    cameraFrameRef.current?.requestFullscreen().catch(() => {});
-  }, []);
-
   const handleResetProgress = useCallback(() => {
     const revision = ++statsRevisionRef.current;
     const next = createDefaultPracticeStats();
@@ -747,19 +722,9 @@ export default function PracticePageContent() {
     }
   }, [appState, clearMicroFeedback]);
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === cameraFrameRef.current);
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
   // ── Derived values ────────────────────────────────────────────────
 
   const isActive = appState === "detecting";
-  const isCameraBusy = appState === "requesting" || appState === "loading";
   const statusTone =
     appState === "requesting" || appState === "loading"
       ? "processing"
@@ -848,7 +813,7 @@ export default function PracticePageContent() {
               <TrailIndicator trail={breadcrumb} />
             </div>
 
-            <div ref={cameraFrameRef} className="relative min-h-[420px] flex-1">
+            <div className="relative min-h-[420px] flex-1">
               <CameraFrame
                 isActive={isActive}
                 isDetecting={isActive && detections.length > 0}
@@ -883,48 +848,6 @@ export default function PracticePageContent() {
 
                 <SuccessOverlay show={isSuccessFlash} letter={target} />
               </CameraFrame>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 border-t border-cohere-hairline pt-4">
-              <button
-                type="button"
-                onClick={flipCamera}
-                disabled={isCameraBusy}
-                className="flex size-12 items-center justify-center rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink transition-colors hover:bg-cohere-stone disabled:opacity-40"
-                aria-label="Flip camera"
-              >
-                <RotateCcw className="size-5" />
-              </button>
-
-              <Button
-                type="button"
-                onClick={handlePrimaryCameraAction}
-                disabled={isCameraBusy}
-                variant={isActive ? "destructive" : "primary"}
-                className="min-w-44"
-                aria-label={isActive ? "Stop detection" : "Start detection"}
-              >
-                {isActive ? (
-                  <>
-                    <span className="size-2 rounded-sm bg-white" />
-                    Stop session
-                  </>
-                ) : (
-                  <>
-                    <Camera className="size-4" />
-                    Start practice
-                  </>
-                )}
-              </Button>
-
-              <button
-                type="button"
-                onClick={handleToggleFullscreen}
-                className="flex size-12 items-center justify-center rounded-sm border border-cohere-hairline bg-cohere-canvas text-cohere-ink transition-colors hover:bg-cohere-stone"
-                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              >
-                {isFullscreen ? <Minimize2 className="size-5" /> : <Maximize2 className="size-5" />}
-              </button>
             </div>
           </section>
 

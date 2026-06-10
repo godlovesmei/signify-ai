@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(27);
+select plan(30);
 
 insert into auth.users (id, email, raw_user_meta_data)
 values
@@ -235,6 +235,45 @@ select throws_ok(
   '42501',
   null,
   'TC-021 Queued writes are rejected when the authenticated user changes'
+);
+
+select is(
+  (
+    select count(*)::integer
+    from pg_catalog.pg_proc p
+    join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+    where n.nspname in ('public', 'graphql_public')
+      and p.prosecdef
+      and (
+        pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
+        or pg_catalog.has_function_privilege('authenticated', p.oid, 'EXECUTE')
+      )
+  ),
+  0,
+  'TC-022 API roles cannot execute exposed security definer functions'
+);
+
+select is(
+  (
+    select count(*)::integer
+    from pg_catalog.pg_proc p
+    join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'private'
+      and p.prosecdef
+      and p.proname in (
+        'append_translation_entry',
+        'record_practice_attempt',
+        'reset_practice_stats'
+      )
+  ),
+  3,
+  'TC-022 Sensitive write implementations remain private security definer functions'
+);
+
+select ok(
+  not pg_catalog.has_function_privilege('anon', 'public.set_updated_at()', 'EXECUTE')
+  and not pg_catalog.has_function_privilege('authenticated', 'public.set_updated_at()', 'EXECUTE'),
+  'TC-022 Timestamp trigger helper is not executable by API roles'
 );
 
 reset role;

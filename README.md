@@ -183,7 +183,9 @@ pip install ultralytics>=8.3.0 torch torchvision fastapi "uvicorn[standard]" \
 
 ```bash
 cp apps/backend/.env.example apps/backend/.env
-# Edit .env and fill in your Supabase JWT secret if you want auth
+# Edit apps/backend/.env.
+# Keep SUPABASE_JWT_SECRET empty for local unauthenticated inference, or fill it
+# and set REQUIRE_AUTH=true when you want Supabase JWT enforcement.
 ```
 
 ### 4. Frontend — Node environment
@@ -240,8 +242,7 @@ cp runs/train/bisindo_v1/weights/best.pt models/exports/bisindo_yolo/best.pt
 
 ```bash
 conda activate signify-backend
-cd apps/backend
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Frontend** — runs on `http://localhost:3000`
@@ -365,9 +366,11 @@ CONFIDENCE_THRESHOLD=0.5
 # CORS — comma-separated allowed origins
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
-# Auth — Supabase JWT (leave empty to run without auth)
+# Auth — Supabase JWT.
+# Keep SUPABASE_JWT_SECRET empty when REQUIRE_AUTH=false for local dev.
+# Set both SUPABASE_JWT_SECRET and REQUIRE_AUTH=true for auth enforcement.
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_JWT_SECRET=your-jwt-secret
+SUPABASE_JWT_SECRET=
 REQUIRE_AUTH=false
 ```
 

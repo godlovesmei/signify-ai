@@ -25,8 +25,10 @@ async def verify_supabase_token(
     Validasi Supabase JWT dari Authorization: Bearer <token>.
 
     - Jika REQUIRE_AUTH=True  → token wajib ada dan valid (401/403 jika tidak).
-    - Jika REQUIRE_AUTH=False → tanpa token diizinkan; token yang ada tetap
-      divalidasi sehingga token palsu selalu ditolak.
+      SUPABASE_JWT_SECRET juga wajib ada agar token bisa diverifikasi.
+    - Jika REQUIRE_AUTH=False → tanpa token diizinkan; token yang ada divalidasi
+      hanya kalau SUPABASE_JWT_SECRET tersedia. Jika secret kosong, request
+      berjalan sebagai anonim agar local dev tetap bisa memakai frontend login.
 
     Return: payload JWT jika terautentikasi, None jika anonim diizinkan.
     """
@@ -42,8 +44,15 @@ async def verify_supabase_token(
             )
         return None
 
-    # Ada token — selalu validasi meski REQUIRE_AUTH=False.
+    # Ada token.
     if not settings.SUPABASE_JWT_SECRET:
+        if not settings.REQUIRE_AUTH:
+            logger.debug(
+                "Token diterima, tetapi SUPABASE_JWT_SECRET kosong dan "
+                "REQUIRE_AUTH=false; request diproses sebagai anonim."
+            )
+            return None
+
         logger.error(
             "Token diterima tetapi SUPABASE_JWT_SECRET belum dikonfigurasi."
         )
