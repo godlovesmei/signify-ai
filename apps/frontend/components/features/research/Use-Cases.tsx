@@ -2,11 +2,11 @@ export default function UseCases() {
   return (
     <section>
       
-      <h2 className="mb-6 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
+      <h2 className="mb-4 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
         Use Cases
       </h2>
 
-      <div className="space-y-8 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
+      <div className="space-y-6 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
 
         <p>
           Real-time sign language translation systems enable inclusive communication 

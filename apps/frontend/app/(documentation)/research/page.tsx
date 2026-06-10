@@ -68,7 +68,7 @@ export default function ResearchPage() {
   }, []);
 
   return (
-    <main ref={mainRef} id="main-content" className="pt-32">
+    <main ref={mainRef} id="main-content" className="pt-24 md:pt-28">
       <DocumentationHero
         eyebrow="Research"
         tone="accent"
@@ -86,7 +86,7 @@ export default function ResearchPage() {
         aria-label="Research contents"
         className="border-b border-[var(--color-border)] lg:hidden"
       >
-        <div className="cohere-container overflow-x-auto py-4">
+        <div className="cohere-container overflow-x-auto py-3">
           <nav className="flex w-max gap-2">
             {researchSections.map((section) => (
               <Link
@@ -107,13 +107,13 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      <div className="cohere-container grid gap-12 py-20 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_260px] xl:gap-16">
-          <aside className="hidden lg:block">
-            <div className="sticky top-32">
+      <div className="cohere-container grid gap-10 py-14 md:py-16 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_260px] xl:gap-12">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
               <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
                 Contents
               </p>
-              <nav aria-label="Research contents" className="mt-5 border-t border-[var(--color-border)]">
+              <nav aria-label="Research contents" className="mt-4 border-t border-[var(--color-border)]">
                 {researchSections.map((section) => (
                   <Link
                     key={section.id}
@@ -130,19 +130,19 @@ export default function ResearchPage() {
                   </Link>
                 ))}
               </nav>
-            </div>
-          </aside>
+          </div>
+        </aside>
 
           <div className="min-w-0">
-            <div className="space-y-20">
+            <div className="space-y-14 md:space-y-16">
               {researchSections.map(({ id, Component }, index) => (
                 <article
                   id={id}
                   key={id}
                   data-animate
                   className={[
-                    "scroll-mt-32",
-                    index > 0 ? "border-t border-[var(--color-border)] pt-20" : "",
+                    "scroll-mt-24",
+                    index > 0 ? "border-t border-[var(--color-border)] pt-12 md:pt-14" : "",
                   ].join(" ")}
                 >
                   <Component />
@@ -151,34 +151,30 @@ export default function ResearchPage() {
             </div>
           </div>
 
-          <aside className="hidden xl:block">
-            <div className="sticky top-32">
-              <Card
-                variant="product"
-                data-animate
-                className="gap-0"
-              >
-                <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
-                  About this research
-                </p>
-                <h2 className="mt-4 text-[32px] leading-[1.2]">AI for accessibility</h2>
-                <ul className="mt-6 border-t border-[var(--color-border)] text-[14px] leading-[1.4] text-[var(--color-text-secondary)]">
-                  <li className="border-b border-[var(--color-border)] py-3">
-                    Computer vision for gesture recognition
-                  </li>
-                  <li className="border-b border-[var(--color-border)] py-3">
-                    Ethical AI and inclusive design
-                  </li>
-                  <li className="border-b border-[var(--color-border)] py-3">
-                    Community-driven data collection
-                  </li>
-                </ul>
-                <Button asChild variant="secondary" size="sm" className="mt-6 self-start">
-                  <Link href="/how-it-works">Learn how it works</Link>
-                </Button>
-              </Card>
-            </div>
-          </aside>
+        <aside className="hidden xl:block">
+          <div className="sticky top-24">
+            <Card variant="product" data-animate className="gap-0">
+              <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
+                About this research
+              </p>
+              <h2 className="mt-4 text-[32px] leading-[1.2]">AI for accessibility</h2>
+              <ul className="mt-6 border-t border-[var(--color-border)] text-[14px] leading-[1.4] text-[var(--color-text-secondary)]">
+                <li className="border-b border-[var(--color-border)] py-3">
+                  Computer vision for gesture recognition
+                </li>
+                <li className="border-b border-[var(--color-border)] py-3">
+                  Ethical AI and inclusive design
+                </li>
+                <li className="border-b border-[var(--color-border)] py-3">
+                  Community-driven data collection
+                </li>
+              </ul>
+              <Button asChild variant="secondary" size="sm" className="mt-6 self-start">
+                <Link href="/how-it-works">Learn how it works</Link>
+              </Button>
+            </Card>
+          </div>
+        </aside>
       </div>
     </main>
   );

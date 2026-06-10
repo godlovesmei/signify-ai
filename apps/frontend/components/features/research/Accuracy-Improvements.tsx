@@ -2,11 +2,11 @@ export default function AccuracyImprovements() {
   return (
     <section>
       
-      <h2 className="mb-6 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
+      <h2 className="mb-4 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
         Accuracy & Improvements
       </h2>
 
-      <div className="space-y-6 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
+      <div className="space-y-5 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
 
         <p>
           Achieving high accuracy in real-time sign language translation is a 

@@ -2,11 +2,11 @@ export default function ResearchDevelopment() {
   return (
     <section>
       
-      <h2 className="mb-6 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
+      <h2 className="mb-4 text-[32px] leading-[1.2] text-[var(--color-text-primary)]">
         Research & Development
       </h2>
 
-      <div className="space-y-6 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
+      <div className="space-y-5 text-[18px] leading-[1.5] text-[var(--color-text-secondary)]">
 
         <p>
           Research and development efforts focus on improving recognition 
@@ -15,7 +15,7 @@ export default function ResearchDevelopment() {
           and validation are essential to ensure scalable and inclusive deployment.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
+        <h3 className="mt-6 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Multimodal Learning
         </h3>
         <p>
@@ -25,7 +25,7 @@ export default function ResearchDevelopment() {
           these modalities improves semantic understanding and contextual accuracy.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
+        <h3 className="mt-6 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Transformer-Based Architectures
         </h3>
         <p>
@@ -35,7 +35,7 @@ export default function ResearchDevelopment() {
           than traditional recurrent networks.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
+        <h3 className="mt-6 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Low-Resource Sign Languages
         </h3>
         <p>
@@ -45,7 +45,7 @@ export default function ResearchDevelopment() {
           performance improvements even in data-constrained environments.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
+        <h3 className="mt-6 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Real-Time Optimization
         </h3>
         <p>
@@ -55,7 +55,7 @@ export default function ResearchDevelopment() {
           sacrificing prediction reliability.
         </p>
 
-        <h3 className="mt-8 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
+        <h3 className="mt-6 text-[24px] leading-[1.3] text-[var(--color-text-primary)]">
           Ethical & Inclusive AI
         </h3>
         <p>

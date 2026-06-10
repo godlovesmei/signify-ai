@@ -13,7 +13,6 @@ import {
   LayoutDashboard,
   Mic2,
   ShieldCheck,
-  Sparkles,
   X,
 } from "lucide-react";
 import { LoginModal } from "@/components/auth/LoginModal";
@@ -84,50 +83,6 @@ const megaMenus: MegaMenu[] = [
       description:
         "Designed for fast classroom demos, research testing, and independent learning.",
       href: "/how-it-works",
-    },
-  },
-  {
-    key: "solutions",
-    label: "Solutions",
-    eyebrow: "Use cases",
-    title: "Built for learning, accessibility, and applied research.",
-    description:
-      "Use SignifyAI as a student learning tool, a prototype for inclusive communication, or a research-facing AI demo.",
-    links: [
-      {
-        label: "For learners",
-        href: "/practice",
-        description: "Practice signs repeatedly with structured visual feedback.",
-        icon: Sparkles,
-      },
-      {
-        label: "For classrooms",
-        href: "/how-it-works",
-        description:
-          "Show how computer vision can support sign-language learning.",
-        icon: LayoutDashboard,
-      },
-      {
-        label: "For research",
-        href: "/research",
-        description:
-          "Understand the model scope, dataset limits, and evaluation process.",
-        icon: FileText,
-      },
-      {
-        label: "For accessibility",
-        href: "/reference",
-        description:
-          "Create a bridge between visual gestures and text-based communication.",
-        icon: ShieldCheck,
-      },
-    ],
-    featured: {
-      label: "Research-ready",
-      title: "Explainable by design",
-      description:
-        "Clear UI states make it easier to demonstrate model behavior during evaluation.",
-      href: "/research",
     },
   },
   {

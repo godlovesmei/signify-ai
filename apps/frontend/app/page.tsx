@@ -678,24 +678,24 @@ function MacSignScannerCard() {
 
 function HeroSection() {
   return (
-    <section className="hero-motion-shell bg-cohere-canvas pt-28 md:pt-32">
-      <div className="hero-motion-content cohere-container pb-16 pt-10 md:pb-20">
+    <section className="hero-motion-shell bg-cohere-canvas pt-24 md:pt-28">
+      <div className="hero-motion-content cohere-container pb-12 pt-8 md:pb-16">
         <div className="mx-auto max-w-5xl text-center">
           {/* hero-display: CohereText, 96px, weight 400, line-height 1 per DESIGN.md */}
           <Reveal delay={90}>
-            <h1 className="mt-5 font-display text-[56px] leading-none text-cohere-ink sm:text-[72px] lg:text-[96px]">
+            <h1 className="mt-4 font-display text-[56px] leading-none text-cohere-ink sm:text-[72px] lg:text-[96px]">
               Silent communication, clearly understood.
             </h1>
           </Reveal>
           {/* body-large: Unica77, 18px, weight 400, line-height 1.4 */}
           <Reveal delay={170}>
-            <p className="mx-auto mt-7 max-w-2xl text-[18px] leading-[1.4] text-cohere-body-muted">
+            <p className="mx-auto mt-5 max-w-2xl text-[18px] leading-[1.4] text-cohere-body-muted">
               A controlled AI workspace for translating Indonesian sign language gestures into
               text and voice without turning accessibility into spectacle.
             </p>
           </Reveal>
           <Reveal delay={250}>
-            <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-7 flex flex-col items-center justify-center gap-4 sm:flex-row">
               {/* button-primary: near-black pill, 14px Unica77 500, 32px pill radius */}
               <Button asChild size="lg">
                 <Link href="/translate" data-arrow-link>
@@ -711,7 +711,7 @@ function HeroSection() {
           </Reveal>
         </div>
 
-        <div className="mt-10 md:mt-12">
+        <div className="mt-8 md:mt-10">
           <MacSignScannerCard />
         </div>
       </div>
@@ -722,7 +722,7 @@ function HeroSection() {
 function TrustStrip() {
   return (
     /* trust-logo-strip: canvas bg, ink text, caption typography */
-    <section className="border-y border-cohere-hairline bg-cohere-canvas py-16">
+    <section className="border-y border-cohere-hairline bg-cohere-canvas py-12 md:py-14">
       <div className="cohere-container text-center">
         {/* caption: Unica77, 14px, weight 400 */}
         <Reveal>
@@ -749,7 +749,7 @@ function TrustStrip() {
 function CapabilitySection() {
   return (
     /* capability-card section: canvas bg, ink text */
-    <section id="how-it-works" className="bg-cohere-canvas py-20 md:py-28">
+    <section id="how-it-works" className="bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.4fr] lg:items-end">
           <div>
@@ -772,24 +772,24 @@ function CapabilitySection() {
           </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:grid-cols-3 md:items-stretch">
           {capabilities.map((item, index) => (
             <article
               key={item.title}
               data-animate="fade-up"
               data-spotlight
               style={motionStyle(index * 110)}
-              className="border-t border-cohere-hairline pt-6"
+              className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-white/8 bg-white/[0.03] p-6 text-cohere-ink transition-all duration-300 hover:-translate-y-1 hover:border-white/12 hover:bg-white/[0.05] hover:shadow-[0_18px_50px_rgba(0,0,0,0.16)]"
             >
-              {/* capability icon: xs radius (4px) border container */}
-              <div className="flex size-12 items-center justify-center rounded-xs border border-cohere-hairline bg-cohere-stone text-cohere-ink transition-transform duration-300 group-hover:scale-105">
+              {/* capability icon: softened square, still restrained */}
+              <div className="flex size-12 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-cohere-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:bg-white/[0.06]">
                 <item.icon className="size-5" />
               </div>
-              <p className="mt-8 text-mono-label text-[12px] text-cohere-slate">0{index + 1}</p>
+              <p className="mt-6 text-mono-label text-[12px] text-cohere-slate">0{index + 1}</p>
               {/* feature-heading: Unica77, 24px, weight 400, line-height 1.3 */}
               <h3 className="mt-3 text-[24px] leading-[1.3] text-cohere-ink">{item.title}</h3>
               {/* body: 16px, line-height 1.5 */}
-              <p className="mt-4 text-[16px] leading-[1.5] text-cohere-body-muted">{item.body}</p>
+              <p className="mt-3 text-[16px] leading-[1.5] text-cohere-body-muted">{item.body}</p>
             </article>
           ))}
         </div>
@@ -801,7 +801,7 @@ function CapabilitySection() {
 function DarkFeatureBand() {
   return (
     /* dark-feature-band: deep-green (#003c33) bg, on-dark text, lg radius (22px), 80px padding */
-    <section className="bg-cohere-canvas py-20 md:py-28">
+    <section className="bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
         <Reveal variant="scale-in">
           <Card
@@ -847,7 +847,7 @@ function DarkFeatureBand() {
 function ProductCards() {
   return (
     /* product-card: soft-stone bg (#eeece7), ink text, sm radius (8px), 32px padding */
-    <section id="products" className="scroll-mt-28 bg-cohere-canvas py-20 md:py-28">
+    <section id="products" className="scroll-mt-28 bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
         <Reveal>
           <p className="text-mono-label text-[12px] text-cohere-slate">Workspace modules</p>
@@ -859,7 +859,7 @@ function ProductCards() {
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {products.map((product, index) => (
             <Card
               key={product.title}
@@ -906,9 +906,9 @@ function ResearchRows() {
 
   return (
     /* research-table: canvas bg, ink text, body-large typography, rule-separated rows */
-    <section className="bg-cohere-canvas py-20 md:py-28">
+    <section className="bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Reveal>
               <p className="text-mono-label text-[12px] text-cohere-slate">Research table</p>
@@ -954,7 +954,7 @@ function ResearchRows() {
 
 function CtaSection() {
   return (
-    <section className="bg-cohere-canvas py-20 md:py-28">
+    <section className="bg-cohere-canvas py-16 md:py-24">
       <div className="cohere-container">
         {/* hero-photo-card variant: lg radius (22px), pale-blue bg */}
         <Reveal variant="scale-in">
@@ -965,7 +965,7 @@ function CtaSection() {
           >
             {/* coral accent label — DESIGN.md: coral for editorial taxonomy and warm accents */}
             <p className="text-mono-label text-[12px] text-cohere-coral">Start a session</p>
-            <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               {/* section-display: 60px, weight 400 */}
               <h2 className="max-w-3xl font-display text-[44px] leading-[1.05] text-surface-tertiary-foreground md:text-[60px]">
                 Translate, practice, and review in one calm workspace.

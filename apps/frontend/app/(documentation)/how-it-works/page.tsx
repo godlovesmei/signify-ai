@@ -85,21 +85,21 @@ function StepDetailBadge({ detail }: { detail: string }) {
 
 export default function HowItWorksPage() {
   return (
-    <main id="main-content" className="pt-32">
+    <main id="main-content" className="pt-24 md:pt-28">
       <DocumentationHero
         eyebrow="How it works"
         title="From camera frame to spoken sentence."
         lead="A plain-language breakdown of the recognition loop, the sentence builder, and the limits users should understand before relying on the tool."
       />
 
-      <section className="py-20 md:py-24">
+      <section className="py-16 md:py-20">
           <div className="cohere-container">
             <div className="border-t border-[var(--color-border)]">
               {steps.map((item) => (
                 <article
                   key={item.step}
                   data-animate
-                  className="grid gap-6 border-b border-[var(--color-border)] py-8 md:grid-cols-[88px_1fr_1fr] md:items-start"
+                  className="grid gap-5 border-b border-[var(--color-border)] py-6 md:grid-cols-[88px_1fr_1fr] md:items-start"
                 >
                   <div>
                     <div className="flex size-12 items-center justify-center rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-subtle)]">
@@ -128,7 +128,7 @@ export default function HowItWorksPage() {
           </div>
       </section>
 
-      <section className="bg-[var(--color-bg-subtle)] py-20 md:py-24">
+      <section className="bg-[var(--color-bg-subtle)] py-16 md:py-20">
           <div className="cohere-container">
             <div data-animate>
               <p className="text-mono-label text-[12px] text-[var(--color-accent)]">
@@ -138,7 +138,7 @@ export default function HowItWorksPage() {
                 The product is useful because the boundaries are visible.
               </h2>
             </div>
-            <div className="mt-12 grid gap-4 md:grid-cols-3">
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
               {limitations.map((item) => (
                 <Card
                   key={item.title}
@@ -159,7 +159,7 @@ export default function HowItWorksPage() {
           </div>
       </section>
 
-      <section className="py-20 md:py-24">
+      <section className="py-16 md:py-20">
           <div className="cohere-container">
             <div data-animate className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
@@ -193,17 +193,17 @@ export default function HowItWorksPage() {
           </div>
       </section>
 
-      <section className="py-20 md:py-24">
+      <section className="py-16 md:py-20">
           <div className="cohere-container">
             <Card
               variant="hero"
               data-animate
-              className="gap-0 border-transparent bg-[var(--color-bg-product)] p-8 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-14"
+              className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
             >
               <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
                 Try the workspace
               </p>
-              <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+              <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
                 <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
                   Open a camera session and test the recognition loop.
                 </h2>
