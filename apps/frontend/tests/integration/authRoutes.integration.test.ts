@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 const getUser = vi.fn();
 const exchangeCodeForSession = vi.fn();
+const authCookies = [
+  {
+    name: "sb-test-auth-token",
+    value: "session-cookie",
+    options: { path: "/", httpOnly: true },
+  },
+];
 
 vi.mock("@/utils/supabase/middleware", () => ({
   createClient: () => ({
@@ -12,8 +19,18 @@ vi.mock("@/utils/supabase/middleware", () => ({
 }));
 
 vi.mock("@/utils/supabase/server", () => ({
-  createClient: async () => ({
-    auth: { exchangeCodeForSession },
+  createClient: async (
+    onCookiesSet?: (cookiesToSet: typeof authCookies) => void,
+  ) => ({
+    auth: {
+      exchangeCodeForSession: async (...args: unknown[]) => {
+        const result = await exchangeCodeForSession(...args);
+        if (!result.error) {
+          onCookiesSet?.(authCookies);
+        }
+        return result;
+      },
+    },
   }),
 }));
 
@@ -59,6 +76,24 @@ describe("auth route integration", () => {
 
     expect(response.headers.get("location")).toBe(
       "https://signify.local/?error=auth_callback_failed",
+    );
+  });
+
+  it("TC-002 forwards session cookies when OAuth exchange succeeds", async () => {
+    exchangeCodeForSession.mockResolvedValue({ error: null });
+    const { GET } = await import("@/app/auth/callback/route");
+
+    const response = await GET(
+      new NextRequest(
+        "https://signify.local/auth/callback?code=ok&next=%2Fhistory%3Fpage%3D2",
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://signify.local/history?page=2",
+    );
+    expect(response.headers.get("set-cookie")).toContain(
+      "sb-test-auth-token=session-cookie",
     );
   });
 

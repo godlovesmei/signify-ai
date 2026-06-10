@@ -13,6 +13,8 @@ from fastapi.security import HTTPAuthorizationCredentials
 from app.api.deps import verify_supabase_token
 from app.config.settings import Settings
 
+JWT_TEST_SECRET = "test-secret-with-at-least-32-bytes!!"
+
 
 def _settings(require_auth: bool, secret: str = "") -> Settings:
     return Settings(
@@ -63,7 +65,7 @@ class TestVerifySupabaseToken:
         assert exc.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
     def test_tc_009_valid_token_returns_payload(self):
-        secret = "test-secret"
+        secret = JWT_TEST_SECRET
         token = jwt.encode(
             {
                 "sub": "user-123",
@@ -87,13 +89,13 @@ class TestVerifySupabaseToken:
         with pytest.raises(HTTPException) as exc:
             _verify(
                 credentials=_bearer("invalid.token.here"),
-                settings=_settings(require_auth=True, secret="test-secret"),
+                settings=_settings(require_auth=True, secret=JWT_TEST_SECRET),
             )
 
         assert exc.value.status_code == status.HTTP_403_FORBIDDEN
 
     def test_tc_009_expired_token_is_rejected_as_unauthorized(self):
-        secret = "test-secret"
+        secret = JWT_TEST_SECRET
         token = jwt.encode(
             {
                 "sub": "user-123",

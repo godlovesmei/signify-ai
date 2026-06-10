@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { sanitizeRelativePath } from '@/lib/authRedirect';
-import { createClient } from '@/utils/supabase/server';
+import {
+  createClient,
+  type SupabaseCookieToSet,
+} from '@/utils/supabase/server';
 
 // ─── OAuth callback handler ───────────────────────────────────────────────────
 // Supabase redirects here after Google OAuth with ?code=...
@@ -14,11 +17,18 @@ export async function GET(request: NextRequest) {
   const next = sanitizeRelativePath(searchParams.get('next'));
 
   if (code) {
-    const supabase = await createClient();
+    const cookiesToSet: SupabaseCookieToSet[] = [];
+    const supabase = await createClient((nextCookies) => {
+      cookiesToSet.push(...nextCookies);
+    });
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(new URL(next, origin));
+      const response = NextResponse.redirect(new URL(next, origin));
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
+      });
+      return response;
     }
   }
 

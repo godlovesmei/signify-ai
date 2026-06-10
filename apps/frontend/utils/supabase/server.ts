@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseConfig } from '@/utils/supabase/config';
 import type { Database } from '@/utils/supabase/database.types';
@@ -10,7 +10,15 @@ import type { Database } from '@/utils/supabase/database.types';
 //   const supabase = await createClient()
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const createClient = async () => {
+export type SupabaseCookieToSet = {
+  name: string;
+  value: string;
+  options: CookieOptions;
+};
+
+export const createClient = async (
+  onCookiesSet?: (cookiesToSet: SupabaseCookieToSet[]) => void,
+) => {
   const cookieStore = await cookies();
   const { url, publishableKey } = getSupabaseConfig();
 
@@ -23,6 +31,7 @@ export const createClient = async () => {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
+          onCookiesSet?.(cookiesToSet);
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),
