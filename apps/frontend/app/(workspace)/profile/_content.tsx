@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "@/components/layout/PageHeader";
+import { AutoAvatar } from "@/components/ui/AutoAvatar";
 import { Button } from "@/components/ui/Button";
 import {
   createDefaultPracticeStats,
@@ -40,7 +41,6 @@ import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 type ProfileState = {
   displayName: string;
   email: string;
-  initials: string;
   avatarUrl: string | null;
   id: string | null;
   createdAt: string | null;
@@ -51,24 +51,12 @@ type ProfileState = {
 const FALLBACK_PROFILE: ProfileState = {
   displayName: "Nama User",
   email: "user@signify.ai",
-  initials: "NU",
   avatarUrl: null,
   id: null,
   createdAt: null,
   lastSignInAt: null,
   verified: false,
 };
-
-function getInitials(name: string) {
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
-
-  return initials.toUpperCase() || "U";
-}
 
 function formatUtcDate(value: string | null | undefined) {
   if (!value) return "—";
@@ -291,7 +279,6 @@ export default function ProfilePageContent() {
         setProfile({
           displayName: account.displayName,
           email: account.email,
-          initials: getInitials(account.displayName),
           avatarUrl: account.avatarUrl,
           id: account.id,
           createdAt: account.createdAt,
@@ -417,19 +404,12 @@ export default function ProfilePageContent() {
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
         <section className="rounded-[22px] border border-cohere-hairline bg-cohere-canvas p-6 md:p-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-center">
-            <div className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-[22px] bg-cohere-primary text-[40px] text-white">
-              {profile.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatarUrl}
-                  alt={profile.displayName}
-                  className="size-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span>{profile.initials}</span>
-              )}
-            </div>
+            <AutoAvatar
+              name={profile.displayName}
+              email={profile.email}
+              avatarUrl={profile.avatarUrl}
+              className="size-28 rounded-[22px] text-[40px]"
+            />
             <div className="min-w-0 flex-1">
               <p className="text-mono-label text-[12px] text-cohere-slate">Operator ID</p>
               <h2 className="mt-3 font-display text-[44px] leading-none text-cohere-ink">

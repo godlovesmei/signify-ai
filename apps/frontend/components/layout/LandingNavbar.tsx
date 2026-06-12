@@ -136,6 +136,21 @@ const utilityLinks = [
   { label: "Research", href: "/research" },
 ];
 
+function NavUnderline({ active = false }: { active?: boolean }) {
+  return (
+    <span
+      data-button-underline
+      aria-hidden="true"
+      className={[
+        "pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left rounded-full bg-[linear-gradient(90deg,#ff7a67_0%,#c98cff_52%,#5468ff_100%)] transition-[transform,opacity] duration-500 ease-[var(--ease-cohere)]",
+        active
+          ? "scale-x-100 opacity-100"
+          : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100 group-focus-visible:scale-x-100 group-focus-visible:opacity-100",
+      ].join(" ")}
+    />
+  );
+}
+
 type LandingNavbarProps = {
   onLoginRequest?: (nextPath: string | null) => void;
 };
@@ -319,12 +334,15 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                   className={[
                     "group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[14px] leading-none transition-colors",
                     isActive
-                      ? "bg-cohere-stone text-cohere-blue"
-                      : "text-cohere-ink hover:bg-cohere-stone hover:text-cohere-blue",
+                      ? "text-cohere-blue"
+                      : "text-cohere-ink hover:text-cohere-blue focus-visible:text-cohere-blue",
                   ].join(" ")}
                   aria-expanded={isActive}
                 >
-                  {menu.label}
+                  <span className="relative inline-flex">
+                    {menu.label}
+                    <NavUnderline active={isActive} />
+                  </span>
                   <ChevronDown
                     className={[
                       "size-3.5 transition-transform duration-200",
@@ -340,9 +358,12 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                 key={item.href}
                 href={item.href}
                 onMouseEnter={() => setActiveMenu(null)}
-                className="rounded-full px-4 py-2 text-[14px] leading-none text-cohere-ink transition-colors hover:bg-cohere-stone hover:text-cohere-blue"
+                className="group inline-flex items-center rounded-full px-4 py-2 text-[14px] leading-none text-cohere-ink transition-colors hover:text-cohere-blue focus-visible:text-cohere-blue"
               >
-                {item.label}
+                <span className="relative inline-flex">
+                  {item.label}
+                  <NavUnderline />
+                </span>
               </Link>
             ))}
           </nav>

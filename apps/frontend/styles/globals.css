@@ -128,6 +128,8 @@
   --nav-height: 64px;
   --announcement-height: 36px;
   --scroll-progress: 0;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-text-muted) 36%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-text-muted) 58%, transparent);
 
   /* Shared page frame */
   --layout-container-max: 1728px;
@@ -241,6 +243,32 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+    scrollbar-width: thin;
+  }
+
+  *::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background-color: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    border-radius: var(--radius-token-full);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   body {

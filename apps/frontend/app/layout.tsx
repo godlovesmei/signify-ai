@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import '../styles/globals.css';
 import { Toaster } from "@/components/ui/sonner";
 import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
@@ -192,7 +193,8 @@ function StructuredData() {
   };
 
   return (
-    <script
+    <Script
+      id="signify-structured-data"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
@@ -212,13 +214,18 @@ export default function RootLayout({
       lang="id"
       suppressHydrationWarning
       className="scroll-smooth theme-transition"
+      data-scroll-behavior="smooth"
     >
       <head>
         <StructuredData />
       </head>
       <body className="font-sans antialiased">
         {/* Critical theme script — must run before any paint */}
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <Script
+          id="signify-theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
         <PreferencesProvider>
           {children}
           <Toaster

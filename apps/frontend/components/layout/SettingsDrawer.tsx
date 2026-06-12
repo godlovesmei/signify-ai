@@ -18,9 +18,11 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AutoAvatar } from "@/components/ui/AutoAvatar";
 import { cn } from "@/lib/utils";
 import { TEXT_SCALE_OPTIONS } from "@/hooks/useAccessibilityPrefs";
 import type { ThemeMode } from "@/hooks/useTheme";
@@ -354,8 +356,8 @@ export default function SettingsDrawer({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-      className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-none top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
-      aria-label="App settings"
+        className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-none top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
+        aria-label="App settings"
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-cohere-hairline px-6 py-5 pr-14">
@@ -366,6 +368,9 @@ export default function SettingsDrawer({
             <DialogTitle className="text-base font-display font-medium tracking-normal text-cohere-ink">
               Settings
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Configure camera, appearance, accessibility, audio, and account settings.
+            </DialogDescription>
           </div>
         </DialogHeader>
 
@@ -548,24 +553,12 @@ export default function SettingsDrawer({
             {user && (
               <SettingsCard className="mb-3 p-4" hover>
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-cohere-ink text-sm font-bold text-cohere-canvas overflow-hidden border border-cohere-hairline">
-                    {user.avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.name}
-                        className="size-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      user.name
-                        .split(" ")
-                        .slice(0, 2)
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                    )}
-                  </div>
+                  <AutoAvatar
+                    name={user.name}
+                    email={user.email}
+                    avatarUrl={user.avatarUrl}
+                    className="size-10 rounded-md text-sm"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-display font-medium text-cohere-ink truncate">
                       {user.name}

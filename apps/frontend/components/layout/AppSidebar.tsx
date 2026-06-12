@@ -18,6 +18,7 @@ import {
 } from "./mobile-nav/workspaceNavConfig";
 import { motion } from "motion/react";
 import { Logo } from "@/components/ui/Logo";
+import { AutoAvatar } from "@/components/ui/AutoAvatar";
 
 const ICON_MAP: Record<string, ReactNode> = {
   translate: <Camera className="size-4" />,
@@ -50,15 +51,6 @@ const FALLBACK_USER: SidebarUser = {
   email: "account@signify.ai",
 };
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 function UserAvatar({
   user,
   className,
@@ -67,23 +59,12 @@ function UserAvatar({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-sm bg-cohere-ink text-cohere-canvas font-bold text-[10px] border border-cohere-hairline",
-        className
-      )}
-    >
-      {user.avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={user.avatarUrl}
-          alt={user.name}
-          className="size-full object-cover"
-        />
-      ) : (
-        getInitials(user.name)
-      )}
-    </div>
+    <AutoAvatar
+      name={user.name}
+      email={user.email}
+      avatarUrl={user.avatarUrl}
+      className={cn("rounded-sm text-[10px]", className)}
+    />
   );
 }
 
@@ -115,14 +96,14 @@ export default function AppSidebar({
               className={cn(
                 "group relative isolate flex items-center gap-2.5 overflow-hidden rounded-sm px-3 py-2.5 transition-colors duration-200",
                 active
-                  ? "text-white dark:text-cohere-canvas"
+                  ? "text-cohere-body-muted dark:text-cohere-body-muted"
                   : "text-cohere-muted hover:bg-cohere-stone hover:text-cohere-ink"
               )}
             >
               {active && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className="absolute inset-0 z-0 rounded-sm bg-cohere-primary dark:bg-cohere-ink"
+                  className="absolute inset-0 z-0 rounded-sm border border-cohere-hairline/80 bg-cohere-stone/80 dark:border-white/8 dark:bg-white/[0.07]"
                   transition={APPLE_SPRING}
                 />
               )}
@@ -130,7 +111,7 @@ export default function AppSidebar({
                 className={cn(
                   "relative z-10 shrink-0 transition-colors duration-200",
                   active
-                    ? "text-white dark:text-cohere-canvas"
+                    ? "text-cohere-slate dark:text-cohere-body-muted"
                     : "text-cohere-muted group-hover:text-cohere-ink"
                 )}
               >
@@ -165,22 +146,23 @@ export default function AppSidebar({
             href="/profile"
             aria-current={profileActive ? "page" : undefined}
             className={cn(
-              "group flex min-w-0 flex-1 items-center gap-2 rounded-sm px-1.5 py-1 transition-colors",
-              profileActive && "bg-cohere-primary text-white dark:bg-cohere-ink dark:text-cohere-canvas"
+              "group flex min-w-0 flex-1 items-center gap-2 rounded-sm border border-transparent px-1.5 py-1 transition-colors",
+              profileActive &&
+                "border-cohere-hairline/80 bg-cohere-stone/80 text-cohere-body-muted dark:border-white/8 dark:bg-white/[0.07] dark:text-cohere-body-muted"
             )}
           >
             <UserAvatar
               user={activeUser}
               className={cn(
                 "size-7 shrink-0",
-                profileActive && "border-white/35 dark:border-cohere-canvas/35"
+                profileActive && "border-cohere-hairline dark:border-white/12"
               )}
             />
             <div className="flex min-w-0 flex-col">
               <span
                 className={cn(
                   "truncate text-xs font-medium leading-tight text-cohere-ink",
-                  profileActive && "text-white dark:text-cohere-canvas"
+                  profileActive && "text-cohere-body-muted"
                 )}
               >
                 {activeUser.name}
@@ -188,7 +170,7 @@ export default function AppSidebar({
               <span
                 className={cn(
                   "truncate font-mono text-[10px] lowercase leading-tight text-cohere-muted",
-                  profileActive && "text-white/75 dark:text-cohere-canvas/75"
+                  profileActive && "text-cohere-slate dark:text-cohere-muted"
                 )}
               >
                 {activeUser.email.split("@")[0]}

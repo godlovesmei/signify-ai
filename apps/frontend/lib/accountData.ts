@@ -1,4 +1,3 @@
-import { executeSupabaseRequest } from "@/lib/supabaseRequest";
 import { createClient } from "@/utils/supabase/client";
 
 export interface AccountProfile {
@@ -24,30 +23,19 @@ function metadataValue(
 
 export async function getAccountProfile(): Promise<AccountProfile | null> {
   const supabase = createClient();
-  const [authResult, profile] = await Promise.all([
-    supabase.auth.getUser(),
-    executeSupabaseRequest(() =>
-      supabase
-        .from("profiles")
-        .select("display_name, avatar_url")
-        .maybeSingle(),
-    ),
-  ]);
+  const authResult = await supabase.auth.getUser();
 
   if (authResult.error) throw authResult.error;
   const user = authResult.data.user;
   if (!user) return null;
 
   const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const email = user.email ?? "";
+  const email = user.email ?? metadataValue(metadata, "email") ?? "";
   const displayName =
-    profile?.display_name?.trim() ||
-    metadataValue(metadata, "full_name", "name", "display_name", "username") ||
+    metadataValue(metadata, "name", "full_name", "display_name", "username") ||
     email.split("@")[0] ||
     "User Account";
-  const avatarUrl =
-    profile?.avatar_url ??
-    metadataValue(metadata, "avatar_url", "picture", "avatar");
+  const avatarUrl = metadataValue(metadata, "picture", "avatar_url", "avatar");
 
   return {
     avatarUrl,

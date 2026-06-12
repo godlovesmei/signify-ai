@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -813,7 +814,7 @@ export default function PracticePageContent() {
               <TrailIndicator trail={breadcrumb} />
             </div>
 
-            <div className="relative min-h-[420px] flex-1">
+            <div className="relative min-h-[420px] flex-1 xl:h-[clamp(520px,70vh,780px)] xl:max-h-[780px]">
               <CameraFrame
                 isActive={isActive}
                 isDetecting={isActive && detections.length > 0}
@@ -889,6 +890,9 @@ export default function PracticePageContent() {
                   <DialogContent className="max-w-[420px] rounded-lg border-cohere-hairline bg-cohere-canvas p-6 text-cohere-ink">
                     <DialogHeader>
                       <DialogTitle className="text-[24px] leading-[1.3]">Session configuration</DialogTitle>
+                      <DialogDescription className="sr-only">
+                        Configure the practice session, guide overlay, insight metrics, and reset practice progress.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between border-t border-cohere-hairline pt-4">
