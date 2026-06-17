@@ -16,13 +16,13 @@
 |---|---|
 | Frontend | Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, pnpm |
 | Routing | Route publik `/`, `/how-it-works`, `/research`, `/terms-condition`; workspace terproteksi `/translate`, `/practice`, `/history`, `/reference`, `/profile`; callback `/auth/callback` |
-| API frontend | `lib/translateApi.ts` memanggil FastAPI; data akun, preferensi, histori, dan latihan memakai Supabase JS/RPC |
-| Backend | FastAPI, OpenCV, Ultralytics YOLO, PyTorch, Python 3.11 |
+| API frontend | `lib/translateApi.ts` memanggil browser inference module (`onnxruntime-web`); data akun, preferensi, histori, dan latihan memakai Supabase JS/RPC |
+| Backend | Legacy/dev-only FastAPI, OpenCV, Ultralytics YOLO `.pt`, PyTorch, Python 3.11 untuk parity/contract testing |
 | Database | Supabase PostgreSQL, migration SQL, RLS, RPC atomik, pgTAP |
 | Autentikasi | Supabase Auth dengan Google OAuth, SSR cookies, validasi JWT opsional pada `/predict` |
 | Role/permission | `profiles.role` bernilai `user` atau `admin`; RLS isolasi per pengguna; hanya admin dapat menulis registry model |
-| Form/input utama | Input gambar multipart pada `POST /api/v1/translate/predict`; kamera browser adalah sumber utama UI |
-| Upload | API menerima JPEG, PNG, WebP maksimal 2 MB; tidak ada file-picker UI |
+| Form/input utama | Kamera browser menjadi sumber utama UI; frame diproses lokal sebagai `ImageData` sebelum ONNX inference |
+| Upload | Tidak ada file-picker UI; upload multipart hanya tersedia di legacy backend contract `POST /api/v1/translate/predict` |
 | Test setup | Vitest + RTL, Playwright + axe-core, pytest + coverage, pgTAP, Locust, GitHub Actions |
 | Fitur tidak tersedia | Search/filter, editable CRUD umum, dan file-picker UI tidak ada sehingga dinyatakan tidak berlaku |
 
@@ -45,10 +45,10 @@
 | KF-01 | Pengguna dapat memulai Google OAuth, menerima error aman, dan keluar dari akun. |
 | KF-02 | Pengguna anonim diarahkan dari route workspace ke login dan kembali ke tujuan aman setelah login. |
 | KF-03 | Pengguna dapat membuka landing page, dokumentasi publik, dan workspace terautentikasi. |
-| KF-04 | API dapat menerima gambar valid dan mengembalikan deteksi YOLO. |
-| KF-05 | API menolak file tidak valid, terlalu besar, korup, atau request tidak terautentikasi saat auth diwajibkan. |
+| KF-04 | Browser inference dapat memproses frame kamera dan mengembalikan deteksi YOLO tanpa FastAPI. |
+| KF-05 | Legacy backend API menolak file tidak valid, terlalu besar, korup, atau request tidak terautentikasi saat auth diwajibkan. |
 | KF-06 | Pengguna dapat membangun kalimat, menghapus, membersihkan, menambah spasi, dan memakai TTS. |
-| KF-07 | Frontend menangani respons API sukses, retry transient, error validasi, dan kegagalan permanen. |
+| KF-07 | Frontend menangani hasil browser inference sukses, model/runtime error, dan state gagal tanpa membutuhkan backend hidup. |
 | KF-08 | Pengguna dapat membaca, memuat bertahap, menghapus, dan membersihkan histori dengan rollback saat gagal. |
 | KF-09 | Pengguna dapat menyimpan dan mereset progres latihan serta melihat statistik referensi. |
 | KF-10 | Preferensi aksesibilitas dan profil pengguna disinkronkan dengan Supabase. |
@@ -79,11 +79,11 @@ Semua nama test otomatis menyertakan Test Case ID agar kegagalan dapat dilacak l
 | TC-004 | Redirect route terproteksi | Proteksi route | Pengguna anonim | Tidak ada session | `/history?page=2` | Buka route workspace | Redirect ke login; return path relatif dipertahankan | Automated | `apps/frontend/lib/authRedirect.test.ts`, `tests/integration/authRoutes.integration.test.ts`, `tests/e2e/auth.spec.ts` |
 | TC-005 | Landing dan route publik | Akses publik | Semua pengguna | Frontend berjalan | Route publik | Buka landing dan dokumentasi | HTTP 200 dan body tampil | Automated | `apps/frontend/tests/e2e/routes.spec.ts` |
 | TC-006 | Workspace translate dan state kamera | Terjemahan kamera | Pengguna login | OAuth test selesai | State idle/loading/ready/detecting/error | Buka `/translate` dan evaluasi state kamera | Workspace tampil; state dipetakan dengan benar | Automated | `apps/frontend/tests/e2e/workspace.spec.ts`, `lib/translateState.test.ts` |
-| TC-007 | Prediksi gambar valid | Prediksi API | Pengguna/API client | Backend siap | PNG/JPEG/WebP valid | Kirim gambar ke kontrak `/predict` | `detections`, `inference_ms`, dan model valid | Automated | `apps/backend/tests/test_predict.py`, `test_ml_service.py` |
-| TC-008 | Validasi input gambar | Prediksi API | Pengguna/API client | Backend siap | Missing, GIF, >2 MB, corrupt | Kirim input invalid | Ditolak dengan 400/413/422; form image wajib | Automated | `apps/backend/tests/test_predict.py` |
-| TC-009 | Otorisasi API | Prediksi API | Anonymous/pengguna login | `REQUIRE_AUTH` sesuai skenario | Token hilang, invalid, expired, valid | Verifikasi dependency JWT | 401/403 untuk invalid; valid diterima; auth optional sesuai config | Automated | `apps/backend/tests/test_auth_deps.py` |
+| TC-007 | Prediksi gambar valid | Legacy prediksi API | Pengguna/API client | Backend legacy siap | PNG/JPEG/WebP valid | Kirim gambar ke kontrak `/predict` | `detections`, `inference_ms`, dan model valid | Automated | `apps/backend/tests/test_predict.py`, `test_ml_service.py` |
+| TC-008 | Validasi input gambar | Legacy prediksi API | Pengguna/API client | Backend legacy siap | Missing, GIF, >2 MB, corrupt | Kirim input invalid | Ditolak dengan 400/413/422; form image wajib | Automated | `apps/backend/tests/test_predict.py` |
+| TC-009 | Otorisasi API | Legacy prediksi API | Anonymous/pengguna login | `REQUIRE_AUTH` sesuai skenario | Token hilang, invalid, expired, valid | Verifikasi dependency JWT | 401/403 untuk invalid; valid diterima; auth optional sesuai config | Automated | `apps/backend/tests/test_auth_deps.py` |
 | TC-010 | Sentence builder dan TTS | Susun kalimat | Pengguna login | Workspace tersedia | Token huruf, spasi, clear, TTS | Edit dan ucapkan kalimat | Aksi dipanggil; tombol invalid disabled | Automated | `apps/frontend/tests/integration/SentenceBuilder.integration.test.tsx`, `lib/translateState.test.ts` |
-| TC-011 | API success/retry/error frontend | Panggilan inference | Pengguna login | API mock tersedia | 200, network error, 503, 400 | Jalankan request dan retry policy | Retry hanya transient; hasil/error dipetakan aman | Automated | `apps/frontend/lib/translateApi.test.ts`, `lib/supabaseRetry.test.ts` |
+| TC-011 | Browser inference success/error frontend | Panggilan inference | Pengguna login | Browser inference mock tersedia | Response deteksi, runtime error, frame kamera | Jalankan facade inference tanpa backend HTTP | Hasil/error dipetakan aman; tidak ada request ke `/api/v1/translate/predict` | Automated | `apps/frontend/lib/translateApi.test.ts`, `lib/supabaseRetry.test.ts` |
 | TC-012 | Baca/paginasi histori dan total | Histori | Pengguna login | Supabase mock tersedia | Row histori dan total | Ambil halaman histori | Data dipetakan; batas halaman/hasMore benar | Automated | `apps/frontend/tests/integration/userData.integration.test.ts`, `lib/userData.test.ts` |
 | TC-013 | Delete/clear histori | Histori | Pengguna login | Ada histori | Session ID | Hapus satu atau seluruh histori | Query pemilik dijalankan; UI punya rollback saat gagal | Automated | `apps/frontend/tests/integration/userData.integration.test.ts`, `lib/serializedQueue.test.ts` |
 | TC-014 | Loading/empty/error/retry | Histori | Pengguna login | Data source dapat gagal | Error sementara lalu empty | Load gagal, klik Retry | Error tampil; retry menghasilkan empty state | Automated | `apps/frontend/tests/integration/HistoryPage.integration.test.tsx` |
@@ -99,6 +99,7 @@ Semua nama test otomatis menyertakan Test Case ID agar kegagalan dapat dilacak l
 | TC-024 | XSS/open redirect protection | Security input | Pengguna/attacker | App berjalan | HTML payload, external `next` | Render payload dan buka callback | Payload di-escape; external redirect ditolak | Automated | `apps/frontend/tests/integration/SentenceBuilder.integration.test.tsx`, `authRoutes.integration.test.ts`, `lib/authRedirect.test.ts` |
 | TC-025 | Aksesibilitas | Akses UI | Keyboard/screen-reader user | Browser test aktif | Landing, dialog, buttons | Scan axe dan navigasi keyboard | Tidak ada serious/critical; fokus/nama kontrol benar | Automated | `apps/frontend/tests/e2e/accessibility.spec.ts`, `tests/integration/LoginModal.integration.test.tsx`, `components/ui/Button.test.ts` |
 | TC-026 | Route/metadata/assets smoke | Navigasi/SEO | Semua pengguna | Frontend berjalan | Route, manifest, hero, icon | Buka route dan aset metadata | Route/aset 200; manifest valid; tidak ada klaim `/search` | Automated | `apps/frontend/tests/e2e/routes.spec.ts`, `components/layout/mobile-nav/workspaceNavConfig.test.ts` |
+| TC-027 | Parity `.pt` vs ONNX | Legacy/parity inference | Developer/QA | Model lokal dan runtime tersedia | `MODEL_PARITY_IMAGE`, `best.pt`, `best.onnx` | Jalankan parity opt-in | Top detection `.pt` dan ONNX sekelas dan box cukup dekat | Optional | `apps/backend/tests/test_model_parity.py` |
 
 ### 4.1 Kasus tidak berlaku
 
@@ -113,12 +114,12 @@ Semua nama test otomatis menyertakan Test Case ID agar kegagalan dapat dilacak l
 
 ### 5.1 Alasan pemilihan performance testing
 
-Performance testing dipilih karena jalur utama menggabungkan render Next.js, autentikasi, query data, upload gambar, decode OpenCV, dan inference YOLO. Keterlambatan atau error pada salah satu tahap langsung mengganggu komunikasi real-time. Beban mixed/read dan inference dipisah agar bottleneck frontend/data tidak menutupi kapasitas model.
+Performance testing dipilih karena jalur utama menggabungkan render Next.js, autentikasi, query data, kamera browser, model ONNX lokal, dan persistence Supabase. Keterlambatan atau error pada salah satu tahap langsung mengganggu komunikasi real-time. Beban mixed/read production dan legacy backend inference dipisah agar bottleneck frontend/data tidak menutupi eksperimen server-side model.
 
 | Profil | Concurrent users | Ramp-up | Avg | P50 | P95 | P99 | Failure | RPS |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Mixed/read | 100 | 10 user/detik | <= 2,8 s | <= 2,0 s | <= 4,5 s | <= 6,0 s | <= 1% | >= 50 |
-| Inference CPU baseline | 50 | 5 user/detik | <= 2,8 s | <= 2,0 s | <= 4,5 s | <= 6,0 s | <= 1% | >= 5 |
+| Legacy inference CPU baseline | 50 | 5 user/detik | <= 2,8 s | <= 2,0 s | <= 4,5 s | <= 6,0 s | <= 1% | >= 5 |
 | Auth opsional | 50-100 | 5-10 user/detik | Target sama | Target sama | Target sama | Target sama | <= 1% | Sesuai kapasitas test project |
 
 Tool: Locust di `tests/performance/locustfile.py`. Performance tidak memblokir setiap pull request; dijalankan manual/terjadwal terhadap staging melalui `.github/workflows/performance.yml`.
@@ -130,7 +131,7 @@ LOCUST_PROFILE=mixed locust -f tests/performance/locustfile.py MixedReadUser \
   --headless --host "$STAGING_FRONTEND_URL" --users 100 --spawn-rate 10 --run-time 5m
 
 LOCUST_PROFILE=inference locust -f tests/performance/locustfile.py InferenceUser \
-  --headless --host "$STAGING_BACKEND_URL" --users 50 --spawn-rate 5 --run-time 5m
+  --headless --host "$LEGACY_BACKEND_URL" --users 50 --spawn-rate 5 --run-time 5m
 ```
 
 Pass jika seluruh target avg/P50/P95/P99/failure/RPS terpenuhi. Listener Locust memberi exit code gagal bila target terlewati.
@@ -160,8 +161,8 @@ Tool: Playwright, `@axe-core/playwright`, keyboard-only checks. Pengujian mencak
 |---|---|
 | Required environment | Helper config gagal jelas saat Supabase frontend belum dikonfigurasi; backend settings diuji terhadap env asing |
 | Secret leakage | TruffleHog memindai history commit pada setiap PR |
-| Unauthorized API | 401/403, fail-closed 503 saat auth wajib, dan fallback anonim saat auth opsional diuji |
-| Invalid input/upload | MIME, decode, ukuran 2 MB, dan RPC constraints diuji |
+| Unauthorized API | Legacy backend mengembalikan 401/403, fail-closed 503 saat auth wajib, dan fallback anonim saat auth opsional diuji |
+| Invalid input/upload | Legacy backend MIME/decode/ukuran 2 MB dan Supabase RPC constraints diuji |
 | XSS/open redirect | React escaping dan sanitizer relative path diuji |
 | Stack trace | Error inference produksi hanya mengembalikan detail generik |
 | Build produksi | `pnpm build` wajib berhasil di CI |
@@ -171,8 +172,8 @@ Tool: Playwright, `@axe-core/playwright`, keyboard-only checks. Pengujian mencak
 
 Pull request menjalankan:
 
-1. Frontend install, lint, typecheck, unit, integration, coverage, build, Chromium E2E, dan accessibility.
-2. Backend compile, pytest, line/branch coverage.
+1. Frontend install, lint, typecheck, unit, integration, coverage, build, Chromium E2E, dan accessibility tanpa backend URL.
+2. Legacy backend compile, pytest, line/branch coverage sebagai quality gate terpisah.
 3. Supabase start, migration reset, pgTAP, schema lint, dan type generation.
 4. Secret scan dan dependency audit.
 
@@ -182,15 +183,14 @@ Scheduled/manual CI menjalankan Chromium/Firefox/WebKit serta Locust staging. Ar
 
 ```bash
 cd apps/frontend
-pnpm install --frozen-lockfile
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm test:unit
-pnpm test:integration
-pnpm test:coverage
-pnpm build
-pnpm test:e2e
+pnpm --filter frontend lint
+pnpm --filter frontend typecheck
+pnpm --filter frontend test
+pnpm --filter frontend test:unit
+pnpm --filter frontend test:integration
+pnpm --filter frontend test:coverage
+pnpm --filter frontend build
+pnpm --filter frontend test:e2e
 
 cd ../backend
 python -m pytest -q --cov=app --cov-branch --cov-report=json:coverage.json
@@ -207,7 +207,7 @@ supabase db lint --level warning
 
 - Google OAuth nyata, izin kamera/perangkat fisik, dan eksekusi model nyata harus divalidasi di staging.
 - Newsletter belum memiliki backend.
-- Artifact Docker/deployment masih belum lengkap.
+- Backend Docker/deployment hanya untuk legacy/local parity, bukan production dependency frontend.
 - Script TensorFlow/ML legacy masih stale dan dipisahkan dari quality gate aplikasi utama.
 - Load test auth hanya boleh dijalankan pada Supabase test project yang dikonfigurasi.
 

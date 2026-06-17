@@ -14,6 +14,8 @@ from app.services.ml_service import YOLOService
 router = APIRouter(prefix="/translate", tags=["translation"])
 logger = logging.getLogger(__name__)
 
+# Legacy/dev-only endpoint. Production translate/practice inference runs in
+# apps/frontend with ONNX Runtime Web and must not depend on this FastAPI route.
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_IMAGE_SIZE = 2 * 1024 * 1024  # 2 MB
 

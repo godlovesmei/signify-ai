@@ -45,6 +45,17 @@ describe('translateApi browser inference facade', () => {
     expect(mockedPredictWithBrowserYolo).toHaveBeenCalledWith(imageData);
   });
 
+  it('TC-011 does not call the legacy FastAPI prediction endpoint', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    mockedPredictWithBrowserYolo.mockResolvedValue(makeResponse());
+
+    await expect(predictFromImageData(makeImageData())).resolves.toMatchObject({
+      model: 'best.onnx',
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('TC-011 returns null when browser inference fails', async () => {
     mockedPredictWithBrowserYolo.mockRejectedValue(new Error('model unavailable'));
 

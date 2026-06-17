@@ -46,6 +46,9 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 
 ### Backend (local/parity only)
 
+`apps/backend` is a legacy/dev-only FastAPI service. It is not a production
+dependency of `apps/frontend`, Vercel, or the browser inference path.
+
 | Library | Version | Purpose |
 |---|---|---|
 | FastAPI | latest | REST API framework |
@@ -114,7 +117,7 @@ signify-ai/
 │   │   │   └── ort/                # ONNX Runtime Web WASM assets
 │   │   └── lib/                    # translateApi.ts, yolo*.ts, supabase.ts
 │   │
-│   └── backend/                    # Local/parity FastAPI inference service
+│   └── backend/                    # Legacy/dev-only FastAPI inference service
 │       ├── app/
 │       │   ├── api/v1/endpoints/   # translation.py (predict, classes)
 │       │   ├── api/deps.py         # JWT auth dependency
@@ -122,6 +125,7 @@ signify-ai/
 │       │   └── services/ml_service.py  # YOLOService singleton
 │       ├── tests/                  # pytest integration tests
 │       ├── main.py                 # App entry point
+│       ├── README.md               # Backend boundary and local usage
 │       └── environment.yml         # Conda dependencies
 │
 ├── models/
@@ -167,7 +171,33 @@ git clone https://github.com/<your-org>/signify-ai.git
 cd signify-ai
 ```
 
-### 2. Backend — Python environment
+### 2. Frontend — Node environment
+
+The frontend is the production application. It does not require the FastAPI
+backend for install, build, test, or Vercel deployment.
+
+```bash
+cd apps/frontend
+pnpm install
+cp .env.local.example .env.local
+# Edit .env.local and fill in your Supabase URL and publishable key
+```
+
+Frontend package scripts are isolated under `apps/frontend`. From that
+directory, the workspace-filter commands are:
+
+```bash
+cd apps/frontend
+pnpm --filter frontend dev
+pnpm --filter frontend build
+pnpm --filter frontend test
+```
+
+### 3. Backend — Python environment (optional legacy/parity)
+
+Only set this up when you need server-side YOLO `.pt` inference, backend
+contract tests, `.pt` vs ONNX parity checks, or server-side inference
+experiments. Do not run it as part of the production frontend deployment.
 
 ```bash
 conda env create -f apps/backend/environment.yml
@@ -184,22 +214,13 @@ pip install ultralytics>=8.3.0 torch==2.12.0 torchvision==0.27.0 fastapi "uvicor
     python-multipart pillow numpy opencv-python "PyJWT==2.13.0" pydantic-settings
 ```
 
-### 3. Backend — Environment variables
+### 4. Backend — Environment variables (optional legacy/parity)
 
 ```bash
 cp apps/backend/.env.example apps/backend/.env
 # Edit apps/backend/.env.
 # Keep SUPABASE_JWT_SECRET empty for local unauthenticated inference, or fill it
 # and set REQUIRE_AUTH=true when you want Supabase JWT enforcement.
-```
-
-### 4. Frontend — Node environment
-
-```bash
-cd apps/frontend
-pnpm install
-cp .env.local.example .env.local
-# Edit .env.local and fill in your Supabase URL and publishable key
 ```
 
 ### 5. Database — Supabase schema
@@ -237,13 +258,31 @@ mkdir -p models/exports/bisindo_yolo
 cp runs/train/bisindo_v1/weights/best.pt models/exports/bisindo_yolo/best.pt
 ```
 
+Production uses the ONNX artifact served by the frontend, not the `.pt` file.
+When replacing the model, keep the lifecycle explicit:
+
+```text
+models/exports/bisindo_yolo/best.pt
+  -> export to models/exports/bisindo_yolo/best.onnx
+  -> copy to apps/frontend/public/models/bisindo-yolo11n/v1/best.onnx
+  -> update apps/frontend/public/models/bisindo-yolo11n/manifest.json if the version or shape changes
+  -> validate browser inference and optional legacy backend parity
+```
+
 ---
 
 ## Running the Project
 
 ### Development
 
-**Backend (optional local parity)** - runs on `http://localhost:8000`
+**Frontend production app** - runs on `http://localhost:3000`
+
+```bash
+cd apps/frontend
+pnpm --filter frontend dev
+```
+
+**Backend (optional legacy/parity)** - runs on `http://localhost:8000`
 
 ```bash
 conda activate signify-backend
@@ -251,14 +290,8 @@ uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 The production inference path does not need this backend. Use it only for local
-backend tests, parity checks, or server-side inference experiments.
-
-**Frontend** - runs on `http://localhost:3000`
-
-```bash
-cd apps/frontend
-pnpm dev
-```
+backend tests, parity checks, `.pt` vs ONNX comparisons, or server-side
+inference experiments.
 
 ### Docker (full local stack)
 
@@ -274,17 +307,17 @@ the same Vercel deployment. See [`docs/deployment.md`](docs/deployment.md).
 
 ### Testing and quality gates
 
-The complete production-readiness plan and TC-001 through TC-026 traceability
+The complete production-readiness plan and TC-001 through TC-027 traceability
 matrix are documented in [`docs/rencana-pengujian.md`](docs/rencana-pengujian.md).
 
 ```bash
 cd apps/frontend
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm test:coverage
-pnpm build
-pnpm test:e2e
+pnpm --filter frontend lint
+pnpm --filter frontend typecheck
+pnpm --filter frontend test
+pnpm --filter frontend test:coverage
+pnpm --filter frontend build
+pnpm --filter frontend test:e2e
 
 cd ../backend
 python -m pytest -q --cov=app --cov-branch --cov-report=json:coverage.json
@@ -319,14 +352,19 @@ predictFromVideoFrame(video, canvas) => Promise<{
 
 The browser pipeline loads `/models/bisindo-yolo11n/v1/best.onnx`, converts a
 640 x 640 canvas frame to a `1x3x640x640` tensor, runs ONNX Runtime Web, applies
-confidence filtering and class-aware NMS, then returns the same detection shape
-that the UI previously received from FastAPI.
+confidence filtering and class-aware NMS, then returns the detection shape used
+by the translate and practice UI. It does not require a backend URL.
 
 ## Legacy API Reference
 
 Interactive Swagger docs are available at `http://localhost:8000/docs` after
 starting the optional local backend. These endpoints are not used by the
 production Vercel browser inference path.
+
+Warning: do not wire production translate/practice flows to this API. If a
+future product requirement needs private model weights or server-side inference,
+design that as a new production backend boundary instead of silently reusing the
+legacy local endpoint.
 
 ### `POST /api/v1/translate/predict`
 

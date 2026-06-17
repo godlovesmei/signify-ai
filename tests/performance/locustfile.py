@@ -41,7 +41,7 @@ class MixedReadUser(HttpUser):
 
 
 class InferenceUser(HttpUser):
-    """Backend inference profile. Run with the staging backend as --host."""
+    """Legacy backend inference profile. Run with the optional backend as --host."""
 
     wait_time = between(0.5, 1.5)
     weight = 1

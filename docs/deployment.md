@@ -7,6 +7,7 @@
 - Model assets: public, versioned static files under `apps/frontend/public/models/bisindo-yolo11n/v1/`.
 - Runtime assets: ONNX Runtime WebAssembly files under `apps/frontend/public/ort/`.
 - Auth and database: hosted Supabase project.
+- Backend: not deployed for production in the current browser-only architecture.
 
 There is no production FastAPI inference service in this browser-only shape. The
 browser downloads `best.onnx`, captures webcam frames locally, runs inference on
@@ -50,6 +51,15 @@ cp models/exports/bisindo_yolo/best.onnx \
   apps/frontend/public/models/bisindo-yolo11n/v1/best.onnx
 ```
 
+Model replacement flow:
+
+```text
+best.pt -> best.onnx -> apps/frontend/public/models/.../best.onnx
+```
+
+After copying the ONNX artifact, validate the browser inference path. Run the
+legacy backend only when you want a local `.pt` comparison or contract test.
+
 ## Required Vercel Environment Variables
 
 Set these in Vercel Project Settings for Preview and Production:
@@ -61,6 +71,10 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<your-publishable-key>
 
 Do not set `NEXT_PUBLIC_API_URL` for production browser inference. Do not place
 `SUPABASE_JWT_SECRET` in Vercel frontend env variables.
+
+If you create a local experiment that talks to `apps/backend`, keep it outside
+the production translate/practice path and use a clearly named variable such as
+`NEXT_PUBLIC_LEGACY_API_URL`. That variable is not required for Vercel.
 
 ## Vercel Deployment
 
@@ -82,19 +96,19 @@ Frontend only:
 
 ```bash
 cd apps/frontend
-pnpm install
-pnpm dev
+pnpm install --frozen-lockfile
+pnpm --filter frontend dev
 ```
 
 Quality gates:
 
 ```bash
 cd apps/frontend
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm test:e2e
+pnpm --filter frontend lint
+pnpm --filter frontend typecheck
+pnpm --filter frontend test
+pnpm --filter frontend build
+pnpm --filter frontend test:e2e
 ```
 
 Manual browser checks on a Vercel Preview:
@@ -114,3 +128,10 @@ browser-only Vercel deployment.
 
 If a future requirement says the model must remain private, this architecture is
 not sufficient; inference must move back to a server-side runtime.
+
+Run it locally only when needed:
+
+```bash
+conda activate signify-backend
+uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
+```

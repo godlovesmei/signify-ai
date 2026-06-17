@@ -29,8 +29,8 @@ jobs:
           name: performance-mixed
           path: performance-mixed*.csv
 
-  inference:
-    if: ${{ vars.STAGING_BACKEND_URL != '' }}
+  legacy-inference:
+    if: ${{ vars.LEGACY_BACKEND_URL != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,10 +41,10 @@ jobs:
       - name: Run inference profile
         env:
           LOCUST_PROFILE: inference
-          PERF_BEARER_TOKEN: ${{ secrets.STAGING_PERF_BEARER_TOKEN }}
+          PERF_BEARER_TOKEN: ${{ secrets.LEGACY_BACKEND_PERF_BEARER_TOKEN }}
         run: |
           locust -f tests/performance/locustfile.py InferenceUser \
-            --headless --host "${{ vars.STAGING_BACKEND_URL }}" \
+            --headless --host "${{ vars.LEGACY_BACKEND_URL }}" \
             --users 50 --spawn-rate 5 --run-time 5m \
             --csv performance-inference
       - if: always()
