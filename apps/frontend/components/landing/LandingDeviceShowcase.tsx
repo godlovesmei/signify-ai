@@ -1,4 +1,7 @@
+"use client"
+
 import type { CSSProperties } from "react"
+import { useTranslations } from "next-intl"
 import {
   BookOpen,
   Camera,
@@ -20,10 +23,13 @@ type DevicePreviewProps = {
 
 const practiceLetters = ["A", "B", "I", "S"]
 
-const desktopNavItems: Array<{ label: string; Icon: LucideIcon }> = [
-  { label: "Translate", Icon: Camera },
-  { label: "Practice", Icon: Hand },
-  { label: "Reference", Icon: BookOpen },
+const desktopNavItems: Array<{
+  labelKey: "translate" | "practice" | "reference"
+  Icon: LucideIcon
+}> = [
+  { labelKey: "translate", Icon: Camera },
+  { labelKey: "practice", Icon: Hand },
+  { labelKey: "reference", Icon: BookOpen },
 ]
 
 function revealDelay(delay: number): CSSProperties {
@@ -32,6 +38,8 @@ function revealDelay(delay: number): CSSProperties {
 
 /* ── Device Chrome Frames ── */
 function DeviceChrome({ device }: Pick<DevicePreviewProps, "device">) {
+  const t = useTranslations("landing.deviceShowcase")
+
   if (device === "mobile") {
     return (
       <div className="mx-auto mb-2 flex items-center justify-center gap-2">
@@ -58,16 +66,19 @@ function DeviceChrome({ device }: Pick<DevicePreviewProps, "device">) {
       <div className="flex items-center gap-2">
         <span className="size-1.5 rounded-full bg-emerald-400/60" />
         <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-0.5 text-[10px] font-medium text-white/50">
-          signify.ai/workspace
+          {t("address")}
         </span>
       </div>
-      <span className="text-[10px] text-white/25">Live</span>
+      <span className="text-[10px] text-white/25">{t("live")}</span>
     </div>
   )
 }
 
 /* ── Desktop Mock UI ── */
 function DesktopMockUi() {
+  const t = useTranslations("landing.deviceShowcase")
+  const navT = useTranslations("navigation.workspace")
+
   return (
     <div className="grid h-full grid-cols-[0.22fr_0.78fr] bg-[#111218] text-white">
       <aside className="border-r border-white/[0.06] bg-white/[0.02] p-4">
@@ -77,22 +88,22 @@ function DesktopMockUi() {
           </span>
           <div>
             <p className="text-[11px] font-semibold text-white">SignifyAI</p>
-            <p className="text-[10px] text-white/30">Responsive studio</p>
+            <p className="text-[10px] text-white/30">{t("sidebarSubtitle")}</p>
           </div>
         </div>
         <div className="mt-8 space-y-1">
-          {desktopNavItems.map(({ label, Icon }) => (
+          {desktopNavItems.map(({ labelKey, Icon }) => (
             <div
-              key={label}
+              key={labelKey}
               className={cn(
                 "flex items-center gap-2.5 rounded-xl px-3 py-2 text-[11px] font-medium transition-colors",
-                label === "Translate"
+                labelKey === "translate"
                   ? "bg-white text-[#17171c] shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
                   : "text-white/40 hover:bg-white/[0.04] hover:text-white/60",
               )}
             >
               <Icon className="size-3.5" />
-              {label}
+              {navT(labelKey)}
             </div>
           ))}
         </div>
@@ -101,13 +112,13 @@ function DesktopMockUi() {
       <div className="grid grid-rows-[auto_1fr] overflow-hidden">
         <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/25">Workspace</p>
-            <p className="mt-1 text-[15px] font-semibold text-white">Translate session</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-white/25">{t("workspaceLabel")}</p>
+            <p className="mt-1 text-[15px] font-semibold text-white">{t("translateSession")}</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 rounded-full border border-emerald-300/15 bg-emerald-300/8 px-2.5 py-1 text-[10px] text-emerald-200">
               <span className="size-1 rounded-full bg-emerald-300 animate-pulse" />
-              98% confidence
+              {t("confidence")}
             </span>
             <span className="size-8 rounded-full bg-gradient-to-br from-[#ffad9b] to-[#c4703a]" />
           </div>
@@ -119,12 +130,12 @@ function DesktopMockUi() {
             <div className="absolute inset-5 rounded-[20px] border border-white/[0.25]" />
             <div className="absolute left-7 top-7 flex items-center gap-1.5 rounded-full border border-white/[0.25] bg-black/15 px-3 py-1 text-[10px] font-medium text-white backdrop-blur-xl">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Camera active
+              {t("cameraActive")}
             </div>
             <div className="absolute left-[29%] top-[24%] size-32 rounded-full border border-white/[0.25] bg-white/15 blur-[1px]" />
             <div className="absolute bottom-6 left-6 right-6 rounded-[18px] border border-white/[0.1] bg-black/40 p-4 backdrop-blur-xl">
-              <p className="text-[9px] uppercase tracking-[0.16em] text-white/35">Recognized output</p>
-              <p className="mt-2 text-[22px] font-medium leading-tight text-white">Terima kasih.</p>
+              <p className="text-[9px] uppercase tracking-[0.16em] text-white/35">{t("recognizedOutput")}</p>
+              <p className="mt-2 text-[22px] font-medium leading-tight text-white">{t("desktopOutput")}</p>
             </div>
             <span className="absolute left-[41%] top-[41%] size-2 rounded-full bg-cyan-200 shadow-[0_0_22px_rgba(165,243,252,0.95)]" />
             <span className="absolute left-[46%] top-[48%] size-2 rounded-full bg-cyan-200 shadow-[0_0_22px_rgba(165,243,252,0.95)]" />
@@ -136,8 +147,8 @@ function DesktopMockUi() {
             <div className="rounded-[20px] border border-white/[0.06] bg-white/[0.03] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/30">Practice</p>
-                  <p className="mt-2 text-[18px] font-medium leading-tight text-white">Daily alphabet drill</p>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/30">{t("practiceLabel")}</p>
+                  <p className="mt-2 text-[18px] font-medium leading-tight text-white">{t("dailyDrill")}</p>
                 </div>
                 <Hand className="size-5 text-white/40" />
               </div>
@@ -157,15 +168,15 @@ function DesktopMockUi() {
             </div>
 
             <div className="rounded-[20px] border border-white/[0.06] bg-[#2d5a4a]/40 p-4">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-white/35">Statistics</p>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-white/35">{t("statistics")}</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-[26px] font-semibold leading-none text-white">26</p>
-                  <p className="mt-1 text-[10px] text-white/35">letters</p>
+                  <p className="mt-1 text-[10px] text-white/35">{t("letters")}</p>
                 </div>
                 <div>
                   <p className="text-[26px] font-semibold leading-none text-white">12m</p>
-                  <p className="mt-1 text-[10px] text-white/35">practice</p>
+                  <p className="mt-1 text-[10px] text-white/35">{t("practice")}</p>
                 </div>
               </div>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
@@ -178,7 +189,7 @@ function DesktopMockUi() {
                 <div className="flex size-8 items-center justify-center rounded-lg bg-[#e8f0ec]">
                   <Volume2 className="size-4 text-[#2d5a4a]" />
                 </div>
-                <span className="text-[12px] font-semibold">Voice output ready</span>
+                <span className="text-[12px] font-semibold">{t("voiceReady")}</span>
               </div>
             </div>
           </div>
@@ -190,12 +201,14 @@ function DesktopMockUi() {
 
 /* ── Tablet Mock UI ── */
 function TabletMockUi() {
+  const t = useTranslations("landing.deviceShowcase")
+
   return (
     <div className="flex h-full flex-col bg-[#f7f5f1] p-4 text-[#17171c]">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-[#8a8a8a]">Tablet mode</p>
-          <p className="mt-1 text-[17px] font-medium leading-tight">Practice and translate</p>
+          <p className="text-[10px] uppercase tracking-[0.16em] text-[#8a8a8a]">{t("tabletMode")}</p>
+          <p className="mt-1 text-[17px] font-medium leading-tight">{t("practiceAndTranslate")}</p>
         </div>
         <span className="size-8 rounded-full bg-gradient-to-br from-[#17171c] to-[#3a3a3a]" />
       </div>
@@ -208,13 +221,13 @@ function TabletMockUi() {
                 <Camera className="size-4 text-[#2d5a4a]" />
               </span>
               <div>
-                <p className="text-[13px] font-semibold">Translate</p>
-                <p className="text-[10px] text-[#8a8a8a]">Camera framed</p>
+                <p className="text-[13px] font-semibold">{t("translate")}</p>
+                <p className="text-[10px] text-[#8a8a8a]">{t("cameraFramed")}</p>
               </div>
             </div>
             <span className="flex items-center gap-1.5 rounded-full bg-[#e8f0ec] px-2.5 py-1 text-[10px] font-medium text-[#2d5a4a]">
               <span className="size-1 rounded-full bg-[#2d5a4a] animate-pulse" />
-              Live
+              {t("live")}
             </span>
           </div>
           <div className="mt-4 h-24 rounded-[16px] bg-[#f4d7cd]">
@@ -226,11 +239,11 @@ function TabletMockUi() {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-[20px] border border-black/[0.06] bg-[#17171c] p-4 text-white shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/35">Output</p>
-            <p className="mt-3 text-[18px] font-medium leading-tight">Saya butuh bantuan.</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-white/35">{t("output")}</p>
+            <p className="mt-3 text-[18px] font-medium leading-tight">{t("tabletOutput")}</p>
           </div>
           <div className="rounded-[20px] border border-black/[0.06] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-[#8a8a8a]">Accuracy</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-[#8a8a8a]">{t("accuracy")}</p>
             <p className="mt-3 text-[30px] font-semibold leading-none">92%</p>
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#edeae4]">
               <div className="h-full w-[92%] rounded-full bg-gradient-to-r from-[#2d5a4a] to-[#4a8a6a]" />
@@ -240,9 +253,9 @@ function TabletMockUi() {
 
         <div className="rounded-[20px] border border-black/[0.06] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold">Next drill</span>
+            <span className="text-[12px] font-semibold">{t("nextDrill")}</span>
             <span className="rounded-full bg-[#f5e6d8] px-2.5 py-1 text-[11px] font-medium text-[#c4703a]">
-              Letter S
+              {t("letterS")}
             </span>
           </div>
         </div>
@@ -253,22 +266,24 @@ function TabletMockUi() {
 
 /* ── Mobile Mock UI ── */
 function MobileMockUi() {
+  const t = useTranslations("landing.deviceShowcase")
+
   return (
     <div className="flex h-full flex-col bg-[#f8f7f4] p-3 text-[#17171c]">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.14em] text-[#8a8a8a]">Mobile</p>
-          <p className="mt-1 text-[15px] font-medium leading-tight">Quick translate</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-[#8a8a8a]">{t("mobile")}</p>
+          <p className="mt-1 text-[15px] font-medium leading-tight">{t("quickTranslate")}</p>
         </div>
         <span className="size-8 rounded-full bg-gradient-to-br from-[#ffad9b] to-[#c4703a]" />
       </div>
 
       <div className="mt-4 rounded-[20px] bg-[#17171c] p-3 text-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-white/40">Camera</span>
+          <span className="text-[10px] text-white/40">{t("camera")}</span>
           <span className="flex items-center gap-1 rounded-full bg-emerald-300/10 px-2 py-0.5 text-[9px] text-emerald-200">
             <span className="size-1 rounded-full bg-emerald-300 animate-pulse" />
-            Live
+            {t("live")}
           </span>
         </div>
         <div className="mt-3 flex aspect-[4/3] items-center justify-center rounded-[16px] bg-[#f4d7cd]">
@@ -279,24 +294,24 @@ function MobileMockUi() {
       <div className="mt-3 rounded-[20px] border border-black/[0.06] bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="flex items-center gap-2">
           <MessageSquare className="size-4 text-[#8a8a8a]" />
-          <span className="text-[11px] font-semibold text-[#4a4a4a]">Translation result</span>
+          <span className="text-[11px] font-semibold text-[#4a4a4a]">{t("translationResult")}</span>
         </div>
-        <p className="mt-3 text-[19px] font-medium leading-tight">Halo, nama saya Rina.</p>
+        <p className="mt-3 text-[19px] font-medium leading-tight">{t("mobileOutput")}</p>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div className="rounded-[16px] bg-[#e8f0ec] p-3">
           <p className="text-[20px] font-semibold leading-none text-[#2d5a4a]">8</p>
-          <p className="mt-1 text-[10px] text-[#2d5a4a]/70">saved</p>
+          <p className="mt-1 text-[10px] text-[#2d5a4a]/70">{t("saved")}</p>
         </div>
         <div className="rounded-[16px] bg-[#edeae4] p-3">
           <p className="text-[20px] font-semibold leading-none text-[#1a1a1a]">94%</p>
-          <p className="mt-1 text-[10px] text-[#8a8a8a]">accuracy</p>
+          <p className="mt-1 text-[10px] text-[#8a8a8a]">{t("accuracy")}</p>
         </div>
       </div>
 
       <div className="mt-auto rounded-full bg-[#1a1a1a] px-4 py-3 text-center text-[12px] font-semibold text-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
-        Start practice
+        {t("startPractice")}
       </div>
     </div>
   )
@@ -304,10 +319,16 @@ function MobileMockUi() {
 
 /* ── Device Preview Wrapper ── */
 function DevicePreview({ device, className }: DevicePreviewProps) {
+  const t = useTranslations("landing.deviceShowcase")
   const isMobile = device === "mobile"
   const isTablet = device === "tablet"
 
-  const deviceLabel = device === "desktop" ? "Desktop" : device === "tablet" ? "iPad / Tablet" : "Mobile"
+  const deviceLabel =
+    device === "desktop"
+      ? t("desktopLabel")
+      : device === "tablet"
+        ? t("tabletLabel")
+        : t("mobileLabel")
   const DeviceIcon = device === "desktop" ? Monitor : device === "tablet" ? Tablet : Smartphone
 
   return (
@@ -352,6 +373,9 @@ function DevicePreview({ device, className }: DevicePreviewProps) {
 
 /* ── Main Showcase Component ── */
 export function LandingDeviceShowcase() {
+  const t = useTranslations("landing.deviceShowcase")
+  const bullets = t.raw("bullets") as Array<{ label: string; desc: string }>
+
   return (
     <section className="overflow-hidden bg-[var(--color-bg-base)] pt-20 pb-10 md:pt-28 md:pb-12">
       <div className="cohere-container">
@@ -359,28 +383,23 @@ export function LandingDeviceShowcase() {
           <div>
             <div data-animate="fade-right">
               <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[var(--color-text-muted)]">
-                Responsive preview
+                {t("sectionLabel")}
               </p>
             </div>
             <div data-animate="fade-right" style={revealDelay(90)}>
               <h2 className="mt-4 max-w-2xl font-display text-[40px] leading-[1.08] text-[var(--color-text-primary)] md:text-[56px]">
-                One workspace, composed for every screen.
+                {t("sectionTitle")}
               </h2>
             </div>
             <div data-animate="fade-right" style={revealDelay(150)}>
               <p className="mt-5 max-w-xl text-[17px] leading-[1.6] text-[var(--color-text-secondary)]">
-                The landing preview shows how SignifyAI keeps translate, practice, progress, and
-                voice output readable across mobile, tablet, and desktop layouts.
+                {t("sectionBody")}
               </p>
             </div>
 
             {/* Feature bullets */}
             <div data-animate="fade-right" style={revealDelay(220)} className="mt-8 space-y-3">
-              {[
-                { label: "Adaptive layout", desc: "UI reflows naturally" },
-                { label: "Touch optimized", desc: "Large tap targets" },
-                { label: "Offline capable", desc: "Core features work anywhere" },
-              ].map((item) => (
+              {bullets.map((item) => (
                 <div key={item.label} className="flex items-center gap-3">
                   <span className="flex size-6 items-center justify-center rounded-full bg-[var(--color-highlight-bg)]">
                     <span className="size-1.5 rounded-full bg-[var(--color-bg-product)]" />

@@ -31,13 +31,6 @@ import { Card } from "@/components/ui/card";
 import { sanitizeRelativePath } from "@/lib/authRedirect";
 import { createClient } from "@/utils/supabase/client";
 
-const phrases = [
-  "Halo, nama saya Rina.",
-  "Saya butuh bantuan.",
-  "Terima kasih.",
-  "Di mana pintu keluar?",
-];
-
 type RevealProps = {
   children: ReactNode;
   className?: string;
@@ -660,12 +653,16 @@ function useCohereLikeMotion() {
   }, []);
 }
 
-function useTypewriter() {
+function useTypewriter(phrases: string[]) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [text, setText] = useState("");
 
   useEffect(() => {
-    const phrase = phrases[phraseIndex];
+    if (phrases.length === 0) {
+      return;
+    }
+
+    const phrase = phrases[phraseIndex] ?? "";
     if (text.length < phrase.length) {
       const timeoutId = window.setTimeout(() => {
         setText(phrase.slice(0, text.length + 1));
@@ -678,7 +675,7 @@ function useTypewriter() {
       setPhraseIndex((index) => (index + 1) % phrases.length);
     }, 1800);
     return () => window.clearTimeout(timeoutId);
-  }, [phraseIndex, text]);
+  }, [phraseIndex, phrases, text]);
 
   return text;
 }
@@ -688,7 +685,10 @@ function useTypewriter() {
    ──────────────────────────────────────────────────────────────── */
 
 function MacSignScannerCard() {
-  const text = useTypewriter();
+  const t = useTranslations("landing.scanner");
+  const heroT = useTranslations("landing.hero");
+  const phrases = heroT.raw("phrases") as string[];
+  const text = useTypewriter(phrases);
 
   return (
     <div className="relative mx-auto max-w-[1120px] overflow-hidden rounded-[28px] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 shadow-[var(--shadow-elevated)]">
@@ -709,7 +709,7 @@ function MacSignScannerCard() {
           <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1">
             <span className="size-1.5 rounded-full bg-emerald-400 pulse-soft" />
             <span className="text-[11px] font-medium text-white/60">
-              SignifyAI · Live recognition
+              {t("status")}
             </span>
           </div>
 
@@ -721,7 +721,7 @@ function MacSignScannerCard() {
           <div className="relative min-h-[320px] overflow-hidden border-r border-white/[0.06] bg-[#f4d7cd] md:min-h-[380px] lg:min-h-0">
             <Image
               src="/hero.png"
-              alt="Sign language recognition live preview"
+              alt={t("imageAlt")}
               width={1200}
               height={900}
               className="h-full w-full object-contain object-center opacity-[0.92]"
@@ -735,11 +735,11 @@ function MacSignScannerCard() {
             <div className="pointer-events-none absolute inset-6 rounded-[24px] border border-white/[0.12]">
               <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3 py-1 text-[11px] font-medium text-emerald-300 backdrop-blur-xl">
                 <span className="size-1.5 rounded-full bg-emerald-400 pulse-soft" />
-                Tracking hands
+                {t("tracking")}
               </div>
 
               <div className="absolute right-5 top-5 rounded-full border border-white/[0.08] bg-black/20 px-3 py-1 text-[11px] font-medium text-white/70 backdrop-blur-xl">
-                98.4% confidence
+                {t("confidence")}
               </div>
 
               {/* corner brackets */}
@@ -766,7 +766,7 @@ function MacSignScannerCard() {
               {/* bottom output bubble */}
               <div className="absolute bottom-5 left-5 right-5 rounded-[20px] border border-white/[0.08] bg-black/35 p-4 backdrop-blur-xl">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-                  Recognized output
+                  {t("outputLabel")}
                 </p>
                 <p className="mt-2 text-[22px] font-medium leading-[1.25] text-white">
                   {text}
@@ -780,46 +780,46 @@ function MacSignScannerCard() {
           <div className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-hidden">
             <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
               <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">
-                Session
+                {t("sessionLabel")}
               </p>
               <h3 className="mt-2 text-[21px] font-medium text-white">
-                BISINDO recognition
+                {t("sessionTitle")}
               </h3>
               <p className="mt-2 text-[13px] leading-[1.5] text-white/50">
-                Real-time camera understanding tuned for hand pose recognition and low-friction output.
+                {t("sessionBody")}
               </p>
             </div>
 
             <div className="mt-3 grid gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">Model</p>
-                <p className="mt-2 text-[16px] font-medium text-white">YOLOv11 + landmarks</p>
+                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">{t("modelLabel")}</p>
+                <p className="mt-2 text-[16px] font-medium text-white">{t("modelValue")}</p>
               </div>
 
               <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">Latency</p>
-                <p className="mt-2 text-[16px] font-medium text-white">Sub-second</p>
+                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">{t("latencyLabel")}</p>
+                <p className="mt-2 text-[16px] font-medium text-white">{t("latencyValue")}</p>
               </div>
 
               <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">Privacy</p>
-                <p className="mt-2 text-[16px] font-medium text-white">Local-first</p>
+                <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">{t("privacyLabel")}</p>
+                <p className="mt-2 text-[16px] font-medium text-white">{t("privacyValue")}</p>
               </div>
             </div>
 
             <div className="mt-3 rounded-[18px] border border-emerald-400/12 bg-emerald-400/[0.04] p-4">
               <div className="flex items-center justify-between">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-emerald-300/80">
-                  Active intent
+                  {t("intentLabel")}
                 </p>
                 <span className="flex items-center gap-1.5 rounded-full bg-emerald-300/10 px-2.5 py-1 text-[10px] font-medium text-emerald-300">
                   <span className="size-1 rounded-full bg-emerald-300 pulse-soft" />
-                  Live
+                  {t("live")}
                 </span>
               </div>
-              <p className="mt-3 text-[16px] font-medium text-white">Translation ready</p>
+              <p className="mt-3 text-[16px] font-medium text-white">{t("intentTitle")}</p>
               <p className="mt-2 text-[13px] leading-[1.45] text-white/50">
-                Hand gesture sequence has been identified and transformed into natural Indonesian output.
+                {t("intentBody")}
               </p>
             </div>
 
@@ -827,18 +827,13 @@ function MacSignScannerCard() {
               <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">
-                    Pipeline
+                    {t("pipelineLabel")}
                   </p>
-                  <p className="text-[11px] text-white/40">Camera → Detect → Decode → Speak</p>
+                  <p className="text-[11px] text-white/40">{t("pipelineFlow")}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
-                  {[
-                    "Frame capture stable",
-                    "Hands isolated",
-                    "Gesture decoded",
-                    "Voice output available",
-                  ].map((item) => (
+                  {(t.raw("pipelineItems") as string[]).map((item) => (
                     <div key={item} className="flex items-center gap-3">
                       <span className="size-2 rounded-full bg-white/70" />
                       <span className="text-[12px] text-white/65">{item}</span>
@@ -856,7 +851,8 @@ function MacSignScannerCard() {
 
 /* ── HERO SECTION ── */
 function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavigateHandler }) {
-  const t = useTranslations("landing.cta");
+  const t = useTranslations("landing.hero");
+  const ctaT = useTranslations("landing.cta");
 
   return (
     <section className="hero-motion-shell bg-[var(--surface-0)] pt-24 md:pt-28">
@@ -864,21 +860,20 @@ function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavi
         <div className="mx-auto max-w-5xl text-center">
           <Reveal delay={130}>
             <h1 className="font-display text-[52px] leading-[1.05] text-[var(--ink-primary)] sm:text-[68px] lg:text-[88px]">
-              Silent communication,{" "}
+              {t("titleBefore")}{" "}
               <span className="relative inline-block">
-                clearly
+                {t("titleAccent")}
                 <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 8C50 2 150 2 198 8" stroke="var(--accent-warm)" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.45"/>
                 </svg>
               </span>{" "}
-              understood.
+              {t("titleAfter")}
             </h1>
           </Reveal>
 
           <Reveal delay={200}>
             <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-[1.6] text-[var(--ink-secondary)]">
-              A controlled AI workspace for translating Indonesian sign language gestures into
-              text and voice — without turning accessibility into spectacle.
+              {t("body")}
             </p>
           </Reveal>
 
@@ -891,7 +886,7 @@ function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavi
                 onClick={() => onStartTranslating("/translate")}
                 className="magnetic-btn h-12 px-8"
               >
-                {t("start")}
+                {ctaT("start")}
                 <ArrowRight className="size-4" />
               </Button>
 
@@ -900,7 +895,7 @@ function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavi
                 variant="secondary"
                 className="h-12 text-[15px] [&_[data-button-underline]]:bg-[linear-gradient(90deg,#ff7a67_0%,#c98cff_52%,#5468ff_100%)] [&_[data-button-underline]]:duration-500"
               >
-                <Link href="/how-it-works">{t("explore")}</Link>
+                <Link href="/how-it-works">{ctaT("explore")}</Link>
               </Button>
             </div>
           </Reveal>
@@ -966,19 +961,18 @@ function CapabilitySection() {
           <div>
             <Reveal variant="fade-right">
               <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[var(--ink-tertiary)]">
-                Capabilities
+                {t("sectionLabel")}
               </p>
             </Reveal>
             <Reveal delay={90} variant="fade-right">
               <h2 className="mt-4 font-display text-[40px] leading-[1.08] text-[var(--ink-primary)] md:text-[56px]">
-                Three quiet steps from gesture to sentence.
+                {t("sectionTitle")}
               </h2>
             </Reveal>
           </div>
           <Reveal delay={150} variant="fade-left" className="lg:justify-self-end">
             <p className="max-w-xl text-[17px] leading-[1.6] text-[var(--ink-secondary)]">
-              The interface avoids unnecessary chrome: camera, prediction, sentence assembly,
-              and speech controls stay visible exactly where the task needs them.
+              {t("sectionBody")}
             </p>
           </Reveal>
         </div>
@@ -1012,6 +1006,9 @@ function CapabilitySection() {
 
 /* ── DARK FEATURE BAND ── */
 function DarkFeatureBand() {
+  const t = useTranslations("landing.privacy");
+  const bullets = t.raw("bullets") as string[];
+
   return (
     <section className="bg-[var(--surface-0)] py-14 md:py-20">
       <div className="cohere-container">
@@ -1021,18 +1018,14 @@ function DarkFeatureBand() {
             className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
           >
             <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
-              Privacy architecture
+              {t("label")}
             </p>
             <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
-                Camera work stays controlled.
+                {t("title")}
               </h2>
               <div className="max-w-md space-y-3 text-[16px] leading-[1.5] text-[var(--color-text-on-dark)] opacity-75 lg:max-w-sm">
-                {[
-                  "Video frames are processed for the active recognition flow.",
-                  "Saved history stores translated text, not raw camera footage.",
-                  "Users can clear logs and rebuild sentences at any time.",
-                ].map((item) => (
+                {bullets.map((item) => (
                   <p key={item}>{item}</p>
                 ))}
               </div>
@@ -1073,12 +1066,12 @@ function ProductCards() {
       <div className="cohere-container">
         <Reveal variant="fade-right">
           <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[var(--ink-tertiary)]">
-            Workspace modules
+            {t("sectionLabel")}
           </p>
         </Reveal>
         <Reveal delay={90} variant="fade-right">
           <h2 className="mt-4 max-w-3xl font-display text-[40px] leading-[1.08] text-[var(--ink-primary)] md:text-[56px]">
-            Product surfaces for translation, practice, and research.
+            {t("sectionTitle")}
           </h2>
         </Reveal>
 
@@ -1118,7 +1111,7 @@ function ProductCards() {
                   className="mt-8 justify-start text-[var(--ink-primary)] hover:text-[var(--accent-warm)]"
                 >
                   <Link href={product.href} data-arrow-link>
-                    Open module <ArrowRight className="size-4" />
+                    {t("openModule")} <ArrowRight className="size-4" />
                   </Link>
                 </Button>
               </article>
@@ -1133,32 +1126,35 @@ function ProductCards() {
 /* ── RESEARCH ROWS — ENHANCED ── */
 function ResearchRows() {
   const navT = useTranslations("navigation");
-  const rows = [
+  const t = useTranslations("landing.researchRows");
+  const rows = t.raw("items") as Array<{
+    title: string;
+    topic: string;
+    meta: string;
+    icon: "sparkles" | "clock" | "file";
+  }>;
+  const rowStyles = [
     {
-      title: "Model transparency",
-      topic: "Research",
-      meta: "Updated 2026",
       icon: FlaskConical,
       iconClassName: "bg-[var(--accent-warm-light)] text-[var(--accent-warm)]",
       badgeClassName: "bg-[var(--accent-warm-light)] text-[var(--accent-warm)]",
     },
     {
-      title: "Known limitations",
-      topic: "Safety",
-      meta: "5 min read",
       icon: Shield,
       iconClassName: "bg-[var(--accent-green-light)] text-[var(--accent-green)]",
       badgeClassName: "bg-[var(--accent-green-light)] text-[var(--accent-green)]",
     },
     {
-      title: "BISINDO learning path",
-      topic: "Education",
-      meta: "26 letters",
       icon: GraduationCap,
       iconClassName: "bg-[var(--accent-blue-light)] text-[var(--accent-blue)]",
       badgeClassName: "bg-[var(--accent-blue-light)] text-[var(--accent-blue)]",
     },
   ];
+  const metaIcons = {
+    sparkles: Sparkles,
+    clock: Clock,
+    file: FileText,
+  };
 
   return (
     <section className="bg-[var(--surface-0)] py-20 md:py-28">
@@ -1167,19 +1163,19 @@ function ResearchRows() {
           <div>
             <Reveal variant="fade-right">
               <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[var(--ink-tertiary)]">
-                Research table
+                {t("label")}
               </p>
             </Reveal>
             <Reveal delay={90} variant="fade-right">
               <h2 className="mt-4 text-[36px] leading-[1.15] text-[var(--ink-primary)] md:text-[48px]">
-                Learn how the{" "}
+                {t("titleBefore")}{" "}
                 <span className="relative inline-block">
-                  system
+                  {t("titleAccent")}
                   <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 120 8" fill="none">
                     <path d="M2 5C30 1 90 1 118 5" stroke="var(--accent-warm)" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.42"/>
                   </svg>
                 </span>{" "}
-                behaves.
+                {t("titleAfter")}
               </h2>
             </Reveal>
           </div>
@@ -1200,23 +1196,25 @@ function ResearchRows() {
 
         <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-1)] p-2 shadow-[var(--shadow-ambient)]">
           {rows.map((row, index) => {
-            const { title, topic, meta, icon: Icon, iconClassName, badgeClassName } = row;
+            const style = rowStyles[index] ?? rowStyles[0];
+            const Icon = style.icon;
+            const MetaIcon = metaIcons[row.icon];
             return (
             <Link
-              key={title}
+              key={row.title}
               href="/research"
               data-animate={index % 2 === 0 ? "fade-right" : "fade-left"}
               style={motionStyle(index * 100)}
               className="research-row group flex items-center gap-4 rounded-xl px-5 py-5 text-[var(--ink-primary)] md:gap-6 md:px-6 md:py-6"
             >
               {/* Icon */}
-              <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>
+              <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${style.iconClassName}`}>
                 <Icon className="size-4.5" />
               </div>
 
               {/* Title */}
               <span className="flex-1 text-[17px] font-medium leading-[1.4] md:text-[18px]">
-                {title}
+                {row.title}
               </span>
 
               {/* Arrow (hidden until hover) */}
@@ -1226,15 +1224,13 @@ function ResearchRows() {
               <div className="row-meta flex shrink-0 items-center gap-3">
                 <Badge
                   variant="outline"
-                  className={`rounded-full border-none px-3 py-1 text-[12px] font-medium ${badgeClassName}`}
+                  className={`rounded-full border-none px-3 py-1 text-[12px] font-medium ${style.badgeClassName}`}
                 >
-                  {topic}
+                  {row.topic}
                 </Badge>
                 <span className="hidden items-center gap-1.5 text-[13px] text-[var(--ink-tertiary)] md:flex">
-                  {meta.includes("min") ? <Clock className="size-3.5" /> : null}
-                  {meta.includes("letters") ? <FileText className="size-3.5" /> : null}
-                  {meta.includes("2026") ? <Sparkles className="size-3.5" /> : null}
-                  {meta}
+                  <MetaIcon className="size-3.5" />
+                  {row.meta}
                 </span>
               </div>
             </Link>
@@ -1248,6 +1244,8 @@ function ResearchRows() {
 
 /* ── CTA SECTION ── */
 function CtaSection({ onOpenWorkspace }: { onOpenWorkspace: ProtectedNavigateHandler }) {
+  const t = useTranslations("landing.finalCta");
+
   return (
     <section className="bg-[var(--surface-0)] py-14 md:py-20">
       <div className="cohere-container">
@@ -1257,18 +1255,18 @@ function CtaSection({ onOpenWorkspace }: { onOpenWorkspace: ProtectedNavigateHan
             className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
           >
             <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
-              Try the workspace
+              {t("label")}
             </p>
             <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
-                Translate, practice, and review in one calm workspace.
+                {t("title")}
               </h2>
               <Button
                 variant="primary"
                 size="lg"
                 onClick={() => onOpenWorkspace("/translate")}
               >
-                Open SignifyAI
+                {t("button")}
                 <ArrowRight className="size-4" />
               </Button>
             </div>

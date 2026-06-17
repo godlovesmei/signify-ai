@@ -27,77 +27,31 @@ export async function generateMetadata({
   });
 }
 
-const sections = [
-  {
-    id: "acceptance",
-    title: "1. Acceptance of Terms",
-    content: `By accessing or using Signify.ai, you agree to be bound by these Terms and Conditions. If you disagree with any part of these terms, you may not access the Service.`,
-  },
-  {
-    id: "description",
-    title: "2. Description of Service",
-    content: `Signify.ai provides an AI-powered sign language translation platform that converts camera-captured gestures into text and synthesized speech.`,
-  },
-  {
-    id: "account",
-    title: "3. User Accounts",
-    content: `When you create an account, you must provide accurate and current information. You are responsible for account activity and for safeguarding access to your account.`,
-  },
-  {
-    id: "privacy",
-    title: "4. Privacy & Data",
-    content: `Signify.ai is designed around active-session video processing. Translated text may be stored in local history when users keep session records.`,
-  },
-  {
-    id: "ip",
-    title: "5. Intellectual Property",
-    content: `The Service, including original content, features, and functionality, remains the property of Signify AI and its licensors.`,
-  },
-  {
-    id: "acceptable-use",
-    title: "6. Acceptable Use",
-    content: `You agree not to use the Service for unlawful activity, unauthorized access, reverse engineering, automated abuse, or harmful content distribution.`,
-  },
-  {
-    id: "disclaimer",
-    title: "7. Disclaimer of Warranties",
-    content: `The Service is provided as is. Translation accuracy may vary based on lighting, camera quality, signing speed, and model coverage.`,
-  },
-  {
-    id: "liability",
-    title: "8. Limitation of Liability",
-    content: `To the maximum extent permitted by law, Signify AI shall not be liable for indirect, incidental, special, consequential, or punitive damages arising from use of the Service.`,
-  },
-  {
-    id: "changes",
-    title: "9. Changes to Terms",
-    content: `We reserve the right to modify these Terms. Continued use after changes take effect constitutes acceptance of the revised Terms.`,
-  },
-  {
-    id: "contact",
-    title: "10. Contact Us",
-    content: `Questions about these Terms can be sent to legal@signify.ai. We aim to respond within 5 business days.`,
-  },
-];
+type TermsSection = {
+  id: string;
+  title: string;
+  content: string;
+};
 
 export default function TermsConditionPage() {
   const t = useTranslations("docs.terms");
+  const sections = t.raw("sections") as TermsSection[];
 
   return (
     <main id="main-content" className="pt-32">
       <DocumentationHero
-        eyebrow="Legal"
+        eyebrow={t("meta.eyebrow")}
         title={t("title")}
         meta={
           <>
             <span>
-              Last updated:{" "}
+              {t("meta.lastUpdated")}{" "}
               <time dateTime="2026-02-18" className="text-[var(--color-text-primary)]">
-                February 18, 2026
+                {t("meta.lastUpdatedDate")}
               </time>
             </span>
-            <span>{sections.length} sections</span>
-            <span>~5 min read</span>
+            <span>{t("meta.sections", { count: sections.length })}</span>
+            <span>{t("meta.readTime")}</span>
           </>
         }
       />
@@ -127,7 +81,7 @@ export default function TermsConditionPage() {
               <div className="sticky top-32">
                 <div className="mb-5 flex items-center gap-2 text-[var(--color-text-secondary)]">
                   <FileText className="size-4" />
-                  <p className="text-mono-label text-[12px]">On this page</p>
+                  <p className="text-mono-label text-[12px]">{t("meta.onThisPage")}</p>
                 </div>
                 <nav aria-label={t("contents")} className="border-t border-[var(--color-border)]">
                   {sections.map((section) => (
@@ -153,8 +107,7 @@ export default function TermsConditionPage() {
                   {t("plainSummary")}
                 </p>
                 <p className="mt-4 max-w-3xl text-[16px] leading-[1.5] text-[var(--color-text-secondary)]">
-                  SignifyAI is an accessibility tool. We are transparent about model limits,
-                  data handling, and the fact that this product is not a certified interpreter.
+                  {t("summaryBody")}
                 </p>
               </Card>
 
@@ -174,23 +127,23 @@ export default function TermsConditionPage() {
                     </p>
                     {section.id === "privacy" && (
                       <div className="mt-5 border-l border-[var(--color-bg-product)] pl-4 text-[14px] leading-[1.5] text-[var(--color-text-secondary)]">
-                        Video privacy is a product boundary, not just a policy.{" "}
+                        {t("callouts.privacy")}{" "}
                         <Link
                           href="/research"
                           className="text-[var(--color-action)] underline underline-offset-4"
                         >
-                          Read the research notes.
+                          {t("callouts.researchLink")}
                         </Link>
                       </div>
                     )}
                     {section.id === "disclaimer" && (
                       <div className="mt-5 border-l border-[var(--color-accent)] pl-4 text-[14px] leading-[1.5] text-[var(--color-text-secondary)]">
-                        For legal, medical, or official contexts, use a qualified human interpreter.{" "}
+                        {t("callouts.disclaimer")}{" "}
                         <Link
                           href="/how-it-works"
                           className="text-[var(--color-action)] underline underline-offset-4"
                         >
-                          See limitations.
+                          {t("callouts.limitationsLink")}
                         </Link>
                       </div>
                     )}
@@ -207,14 +160,14 @@ export default function TermsConditionPage() {
                   <Mail className="size-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[24px] leading-[1.3]">Questions about these terms?</h3>
+                  <h3 className="text-[24px] leading-[1.3]">{t("contact.title")}</h3>
                   <p className="mt-2 text-[14px] leading-[1.5] text-[var(--color-text-secondary)]">
-                    We can explain any section in plain language.
+                    {t("contact.body")}
                   </p>
                 </div>
                 <Button asChild variant="primary">
                   <Link href="mailto:legal@signify.ai">
-                    Contact legal
+                    {t("contact.button")}
                     <ChevronRight className="size-4" />
                   </Link>
                 </Button>

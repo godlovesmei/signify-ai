@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { executeSupabaseRequest } from "@/lib/supabaseRequest";
 import { clearLegacyLocalData } from "@/lib/userData";
@@ -100,6 +101,7 @@ export function PreferencesProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations("settings");
   const [preferences, setPreferences] = useState<PreferencesState>(() => ({
     ...DEFAULT_PREFERENCES,
     theme: readStoredTheme(),
@@ -257,7 +259,7 @@ export function PreferencesProvider({
         lastSyncedRef.current = snapshot;
       } catch {
         if (version !== syncVersionRef.current) return;
-        toast.error("Preference sync failed. Restoring saved settings.", {
+        toast.error(t("preferenceSyncError"), {
           id: "preferences-sync-error",
         });
         try {
@@ -277,7 +279,7 @@ export function PreferencesProvider({
     }, 300);
 
     return () => window.clearTimeout(timeoutId);
-  }, [loadRemotePreferences, preferences, userId]);
+  }, [loadRemotePreferences, preferences, t, userId]);
 
   const setTheme = useCallback((theme: ThemeMode) => {
     setPreferences((current) => ({ ...current, theme }));

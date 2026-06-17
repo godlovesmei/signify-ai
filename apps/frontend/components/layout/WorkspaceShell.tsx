@@ -14,11 +14,7 @@ import { getAccountProfile } from "@/lib/accountData";
 import { localizePathname, type Locale } from "@/i18n/config";
 import { createClient } from "@/utils/supabase/client";
 
-const FALLBACK_WORKSPACE_USER: SidebarUser = {
-  name: "User Account",
-  email: "account@signify.ai",
-  avatarUrl: null,
-};
+const FALLBACK_WORKSPACE_EMAIL = "account@signify.ai";
 
 /**
  * WorkspaceShell — full-viewport two-column layout.
@@ -33,9 +29,17 @@ export default function WorkspaceShell({
   const pathname = usePathname();
   const locale = useLocale() as Locale;
   const t = useTranslations("auth.errors");
+  const commonT = useTranslations("common");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [user, setUser] = useState<SidebarUser>(FALLBACK_WORKSPACE_USER);
+  const fallbackWorkspaceUser: SidebarUser = {
+    name: commonT("userAccount"),
+    email: FALLBACK_WORKSPACE_EMAIL,
+    avatarUrl: null,
+  };
+  const [user, setUser] = useState<SidebarUser>(fallbackWorkspaceUser);
+  const activeUser =
+    user.email === FALLBACK_WORKSPACE_EMAIL ? fallbackWorkspaceUser : user;
 
   const handleLogout = useCallback(() => {
     void createClient()
@@ -76,7 +80,7 @@ export default function WorkspaceShell({
         pathname={pathname}
         onSettingsClick={() => setSettingsOpen(true)}
         onLogout={handleLogout}
-        user={user}
+        user={activeUser}
       />
 
       {/* Main content area */}

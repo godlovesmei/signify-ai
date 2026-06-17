@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
+import { useTranslations } from "next-intl";
 
 /**
  * Logo — Not explicitly defined as a component in DESIGN.md.
@@ -29,6 +30,7 @@ function LogoContent({
   size = 'md',
   showWordmark = true,
 }: Pick<LogoProps, 'size' | 'showWordmark'>) {
+  const t = useTranslations("common");
   const iconSize = sizeMap[size];
 
   return (
@@ -37,7 +39,7 @@ function LogoContent({
         {/* Light mode logo */}
         <Image
           src="/nobackground-logo.png"
-          alt="Signify AI logo"
+          alt={t("logoAlt")}
           width={iconSize}
           height={iconSize}
           className="block h-auto w-auto dark:hidden object-contain"
@@ -46,7 +48,7 @@ function LogoContent({
         {/* Dark mode logo */}
         <Image
           src="/nobackground-logoo.png"
-          alt="Signify AI logo"
+          alt={t("logoAlt")}
           width={iconSize}
           height={iconSize}
           className="hidden h-auto w-auto dark:block object-contain"

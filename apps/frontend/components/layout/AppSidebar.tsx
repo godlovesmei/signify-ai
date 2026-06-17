@@ -47,10 +47,7 @@ interface AppSidebarProps {
   user?: SidebarUser | null;
 }
 
-const FALLBACK_USER: SidebarUser = {
-  name: "User Account",
-  email: "account@signify.ai",
-};
+const FALLBACK_EMAIL = "account@signify.ai";
 
 function UserAvatar({
   user,
@@ -73,13 +70,17 @@ export default function AppSidebar({
   pathname,
   onSettingsClick,
   onLogout,
-  user = FALLBACK_USER,
+  user,
 }: AppSidebarProps) {
-  const activeUser = user || FALLBACK_USER;
   const profileActive = isWorkspaceNavActive("/profile", pathname);
   const navT = useTranslations("navigation.workspace");
   const ariaT = useTranslations("navigation.aria");
   const commonT = useTranslations("common");
+  const fallbackUser: SidebarUser = {
+    name: commonT("userAccount"),
+    email: FALLBACK_EMAIL,
+  };
+  const activeUser = user || fallbackUser;
 
   const SidebarContent = (
     <div className="flex h-full w-56 flex-col bg-cohere-canvas">

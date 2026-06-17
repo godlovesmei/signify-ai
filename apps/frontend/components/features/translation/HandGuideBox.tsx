@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 export const GUIDE_BOX = {
   size: 0.55,
 } as const;
@@ -20,6 +22,8 @@ export default function HandGuideBox({
   handDetected = false,
   active = false,
 }: HandGuideBoxProps) {
+  const t = useTranslations("workspace.translate");
+
   if (!active) return null;
 
   const sizePercent = GUIDE_BOX.size * 100;
@@ -70,7 +74,7 @@ export default function HandGuideBox({
               : "bg-black/50 text-white/70"
           )}
         >
-          {handDetected ? "Hand detected" : "Place your hand here"}
+          {handDetected ? t("handGuideDetected") : t("handGuidePlace")}
         </span>
 
         {/* Pulse ring when detected */}

@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { type AlphabetLetter } from '@/lib/userData';
 import { motion, AnimatePresence } from 'motion/react';
+import { useTranslations } from 'next-intl';
 
 interface SuccessOverlayProps {
   show: boolean;
@@ -10,6 +11,8 @@ interface SuccessOverlayProps {
 }
 
 export function SuccessOverlay({ show, letter }: SuccessOverlayProps) {
+  const t = useTranslations('workspace.practice');
+
   return (
     <AnimatePresence>
       {show && (
@@ -50,7 +53,7 @@ export function SuccessOverlay({ show, letter }: SuccessOverlayProps) {
               animate={{ opacity: 1, y: 0 }}
               className="absolute -bottom-16 left-0 right-0 text-center text-mono-label text-[12px] text-white"
             >
-              Mastered
+              {t('mastered')}
             </motion.p>
           </div>
         </motion.div>

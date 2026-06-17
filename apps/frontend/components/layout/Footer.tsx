@@ -5,20 +5,26 @@ import {
   Mail,
   MessageCircle,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Logo } from "@/components/ui/Logo";
 
-const socialLinks = [
-  { label: "LinkedIn", href: "https://www.linkedin.com", icon: Linkedin },
-  { label: "Community", href: "/research", icon: MessageCircle },
-  { label: "X", href: "https://x.com", icon: X },
-  { label: "Email", href: "mailto:hello@signify.ai", icon: Mail },
+const socialLinks: Array<
+  | { kind: "static"; label: string; href: string; icon: LucideIcon }
+  | { kind: "localized"; labelKey: "community"; href: string; icon: LucideIcon }
+> = [
+  { kind: "static", label: "LinkedIn", href: "https://www.linkedin.com", icon: Linkedin },
+  { kind: "localized", labelKey: "community", href: "/research", icon: MessageCircle },
+  { kind: "static", label: "X", href: "https://x.com", icon: X },
+  { kind: "static", label: "Email", href: "mailto:hello@signify.ai", icon: Mail },
 ];
 
 export default function Footer() {
   const navT = useTranslations("navigation");
+  const linkT = useTranslations("navigation.footer.links");
+  const socialT = useTranslations("navigation.footer.social");
 
   const footerGroups = [
     {
@@ -28,8 +34,8 @@ export default function Footer() {
         { label: navT("workspace.translate"), href: "/translate" },
         { label: navT("workspace.practice"), href: "/practice" },
         { label: navT("workspace.reference"), href: "/reference" },
-        { label: "Gesture Library", href: "/reference" },
-        { label: "Learning Path", href: "/practice" },
+        { label: linkT("gestureLibrary"), href: "/reference" },
+        { label: linkT("learningPath"), href: "/practice" },
         { label: navT("workspace.history"), href: "/history" },
         { label: navT("workspace.profile"), href: "/profile" },
       ],
@@ -38,38 +44,38 @@ export default function Footer() {
       heading: navT("footer.groups.solutions"),
       withArrow: true,
       links: [
-        { label: "Education", href: "/how-it-works" },
-        { label: "Accessibility", href: "/how-it-works" },
-        { label: "Public Services", href: "/research" },
-        { label: "Community Learning", href: "/practice" },
-        { label: "Research Teams", href: "/research" },
-        { label: "Browser Deployment", href: "/how-it-works" },
-        { label: "Local-first AI", href: "/research" },
-        { label: "Sign Language Dataset", href: "/research" },
+        { label: linkT("education"), href: "/how-it-works" },
+        { label: linkT("accessibility"), href: "/how-it-works" },
+        { label: linkT("publicServices"), href: "/research" },
+        { label: linkT("communityLearning"), href: "/practice" },
+        { label: linkT("researchTeams"), href: "/research" },
+        { label: linkT("browserDeployment"), href: "/how-it-works" },
+        { label: linkT("localFirstAi"), href: "/research" },
+        { label: linkT("signLanguageDataset"), href: "/research" },
       ],
     },
     {
       heading: navT("footer.groups.resources"),
       links: [
-        { label: "Blog", href: "/research" },
+        { label: linkT("blog"), href: "/research" },
         { label: navT("public.research"), href: "/research" },
-        { label: "Documentation", href: "/how-it-works" },
-        { label: "Release Notes", href: "/research" },
-        { label: "Model Overview", href: "/how-it-works" },
-        { label: "BISINDO Guide", href: "/reference" },
-        { label: "Accessibility Notes", href: "/terms-condition" },
-        { label: "Developer Preview", href: "/research" },
+        { label: linkT("documentation"), href: "/how-it-works" },
+        { label: linkT("releaseNotes"), href: "/research" },
+        { label: linkT("modelOverview"), href: "/how-it-works" },
+        { label: linkT("bisindoGuide"), href: "/reference" },
+        { label: linkT("accessibilityNotes"), href: "/terms-condition" },
+        { label: linkT("developerPreview"), href: "/research" },
       ],
     },
     {
       heading: navT("footer.groups.company"),
       links: [
-        { label: "About", href: "/how-it-works" },
+        { label: linkT("about"), href: "/how-it-works" },
         { label: navT("public.research"), href: "/research" },
-        { label: "Security", href: "/terms-condition" },
-        { label: "Trust Center", href: "/terms-condition" },
-        { label: "Legal Center", href: "/terms-condition" },
-        { label: "Contact", href: "mailto:hello@signify.ai" },
+        { label: linkT("security"), href: "/terms-condition" },
+        { label: linkT("trustCenter"), href: "/terms-condition" },
+        { label: linkT("legalCenter"), href: "/terms-condition" },
+        { label: linkT("contact"), href: "mailto:hello@signify.ai" },
       ],
     },
   ];
@@ -156,12 +162,14 @@ export default function Footer() {
           <div className="flex items-center justify-end gap-5">
             {socialLinks.map((item) => {
               const Icon = item.icon;
+              const label =
+                item.kind === "localized" ? socialT(item.labelKey) : item.label;
 
               return (
                 <Link
-                  key={item.label}
+                  key={label}
                   href={item.href}
-                  aria-label={item.label}
+                  aria-label={label}
                   className="flex size-6 items-center justify-center text-white/85 transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
                 >
                   <Icon className="size-[18px]" />

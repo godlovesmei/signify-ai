@@ -2,6 +2,7 @@
 
 import { type AlphabetLetter } from '@/lib/userData';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface TargetBlockProps {
   letter: AlphabetLetter;
@@ -9,6 +10,8 @@ interface TargetBlockProps {
 }
 
 export function TargetBlock({ letter, className }: TargetBlockProps) {
+  const t = useTranslations('workspace.practice');
+
   return (
     <div className={cn("flex flex-col items-center gap-6", className)}>
       <div>
@@ -21,10 +24,12 @@ export function TargetBlock({ letter, className }: TargetBlockProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/alfabet/${letter}.jpg`}
-            alt={`Reference gesture for ${letter}`}
+            alt={t('referenceGestureAlt', { letter })}
             className="h-full w-full object-cover grayscale"
           />
-          <div className="absolute bottom-3 left-3 rounded-sm bg-cohere-canvas px-2 py-1 text-mono-label text-[10px] text-cohere-slate">Mastery guide</div>
+          <div className="absolute bottom-3 left-3 rounded-sm bg-cohere-canvas px-2 py-1 text-mono-label text-[10px] text-cohere-slate">
+            {t('masteryGuide')}
+          </div>
         </div>
       </div>
     </div>

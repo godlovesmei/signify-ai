@@ -51,7 +51,7 @@ type ProfileState = {
 };
 
 const FALLBACK_PROFILE: ProfileState = {
-  displayName: "Nama User",
+  displayName: "",
   email: "user@signify.ai",
   avatarUrl: null,
   id: null,
@@ -72,7 +72,7 @@ function formatUtcDate(value: string | null | undefined, locale: string) {
   }).format(date);
 }
 
-function formatUtcDateTime(value: string | null | undefined, locale = "id-ID") {
+function formatUtcDateTime(value: string | null | undefined, locale: string) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
@@ -178,11 +178,26 @@ function ShortcutButton({
   );
 }
 
-function ActivityCardItem({ session }: { session: HistorySession }) {
+function ActivityCardItem({
+  session,
+  locale,
+  emptyTranscript,
+  sessionLabel,
+  framesLabel,
+  confidenceLabel,
+}: {
+  session: HistorySession;
+  locale: string;
+  emptyTranscript: string;
+  sessionLabel: (date: string) => string;
+  framesLabel: (count: number) => string;
+  confidenceLabel: (value: number) => string;
+}) {
   const confidence = Math.round(session.averageConfidence * 100);
-  const preview = session.text.trim() || "(empty transcript)";
+  const preview = session.text.trim() || emptyTranscript;
   const truncatedPreview =
     preview.length > 100 ? `${preview.slice(0, 100).trimEnd()}...` : preview;
+  const date = formatUtcDateTime(session.endedAt, locale);
 
   return (
     <article className="border-t border-cohere-hairline py-5">
@@ -193,7 +208,7 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-[14px] text-cohere-ink">
-              Session {formatUtcDateTime(session.endedAt)}
+              {sessionLabel(date)}
             </h3>
             <span className="rounded-[30px] border border-cohere-hairline px-2.5 py-1 text-[12px] text-cohere-slate">
               {session.language}
@@ -201,8 +216,8 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
           </div>
           <p className="mt-3 text-[14px] leading-[1.5] text-cohere-body-muted">{truncatedPreview}</p>
           <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-cohere-slate">
-            <span>{session.entryCount} frames</span>
-            <span>{confidence}% confidence</span>
+            <span>{framesLabel(session.entryCount)}</span>
+            <span>{confidenceLabel(confidence)}</span>
           </div>
         </div>
       </div>
@@ -213,13 +228,15 @@ function ActivityCardItem({ session }: { session: HistorySession }) {
 function LetterFocusRow({
   letter,
   attempts,
-  accuracy,
   maxAttempts,
+  gestureLabel,
+  detail,
 }: {
   letter: string;
   attempts: number;
-  accuracy: number;
   maxAttempts: number;
+  gestureLabel: string;
+  detail: string;
 }) {
   const width = maxAttempts === 0 ? 0 : Math.max(8, Math.round((attempts / maxAttempts) * 100));
 
@@ -231,9 +248,9 @@ function LetterFocusRow({
             {letter}
           </div>
           <div>
-            <p className="text-[14px] text-cohere-ink">Gesture {letter}</p>
+            <p className="text-[14px] text-cohere-ink">{gestureLabel}</p>
             <p className="text-[12px] text-cohere-slate">
-              {attempts} iterations · {accuracy}% accuracy
+              {detail}
             </p>
           </div>
         </div>
@@ -327,65 +344,66 @@ export default function ProfilePageContent() {
     .filter((item) => item.attempts > 0)
     .sort((a, b) => b.attempts - a.attempts || b.correct - a.correct)
     .slice(0, 4);
+  const displayName = profile.displayName || t("fallbackName");
 
   const accountRows = [
     {
       icon: <Mail className="h-4 w-4" />,
-      label: "Email",
+      label: t("account.email"),
       value: profile.email,
-      subtle: "Primary login address",
+      subtle: t("account.emailSubtle"),
     },
     {
       icon: <ShieldCheck className="h-4 w-4" />,
-      label: "Verification",
-      value: profile.verified ? "Verified" : "Pending verification",
-      subtle: profile.verified ? "Signed in with a verified account" : "Verify the address in your inbox",
+      label: t("account.verification"),
+      value: profile.verified ? t("account.verified") : t("account.pending"),
+      subtle: profile.verified ? t("account.verifiedSubtle") : t("account.pendingSubtle"),
     },
     {
       icon: <Clock3 className="h-4 w-4" />,
-      label: "Member since",
+      label: t("account.memberSince"),
       value: formatUtcDate(profile.createdAt, localeConfig.intlLocale),
-      subtle: "Account created in Supabase Auth",
+      subtle: t("account.memberSinceSubtle"),
     },
     {
       icon: <History className="h-4 w-4" />,
-      label: "Last sign-in",
+      label: t("account.lastSignIn"),
       value: formatUtcDateTime(profile.lastSignInAt, localeConfig.intlLocale),
-      subtle: "Most recent authentication event",
+      subtle: t("account.lastSignInSubtle"),
     },
     {
       icon: <User className="h-4 w-4" />,
-      label: "Account ID",
+      label: t("account.accountId"),
       value: formatCompactId(profile.id),
-      subtle: "Useful when referencing support or logs",
+      subtle: t("account.accountIdSubtle"),
     },
     {
       icon: <Languages className="h-4 w-4" />,
       label: t("primaryLanguage"),
       value: "BISINDO",
-      subtle: "Workspace translation target",
+      subtle: t("account.translationTarget"),
     },
   ];
 
   const accessibilityRows = [
     {
       icon: <Sparkles className="h-4 w-4" />,
-      label: "High contrast",
-      value: prefs.highContrast ? "On" : "Off",
+      label: t("preferences.highContrast"),
+      value: prefs.highContrast ? t("preferences.on") : t("preferences.off"),
     },
     {
       icon: <Target className="h-4 w-4" />,
-      label: "Text scale",
+      label: t("preferences.textScale"),
       value: describeTextScale(prefs.textScale),
     },
     {
       icon: <TrendingUp className="h-4 w-4" />,
-      label: "TTS speed",
+      label: t("preferences.ttsSpeed"),
       value: `${prefs.ttsSpeed.toFixed(2)}x`,
     },
     {
       icon: <Volume2 className="h-4 w-4" />,
-      label: "TTS volume",
+      label: t("preferences.ttsVolume"),
       value: `${Math.round(prefs.ttsVolume * 100)}%`,
     },
   ];
@@ -411,18 +429,23 @@ export default function ProfilePageContent() {
         <section className="rounded-[22px] border border-cohere-hairline bg-cohere-canvas p-6 md:p-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-center">
             <AutoAvatar
-              name={profile.displayName}
+              name={displayName}
               email={profile.email}
               avatarUrl={profile.avatarUrl}
               className="size-28 rounded-[22px] text-[40px]"
             />
             <div className="min-w-0 flex-1">
-              <p className="text-mono-label text-[12px] text-cohere-slate">Operator ID</p>
+              <p className="text-mono-label text-[12px] text-cohere-slate">{t("operatorId")}</p>
               <h2 className="mt-3 font-display text-[44px] leading-none text-cohere-ink">
-                {profile.displayName}
+                {displayName}
               </h2>
               <p className="mt-3 text-[14px] text-cohere-slate">
-                Sync status: {practiceAccuracy >= 80 ? "Optimized" : practiceAccuracy >= 50 ? "Nominal" : "Initializing"}
+                {t("syncStatus")}{" "}
+                {practiceAccuracy >= 80
+                  ? t("syncStates.optimized")
+                  : practiceAccuracy >= 50
+                    ? t("syncStates.nominal")
+                    : t("syncStates.initializing")}
               </p>
             </div>
           </div>
@@ -437,15 +460,15 @@ export default function ProfilePageContent() {
         <div className="grid gap-5">
           <MetricTile
             icon={<Sparkles className="size-5" />}
-            label="Precision"
+            label={t("metrics.precision")}
             value={`${practiceAccuracy}%`}
-            helper="Overall practice accuracy"
+            helper={t("metrics.precisionHelper")}
           />
           <MetricTile
             icon={<Target className="size-5" />}
-            label="Streak"
+            label={t("metrics.streak")}
             value={practiceStats.currentStreak.toString()}
-            helper="Current gesture streak"
+            helper={t("metrics.streakHelper")}
           />
         </div>
       </div>
@@ -453,11 +476,11 @@ export default function ProfilePageContent() {
       <section>
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-mono-label text-[12px] text-cohere-slate">Gesture analytics</p>
-            <h3 className="mt-2 text-[32px] leading-[1.2]">Most practiced letters</h3>
+            <p className="text-mono-label text-[12px] text-cohere-slate">{t("analytics.label")}</p>
+            <h3 className="mt-2 text-[32px] leading-[1.2]">{t("analytics.title")}</h3>
           </div>
           <Link href="/practice" className="text-[14px] text-cohere-blue underline underline-offset-4">
-            Open practice
+            {t("analytics.openPractice")}
           </Link>
         </div>
         <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
@@ -466,12 +489,16 @@ export default function ProfilePageContent() {
               key={item.letter}
               letter={item.letter}
               attempts={item.attempts}
-              accuracy={item.accuracy}
               maxAttempts={Math.max(...topLetters.map((letter) => letter.attempts), 1)}
+              gestureLabel={t("gesture", { letter: item.letter })}
+              detail={t("iterationsAccuracy", {
+                attempts: item.attempts,
+                accuracy: item.accuracy,
+              })}
             />
           ))}
           {topLetters.length === 0 && (
-            <p className="py-10 text-center text-[14px] text-cohere-slate">Awaiting practice telemetry.</p>
+            <p className="py-10 text-center text-[14px] text-cohere-slate">{t("analytics.empty")}</p>
           )}
         </div>
       </section>
@@ -480,22 +507,30 @@ export default function ProfilePageContent() {
         <section>
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-mono-label text-[12px] text-cohere-slate">Recent activity</p>
-              <h3 className="mt-2 text-[32px] leading-[1.2]">Session history</h3>
+              <p className="text-mono-label text-[12px] text-cohere-slate">{t("activity.label")}</p>
+              <h3 className="mt-2 text-[32px] leading-[1.2]">{t("activity.title")}</h3>
             </div>
             <div className="text-right text-[12px] text-cohere-slate">
-              <p>Total sessions: {totalSessions}</p>
-              <p>Total frames: {totalEntries}</p>
+              <p>{t("activity.totalSessions", { count: totalSessions })}</p>
+              <p>{t("activity.totalFrames", { count: totalEntries })}</p>
             </div>
           </div>
           <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas px-5">
             {historySessions.slice(0, 3).map((session) => (
-              <ActivityCardItem key={session.sessionId} session={session} />
+              <ActivityCardItem
+                key={session.sessionId}
+                session={session}
+                locale={localeConfig.intlLocale}
+                emptyTranscript={t("emptyTranscript")}
+                sessionLabel={(date) => t("session", { date })}
+                framesLabel={(count) => t("frames", { count })}
+                confidenceLabel={(value) => t("confidence", { value })}
+              />
             ))}
             {historySessions.length === 0 && (
               <div className="py-12 text-center">
                 <History className="mx-auto size-8 text-cohere-slate" />
-                <p className="mt-4 text-[14px] text-cohere-slate">No synced translation sessions yet.</p>
+                <p className="mt-4 text-[14px] text-cohere-slate">{t("activity.empty")}</p>
                 <Button asChild variant="secondary" className="mt-2">
                   <Link href="/translate">{t("initializeTranslate")}</Link>
                 </Button>
@@ -506,31 +541,31 @@ export default function ProfilePageContent() {
 
         <aside className="space-y-8">
           <section>
-            <p className="text-mono-label text-[12px] text-cohere-slate">Quick access</p>
+            <p className="text-mono-label text-[12px] text-cohere-slate">{t("shortcuts.label")}</p>
             <div className="mt-4 space-y-3">
               <ShortcutButton
                 href="/translate"
-                label="Translate"
-                description="Return to translation core"
+                label={t("shortcuts.translate")}
+                description={t("shortcuts.translateDescription")}
                 icon={<Languages className="size-4" />}
               />
               <ShortcutButton
                 href="/history"
-                label="History"
-                description="View complete session logs"
+                label={t("shortcuts.history")}
+                description={t("shortcuts.historyDescription")}
                 icon={<History className="size-4" />}
               />
               <ShortcutButton
                 href="/reference"
-                label="Reference"
-                description="Browse all sign definitions"
+                label={t("shortcuts.reference")}
+                description={t("shortcuts.referenceDescription")}
                 icon={<BookOpen className="size-4" />}
               />
             </div>
           </section>
 
           <section>
-            <p className="text-mono-label text-[12px] text-cohere-slate">Preferences</p>
+            <p className="text-mono-label text-[12px] text-cohere-slate">{t("preferences.label")}</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {accessibilityRows.map((row) => (
                 <div key={row.label} className="rounded-sm border border-cohere-hairline bg-cohere-stone p-4">

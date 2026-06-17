@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Slot, Slottable } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 
@@ -292,7 +293,7 @@ function Button({
   children,
   disabled = false,
   isLoading = false,
-  loadingLabel = "Loading",
+  loadingLabel,
   type = "button",
   tabIndex,
   onClickCapture,
@@ -300,11 +301,13 @@ function Button({
   "aria-label": ariaLabel,
   ...props
 }: ButtonProps) {
+  const t = useTranslations("common")
+  const resolvedLoadingLabel = loadingLabel ?? t("loading")
   const isDisabled = disabled || isLoading
   const isIconSize = typeof size === "string" && size.startsWith("icon")
   const content = [
     <Slottable key="content">{children}</Slottable>,
-    isLoading ? <LoadingDots key="loader" label={loadingLabel} /> : null,
+    isLoading ? <LoadingDots key="loader" label={resolvedLoadingLabel} /> : null,
     (variant === "secondary" || variant === "link") && !isIconSize ? (
       <SecondaryUnderline key="underline" />
     ) : null,
@@ -338,7 +341,7 @@ function Button({
     "data-loading": isLoading,
     "aria-busy": isLoading || undefined,
     "aria-disabled": isDisabled || undefined,
-    "aria-label": isLoading ? loadingLabel : ariaLabel,
+    "aria-label": isLoading ? resolvedLoadingLabel : ariaLabel,
     className: cn(buttonVariants({ variant, size }), className),
   }
 

@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Shield,
   Volume2,
+  type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
@@ -38,54 +39,25 @@ export async function generateMetadata({
   });
 }
 
-const steps = [
-  {
-    icon: Camera,
-    step: "01",
-    title: "Open the camera",
-    desc: "Signify runs in the browser and requests camera access only for the active session.",
-    details: ["Front or rear camera", "No app download", "Responsive workspace"],
-  },
-  {
-    icon: Cpu,
-    step: "02",
-    title: "Run recognition",
-    desc: "The model reads hand shapes frame by frame and produces confidence-scored predictions.",
-    details: ["Image preprocessing", "YOLO inference", "Confidence gating"],
-  },
-  {
-    icon: MessageSquare,
-    step: "03",
-    title: "Build a sentence",
-    desc: "Confirmed letters are committed into a sentence buffer that can be edited or cleared.",
-    details: ["Delete last", "Add spaces", "Export sessions"],
-  },
-  {
-    icon: Volume2,
-    step: "04",
-    title: "Speak it aloud",
-    desc: "Text-to-speech can read generated sentences in Bahasa Indonesia when voice output helps.",
-    details: ["Adjustable speed", "Volume control", "Manual playback"],
-  },
-];
+type HowItWorksStep = {
+  step: string;
+  title: string;
+  desc: string;
+  details: string[];
+};
 
-const limitations = [
-  {
-    icon: AlertTriangle,
-    title: "Lighting matters",
-    desc: "Very dim or backlit rooms can reduce prediction quality. Keep hands visible and centered.",
-  },
-  {
-    icon: Hand,
-    title: "Alphabet scope",
-    desc: "This release focuses on BISINDO alphabet recognition rather than full certified interpretation.",
-  },
-  {
-    icon: Shield,
-    title: "Not a legal interpreter",
-    desc: "Use Signify as a communication aid, not as a certified interpreter for critical contexts.",
-  },
-];
+type HowItWorksLimitation = {
+  title: string;
+  desc: string;
+};
+
+type HowItWorksFaq = {
+  question: string;
+  answer: string;
+};
+
+const stepIcons: LucideIcon[] = [Camera, Cpu, MessageSquare, Volume2];
+const limitationIcons: LucideIcon[] = [AlertTriangle, Hand, Shield];
 
 function StepDetailBadge({ detail }: { detail: string }) {
   return (
@@ -101,12 +73,17 @@ function StepDetailBadge({ detail }: { detail: string }) {
 
 export default function HowItWorksPage() {
   const t = useTranslations("docs.howItWorks");
-  const faqs = [
-    [t("faqQuestion"), t("faqAnswer")],
-    ["Is my video stored?", "The product is designed around active-session processing. Saved history stores translated text entries."],
-    ["What devices work?", "Modern desktop and mobile browsers with camera access are supported."],
-    ["How accurate is it?", "Accuracy depends on camera quality, lighting, signing speed, and whether the sign is in the trained scope."],
-  ];
+  const steps = (t.raw("steps") as HowItWorksStep[]).map((step, index) => ({
+    ...step,
+    icon: stepIcons[index] ?? Camera,
+  }));
+  const limitations = (t.raw("limitations") as HowItWorksLimitation[]).map(
+    (limitation, index) => ({
+      ...limitation,
+      icon: limitationIcons[index] ?? AlertTriangle,
+    }),
+  );
+  const faqs = t.raw("faqs") as HowItWorksFaq[];
 
   return (
     <main id="main-content" className="pt-24 md:pt-28">
@@ -156,10 +133,10 @@ export default function HowItWorksPage() {
           <div className="cohere-container">
             <div data-animate>
               <p className="text-mono-label text-[12px] text-[var(--color-accent)]">
-                Honest limitations
+                {t("limitationsLabel")}
               </p>
               <h2 className="mt-4 max-w-3xl text-[40px] leading-[1.2] md:text-[48px]">
-                The product is useful because the boundaries are visible.
+                {t("limitationsTitle")}
               </h2>
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -188,12 +165,14 @@ export default function HowItWorksPage() {
             <div data-animate className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
-                  FAQ
+                  {t("faqLabel")}
                 </p>
-                <h2 className="mt-4 text-[40px] leading-[1.2] md:text-[48px]">Common questions.</h2>
+                <h2 className="mt-4 text-[40px] leading-[1.2] md:text-[48px]">
+                  {t("faqTitle")}
+                </h2>
               </div>
               <div className="border-t border-[var(--color-border)]">
-                {faqs.map(([question, answer]) => (
+                {faqs.map(({ question, answer }) => (
                   <details
                     key={question}
                     className="group border-b border-[var(--color-border)] py-5"
@@ -225,15 +204,15 @@ export default function HowItWorksPage() {
               className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
             >
               <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
-                Try the workspace
+                {t("ctaLabel")}
               </p>
               <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
                 <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
-                  Open a camera session and test the recognition loop.
+                  {t("ctaTitle")}
                 </h2>
                 <Button asChild variant="primary" size="lg">
                   <Link href="/translate">
-                    Start translating
+                    {t("ctaButton")}
                     <ArrowRight className="size-4" />
                   </Link>
                 </Button>

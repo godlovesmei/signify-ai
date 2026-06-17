@@ -1,6 +1,7 @@
 'use client';
 
 import type { ComponentType, SVGProps } from 'react';
+import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { type AlphabetLetter } from '@/lib/userData';
 import { cn } from '@/lib/utils';
@@ -55,6 +56,7 @@ function GenericSkeleton({ className }: { className?: string }) {
 }
 
 export function GhostSkeleton({ letter, visible = true, className }: GhostSkeletonProps) {
+  const t = useTranslations('workspace.practice');
   const LetterSvg = LETTER_SVGS[letter];
 
   if (!visible) return null;
@@ -82,7 +84,7 @@ export function GhostSkeleton({ letter, visible = true, className }: GhostSkelet
             <div className="relative">
               <GenericSkeleton className="h-[60%] w-auto text-white/80" />
               <div className="mt-8 flex flex-col items-center gap-2">
-                <span className="text-mono-label text-[11px] text-white/65">Master Guidance</span>
+                <span className="text-mono-label text-[11px] text-white/65">{t('masterGuidance')}</span>
               </div>
             </div>
           )}

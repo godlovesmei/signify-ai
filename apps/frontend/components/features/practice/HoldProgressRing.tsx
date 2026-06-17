@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,7 @@ interface HoldProgressRingProps {
 }
 
 export function HoldProgressRing({ progress, total, size = 'md', className }: HoldProgressRingProps) {
+  const t = useTranslations('workspace.practice');
   const pct = Math.min(1, progress / total);
   const isSuccess = pct >= 1;
   const isHolding = pct > 0 && pct < 1;
@@ -37,7 +39,7 @@ export function HoldProgressRing({ progress, total, size = 'md', className }: Ho
       aria-valuenow={Math.round(pct * 100)}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label="Hold progress"
+      aria-label={t('holdProgress')}
       animate={
         isHolding
           ? { scale: [0.95, 1.05, 0.95], rotate: isHolding ? [0, 5, -5, 0] : 0 }

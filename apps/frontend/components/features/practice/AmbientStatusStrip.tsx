@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { type AlphabetLetter } from '@/lib/userData';
 
@@ -13,24 +14,27 @@ interface AmbientStatusStripProps {
   actions?: ReactNode;
 }
 
-const STATUS_CONFIG: Record<AmbientStatusTone, { dot: string; label: string }> = {
-  'no-hand': { dot: 'bg-cohere-muted', label: 'Idle' },
-  hand: { dot: 'bg-cohere-green', label: 'Tracking' },
-  processing: { dot: 'bg-cohere-blue', label: 'Analyzing' },
+const STATUS_CONFIG: Record<AmbientStatusTone, { dot: string; labelKey: 'idle' | 'tracking' | 'analyzing' }> = {
+  'no-hand': { dot: 'bg-cohere-muted', labelKey: 'idle' },
+  hand: { dot: 'bg-cohere-green', labelKey: 'tracking' },
+  processing: { dot: 'bg-cohere-blue', labelKey: 'analyzing' },
 };
 
 export function AmbientStatusStrip({ trail, status, children, actions }: AmbientStatusStripProps) {
+  const t = useTranslations('workspace.practice');
   const config = STATUS_CONFIG[status];
+  const statusLabel = t(`status.${config.labelKey}`);
+  const sequence = trail.join(', ') || t('status.emptySequence');
 
   return (
     <div
       className="relative flex h-20 items-center justify-between rounded-sm border border-cohere-hairline bg-cohere-canvas px-6"
-      aria-label={`Practice status ${config.label}. Sequence ${trail.join(", ") || "empty"}.`}
+      aria-label={t('status.aria', { status: statusLabel, sequence })}
     >
       {/* Left: Status indicator */}
       <div className="flex items-center gap-3">
         <span className={cn('h-3 w-3 rounded-full', config.dot)} aria-hidden="true" />
-        <span className="text-mono-label text-[11px] text-cohere-slate">{config.label}</span>
+        <span className="text-mono-label text-[11px] text-cohere-slate">{statusLabel}</span>
       </div>
 
       {/* Center: Progress ring */}
@@ -53,11 +57,13 @@ interface TrailIndicatorProps {
 }
 
 export function TrailIndicator({ trail, className }: TrailIndicatorProps) {
+  const t = useTranslations('workspace.practice');
+
   if (trail.length === 0) return null;
 
   return (
     <div className={cn("flex items-center gap-4", className)}>
-      <span className="text-mono-label text-[11px] text-cohere-slate">Sequence</span>
+      <span className="text-mono-label text-[11px] text-cohere-slate">{t('sequence')}</span>
       <div className="flex items-center gap-2">
         {trail.map((letter, index) => (
           <span key={`${letter}-${index}`} className="flex items-center gap-2">
@@ -88,12 +94,14 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
+  const t = useTranslations('workspace.practice');
   const config = STATUS_CONFIG[status];
+  const statusLabel = t(`status.${config.labelKey}`);
 
   return (
     <div className={cn("flex items-center gap-3 rounded-[30px] border border-cohere-hairline bg-cohere-canvas px-4 py-2", className)}>
       <span className={cn("h-2 w-2 rounded-full", config.dot)} />
-      <span className="text-mono-label text-[11px] text-cohere-ink">{config.label}</span>
+      <span className="text-mono-label text-[11px] text-cohere-ink">{statusLabel}</span>
     </div>
   );
 }

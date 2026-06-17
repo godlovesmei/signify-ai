@@ -3,7 +3,7 @@
     "brand": "SignifyAI",
     "language": "Bahasa",
     "indonesian": "Indonesia",
-    "english": "English",
+    "english": "Inggris",
     "skipToContent": "Lewati ke konten",
     "close": "Tutup",
     "loading": "Memuat",
@@ -19,14 +19,18 @@
     "signIn": "Masuk",
     "requestAccess": "Minta akses",
     "learnMore": "Pelajari",
-    "start": "Mulai"
+    "start": "Mulai",
+    "logoAlt": "Logo SignifyAI",
+    "disabled": "Nonaktif",
+    "home": "Beranda",
+    "userAccount": "Akun pengguna"
   },
   "navigation": {
     "aria": {
       "main": "Navigasi utama",
       "mobile": "Navigasi seluler",
-      "workspace": "Navigasi workspace",
-      "sidebar": "Sidebar",
+      "workspace": "Navigasi ruang kerja",
+      "sidebar": "Bilah samping",
       "footer": "Navigasi footer",
       "home": "Buka beranda SignifyAI",
       "toggleMobile": "Buka atau tutup menu seluler"
@@ -47,8 +51,8 @@
       "product": {
         "label": "Produk",
         "eyebrow": "Platform SignifyAI",
-        "title": "Workspace AI terarah untuk terjemahan dan latihan BISINDO.",
-        "description": "Tangkap gestur, terjemahkan gerakan, tinjau hasil, dan simpan riwayat belajar dalam satu antarmuka browser.",
+        "title": "Ruang kerja AI terarah untuk terjemahan dan latihan BISINDO.",
+        "description": "Tangkap gestur, terjemahkan gerakan, tinjau hasil, dan simpan riwayat belajar dalam satu antarmuka peramban.",
         "featuredLabel": "Alur baru",
         "featuredTitle": "Gestur ke teks dalam hitungan detik",
         "featuredDescription": "Dirancang untuk demo kelas, pengujian riset, dan pembelajaran mandiri."
@@ -57,7 +61,7 @@
         "label": "Sumber daya",
         "eyebrow": "Pelajari dan validasi",
         "title": "Semua yang diperlukan untuk memahami produk dan batasannya.",
-        "description": "Pelajari metodologi, alur penggunaan, catatan privasi, dan referensi produk sebelum memakai workspace.",
+        "description": "Pelajari metodologi, alur penggunaan, catatan privasi, dan referensi produk sebelum memakai ruang kerja.",
         "featuredLabel": "AI bertanggung jawab",
         "featuredTitle": "Batas jelas, demo lebih aman",
         "featuredDescription": "Antarmuka ditulis agar tidak melebih-lebihkan kemampuan model atau cakupan dunia nyata."
@@ -88,13 +92,40 @@
         "solutions": "Solusi",
         "resources": "Sumber daya",
         "company": "Perusahaan"
+      },
+      "social": {
+        "community": "Komunitas"
+      },
+      "links": {
+        "gestureLibrary": "Pustaka gestur",
+        "learningPath": "Alur belajar",
+        "education": "Edukasi",
+        "accessibility": "Aksesibilitas",
+        "publicServices": "Layanan publik",
+        "communityLearning": "Pembelajaran komunitas",
+        "researchTeams": "Tim riset",
+        "browserDeployment": "Penerapan peramban",
+        "localFirstAi": "AI mengutamakan lokal",
+        "signLanguageDataset": "Dataset bahasa isyarat",
+        "blog": "Blog",
+        "documentation": "Dokumentasi",
+        "releaseNotes": "Catatan rilis",
+        "modelOverview": "Ringkasan model",
+        "bisindoGuide": "Panduan BISINDO",
+        "accessibilityNotes": "Catatan aksesibilitas",
+        "developerPreview": "Pratinjau pengembang",
+        "about": "Tentang",
+        "security": "Keamanan",
+        "trustCenter": "Pusat kepercayaan",
+        "legalCenter": "Pusat legal",
+        "contact": "Kontak"
       }
     }
   },
   "auth": {
     "modal": {
       "close": "Tutup masuk",
-      "eyebrow": "Workspace aman",
+      "eyebrow": "Ruang kerja aman",
       "title": "Masuk untuk melanjutkan.",
       "description": "Akses riwayat, analitik latihan, dan preferensi tersimpan tanpa mengubah alur kamera lokal.",
       "google": "Lanjutkan dengan Google",
@@ -134,7 +165,7 @@
     "highContrastHelp": "Meningkatkan kontras teks dan border",
     "textSize": "Ukuran teks prediksi",
     "textSizeAria": "Ukuran teks",
-    "tts": "Text-to-Speech",
+    "tts": "Teks-ke-suara",
     "voiceFeedback": "Umpan balik suara",
     "voiceFeedbackHelp": "Ucapkan huruf yang terdeteksi secara otomatis",
     "speed": "Kecepatan",
@@ -144,7 +175,8 @@
     "account": "Akun",
     "confirmSignOut": "Ketuk lagi untuk konfirmasi",
     "confirmSignOutAria": "Ketuk lagi untuk konfirmasi keluar",
-    "googleAccountNote": "Perubahan kata sandi dan akun dikelola melalui akun Google Anda."
+    "googleAccountNote": "Perubahan kata sandi dan akun dikelola melalui akun Google Anda.",
+    "preferenceSyncError": "Sinkronisasi preferensi gagal. Mengembalikan pengaturan tersimpan."
   },
   "workspace": {
     "translate": {
@@ -187,8 +219,8 @@
       "clearSentence": "Bersihkan kalimat",
       "confirmClear": "Konfirmasi bersihkan kalimat",
       "detectionStatus": "Status deteksi: {state}",
-      "fps": "{value} frame per detik"
-      ,"cameraHeader": "Kamera",
+      "fps": "{value} bingkai per detik",
+      "cameraHeader": "Kamera",
       "enterFullscreen": "Masuk layar penuh",
       "exitFullscreen": "Keluar layar penuh",
       "handDetected": "Gerakan terdeteksi",
@@ -198,7 +230,7 @@
       "preparingCamera": "Menyiapkan kamera",
       "permissionDenied": "Izin kamera ditolak",
       "cameraMissing": "Kamera tidak ditemukan",
-      "permissionHelp": "Beri izin kamera dari browser, lalu coba lagi.",
+      "permissionHelp": "Beri izin kamera dari peramban, lalu coba lagi.",
       "cameraMissingHelp": "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain.",
       "startTranslation": "Mulai terjemah",
       "pauseTranslation": "Jeda terjemah",
@@ -210,7 +242,7 @@
         "loading": "Memanaskan",
         "ready": "Siap",
         "detecting": "Aktif",
-        "error": "Error"
+        "error": "Kesalahan"
       },
       "stateHints": {
         "idle": "Kamera diam",
@@ -223,7 +255,9 @@
       "pointHand": "Arahkan tangan",
       "score": "Skor",
       "searchingGesture": "Mencari gerakan",
-      "detectedSign": "Isyarat terdeteksi: {letter}, keyakinan {value}%"
+      "detectedSign": "Isyarat terdeteksi: {letter}, keyakinan {value}%",
+      "handGuideDetected": "Tangan terdeteksi",
+      "handGuidePlace": "Letakkan tangan di sini"
     },
     "history": {
       "title": "Riwayat",
@@ -238,12 +272,12 @@
       "copySession": "Salin sesi dari {date}",
       "expandSession": "Buka sesi dari {date}",
       "collapseSession": "Tutup sesi dari {date}",
-      "deleteSession": "Hapus sesi dari {date}"
-      ,"summary": "{count} sesi tersimpan",
+      "deleteSession": "Hapus sesi dari {date}",
+      "summary": "{count} sesi tersimpan",
       "clearAll": "Bersihkan semua",
       "unavailable": "Riwayat sementara tidak tersedia.",
       "emptyTitle": "Belum ada riwayat",
-      "emptyBody": "Isyarat yang diterjemahkan real-time akan muncul di sini setelah sesi terjemahan dimulai.",
+      "emptyBody": "Isyarat yang diterjemahkan waktu nyata akan muncul di sini setelah sesi terjemahan dimulai.",
       "session": "Sesi {date}",
       "entries": "{count} entri",
       "confidenceValue": "keyakinan {value}%",
@@ -258,8 +292,8 @@
       "resetError": "Progres latihan tidak dapat direset.",
       "loading": "Memuat progres latihan",
       "retry": "Coba muat ulang progres latihan",
-      "sessionConfig": "Konfigurasi sesi"
-      ,"target": "Target",
+      "sessionConfig": "Konfigurasi sesi",
+      "target": "Target",
       "performance": "Performa",
       "samples": "Sampel",
       "precision": "Presisi",
@@ -270,20 +304,36 @@
       "controls": "Kontrol",
       "skipTarget": "Lewati target",
       "sessionConfigShort": "Konfigurasi sesi",
-      "sessionConfigDescription": "Konfigurasikan sesi latihan, overlay panduan, metrik insight, dan reset progres latihan.",
+      "sessionConfigDescription": "Konfigurasikan sesi latihan, lapisan panduan, metrik wawasan, dan pengaturan ulang progres latihan.",
       "guideOverlay": "Overlay panduan",
       "insightMetrics": "Metrik insight",
       "resetProgress": "Reset progres latihan",
-      "resetCamera": "Reset kamera",
-      "hideGuide": "Sembunyikan overlay panduan",
-      "showGuide": "Tampilkan overlay panduan"
+      "resetCamera": "Atur ulang kamera",
+      "hideGuide": "Sembunyikan lapisan panduan",
+      "showGuide": "Tampilkan lapisan panduan",
+      "status": {
+        "idle": "Diam",
+        "tracking": "Melacak",
+        "analyzing": "Menganalisis",
+        "aria": "Status latihan {status}. Rangkaian {sequence}.",
+        "emptySequence": "kosong"
+      },
+      "sequence": "Rangkaian",
+      "masterGuidance": "Panduan utama",
+      "mastered": "Dikuasai",
+      "referenceGestureAlt": "Gestur referensi untuk {letter}",
+      "masteryGuide": "Panduan penguasaan",
+      "analyticsEngine": "Mesin analitik",
+      "momentum": "Momentum",
+      "record": "Rekor",
+      "optimizationQueue": "Antrean optimasi"
     },
     "reference": {
       "title": "Referensi",
       "loadError": "Progres referensi tidak dapat dimuat.",
       "loading": "Memuat progres",
-      "practiceNow": "Latihan sekarang"
-      ,"description": "Kartu alfabet BISINDO dengan performa latihan tersinkron untuk tiap huruf.",
+      "practiceNow": "Latihan sekarang",
+      "description": "Kartu alfabet BISINDO dengan performa latihan tersinkron untuk tiap huruf.",
       "globalAccuracy": "Akurasi global",
       "totalAttempts": "Total percobaan",
       "verifiedSigns": "Isyarat terverifikasi",
@@ -292,22 +342,292 @@
     },
     "profile": {
       "title": "Profil",
-      "description": "Detail akun, riwayat terjemahan, analitik latihan, dan preferensi workspace.",
+      "description": "Detail akun, riwayat terjemahan, analitik latihan, dan preferensi ruang kerja.",
       "loadError": "Analitik profil tidak dapat dimuat.",
       "loading": "Memuat profil",
       "primaryLanguage": "Bahasa utama",
-      "initializeTranslate": "Mulai terjemahkan",
-      "signingOut": "Sedang keluar..."
+      "initializeTranslate": "Mulai terjemahan",
+      "signingOut": "Sedang keluar...",
+      "fallbackName": "Pengguna Signify",
+      "emptyTranscript": "(transkrip kosong)",
+      "session": "Sesi {date}",
+      "frames": "{count} bingkai",
+      "confidence": "Keyakinan {value}%",
+      "gesture": "Gestur {letter}",
+      "iterationsAccuracy": "{attempts} iterasi · akurasi {accuracy}%",
+      "operatorId": "ID operator",
+      "syncStatus": "Status sinkron:",
+      "syncStates": {
+        "optimized": "Optimal",
+        "nominal": "Normal",
+        "initializing": "Memulai"
+      },
+      "account": {
+        "email": "Email",
+        "emailSubtle": "Alamat masuk utama",
+        "verification": "Verifikasi",
+        "verified": "Terverifikasi",
+        "pending": "Menunggu verifikasi",
+        "verifiedSubtle": "Masuk dengan akun terverifikasi",
+        "pendingSubtle": "Verifikasi alamat dari kotak masuk Anda",
+        "memberSince": "Anggota sejak",
+        "memberSinceSubtle": "Akun dibuat di Supabase Auth",
+        "lastSignIn": "Terakhir masuk",
+        "lastSignInSubtle": "Peristiwa autentikasi terbaru",
+        "accountId": "ID akun",
+        "accountIdSubtle": "Berguna saat merujuk dukungan atau log",
+        "translationTarget": "Target terjemahan ruang kerja"
+      },
+      "metrics": {
+        "precision": "Presisi",
+        "precisionHelper": "Akurasi latihan keseluruhan",
+        "streak": "Runtun",
+        "streakHelper": "Runtun gestur saat ini"
+      },
+      "analytics": {
+        "label": "Analitik gestur",
+        "title": "Huruf yang paling sering dilatih",
+        "openPractice": "Buka latihan",
+        "empty": "Menunggu telemetri latihan."
+      },
+      "activity": {
+        "label": "Aktivitas terbaru",
+        "title": "Riwayat sesi",
+        "totalSessions": "Total sesi: {count}",
+        "totalFrames": "Total bingkai: {count}",
+        "empty": "Belum ada sesi terjemahan tersinkron."
+      },
+      "shortcuts": {
+        "label": "Akses cepat",
+        "translate": "Terjemahkan",
+        "translateDescription": "Kembali ke inti terjemahan",
+        "history": "Riwayat",
+        "historyDescription": "Lihat log sesi lengkap",
+        "reference": "Referensi",
+        "referenceDescription": "Jelajahi semua definisi isyarat"
+      },
+      "preferences": {
+        "label": "Preferensi",
+        "highContrast": "Kontras tinggi",
+        "textScale": "Skala teks",
+        "ttsSpeed": "Kecepatan TTS",
+        "ttsVolume": "Volume TTS",
+        "on": "Aktif",
+        "off": "Nonaktif"
+      }
+    },
+    "practiceGuide": {
+      "triggerLabel": "Panduan",
+      "triggerTitle": "Alfabet BISINDO",
+      "title": "Panduan isyarat",
+      "openGrid": "Lihat grid A-Z",
+      "referenceLink": "A-Z",
+      "handPosition": "Posisi tangan",
+      "tips": "Tips",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "indexTitle": "Indeks A-Z",
+      "expand": "Perbesar",
+      "closeChart": "Tutup bagan",
+      "close": "Tutup",
+      "letterAlt": "Huruf {letter}",
+      "letters": {
+        "A": {
+          "name": "Huruf A",
+          "description": "Kedua tangan membentuk segitiga dengan ujung jari telunjuk dan ibu jari saling bertemu.",
+          "fingers": "Gunakan kedua tangan. Ujung jari telunjuk dan ibu jari kanan-kiri saling menyentuh hingga membentuk segitiga.",
+          "tip": "Pastikan bentuk segitiga terlihat jelas dari depan kamera.",
+          "variant": ""
+        },
+        "B": {
+          "name": "Huruf B",
+          "description": "Tangan kiri membentuk tiga jari terbuka, lalu tangan kanan menunjuk ke jari tangan kiri.",
+          "fingers": "Tangan kiri membuka tiga jari. Telunjuk tangan kanan mengarah atau menyentuh area jari tangan kiri.",
+          "tip": "Versi singkat: tangan kiri tiga jari terbuka, telunjuk tangan kanan menyentuhnya.",
+          "variant": ""
+        },
+        "C": {
+          "name": "Huruf C",
+          "description": "Satu tangan membentuk lengkungan seperti huruf C dengan jari dan ibu jari terbuka.",
+          "fingers": "Gunakan satu tangan. Jari-jari dan ibu jari melengkung membentuk huruf C yang jelas.",
+          "tip": "Jaga lengkungan tetap terbuka agar bentuk huruf C mudah dikenali.",
+          "variant": ""
+        },
+        "D": {
+          "name": "Huruf D",
+          "description": "Tangan kiri membentuk lengkungan seperti setengah lingkaran, lalu telunjuk tangan kanan tegak menyentuhnya.",
+          "fingers": "Tangan kiri menjadi bentuk lengkung. Telunjuk tangan kanan lurus ke atas dan ditempelkan pada sisi bentuk tangan kiri.",
+          "tip": "Pastikan telunjuk kanan tegak lurus agar bentuk D terlihat tegas.",
+          "variant": ""
+        },
+        "E": {
+          "name": "Huruf E",
+          "description": "Satu tangan dengan tiga jari terbuka ke samping, sementara jari lainnya terlipat.",
+          "fingers": "Buka tiga jari utama ke samping. Dua jari lainnya ditekuk agar siluet E lebih jelas.",
+          "tip": "Versi singkat: tiga jari terbuka ke samping, jari lainnya tetap terlipat.",
+          "variant": ""
+        },
+        "F": {
+          "name": "Huruf F",
+          "description": "Dua jari tangan atas terbuka ke samping, telunjuk tangan bawah menyentuh bagian bawahnya.",
+          "fingers": "Bentuk dua jari tangan atas terbuka ke samping. Telunjuk tangan bawah menyentuh bagian bawah bentuk tersebut.",
+          "tip": "",
+          "variant": ""
+        },
+        "G": {
+          "name": "Huruf G",
+          "description": "Kedua tangan mengepal, satu di atas dan satu di bawah saling berhadapan.",
+          "fingers": "Gunakan dua tangan dalam posisi mengepal. Letakkan satu tangan di atas dan satu di bawah secara saling berhadapan.",
+          "tip": "",
+          "variant": ""
+        },
+        "H": {
+          "name": "Huruf H",
+          "description": "Kedua tangan dengan telunjuk tegak ke atas, jari tengah salah satu tangan melintang di tengah.",
+          "fingers": "Buat dua telunjuk tegak ke atas. Salah satu jari tengah diletakkan melintang di tengah sebagai penghubung.",
+          "tip": "Pastikan dua telunjuk tegak terlihat jelas.",
+          "variant": "Versi singkat: dua telunjuk tegak ke atas, jari tengah melintang di tengah menghubungkannya."
+        },
+        "I": {
+          "name": "Huruf I",
+          "description": "Satu tangan dengan kelingking tegak ke atas, jari lainnya terlipat.",
+          "fingers": "Angkat jari kelingking lurus ke atas. Jari lainnya tetap dilipat ke dalam.",
+          "tip": "",
+          "variant": ""
+        },
+        "J": {
+          "name": "Huruf J",
+          "description": "Satu tangan mengepal dengan kelingking terbuka, digerakkan membentuk lengkungan seperti huruf J.",
+          "fingers": "Buat tangan mengepal lalu buka jari kelingking. Gerakkan membentuk lengkung menyerupai huruf J.",
+          "tip": "Pastikan gerak lengkungnya terlihat jelas di depan kamera.",
+          "variant": ""
+        },
+        "K": {
+          "name": "Huruf K",
+          "description": "Telunjuk satu tangan tegak, telunjuk tangan lain menyentuh bagian tengahnya dengan ibu jari terbuka di samping.",
+          "fingers": "Satu telunjuk tegak lurus. Tangan lain menyentuh bagian tengah telunjuk tersebut, dengan ibu jari tangan penyentuh terbuka di samping.",
+          "tip": "",
+          "variant": ""
+        },
+        "L": {
+          "name": "Huruf L",
+          "description": "Telunjuk ke atas dan ibu jari ke samping membentuk sudut L.",
+          "fingers": "Angkat telunjuk ke atas dan buka ibu jari ke samping hingga membentuk sudut seperti huruf L.",
+          "tip": "",
+          "variant": ""
+        },
+        "M": {
+          "name": "Huruf M",
+          "description": "Satu tangan terbuka, tiga jari tangan lain menempel di bagian tengah telapak tangan.",
+          "fingers": "Buka satu telapak tangan. Tempelkan tiga jari dari tangan lain pada bagian tengah telapak tersebut.",
+          "tip": "",
+          "variant": ""
+        },
+        "N": {
+          "name": "Huruf N",
+          "description": "Telapak tangan terbuka, jari telunjuk dan tengah tangan lain menempel di bagian tengah telapak.",
+          "fingers": "Buka satu telapak tangan menghadap depan. Tempelkan jari telunjuk dan jari tengah tangan lain di bagian tengah telapak.",
+          "tip": "",
+          "variant": "Versi lain: satu tangan terbuka menghadap depan, dua jari tangan lain menempel di tengah telapak tangan."
+        },
+        "O": {
+          "name": "Huruf O",
+          "description": "Ibu jari dan telunjuk membentuk lingkaran, jari lain terbuka.",
+          "fingers": "Satukan ibu jari dan telunjuk hingga membentuk lingkaran. Jari lainnya tetap terbuka.",
+          "tip": "",
+          "variant": ""
+        },
+        "P": {
+          "name": "Huruf P",
+          "description": "Telunjuk satu tangan tegak, ibu jari dan telunjuk tangan lain membentuk lengkungan menyentuh bagian atasnya.",
+          "fingers": "Buat satu telunjuk tegak lurus. Tangan lain membentuk lengkungan dengan ibu jari dan telunjuk, lalu menyentuh bagian atas telunjuk.",
+          "tip": "",
+          "variant": "Versi lain: telunjuk satu tangan tegak, ibu jari dan telunjuk tangan lain membentuk lengkungan dan menyentuh ujung telunjuk tersebut."
+        },
+        "Q": {
+          "name": "Huruf Q",
+          "description": "Ibu jari dan telunjuk satu tangan membentuk lingkaran, telunjuk tangan lain menyentuh bagian bawahnya.",
+          "fingers": "Buat lingkaran dengan ibu jari dan telunjuk. Gunakan telunjuk tangan lain untuk menyentuh bagian bawah lingkaran.",
+          "tip": "",
+          "variant": ""
+        },
+        "R": {
+          "name": "Huruf R",
+          "description": "Satu tangan dengan telunjuk tegak, jari tengah ditekuk dan menempel pada ibu jari.",
+          "fingers": "Tegakkan jari telunjuk. Tekuk jari tengah hingga menyentuh atau menempel pada ibu jari.",
+          "tip": "",
+          "variant": ""
+        },
+        "S": {
+          "name": "Huruf S",
+          "description": "Kedua tangan membentuk lengkungan dengan ibu jari dan telunjuk, ujung telunjuk saling berhadapan.",
+          "fingers": "Gunakan dua tangan. Masing-masing membentuk lengkung dengan ibu jari dan telunjuk, lalu arahkan ujung telunjuk saling berhadapan.",
+          "tip": "",
+          "variant": ""
+        },
+        "T": {
+          "name": "Huruf T",
+          "description": "Satu telunjuk tegak ke atas, telunjuk tangan lain mendatar menyentuh bagian atasnya.",
+          "fingers": "Tegakkan satu telunjuk ke atas. Letakkan telunjuk tangan lain secara mendatar menyentuh bagian atas telunjuk pertama.",
+          "tip": "",
+          "variant": ""
+        },
+        "U": {
+          "name": "Huruf U",
+          "description": "Telunjuk dan kelingking terbuka ke atas, jari lain terlipat.",
+          "fingers": "Buka telunjuk dan kelingking ke arah atas. Jari lainnya tetap dilipat.",
+          "tip": "",
+          "variant": ""
+        },
+        "V": {
+          "name": "Huruf V",
+          "description": "Telunjuk dan jari tengah terbuka ke atas membentuk V, jari lain terlipat.",
+          "fingers": "Buka telunjuk dan jari tengah ke atas hingga membentuk huruf V. Jari lainnya dilipat.",
+          "tip": "",
+          "variant": ""
+        },
+        "W": {
+          "name": "Huruf W",
+          "description": "Dua telunjuk tegak ke atas, ibu jari kedua tangan bertemu di tengah membentuk dua sudut seperti huruf W.",
+          "fingers": "Gunakan dua tangan. Tegakkan kedua telunjuk ke atas dan pertemukan ibu jari di tengah hingga membentuk dua sudut seperti huruf W.",
+          "tip": "",
+          "variant": ""
+        },
+        "X": {
+          "name": "Huruf X",
+          "description": "Kedua telunjuk saling menyilang di tengah membentuk silang.",
+          "fingers": "Gunakan dua telunjuk dan silangkan keduanya di tengah hingga membentuk huruf X.",
+          "tip": "",
+          "variant": ""
+        },
+        "Y": {
+          "name": "Huruf Y",
+          "description": "Telunjuk dan ibu jari satu tangan terbuka membentuk sudut, telunjuk tangan lain menyentuh bagian tengahnya.",
+          "fingers": "Buka telunjuk dan ibu jari satu tangan hingga membentuk sudut. Gunakan telunjuk tangan lain untuk menyentuh bagian tengah bentuk tersebut.",
+          "tip": "",
+          "variant": ""
+        },
+        "Z": {
+          "name": "Huruf Z",
+          "description": "Satu tangan terbuka mendatar ke depan dengan telapak menghadap ke bawah.",
+          "fingers": "Buka satu tangan secara mendatar ke arah depan. Posisi telapak tangan menghadap ke bawah.",
+          "tip": "",
+          "variant": ""
+        }
+      }
     }
   },
   "landing": {
     "capabilities": {
-      "cameraTitle": "Kamera browser",
+      "cameraTitle": "Kamera peramban",
       "cameraBody": "Mulai sesi dari desktop atau mobile dan tetap fokus pada feed kamera langsung.",
       "alphabetTitle": "Alfabet BISINDO",
-      "alphabetBody": "Prediksi frame demi frame mengubah bentuk tangan menjadi urutan huruf yang rapi.",
+      "alphabetBody": "Prediksi bingkai demi bingkai mengubah bentuk tangan menjadi urutan huruf yang rapi.",
       "ttsTitle": "Teks ke suara",
-      "ttsBody": "Bacakan kalimat tersusun dalam Bahasa Indonesia saat pengguna membutuhkan keluaran suara."
+      "ttsBody": "Bacakan kalimat tersusun dalam Bahasa Indonesia saat pengguna membutuhkan keluaran suara.",
+      "sectionLabel": "Kemampuan",
+      "sectionTitle": "Tiga langkah tenang dari gestur ke kalimat.",
+      "sectionBody": "Antarmuka menghindari elemen yang tidak perlu: kamera, prediksi, penyusunan kalimat, dan kontrol suara tetap terlihat tepat di tempat tugas membutuhkannya."
     },
     "products": {
       "translateTitle": "Workspace terjemahan",
@@ -317,68 +637,737 @@
       "researchTitle": "Pustaka riset",
       "researchBody": "Ruang publikasi untuk menjelaskan model, batasan, dan keputusan aksesibilitas.",
       "checks": {
-        "realtime": "Prediksi real-time",
+        "realtime": "Prediksi waktu nyata",
         "buffer": "Buffer kalimat dapat diedit",
         "export": "Ekspor sesi",
         "hold": "Alur tahan untuk konfirmasi",
-        "overlays": "Overlay referensi",
+        "overlays": "Lapisan referensi",
         "accuracy": "Riwayat akurasi",
         "readable": "Bagian mudah dibaca",
         "limits": "Batasan jelas",
         "context": "Konteks model"
-      }
+      },
+      "sectionLabel": "Modul ruang kerja",
+      "sectionTitle": "Permukaan produk untuk terjemahan, latihan, dan riset.",
+      "openModule": "Buka modul"
     },
-    "trust": ["Komunitas", "Edukasi", "Riset", "Akses Publik", "Aksesibilitas", "BISINDO"],
+    "trust": [
+      "Komunitas",
+      "Edukasi",
+      "Riset",
+      "Akses Publik",
+      "Aksesibilitas",
+      "BISINDO"
+    ],
     "cta": {
       "start": "Mulai menerjemahkan",
       "explore": "Jelajahi sistem",
       "research": "Baca riset"
+    },
+    "hero": {
+      "titleBefore": "Komunikasi hening,",
+      "titleAccent": "jelas",
+      "titleAfter": "dipahami.",
+      "body": "Ruang kerja AI terkendali untuk menerjemahkan gestur bahasa isyarat Indonesia menjadi teks dan suara tanpa menjadikan aksesibilitas sebagai tontonan.",
+      "phrases": [
+        "Halo, nama saya Rina.",
+        "Saya butuh bantuan.",
+        "Terima kasih.",
+        "Di mana pintu keluar?"
+      ]
+    },
+    "scanner": {
+      "status": "SignifyAI · Pengenalan langsung",
+      "imageAlt": "Pratinjau langsung pengenalan bahasa isyarat",
+      "tracking": "Melacak tangan",
+      "confidence": "Keyakinan 98,4%",
+      "outputLabel": "Keluaran dikenali",
+      "sessionLabel": "Sesi",
+      "sessionTitle": "Pengenalan BISINDO",
+      "sessionBody": "Pemahaman kamera waktu nyata yang disesuaikan untuk pose tangan dan keluaran yang mudah dipakai.",
+      "modelLabel": "Model",
+      "modelValue": "YOLOv11 + titik acuan",
+      "latencyLabel": "Latensi",
+      "latencyValue": "Di bawah satu detik",
+      "privacyLabel": "Privasi",
+      "privacyValue": "Mengutamakan lokal",
+      "intentLabel": "Tujuan aktif",
+      "live": "Langsung",
+      "intentTitle": "Terjemahan siap",
+      "intentBody": "Rangkaian gestur tangan telah dikenali dan diubah menjadi keluaran Bahasa Indonesia yang alami.",
+      "pipelineLabel": "Alur",
+      "pipelineFlow": "Kamera -> Deteksi -> Urai -> Suara",
+      "pipelineItems": [
+        "Pengambilan bingkai stabil",
+        "Tangan terisolasi",
+        "Gestur diurai",
+        "Keluaran suara tersedia"
+      ]
+    },
+    "privacy": {
+      "label": "Arsitektur privasi",
+      "title": "Kerja kamera tetap terkendali.",
+      "bullets": [
+        "Bingkai video diproses untuk alur pengenalan aktif.",
+        "Riwayat tersimpan berisi teks terjemahan, bukan rekaman kamera mentah.",
+        "Pengguna dapat membersihkan log dan menyusun ulang kalimat kapan saja."
+      ]
+    },
+    "researchRows": {
+      "label": "Tabel riset",
+      "titleBefore": "Pelajari bagaimana",
+      "titleAccent": "sistem",
+      "titleAfter": "berperilaku.",
+      "items": [
+        {
+          "title": "Transparansi model",
+          "topic": "Riset",
+          "meta": "Diperbarui 2026",
+          "icon": "sparkles"
+        },
+        {
+          "title": "Batasan yang diketahui",
+          "topic": "Keamanan",
+          "meta": "5 menit baca",
+          "icon": "clock"
+        },
+        {
+          "title": "Alur belajar BISINDO",
+          "topic": "Edukasi",
+          "meta": "26 huruf",
+          "icon": "file"
+        }
+      ]
+    },
+    "finalCta": {
+      "label": "Coba ruang kerja",
+      "title": "Terjemahkan, latihan, dan tinjau dalam satu ruang kerja yang tenang.",
+      "button": "Buka SignifyAI"
+    },
+    "deviceShowcase": {
+      "address": "signify.ai/ruang-kerja",
+      "live": "Langsung",
+      "desktopLabel": "Desktop",
+      "tabletLabel": "iPad / Tablet",
+      "mobileLabel": "Seluler",
+      "sidebarSubtitle": "Studio responsif",
+      "workspaceLabel": "Ruang kerja",
+      "translateSession": "Sesi terjemahan",
+      "confidence": "Keyakinan 98%",
+      "cameraActive": "Kamera aktif",
+      "recognizedOutput": "Keluaran dikenali",
+      "desktopOutput": "Terima kasih.",
+      "practiceLabel": "Latihan",
+      "dailyDrill": "Latihan alfabet harian",
+      "statistics": "Statistik",
+      "letters": "huruf",
+      "practice": "latihan",
+      "voiceReady": "Keluaran suara siap",
+      "tabletMode": "Mode tablet",
+      "practiceAndTranslate": "Latihan dan terjemahkan",
+      "translate": "Terjemahkan",
+      "cameraFramed": "Kamera terbingkai",
+      "output": "Keluaran",
+      "tabletOutput": "Saya butuh bantuan.",
+      "accuracy": "Akurasi",
+      "nextDrill": "Latihan berikutnya",
+      "letterS": "Huruf S",
+      "mobile": "Seluler",
+      "quickTranslate": "Terjemahan cepat",
+      "camera": "Kamera",
+      "translationResult": "Hasil terjemahan",
+      "mobileOutput": "Halo, nama saya Rina.",
+      "saved": "tersimpan",
+      "startPractice": "Mulai latihan",
+      "sectionLabel": "Pratinjau responsif",
+      "sectionTitle": "Satu ruang kerja, tersusun untuk setiap layar.",
+      "sectionBody": "Pratinjau halaman menunjukkan bagaimana SignifyAI menjaga terjemahan, latihan, progres, dan keluaran suara tetap mudah dibaca di tata letak seluler, tablet, dan desktop.",
+      "bullets": [
+        {
+          "label": "Tata letak adaptif",
+          "desc": "Antarmuka mengalir alami"
+        },
+        {
+          "label": "Dioptimalkan untuk sentuhan",
+          "desc": "Target ketuk besar"
+        },
+        {
+          "label": "Dapat dipakai luring",
+          "desc": "Fitur inti bekerja di mana saja"
+        }
+      ]
     }
   },
   "docs": {
     "howItWorks": {
-      "title": "Dari frame kamera ke kalimat bersuara.",
-      "lead": "Penjelasan sederhana tentang loop pengenalan, penyusun kalimat, dan batas yang perlu dipahami pengguna sebelum mengandalkan alat ini.",
+      "title": "Dari bingkai kamera ke kalimat bersuara.",
+      "lead": "Penjelasan sederhana tentang alur pengenalan, penyusun kalimat, dan batas yang perlu dipahami pengguna sebelum mengandalkan alat ini.",
       "faqQuestion": "Bahasa isyarat apa yang didukung?",
-      "faqAnswer": "Workspace berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait."
+      "faqAnswer": "Workspace berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait.",
+      "steps": [
+        {
+          "step": "01",
+          "title": "Buka kamera",
+          "desc": "SignifyAI berjalan di peramban dan meminta akses kamera hanya untuk sesi aktif.",
+          "details": [
+            "Kamera depan atau belakang",
+            "Tanpa unduh aplikasi",
+            "Ruang kerja responsif"
+          ]
+        },
+        {
+          "step": "02",
+          "title": "Jalankan pengenalan",
+          "desc": "Model membaca bentuk tangan bingkai demi bingkai dan menghasilkan prediksi dengan skor keyakinan.",
+          "details": [
+            "Prapemrosesan gambar",
+            "Inferensi YOLO",
+            "Penyaringan keyakinan"
+          ]
+        },
+        {
+          "step": "03",
+          "title": "Susun kalimat",
+          "desc": "Huruf yang terkonfirmasi dimasukkan ke penyangga kalimat yang bisa disunting atau dibersihkan.",
+          "details": [
+            "Hapus terakhir",
+            "Tambah spasi",
+            "Ekspor sesi"
+          ]
+        },
+        {
+          "step": "04",
+          "title": "Bacakan dengan suara",
+          "desc": "Teks-ke-suara dapat membacakan kalimat yang dibuat dalam Bahasa Indonesia ketika keluaran suara dibutuhkan.",
+          "details": [
+            "Kecepatan dapat diatur",
+            "Kontrol volume",
+            "Pemutaran manual"
+          ]
+        }
+      ],
+      "limitationsLabel": "Batasan jujur",
+      "limitationsTitle": "Produk ini berguna karena batasnya terlihat jelas.",
+      "limitations": [
+        {
+          "title": "Pencahayaan berpengaruh",
+          "desc": "Ruangan yang sangat redup atau membelakangi cahaya dapat menurunkan kualitas prediksi. Pastikan tangan terlihat dan berada di tengah."
+        },
+        {
+          "title": "Cakupan alfabet",
+          "desc": "Rilis ini berfokus pada pengenalan alfabet BISINDO, bukan penafsiran tersertifikasi penuh."
+        },
+        {
+          "title": "Bukan juru bahasa legal",
+          "desc": "Gunakan SignifyAI sebagai alat bantu komunikasi, bukan sebagai juru bahasa tersertifikasi untuk konteks penting."
+        }
+      ],
+      "faqLabel": "Tanya jawab",
+      "faqTitle": "Pertanyaan umum.",
+      "faqs": [
+        {
+          "question": "Bahasa isyarat apa yang didukung?",
+          "answer": "Ruang kerja berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait."
+        },
+        {
+          "question": "Apakah video saya disimpan?",
+          "answer": "Produk ini dirancang untuk pemrosesan sesi aktif. Riwayat tersimpan hanya menyimpan entri teks terjemahan."
+        },
+        {
+          "question": "Perangkat apa yang bisa digunakan?",
+          "answer": "Peramban desktop dan seluler modern yang memiliki akses kamera didukung."
+        },
+        {
+          "question": "Seberapa akurat hasilnya?",
+          "answer": "Akurasi bergantung pada kualitas kamera, pencahayaan, kecepatan berisyarat, dan apakah isyarat ada dalam cakupan pelatihan."
+        }
+      ],
+      "ctaLabel": "Coba ruang kerja",
+      "ctaTitle": "Buka sesi kamera dan uji alur pengenalan.",
+      "ctaButton": "Mulai menerjemahkan"
     },
     "research": {
-      "title": "Apa itu penerjemah bahasa isyarat real-time?",
+      "title": "Apa itu penerjemah bahasa isyarat waktu nyata?",
       "contents": "Daftar isi riset",
-      "learnHow": "Pelajari cara kerjanya"
+      "learnHow": "Pelajari cara kerjanya",
+      "meta": {
+        "eyebrow": "Riset",
+        "team": "Tim Signify",
+        "category": "Riset & Pengembangan",
+        "readTime": "12 menit baca",
+        "updated": "Diperbarui Maret 2025"
+      },
+      "about": {
+        "label": "Tentang riset ini",
+        "title": "AI untuk aksesibilitas",
+        "points": [
+          "Visi komputer untuk pengenalan gestur",
+          "AI etis dan desain inklusif",
+          "Pengumpulan data berbasis komunitas"
+        ]
+      },
+      "sections": {
+        "introduction": {
+          "title": "Pendahuluan",
+          "blocks": [
+            {
+              "text": "Penerjemah bahasa isyarat waktu nyata adalah sistem kecerdasan buatan yang dirancang untuk menafsirkan gestur tangan, ekspresi wajah, dan gerakan tubuh menjadi keluaran bahasa terstruktur seperti teks atau suara."
+            },
+            {
+              "text": "Berbeda dari sistem terjemahan biasa yang mengubah satu bahasa lisan ke bahasa lain, penerjemahan bahasa isyarat membutuhkan pemahaman multimodal. Bahasa isyarat adalah bahasa alami yang lengkap dengan tata bahasa, struktur ruang, dan penanda nonmanualnya sendiri."
+            },
+            {
+              "text": "Sistem modern mengandalkan alur visi komputer untuk mendeteksi titik acuan tangan dan tubuh. Titik kunci tersebut kemudian diproses dengan arsitektur pembelajaran mendalam yang mampu memodelkan keterkaitan waktu dalam rangkaian gerak."
+            },
+            {
+              "text": "Tujuan sistem terjemahan waktu nyata adalah menekan latensi sambil menjaga ketepatan makna, sehingga komunikasi antara komunitas Tuli dan pendengar dapat berlangsung lebih alami dan inklusif."
+            }
+          ]
+        },
+        "whyItMatters": {
+          "title": "Mengapa Ini Penting",
+          "blocks": [
+            {
+              "text": "Komunikasi adalah dasar pendidikan, layanan kesehatan, pekerjaan, dan partisipasi sosial. Bagi komunitas Tuli dan sulit dengar, hambatan komunikasi sering membatasi akses setara terhadap informasi dan layanan. Teknologi yang menjembatani hambatan ini dapat memberi dampak sosial yang nyata."
+            },
+            {
+              "type": "heading",
+              "text": "Mengurangi Hambatan Komunikasi"
+            },
+            {
+              "text": "Terjemahan bahasa isyarat waktu nyata memungkinkan interaksi langsung antara pengguna isyarat dan nonpengguna isyarat tanpa selalu bergantung pada juru bahasa. Juru bahasa profesional tetap penting, sementara alat berbantuan AI dapat menambah akses ketika dukungan langsung belum tersedia."
+            },
+            {
+              "type": "heading",
+              "text": "Mendorong Teknologi Inklusif"
+            },
+            {
+              "text": "Desain AI inklusif memastikan kemajuan teknologi bermanfaat bagi beragam kelompok. Dengan memasukkan fitur aksesibilitas ke sistem utama, pengembang membantu menciptakan lingkungan digital yang adil dan mudah digunakan semua orang."
+            },
+            {
+              "type": "heading",
+              "text": "Mendukung Pendidikan & Pekerjaan"
+            },
+            {
+              "text": "Alat komunikasi yang aksesibel memperluas peluang di lingkungan akademik dan profesional. Siswa memperoleh akses lebih baik ke kuliah dan sumber belajar, sementara tempat kerja dapat mendukung kolaborasi dan partisipasi yang lebih inklusif."
+            },
+            {
+              "type": "heading",
+              "text": "Memajukan AI untuk Dampak Sosial"
+            },
+            {
+              "text": "Riset pengenalan bahasa isyarat berkontribusi pada kemajuan pembelajaran multimodal, pemodelan rangkaian, dan AI berpusat pada manusia. Perkembangan ini melampaui aplikasi aksesibilitas dan memperkuat ekosistem AI secara umum."
+            },
+            {
+              "text": "Pada akhirnya, pentingnya riset ini bukan hanya pada peningkatan teknis, tetapi juga pada potensinya untuk mendukung martabat, kemandirian, dan akses komunikasi yang setara di berbagai tempat."
+            }
+          ]
+        },
+        "howItWorks": {
+          "title": "Cara Kerjanya",
+          "blocks": [
+            {
+              "text": "Sistem terjemahan bahasa isyarat waktu nyata bekerja melalui alur bertahap yang mengubah masukan visual menjadi keluaran bahasa terstruktur. Proses ini memadukan visi komputer, pemodelan rangkaian, dan penafsiran bahasa dalam kerangka latensi rendah."
+            },
+            {
+              "type": "heading",
+              "text": "1. Pengambilan Video"
+            },
+            {
+              "text": "Sistem dimulai dengan menangkap masukan video langsung dari kamera. Bingkai diproses terus-menerus untuk mendukung analisis gerak yang mulus. Kestabilan laju bingkai penting untuk menjaga pelacakan gerak tetap akurat."
+            },
+            {
+              "type": "heading",
+              "text": "2. Deteksi Titik Acuan"
+            },
+            {
+              "text": "Model visi komputer mendeteksi titik acuan pada tangan, tubuh, dan wajah. Titik acuan ini mewakili koordinat sendi dan fitur wajah. Ekstraksi titik kunci terstruktur mengurangi gangguan latar dan menyeragamkan masukan visual untuk model berikutnya."
+            },
+            {
+              "type": "heading",
+              "text": "3. Pemodelan Rangkaian Waktu"
+            },
+            {
+              "text": "Karena bahasa isyarat bersifat dinamis, sistem menganalisis rangkaian bingkai, bukan gambar tunggal. Model temporal seperti jaringan saraf berulang atau arsitektur transformer mempelajari pola gerak dan keterkaitan konteks dari waktu ke waktu."
+            },
+            {
+              "type": "heading",
+              "text": "4. Klasifikasi Gestur"
+            },
+            {
+              "text": "Rangkaian yang telah diproses diteruskan ke lapisan klasifikasi yang memprediksi label isyarat paling mungkin. Untuk isyarat berkelanjutan, algoritma segmentasi mengenali batas antar-isyarat."
+            },
+            {
+              "type": "heading",
+              "text": "5. Keluaran Bahasa"
+            },
+            {
+              "text": "Terakhir, rangkaian isyarat yang diprediksi diubah menjadi teks yang mudah dibaca atau suara sintetis. Beberapa sistem memakai modul pemrosesan bahasa alami untuk merapikan keluaran menjadi bahasa lisan yang koheren."
+            },
+            {
+              "text": "Seluruh alur harus berjalan dalam hitungan milidetik agar tetap responsif. Inferensi efisien, ukuran model yang ringkas, dan akselerasi perangkat keras karena itu menjadi penting untuk penerapan praktis."
+            }
+          ]
+        },
+        "technologyBehindIt": {
+          "title": "Teknologi di Baliknya",
+          "blocks": [
+            {
+              "text": "Sistem terjemahan bahasa isyarat ditopang oleh gabungan teknologi visi komputer, pembelajaran mendalam, dan pemrosesan bahasa alami. Setiap komponen berperan mengubah gestur visual menjadi keluaran bahasa yang terstruktur dan bermakna."
+            },
+            {
+              "type": "heading",
+              "text": "Visi Komputer"
+            },
+            {
+              "text": "Model visi komputer mengekstrak fitur ruang dari masukan video langsung. Algoritma deteksi titik kunci mengenali sendi tangan, pose tubuh, dan titik acuan wajah. Representasi terstruktur ini mengurangi gangguan dan menyediakan masukan yang konsisten untuk pemodelan rangkaian."
+            },
+            {
+              "type": "heading",
+              "text": "Model Pembelajaran Mendalam"
+            },
+            {
+              "text": "Jaringan saraf konvolusional dan arsitektur berbasis transformer memproses informasi visual serta temporal. Jaringan konvolusional menangkap pola ruang, sementara model temporal mempelajari dinamika gerak antarbingkai. Mekanisme perhatian semakin memperkuat pemahaman konteks."
+            },
+            {
+              "type": "heading",
+              "text": "Pemodelan Rangkaian"
+            },
+            {
+              "text": "Karena bahasa isyarat bergantung pada gerak berkelanjutan, sistem menerapkan teknik pemodelan rangkaian seperti jaringan saraf berulang, jaringan memori jangka pendek panjang, atau transformer. Model ini menganalisis transisi bingkai demi bingkai untuk mengenali frasa isyarat utuh."
+            },
+            {
+              "type": "heading",
+              "text": "Pemrosesan Bahasa Alami"
+            },
+            {
+              "text": "Setelah klasifikasi gestur, modul pemrosesan bahasa alami menyusun ulang rangkaian isyarat yang diprediksi menjadi teks yang koheren. Langkah ini membuat keluaran lebih mudah dibaca dan lebih berguna dalam konteks komunikasi nyata."
+            },
+            {
+              "type": "heading",
+              "text": "Penerapan & Infrastruktur"
+            },
+            {
+              "text": "Alur inferensi yang dioptimalkan memungkinkan kinerja waktu nyata. Teknik seperti kuantisasi model, akselerasi perangkat keras, dan strategi penerapan di perangkat tepi mengurangi latensi tanpa mengorbankan akurasi. Infrastruktur awan yang dapat diskalakan mendukung perluasan dataset dan pelatihan ulang berkala."
+            },
+            {
+              "text": "Bersama-sama, teknologi ini membentuk sistem terpadu yang mampu menafsirkan gestur manusia yang kompleks menjadi bahasa digital yang aksesibel."
+            }
+          ]
+        },
+        "aiMachineLearning": {
+          "title": "AI & Pembelajaran Mesin",
+          "blocks": [
+            {
+              "text": "Kecerdasan buatan menjadi fondasi sistem terjemahan bahasa isyarat waktu nyata modern. Pembelajaran mesin memungkinkan model mempelajari pola dari data visual tanpa bergantung pada aturan yang diprogram secara eksplisit. Peralihan dari sistem berbasis aturan ke arsitektur berbasis data telah meningkatkan akurasi pengenalan secara besar."
+            },
+            {
+              "text": "Sebagian besar alur pengenalan isyarat dimulai dari prapemrosesan visi komputer. Bingkai video dianalisis untuk mengekstrak representasi terstruktur seperti titik acuan tangan, titik kunci pose tubuh, dan fitur wajah. Masukan terstruktur ini mengurangi gangguan dan membantu model belajar berfokus pada pola gerak yang bermakna."
+            },
+            {
+              "text": "Pendekatan awal banyak mengandalkan jaringan saraf konvolusional untuk ekstraksi fitur ruang. Meskipun efektif untuk pengenalan gestur statis, sistem ini kesulitan menangkap keterkaitan waktu jarak jauh dalam isyarat berkelanjutan."
+            },
+            {
+              "text": "Untuk mengatasi keterbatasan tersebut, model berurutan seperti jaringan saraf berulang, jaringan memori jangka pendek panjang, dan arsitektur transformer mulai digunakan. Transformer memakai mekanisme perhatian untuk memodelkan hubungan antarbingkai sepanjang waktu, sehingga kinerja tugas pengenalan isyarat berkelanjutan meningkat."
+            },
+            {
+              "text": "Selain pembelajaran terawasi, riset baru mengeksplorasi pendekatan swaterawasi dan semiterawasi untuk mengurangi ketergantungan pada dataset berlabel besar. Metode ini memungkinkan model mempelajari representasi gerak dari video tanpa label, sesuatu yang sangat berharga karena korpus bahasa isyarat beranotasi masih terbatas."
+            },
+            {
+              "text": "Penerapan waktu nyata menghadirkan pertimbangan rekayasa tambahan. Model harus menyeimbangkan akurasi prediksi dengan efisiensi komputasi. Teknik seperti pemangkasan model, kuantisasi, dan optimasi inferensi tepi memungkinkan terjemahan berlatensi rendah yang sesuai untuk aplikasi seluler dan peramban."
+            },
+            {
+              "text": "Seiring berkembangnya riset AI, arsitektur multimodal yang menggabungkan visi, pemodelan bahasa, dan penalaran konteks diharapkan semakin meningkatkan pemahaman makna dalam sistem terjemahan bahasa isyarat."
+            }
+          ]
+        },
+        "modelTraining": {
+          "title": "Pelatihan Model",
+          "blocks": [
+            {
+              "text": "Pelatihan model adalah proses ketika sistem terjemahan bahasa isyarat belajar memetakan rangkaian gestur visual ke keluaran bahasa terstruktur. Alih-alih mengandalkan aturan baku, model mengoptimalkan parameter internalnya dengan meminimalkan kesalahan prediksi pada dataset berlabel."
+            },
+            {
+              "type": "heading",
+              "text": "Pengumpulan Dataset"
+            },
+            {
+              "text": "Pelatihan dimulai dari dataset video terkurasi yang memuat rangkaian isyarat beranotasi. Setiap klip video diberi label glos isyarat atau makna tekstual yang sesuai. Keragaman dataset sangat penting agar model dapat bekerja untuk berbagai pengguna, dialek, dan lingkungan."
+            },
+            {
+              "type": "heading",
+              "text": "Prapemrosesan Data"
+            },
+            {
+              "text": "Bingkai video mentah diubah menjadi representasi terstruktur seperti titik acuan tangan, koordinat pose tubuh, atau embedding piksel. Normalisasi fitur dan penyelarasan waktu diterapkan untuk menyeragamkan masukan sebelum pelatihan."
+            },
+            {
+              "type": "heading",
+              "text": "Tujuan Pembelajaran Terawasi"
+            },
+            {
+              "text": "Sebagian besar sistem pengenalan isyarat memakai pembelajaran terawasi. Saat pelatihan, model memprediksi label isyarat untuk setiap rangkaian masukan dan membandingkannya dengan anotasi kebenaran dasar. Fungsi rugi seperti rugi entropi silang dihitung untuk mengukur kesalahan prediksi."
+            },
+            {
+              "text": "Algoritma optimasi seperti penurunan gradien stokastik atau Adam menyesuaikan parameter model secara iteratif untuk meminimalkan rugi tersebut. Seiring waktu, model mempelajari pola statistik yang menghubungkan rangkaian gerak dengan makna bahasa."
+            },
+            {
+              "type": "heading",
+              "text": "Validasi & Generalisasi"
+            },
+            {
+              "text": "Untuk mencegah overfitting, data pelatihan dibagi menjadi subset pelatihan dan validasi. Kinerja dievaluasi pada sampel validasi yang belum pernah dilihat untuk menilai kemampuan generalisasi. Teknik seperti dropout, regularisasi, dan augmentasi data turut meningkatkan ketahanan model."
+            },
+            {
+              "type": "heading",
+              "text": "Penyelarasan Lanjut & Pembelajaran Berkelanjutan"
+            },
+            {
+              "text": "Setelah pelatihan awal, model dapat menjalani penyelarasan lanjut menggunakan dataset khusus domain atau data pengguna baru. Alur peningkatan berkelanjutan memungkinkan pelatihan ulang berkala ketika sampel beranotasi bertambah."
+            },
+            {
+              "text": "Pelatihan model yang efektif membutuhkan dataset besar dan sumber daya komputasi, sekaligus protokol evaluasi yang cermat untuk memastikan keadilan, mitigasi bias, dan kinerja konsisten pada berbagai kelompok demografis."
+            }
+          ]
+        },
+        "accuracyImprovements": {
+          "title": "Akurasi & Peningkatan",
+          "blocks": [
+            {
+              "text": "Mencapai akurasi tinggi dalam terjemahan bahasa isyarat waktu nyata adalah tantangan kompleks karena variasi kecepatan berisyarat, dialek daerah, kondisi pencahayaan, sudut kamera, dan perbedaan tiap pengguna. Berbeda dari klasifikasi gambar statis, pengenalan isyarat harus memodelkan pola gerak temporal dalam rangkaian bingkai."
+            },
+            {
+              "text": "Salah satu faktor utama yang memengaruhi kinerja adalah kualitas dataset. Dataset yang lebih besar dan beragam secara signifikan meningkatkan generalisasi model. Teknik augmentasi data seperti rotasi acak, penyesuaian kecerahan, dan penskalaan waktu membantu model tetap tangguh dalam kondisi nyata."
+            },
+            {
+              "text": "Arsitektur model juga berperan penting. Sistem awal mengandalkan jaringan saraf konvolusional, sementara pendekatan modern memakai pemodelan rangkaian berbasis transformer untuk menangkap keterkaitan waktu jarak jauh dengan lebih baik. Mekanisme perhatian memungkinkan model berfokus pada segmen gestur yang relevan."
+            },
+            {
+              "text": "Peningkatan besar lain datang dari pembelajaran multimodal. Penggabungan titik acuan tangan, estimasi pose tubuh, dan analisis ekspresi wajah memperkuat pemahaman konteks. Penanda nonmanual seperti gerak alis dan bentuk mulut sering membawa makna gramatikal dalam bahasa isyarat."
+            },
+            {
+              "text": "Optimasi latensi sama pentingnya. Sistem waktu nyata harus menyeimbangkan kecepatan inferensi dan akurasi prediksi. Teknik seperti kuantisasi model, pemangkasan, dan optimasi perangkat tepi mengurangi biaya komputasi tanpa banyak mengorbankan kinerja."
+            },
+            {
+              "text": "Riset berkelanjutan terus mengeksplorasi pembelajaran swaterawasi, adaptasi lintas bahasa isyarat, dan strategi mitigasi bias agar sistem AI tetap adil dan inklusif. Seiring bertambahnya dataset dan berkembangnya teknik pemodelan, sistem terjemahan bahasa isyarat waktu nyata diharapkan mencapai ketepatan makna yang lebih tinggi dan cakupan penerapan yang lebih luas."
+            }
+          ]
+        },
+        "useCases": {
+          "title": "Contoh Penggunaan",
+          "blocks": [
+            {
+              "text": "Sistem terjemahan bahasa isyarat waktu nyata memungkinkan komunikasi inklusif di berbagai bidang. Contoh berikut menunjukkan bagaimana teknologi ini dapat diterapkan dalam lingkungan yang praktis dan dapat diskalakan."
+            },
+            {
+              "type": "heading",
+              "text": "Pendidikan"
+            },
+            {
+              "text": "Di kelas dan lingkungan belajar daring, pengenalan isyarat otomatis dapat membantu siswa Tuli dan sulit dengar dengan menyediakan terjemahan teks langsung. Sistem ini juga dapat mendukung pendidik yang belum fasih bahasa isyarat, sehingga partisipasi akademik menjadi lebih inklusif."
+            },
+            {
+              "type": "heading",
+              "text": "Komunikasi Layanan Kesehatan"
+            },
+            {
+              "text": "Konsultasi medis membutuhkan komunikasi yang jelas dan akurat. Alat terjemahan waktu nyata dapat membantu saat penerimaan pasien, situasi darurat, dan konsultasi rutin ketika juru bahasa profesional belum segera tersedia."
+            },
+            {
+              "type": "heading",
+              "text": "Layanan Pelanggan & Layanan Publik"
+            },
+            {
+              "text": "Pusat layanan, bank, dan lembaga pemerintah dapat mengintegrasikan sistem terjemahan bahasa isyarat untuk meningkatkan aksesibilitas. Penerapan berbasis kios atau web memungkinkan interaksi yang lebih lancar antara individu Tuli dan penyedia layanan."
+            },
+            {
+              "type": "heading",
+              "text": "Komunikasi Jarak Jauh"
+            },
+            {
+              "text": "Platform konferensi video dapat memasukkan model pengenalan gestur untuk menghasilkan takarir otomatis dari bahasa isyarat. Hal ini meningkatkan aksesibilitas dalam rapat jarak jauh dan kolaborasi digital."
+            },
+            {
+              "type": "heading",
+              "text": "Riset & Analisis Linguistik"
+            },
+            {
+              "text": "Peneliti dapat memanfaatkan sistem pengenalan gestur untuk menganalisis korpus bahasa isyarat berskala besar. Alat anotasi otomatis mempercepat kajian linguistik dan meningkatkan pengembangan dataset untuk bahasa isyarat dengan sumber daya terbatas."
+            },
+            {
+              "text": "Aplikasi ini menunjukkan dampak sosial luas dari teknologi AI yang aksesibel ketika dirancang dengan inklusivitas dan penerapan nyata sebagai landasan."
+            }
+          ]
+        },
+        "researchDevelopment": {
+          "title": "Riset & Pengembangan",
+          "blocks": [
+            {
+              "text": "Upaya riset dan pengembangan berfokus pada peningkatan akurasi pengenalan, perluasan cakupan bahasa, dan pengurangan latensi dalam sistem terjemahan bahasa isyarat waktu nyata. Eksperimen dan validasi berkelanjutan penting untuk memastikan penerapan yang dapat diskalakan dan inklusif."
+            },
+            {
+              "type": "heading",
+              "text": "Pembelajaran Multimodal"
+            },
+            {
+              "text": "Riset saat ini mengeksplorasi arsitektur multimodal yang menggabungkan pose tangan, ekspresi wajah, dan gerakan tubuh bagian atas secara bersamaan. Karena bahasa isyarat sangat bergantung pada penanda nonmanual, penggabungan modalitas ini meningkatkan pemahaman makna dan akurasi konteks."
+            },
+            {
+              "type": "heading",
+              "text": "Arsitektur Berbasis Transformer"
+            },
+            {
+              "text": "Model transformer menunjukkan kinerja kuat dalam tugas pemodelan rangkaian. Dengan memanfaatkan mekanisme perhatian, arsitektur ini menangkap keterkaitan jarak jauh dalam rangkaian gestur lebih efektif daripada jaringan berulang tradisional."
+            },
+            {
+              "type": "heading",
+              "text": "Bahasa Isyarat Bersumber Daya Terbatas"
+            },
+            {
+              "text": "Banyak bahasa isyarat belum memiliki dataset beranotasi besar. Inisiatif riset berupaya mengatasinya melalui transfer learning, pembuatan data sintetis, dan pendekatan pembelajaran swaterawasi. Teknik ini memungkinkan peningkatan kinerja bahkan dalam lingkungan dengan data terbatas."
+            },
+            {
+              "type": "heading",
+              "text": "Optimasi Waktu Nyata"
+            },
+            {
+              "text": "Teknik kompresi model seperti kuantisasi dan pemangkasan aktif diteliti untuk mengurangi kebutuhan komputasi. Penerapan yang efisien memastikan sistem dapat berjalan di perangkat tepi tanpa mengorbankan keandalan prediksi."
+            },
+            {
+              "type": "heading",
+              "text": "AI Etis & Inklusif"
+            },
+            {
+              "text": "Pengembangan bertanggung jawab membutuhkan evaluasi pada beragam demografi pengguna isyarat untuk memitigasi bias. Pengujian keadilan, tolok ukur transparan, dan kolaborasi komunitas adalah komponen penting strategi riset jangka panjang."
+            },
+            {
+              "text": "Pengembangan berkelanjutan menekankan skalabilitas, keterjelasan, dan aksesibilitas, sehingga kemajuan teknologi benar-benar menjadi dampak bermakna bagi komunitas Tuli dan sulit dengar."
+            }
+          ]
+        },
+        "conclusion": {
+          "title": "Kesimpulan",
+          "blocks": [
+            {
+              "text": "Riset ini menjelaskan fondasi teknologi dan relevansi sosial sistem terjemahan bahasa isyarat waktu nyata. Dengan menggabungkan visi komputer, pembelajaran mendalam, dan pemrosesan bahasa alami, sistem ini menunjukkan bagaimana AI multimodal dapat mengubah gestur visual menjadi keluaran bahasa yang bermakna."
+            },
+            {
+              "text": "Peningkatan berkelanjutan pada arsitektur model, keragaman dataset, dan teknik optimasi telah memperkuat akurasi pengenalan serta kinerja waktu nyata. Namun, riset lanjutan tetap penting untuk mengatasi tantangan seperti bahasa isyarat bersumber daya rendah, evaluasi keadilan, dan penafsiran bahasa berbasis konteks."
+            },
+            {
+              "text": "Di luar inovasi teknis, dampak lebih luas dari pekerjaan ini adalah memajukan aksesibilitas dan teknologi inklusif. Alat terjemahan berbasis AI dapat mengurangi hambatan komunikasi dan menciptakan akses yang lebih setara ke pendidikan, layanan kesehatan, dan lingkungan profesional."
+            },
+            {
+              "text": "Pengembangan berikutnya akan berfokus pada perluasan cakupan bahasa, peningkatan pemahaman konteks, dan penerapan solusi yang dapat diskalakan serta efisien di berbagai perangkat. Dengan menyelaraskan kemajuan teknologi dan prinsip desain berpusat pada manusia, riset ini berkontribusi pada masa depan digital yang lebih inklusif."
+            }
+          ]
+        }
+      }
     },
     "terms": {
       "title": "Syarat & Ketentuan",
       "contents": "Daftar isi ketentuan",
-      "plainSummary": "Ringkasan bahasa sederhana"
+      "plainSummary": "Ringkasan sederhana",
+      "meta": {
+        "eyebrow": "Hukum",
+        "lastUpdated": "Terakhir diperbarui:",
+        "lastUpdatedDate": "18 Februari 2026",
+        "sections": "{count} bagian",
+        "readTime": "~5 menit baca",
+        "onThisPage": "Di halaman ini"
+      },
+      "summaryBody": "SignifyAI adalah alat aksesibilitas. Kami transparan tentang batas model, penanganan data, dan fakta bahwa produk ini bukan juru bahasa tersertifikasi.",
+      "sections": [
+        {
+          "id": "acceptance",
+          "title": "1. Penerimaan Ketentuan",
+          "content": "Dengan mengakses atau menggunakan SignifyAI, Anda setuju terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak setuju dengan bagian mana pun, Anda tidak boleh mengakses layanan."
+        },
+        {
+          "id": "description",
+          "title": "2. Deskripsi Layanan",
+          "content": "SignifyAI menyediakan platform terjemahan bahasa isyarat berbasis AI yang mengubah gestur dari kamera menjadi teks dan suara sintetis."
+        },
+        {
+          "id": "account",
+          "title": "3. Akun Pengguna",
+          "content": "Saat membuat akun, Anda harus memberikan informasi yang akurat dan terkini. Anda bertanggung jawab atas aktivitas akun dan keamanan akses akun Anda."
+        },
+        {
+          "id": "privacy",
+          "title": "4. Privasi & Data",
+          "content": "SignifyAI dirancang dengan pemrosesan video sesi aktif. Teks terjemahan dapat disimpan di riwayat lokal ketika pengguna menyimpan catatan sesi."
+        },
+        {
+          "id": "ip",
+          "title": "5. Kekayaan Intelektual",
+          "content": "Layanan, termasuk konten asli, fitur, dan fungsionalitasnya, tetap menjadi milik SignifyAI dan pemberi lisensinya."
+        },
+        {
+          "id": "acceptable-use",
+          "title": "6. Penggunaan yang Diperbolehkan",
+          "content": "Anda setuju untuk tidak menggunakan layanan untuk aktivitas melanggar hukum, akses tidak sah, rekayasa balik, penyalahgunaan otomatis, atau penyebaran konten berbahaya."
+        },
+        {
+          "id": "disclaimer",
+          "title": "7. Penafian Jaminan",
+          "content": "Layanan disediakan apa adanya. Akurasi terjemahan dapat berbeda tergantung pencahayaan, kualitas kamera, kecepatan berisyarat, dan cakupan model."
+        },
+        {
+          "id": "liability",
+          "title": "8. Batas Tanggung Jawab",
+          "content": "Sejauh diizinkan hukum, SignifyAI tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau hukuman yang timbul dari penggunaan layanan."
+        },
+        {
+          "id": "changes",
+          "title": "9. Perubahan Ketentuan",
+          "content": "Kami berhak mengubah ketentuan ini. Penggunaan berlanjut setelah perubahan berlaku dianggap sebagai penerimaan atas ketentuan yang direvisi."
+        },
+        {
+          "id": "contact",
+          "title": "10. Hubungi Kami",
+          "content": "Pertanyaan tentang ketentuan ini dapat dikirim ke legal@signify.ai. Kami berupaya merespons dalam 5 hari kerja."
+        }
+      ],
+      "callouts": {
+        "privacy": "Privasi video adalah batas produk, bukan sekadar kebijakan.",
+        "researchLink": "Baca catatan riset.",
+        "disclaimer": "Untuk konteks hukum, medis, atau resmi, gunakan juru bahasa manusia yang memenuhi kualifikasi.",
+        "limitationsLink": "Lihat batasan."
+      },
+      "contact": {
+        "title": "Ada pertanyaan tentang ketentuan ini?",
+        "body": "Kami dapat menjelaskan bagian mana pun dengan bahasa sederhana.",
+        "button": "Hubungi legal"
+      }
     }
   },
   "seo": {
     "siteName": "SignifyAI",
     "defaultTitle": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
     "titleTemplate": "%s · SignifyAI",
-    "description": "Terjemahkan gerakan tangan BISINDO menjadi teks dan suara secara real-time menggunakan AI. Dirancang untuk komunitas Tuli, pendidik, dan peneliti.",
+    "description": "Terjemahkan gerakan tangan BISINDO menjadi teks dan suara secara waktu nyata menggunakan AI. Dirancang untuk komunitas Tuli, pendidik, dan peneliti.",
     "keywords": [
       "BISINDO",
       "bahasa isyarat Indonesia",
       "penerjemah isyarat",
       "AI aksesibilitas",
-      "terjemahan real-time",
-      "computer vision"
+      "terjemahan waktu nyata",
+      "visi komputer"
     ],
     "imageAlt": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
-    "jsonLdDescription": "Penerjemah Bahasa Isyarat BISINDO real-time berbasis AI dan computer vision.",
+    "jsonLdDescription": "Penerjemah Bahasa Isyarat BISINDO waktu nyata berbasis AI dan visi komputer.",
     "features": [
-      "Pengenalan bahasa isyarat BISINDO real-time",
-      "Keluaran Text-to-Speech dalam Bahasa Indonesia",
-      "Kamera browser dengan inferensi API",
+      "Pengenalan bahasa isyarat BISINDO waktu nyata",
+      "Keluaran teks-ke-suara dalam Bahasa Indonesia",
+      "Kamera peramban dengan inferensi API",
       "Mode latihan dengan umpan balik",
-      "Panel pengembang dengan metrik inferensi"
+      "Panel pengembang dengan konteks model"
     ],
     "pages": {
       "home": {
         "title": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
-        "description": "Terjemahkan gestur BISINDO menjadi teks dan suara langsung dari browser."
+        "description": "Terjemahkan gestur BISINDO menjadi teks dan suara langsung dari peramban."
       },
       "howItWorks": {
         "title": "Cara Kerja SignifyAI",
@@ -386,7 +1375,7 @@
       },
       "research": {
         "title": "Riset SignifyAI",
-        "description": "Catatan riset tentang pengenalan bahasa isyarat real-time, batasan model, dan aksesibilitas."
+        "description": "Catatan riset tentang pengenalan bahasa isyarat waktu nyata, batasan model, dan aksesibilitas."
       },
       "terms": {
         "title": "Syarat dan Ketentuan SignifyAI",
@@ -395,6 +1384,69 @@
       "workspace": {
         "title": "{page} · SignifyAI",
         "description": "Workspace SignifyAI untuk terjemahan, latihan, dan pengelolaan progres."
+      }
+    }
+  },
+  "dev": {
+    "button": {
+      "preview": "Pratinjau",
+      "inventory": "Inventaris komponen",
+      "title": "Galeri tombol",
+      "description": "Semua varian, ukuran, dan status komponen Button dalam satu halaman agar mudah dicek sebelum dipakai di alur lain.",
+      "themeResolved": "Tema / hasil {theme}",
+      "themePreview": "Pratinjau tema",
+      "home": "Beranda",
+      "disabled": "Nonaktif",
+      "loading": "Memuat",
+      "iconLabel": "Ikon {label}",
+      "variants": {
+        "primary": "Primer",
+        "secondary": "Sekunder",
+        "outline": "Garis luar",
+        "success": "Berhasil",
+        "warning": "Peringatan",
+        "destructive": "Destruktif",
+        "signal": "Sinyal",
+        "highlight": "Sorotan",
+        "surface": "Permukaan",
+        "ghost": "Bayangan",
+        "link": "Tautan",
+        "onDark": "Di atas gelap",
+        "outlineOnDark": "Garis luar gelap",
+        "ghostOnDark": "Bayangan gelap"
+      },
+      "sizes": {
+        "xs": "Ekstra kecil",
+        "sm": "Kecil",
+        "md": "Sedang",
+        "lg": "Besar",
+        "iconXs": "Ikon XS",
+        "iconSm": "Ikon SM",
+        "icon": "Ikon",
+        "iconLg": "Ikon LG"
+      },
+      "sections": {
+        "brandTitle": "Varian Merek",
+        "brandDescription": "Tiga ajakan inti dari DESIGN.md: primer, aksi teks sekunder, dan garis luar berbentuk pil.",
+        "semanticTitle": "Varian Semantik & Utilitas",
+        "semanticDescription": "Varian kontekstual memakai token semantik yang ikut berubah saat tema terang, sistem, atau gelap aktif.",
+        "darkTitle": "Varian Permukaan Gelap",
+        "darkDescription": "Varian khusus untuk tombol di atas panel kamera atau permukaan gelap permanen.",
+        "textSizesTitle": "Ukuran Teks",
+        "textSizesDescription": "Ukuran teks memakai varian primer agar perbedaan tinggi dan jarak dalam mudah terlihat.",
+        "iconSizesTitle": "Ukuran Ikon",
+        "iconSizesDescription": "Tombol ikon saja memakai radius lebih tegas untuk bilah alat dan kontrol ringkas.",
+        "compositionTitle": "Komposisi",
+        "compositionDescription": "Contoh kombinasi ikon, pemuatan manual, dan Button sebagai Link melalui asChild."
+      },
+      "samples": {
+        "leadingIcon": "Dengan ikon awal",
+        "exportData": "Ekspor data",
+        "busyLabel": "Label sibuk khusus",
+        "syncing": "Menyinkronkan",
+        "syncData": "Sinkronkan data",
+        "asChild": "Tautan asChild",
+        "howItWorks": "Cara kerja"
       }
     }
   }

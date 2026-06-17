@@ -19,7 +19,11 @@
     "signIn": "Sign in",
     "requestAccess": "Request access",
     "learnMore": "Learn more",
-    "start": "Start"
+    "start": "Start",
+    "logoAlt": "SignifyAI logo",
+    "disabled": "Disabled",
+    "home": "Home",
+    "userAccount": "User account"
   },
   "navigation": {
     "aria": {
@@ -88,6 +92,33 @@
         "solutions": "Solutions",
         "resources": "Resources",
         "company": "Company"
+      },
+      "social": {
+        "community": "Community"
+      },
+      "links": {
+        "gestureLibrary": "Gesture library",
+        "learningPath": "Learning path",
+        "education": "Education",
+        "accessibility": "Accessibility",
+        "publicServices": "Public services",
+        "communityLearning": "Community learning",
+        "researchTeams": "Research teams",
+        "browserDeployment": "Browser deployment",
+        "localFirstAi": "Local-first AI",
+        "signLanguageDataset": "Sign language dataset",
+        "blog": "Blog",
+        "documentation": "Documentation",
+        "releaseNotes": "Release notes",
+        "modelOverview": "Model overview",
+        "bisindoGuide": "BISINDO guide",
+        "accessibilityNotes": "Accessibility notes",
+        "developerPreview": "Developer preview",
+        "about": "About",
+        "security": "Security",
+        "trustCenter": "Trust center",
+        "legalCenter": "Legal center",
+        "contact": "Contact"
       }
     }
   },
@@ -144,7 +175,8 @@
     "account": "Account",
     "confirmSignOut": "Tap again to confirm",
     "confirmSignOutAria": "Tap again to confirm sign out",
-    "googleAccountNote": "Password and account changes are managed via your Google account."
+    "googleAccountNote": "Password and account changes are managed via your Google account.",
+    "preferenceSyncError": "Preference sync failed. Restoring saved settings."
   },
   "workspace": {
     "translate": {
@@ -187,8 +219,8 @@
       "clearSentence": "Clear sentence",
       "confirmClear": "Confirm clear sentence",
       "detectionStatus": "Detection status: {state}",
-      "fps": "{value} frames per second"
-      ,"cameraHeader": "Camera",
+      "fps": "{value} frames per second",
+      "cameraHeader": "Camera",
       "enterFullscreen": "Enter fullscreen",
       "exitFullscreen": "Exit fullscreen",
       "handDetected": "Gesture detected",
@@ -223,7 +255,9 @@
       "pointHand": "Frame your hand",
       "score": "Score",
       "searchingGesture": "Searching for movement",
-      "detectedSign": "Detected sign: {letter}, {value}% confidence"
+      "detectedSign": "Detected sign: {letter}, {value}% confidence",
+      "handGuideDetected": "Hand detected",
+      "handGuidePlace": "Place your hand here"
     },
     "history": {
       "title": "History",
@@ -238,8 +272,8 @@
       "copySession": "Copy session from {date}",
       "expandSession": "Expand session from {date}",
       "collapseSession": "Collapse session from {date}",
-      "deleteSession": "Delete session from {date}"
-      ,"summary": "{count} saved sessions",
+      "deleteSession": "Delete session from {date}",
+      "summary": "{count} saved sessions",
       "clearAll": "Clear all",
       "unavailable": "History is temporarily unavailable.",
       "emptyTitle": "No history yet",
@@ -258,8 +292,8 @@
       "resetError": "Practice progress could not be reset.",
       "loading": "Loading practice progress",
       "retry": "Retry loading practice progress",
-      "sessionConfig": "Session configuration"
-      ,"target": "Target",
+      "sessionConfig": "Session configuration",
+      "target": "Target",
       "performance": "Performance",
       "samples": "Samples",
       "precision": "Precision",
@@ -276,14 +310,30 @@
       "resetProgress": "Reset practice progress",
       "resetCamera": "Reset camera",
       "hideGuide": "Hide guide overlay",
-      "showGuide": "Show guide overlay"
+      "showGuide": "Show guide overlay",
+      "status": {
+        "idle": "Idle",
+        "tracking": "Tracking",
+        "analyzing": "Analyzing",
+        "aria": "Practice status {status}. Sequence {sequence}.",
+        "emptySequence": "empty"
+      },
+      "sequence": "Sequence",
+      "masterGuidance": "Master guidance",
+      "mastered": "Mastered",
+      "referenceGestureAlt": "Reference gesture for {letter}",
+      "masteryGuide": "Mastery guide",
+      "analyticsEngine": "Analytics engine",
+      "momentum": "Momentum",
+      "record": "Record",
+      "optimizationQueue": "Optimization queue"
     },
     "reference": {
       "title": "Reference",
       "loadError": "Reference progress could not be loaded.",
       "loading": "Loading progress",
-      "practiceNow": "Practice now"
-      ,"description": "BISINDO alphabet cards with synced practice performance for each letter.",
+      "practiceNow": "Practice now",
+      "description": "BISINDO alphabet cards with synced practice performance for each letter.",
       "globalAccuracy": "Global accuracy",
       "totalAttempts": "Total attempts",
       "verifiedSigns": "Verified signs",
@@ -297,7 +347,274 @@
       "loading": "Loading profile",
       "primaryLanguage": "Primary language",
       "initializeTranslate": "Initialize translate",
-      "signingOut": "Signing out..."
+      "signingOut": "Signing out...",
+      "fallbackName": "Signify user",
+      "emptyTranscript": "(empty transcript)",
+      "session": "Session {date}",
+      "frames": "{count} frames",
+      "confidence": "{value}% confidence",
+      "gesture": "Gesture {letter}",
+      "iterationsAccuracy": "{attempts} iterations · {accuracy}% accuracy",
+      "operatorId": "Operator ID",
+      "syncStatus": "Sync status:",
+      "syncStates": {
+        "optimized": "Optimized",
+        "nominal": "Nominal",
+        "initializing": "Initializing"
+      },
+      "account": {
+        "email": "Email",
+        "emailSubtle": "Primary login address",
+        "verification": "Verification",
+        "verified": "Verified",
+        "pending": "Pending verification",
+        "verifiedSubtle": "Signed in with a verified account",
+        "pendingSubtle": "Verify the address in your inbox",
+        "memberSince": "Member since",
+        "memberSinceSubtle": "Account created in Supabase Auth",
+        "lastSignIn": "Last sign-in",
+        "lastSignInSubtle": "Most recent authentication event",
+        "accountId": "Account ID",
+        "accountIdSubtle": "Useful when referencing support or logs",
+        "translationTarget": "Workspace translation target"
+      },
+      "metrics": {
+        "precision": "Precision",
+        "precisionHelper": "Overall practice accuracy",
+        "streak": "Streak",
+        "streakHelper": "Current gesture streak"
+      },
+      "analytics": {
+        "label": "Gesture analytics",
+        "title": "Most practiced letters",
+        "openPractice": "Open practice",
+        "empty": "Awaiting practice telemetry."
+      },
+      "activity": {
+        "label": "Recent activity",
+        "title": "Session history",
+        "totalSessions": "Total sessions: {count}",
+        "totalFrames": "Total frames: {count}",
+        "empty": "No synced translation sessions yet."
+      },
+      "shortcuts": {
+        "label": "Quick access",
+        "translate": "Translate",
+        "translateDescription": "Return to translation core",
+        "history": "History",
+        "historyDescription": "View complete session logs",
+        "reference": "Reference",
+        "referenceDescription": "Browse all sign definitions"
+      },
+      "preferences": {
+        "label": "Preferences",
+        "highContrast": "High contrast",
+        "textScale": "Text scale",
+        "ttsSpeed": "TTS speed",
+        "ttsVolume": "TTS volume",
+        "on": "On",
+        "off": "Off"
+      }
+    },
+    "practiceGuide": {
+      "triggerLabel": "Guide",
+      "triggerTitle": "BISINDO alphabet",
+      "title": "Sign guide",
+      "openGrid": "View A-Z grid",
+      "referenceLink": "A-Z",
+      "handPosition": "Hand position",
+      "tips": "Tips",
+      "previous": "Previous",
+      "next": "Next",
+      "indexTitle": "A-Z index",
+      "expand": "Expand",
+      "closeChart": "Close chart",
+      "close": "Close",
+      "letterAlt": "Letter {letter}",
+      "letters": {
+        "A": {
+          "name": "Letter A",
+          "description": "Both hands form a triangle with the index fingertips and thumbs meeting each other.",
+          "fingers": "Use both hands. Touch the right and left index fingertips and thumbs together until they form a triangle.",
+          "tip": "Make sure the triangle shape is clearly visible to the camera.",
+          "variant": ""
+        },
+        "B": {
+          "name": "Letter B",
+          "description": "The left hand opens three fingers while the right hand points toward the fingers on the left hand.",
+          "fingers": "Open three fingers on the left hand. Point or touch the right index finger toward the left-hand finger area.",
+          "tip": "Short version: left hand with three fingers open, right index finger touching them.",
+          "variant": ""
+        },
+        "C": {
+          "name": "Letter C",
+          "description": "One hand forms a C-shaped curve with the fingers and thumb open.",
+          "fingers": "Use one hand. Curve the fingers and thumb into a clear C shape.",
+          "tip": "Keep the curve open so the C shape is easy to recognize.",
+          "variant": ""
+        },
+        "D": {
+          "name": "Letter D",
+          "description": "The left hand forms a half-circle curve, then the right index finger stands upright and touches it.",
+          "fingers": "Shape the left hand into a curve. Keep the right index finger straight up and attach it to the side of the left-hand shape.",
+          "tip": "Keep the right index finger vertical so the D shape looks firm.",
+          "variant": ""
+        },
+        "E": {
+          "name": "Letter E",
+          "description": "One hand opens three fingers to the side while the remaining fingers are folded.",
+          "fingers": "Open the three main fingers to the side. Fold the other fingers so the E silhouette is clearer.",
+          "tip": "Short version: three fingers open to the side while the others stay folded.",
+          "variant": ""
+        },
+        "F": {
+          "name": "Letter F",
+          "description": "Two fingers on the upper hand open sideways while the lower index finger touches underneath.",
+          "fingers": "Form two upper fingers open to the side. Touch the lower index finger to the bottom of that shape.",
+          "tip": "",
+          "variant": ""
+        },
+        "G": {
+          "name": "Letter G",
+          "description": "Both hands make fists, one above and one below, facing each other.",
+          "fingers": "Use both hands in fists. Place one hand above and one below so they face each other.",
+          "tip": "",
+          "variant": ""
+        },
+        "H": {
+          "name": "Letter H",
+          "description": "Both hands have upright index fingers, with one middle finger crossing through the center.",
+          "fingers": "Make two index fingers stand upright. Place one middle finger across the center as a connector.",
+          "tip": "Make sure both upright index fingers are clearly visible.",
+          "variant": "Short version: two upright index fingers with a middle finger crossing between them."
+        },
+        "I": {
+          "name": "Letter I",
+          "description": "One hand raises the pinky while the other fingers are folded.",
+          "fingers": "Raise the pinky straight upward. Keep the other fingers folded inward.",
+          "tip": "",
+          "variant": ""
+        },
+        "J": {
+          "name": "Letter J",
+          "description": "One hand makes a fist with the pinky open, then moves in a J-shaped curve.",
+          "fingers": "Make a fist and open the pinky. Move it in a curve that resembles the letter J.",
+          "tip": "Make sure the curved motion is visible in front of the camera.",
+          "variant": ""
+        },
+        "K": {
+          "name": "Letter K",
+          "description": "One index finger stands upright while the other hand touches its middle with the thumb open to the side.",
+          "fingers": "Keep one index finger upright. Use the other hand to touch the middle of that index finger, with the touching hand thumb open to the side.",
+          "tip": "",
+          "variant": ""
+        },
+        "L": {
+          "name": "Letter L",
+          "description": "The index finger points up and the thumb opens sideways to form an L angle.",
+          "fingers": "Raise the index finger and open the thumb to the side until they form an angle like the letter L.",
+          "tip": "",
+          "variant": ""
+        },
+        "M": {
+          "name": "Letter M",
+          "description": "One hand is open while three fingers from the other hand touch the center of the palm.",
+          "fingers": "Open one palm. Place three fingers from the other hand on the center of that palm.",
+          "tip": "",
+          "variant": ""
+        },
+        "N": {
+          "name": "Letter N",
+          "description": "One palm is open while the index and middle fingers from the other hand touch the center of the palm.",
+          "fingers": "Open one palm facing forward. Place the index and middle fingers from the other hand in the center of the palm.",
+          "tip": "",
+          "variant": "Alternative version: one hand open facing forward, with two fingers from the other hand touching the center of the palm."
+        },
+        "O": {
+          "name": "Letter O",
+          "description": "The thumb and index finger form a circle while the other fingers stay open.",
+          "fingers": "Join the thumb and index finger into a circle. Keep the other fingers open.",
+          "tip": "",
+          "variant": ""
+        },
+        "P": {
+          "name": "Letter P",
+          "description": "One index finger stands upright while the thumb and index finger of the other hand form a curve touching its top.",
+          "fingers": "Keep one index finger upright. Shape the other hand into a curve with the thumb and index finger, then touch the top of the upright index finger.",
+          "tip": "",
+          "variant": "Alternative version: one index finger upright, with the thumb and index finger of the other hand forming a curve that touches its tip."
+        },
+        "Q": {
+          "name": "Letter Q",
+          "description": "The thumb and index finger of one hand form a circle while the other index finger touches underneath.",
+          "fingers": "Make a circle with the thumb and index finger. Use the other index finger to touch the bottom of the circle.",
+          "tip": "",
+          "variant": ""
+        },
+        "R": {
+          "name": "Letter R",
+          "description": "One hand has an upright index finger while the middle finger bends and touches the thumb.",
+          "fingers": "Raise the index finger. Bend the middle finger until it touches or rests against the thumb.",
+          "tip": "",
+          "variant": ""
+        },
+        "S": {
+          "name": "Letter S",
+          "description": "Both hands form curves with the thumb and index finger, with the index fingertips facing each other.",
+          "fingers": "Use both hands. Each hand forms a curve with the thumb and index finger, then the index fingertips face each other.",
+          "tip": "",
+          "variant": ""
+        },
+        "T": {
+          "name": "Letter T",
+          "description": "One index finger stands upward while the other index finger lies horizontally across its top.",
+          "fingers": "Raise one index finger upward. Place the other index finger horizontally so it touches the top of the first index finger.",
+          "tip": "",
+          "variant": ""
+        },
+        "U": {
+          "name": "Letter U",
+          "description": "The index finger and pinky open upward while the other fingers are folded.",
+          "fingers": "Open the index finger and pinky upward. Keep the other fingers folded.",
+          "tip": "",
+          "variant": ""
+        },
+        "V": {
+          "name": "Letter V",
+          "description": "The index and middle fingers open upward to form a V while the other fingers are folded.",
+          "fingers": "Open the index and middle fingers upward until they form the letter V. Fold the other fingers.",
+          "tip": "",
+          "variant": ""
+        },
+        "W": {
+          "name": "Letter W",
+          "description": "Two index fingers stand upright while both thumbs meet in the center to form two W-like angles.",
+          "fingers": "Use both hands. Raise both index fingers and meet the thumbs in the center until they form two angles like the letter W.",
+          "tip": "",
+          "variant": ""
+        },
+        "X": {
+          "name": "Letter X",
+          "description": "Both index fingers cross at the center.",
+          "fingers": "Use both index fingers and cross them in the center to form the letter X.",
+          "tip": "",
+          "variant": ""
+        },
+        "Y": {
+          "name": "Letter Y",
+          "description": "One hand opens the index finger and thumb into an angle while the other index finger touches its center.",
+          "fingers": "Open the index finger and thumb of one hand into an angle. Use the other index finger to touch the center of that shape.",
+          "tip": "",
+          "variant": ""
+        },
+        "Z": {
+          "name": "Letter Z",
+          "description": "One hand opens horizontally forward with the palm facing down.",
+          "fingers": "Open one hand horizontally toward the front. Keep the palm facing downward.",
+          "tip": "",
+          "variant": ""
+        }
+      }
     }
   },
   "landing": {
@@ -307,7 +624,10 @@
       "alphabetTitle": "BISINDO alphabet",
       "alphabetBody": "Frame-by-frame prediction turns hand shapes into a clean sequence of letters.",
       "ttsTitle": "Text to speech",
-      "ttsBody": "Read the built sentence aloud in English when a user needs spoken output."
+      "ttsBody": "Read the built sentence aloud in English when a user needs spoken output.",
+      "sectionLabel": "Capabilities",
+      "sectionTitle": "Three quiet steps from gesture to sentence.",
+      "sectionBody": "The interface avoids unnecessary chrome: camera, prediction, sentence assembly, and speech controls stay visible exactly where the task needs them."
     },
     "products": {
       "translateTitle": "Translate workspace",
@@ -326,13 +646,156 @@
         "readable": "Readable sections",
         "limits": "Clear limitations",
         "context": "Model context"
-      }
+      },
+      "sectionLabel": "Workspace modules",
+      "sectionTitle": "Product surfaces for translation, practice, and research.",
+      "openModule": "Open module"
     },
-    "trust": ["Community", "Education", "Research", "Public Access", "Accessibility", "BISINDO"],
+    "trust": [
+      "Community",
+      "Education",
+      "Research",
+      "Public Access",
+      "Accessibility",
+      "BISINDO"
+    ],
     "cta": {
       "start": "Start translating",
       "explore": "Explore the system",
       "research": "Read the research"
+    },
+    "hero": {
+      "titleBefore": "Silent communication,",
+      "titleAccent": "clearly",
+      "titleAfter": "understood.",
+      "body": "A controlled AI workspace for translating Indonesian sign language gestures into text and voice without turning accessibility into spectacle.",
+      "phrases": [
+        "Hello, my name is Rina.",
+        "I need help.",
+        "Thank you.",
+        "Where is the exit?"
+      ]
+    },
+    "scanner": {
+      "status": "SignifyAI · Live recognition",
+      "imageAlt": "Sign language recognition live preview",
+      "tracking": "Tracking hands",
+      "confidence": "98.4% confidence",
+      "outputLabel": "Recognized output",
+      "sessionLabel": "Session",
+      "sessionTitle": "BISINDO recognition",
+      "sessionBody": "Real-time camera understanding tuned for hand pose recognition and low-friction output.",
+      "modelLabel": "Model",
+      "modelValue": "YOLOv11 + landmarks",
+      "latencyLabel": "Latency",
+      "latencyValue": "Sub-second",
+      "privacyLabel": "Privacy",
+      "privacyValue": "Local-first",
+      "intentLabel": "Active intent",
+      "live": "Live",
+      "intentTitle": "Translation ready",
+      "intentBody": "Hand gesture sequence has been identified and transformed into natural Indonesian output.",
+      "pipelineLabel": "Pipeline",
+      "pipelineFlow": "Camera -> Detect -> Decode -> Speak",
+      "pipelineItems": [
+        "Frame capture stable",
+        "Hands isolated",
+        "Gesture decoded",
+        "Voice output available"
+      ]
+    },
+    "privacy": {
+      "label": "Privacy architecture",
+      "title": "Camera work stays controlled.",
+      "bullets": [
+        "Video frames are processed for the active recognition flow.",
+        "Saved history stores translated text, not raw camera footage.",
+        "Users can clear logs and rebuild sentences at any time."
+      ]
+    },
+    "researchRows": {
+      "label": "Research table",
+      "titleBefore": "Learn how the",
+      "titleAccent": "system",
+      "titleAfter": "behaves.",
+      "items": [
+        {
+          "title": "Model transparency",
+          "topic": "Research",
+          "meta": "Updated 2026",
+          "icon": "sparkles"
+        },
+        {
+          "title": "Known limitations",
+          "topic": "Safety",
+          "meta": "5 min read",
+          "icon": "clock"
+        },
+        {
+          "title": "BISINDO learning path",
+          "topic": "Education",
+          "meta": "26 letters",
+          "icon": "file"
+        }
+      ]
+    },
+    "finalCta": {
+      "label": "Try the workspace",
+      "title": "Translate, practice, and review in one calm workspace.",
+      "button": "Open SignifyAI"
+    },
+    "deviceShowcase": {
+      "address": "signify.ai/workspace",
+      "live": "Live",
+      "desktopLabel": "Desktop",
+      "tabletLabel": "iPad / Tablet",
+      "mobileLabel": "Mobile",
+      "sidebarSubtitle": "Responsive studio",
+      "workspaceLabel": "Workspace",
+      "translateSession": "Translate session",
+      "confidence": "98% confidence",
+      "cameraActive": "Camera active",
+      "recognizedOutput": "Recognized output",
+      "desktopOutput": "Thank you.",
+      "practiceLabel": "Practice",
+      "dailyDrill": "Daily alphabet drill",
+      "statistics": "Statistics",
+      "letters": "letters",
+      "practice": "practice",
+      "voiceReady": "Voice output ready",
+      "tabletMode": "Tablet mode",
+      "practiceAndTranslate": "Practice and translate",
+      "translate": "Translate",
+      "cameraFramed": "Camera framed",
+      "output": "Output",
+      "tabletOutput": "I need help.",
+      "accuracy": "Accuracy",
+      "nextDrill": "Next drill",
+      "letterS": "Letter S",
+      "mobile": "Mobile",
+      "quickTranslate": "Quick translate",
+      "camera": "Camera",
+      "translationResult": "Translation result",
+      "mobileOutput": "Hello, my name is Rina.",
+      "saved": "saved",
+      "startPractice": "Start practice",
+      "sectionLabel": "Responsive preview",
+      "sectionTitle": "One workspace, composed for every screen.",
+      "sectionBody": "The landing preview shows how SignifyAI keeps translate, practice, progress, and voice output readable across mobile, tablet, and desktop layouts.",
+      "bullets": [
+        {
+          "label": "Adaptive layout",
+          "desc": "UI reflows naturally"
+        },
+        {
+          "label": "Touch optimized",
+          "desc": "Large tap targets"
+        },
+        {
+          "label": "Offline capable",
+          "desc": "Core features work anywhere"
+        }
+      ]
     }
   },
   "docs": {
@@ -340,17 +803,543 @@
       "title": "From camera frame to spoken sentence.",
       "lead": "A plain-language breakdown of the recognition loop, the sentence builder, and the limits users should understand before relying on the tool.",
       "faqQuestion": "What sign languages are supported?",
-      "faqAnswer": "The workspace focuses on BISINDO alphabet recognition and related learning flows."
+      "faqAnswer": "The workspace focuses on BISINDO alphabet recognition and related learning flows.",
+      "steps": [
+        {
+          "step": "01",
+          "title": "Open the camera",
+          "desc": "SignifyAI runs in the browser and requests camera access only for the active session.",
+          "details": [
+            "Front or rear camera",
+            "No app download",
+            "Responsive workspace"
+          ]
+        },
+        {
+          "step": "02",
+          "title": "Run recognition",
+          "desc": "The model reads hand shapes frame by frame and produces confidence-scored predictions.",
+          "details": [
+            "Image preprocessing",
+            "YOLO inference",
+            "Confidence gating"
+          ]
+        },
+        {
+          "step": "03",
+          "title": "Build a sentence",
+          "desc": "Confirmed letters are committed into a sentence buffer that can be edited or cleared.",
+          "details": [
+            "Delete last",
+            "Add spaces",
+            "Export sessions"
+          ]
+        },
+        {
+          "step": "04",
+          "title": "Speak it aloud",
+          "desc": "Text-to-speech can read generated sentences in English when voice output helps.",
+          "details": [
+            "Adjustable speed",
+            "Volume control",
+            "Manual playback"
+          ]
+        }
+      ],
+      "limitationsLabel": "Honest limitations",
+      "limitationsTitle": "The product is useful because the boundaries are visible.",
+      "limitations": [
+        {
+          "title": "Lighting matters",
+          "desc": "Very dim or backlit rooms can reduce prediction quality. Keep hands visible and centered."
+        },
+        {
+          "title": "Alphabet scope",
+          "desc": "This release focuses on BISINDO alphabet recognition rather than full certified interpretation."
+        },
+        {
+          "title": "Not a legal interpreter",
+          "desc": "Use SignifyAI as a communication aid, not as a certified interpreter for critical contexts."
+        }
+      ],
+      "faqLabel": "FAQ",
+      "faqTitle": "Common questions.",
+      "faqs": [
+        {
+          "question": "What sign languages are supported?",
+          "answer": "The workspace focuses on BISINDO alphabet recognition and related learning flows."
+        },
+        {
+          "question": "Is my video stored?",
+          "answer": "The product is designed around active-session processing. Saved history stores translated text entries."
+        },
+        {
+          "question": "What devices work?",
+          "answer": "Modern desktop and mobile browsers with camera access are supported."
+        },
+        {
+          "question": "How accurate is it?",
+          "answer": "Accuracy depends on camera quality, lighting, signing speed, and whether the sign is in the trained scope."
+        }
+      ],
+      "ctaLabel": "Try the workspace",
+      "ctaTitle": "Open a camera session and test the recognition loop.",
+      "ctaButton": "Start translating"
     },
     "research": {
       "title": "What is a real-time sign language translator?",
       "contents": "Research contents",
-      "learnHow": "Learn how it works"
+      "learnHow": "Learn how it works",
+      "meta": {
+        "eyebrow": "Research",
+        "team": "Signify Team",
+        "category": "Research & Development",
+        "readTime": "12 min read",
+        "updated": "Updated March 2025"
+      },
+      "about": {
+        "label": "About this research",
+        "title": "AI for accessibility",
+        "points": [
+          "Computer vision for gesture recognition",
+          "Ethical AI and inclusive design",
+          "Community-driven data collection"
+        ]
+      },
+      "sections": {
+        "introduction": {
+          "title": "Introduction",
+          "blocks": [
+            {
+              "text": "A real-time sign language translator is an artificial intelligence system designed to interpret hand gestures, facial expressions, and body movements into structured linguistic output such as text or speech."
+            },
+            {
+              "text": "Unlike conventional translation systems that convert between spoken languages, sign language translation involves multimodal understanding. Sign languages are complete natural languages with their own grammar, spatial structure, and non-manual markers."
+            },
+            {
+              "text": "Modern systems rely on computer vision pipelines to detect hand and body landmarks. These extracted keypoints are then processed using deep learning architectures capable of modeling temporal dependencies across motion sequences."
+            },
+            {
+              "text": "The goal of real-time translation systems is to minimize latency while maintaining semantic accuracy, enabling natural and inclusive communication between Deaf and hearing communities."
+            }
+          ]
+        },
+        "whyItMatters": {
+          "title": "Why It Matters",
+          "blocks": [
+            {
+              "text": "Communication is fundamental to education, healthcare, employment, and social participation. For Deaf and hard-of-hearing communities, communication barriers often limit equal access to information and services. Technology that bridges this gap can create meaningful social impact."
+            },
+            {
+              "type": "heading",
+              "text": "Reducing Communication Barriers"
+            },
+            {
+              "text": "Real-time sign language translation enables direct interaction between signers and non-signers without always relying on human interpreters. Professional interpreters remain essential, while AI-assisted tools can provide additional accessibility when immediate support is unavailable."
+            },
+            {
+              "type": "heading",
+              "text": "Promoting Inclusive Technology"
+            },
+            {
+              "text": "Inclusive AI design ensures that technological advances benefit diverse populations. By integrating accessibility features into mainstream systems, developers help create digital environments that are equitable and usable for everyone."
+            },
+            {
+              "type": "heading",
+              "text": "Supporting Education & Employment"
+            },
+            {
+              "text": "Accessible communication tools expand opportunities in academic and professional settings. Students gain improved access to lectures and resources, while workplaces can support more inclusive collaboration and participation."
+            },
+            {
+              "type": "heading",
+              "text": "Advancing AI for Social Good"
+            },
+            {
+              "text": "Research in sign language recognition contributes to broader progress in multimodal learning, sequence modeling, and human-centered AI. These developments extend beyond accessibility applications and strengthen the overall AI ecosystem."
+            },
+            {
+              "text": "Ultimately, the importance of this research lies not only in technical performance improvements, but also in its potential to promote dignity, independence, and equal access to communication worldwide."
+            }
+          ]
+        },
+        "howItWorks": {
+          "title": "How It Works",
+          "blocks": [
+            {
+              "text": "A real-time sign language translation system operates through a multi-stage pipeline that converts visual input into structured linguistic output. The process integrates computer vision, sequence modeling, and language interpretation within a low-latency framework."
+            },
+            {
+              "type": "heading",
+              "text": "1. Video Capture"
+            },
+            {
+              "text": "The system begins by capturing live video input from a camera. Frames are processed continuously to support smooth temporal analysis. Stable frame rate is critical for accurate motion tracking."
+            },
+            {
+              "type": "heading",
+              "text": "2. Landmark Detection"
+            },
+            {
+              "text": "Computer vision models detect key landmarks on the hands, body, and face. These landmarks represent spatial coordinates of joints and facial features. Extracting structured keypoints reduces background noise and standardizes visual input for downstream models."
+            },
+            {
+              "type": "heading",
+              "text": "3. Temporal Modeling"
+            },
+            {
+              "text": "Since sign language is inherently dynamic, the system analyzes sequences of frames rather than isolated images. Temporal models such as recurrent neural networks or transformer architectures learn motion patterns and contextual dependencies across time."
+            },
+            {
+              "type": "heading",
+              "text": "4. Gesture Classification"
+            },
+            {
+              "text": "The processed sequence is passed into a classification layer that predicts the most probable sign label. For continuous signing, segmentation algorithms identify boundaries between individual signs."
+            },
+            {
+              "type": "heading",
+              "text": "5. Language Output"
+            },
+            {
+              "text": "Finally, predicted sign sequences are converted into readable text or synthesized speech. Some systems incorporate natural language processing modules to restructure output into grammatically coherent spoken language."
+            },
+            {
+              "text": "The entire pipeline must operate within milliseconds to maintain real-time responsiveness. Efficient inference, optimized model size, and hardware acceleration are therefore essential for practical deployment."
+            }
+          ]
+        },
+        "technologyBehindIt": {
+          "title": "Technology Behind It",
+          "blocks": [
+            {
+              "text": "The sign language translation system is powered by an integrated stack of computer vision, deep learning, and natural language processing technologies. Each component contributes to transforming visual gestures into structured and meaningful language output."
+            },
+            {
+              "type": "heading",
+              "text": "Computer Vision"
+            },
+            {
+              "text": "Computer vision models extract spatial features from live video input. Keypoint detection algorithms identify hand joints, body pose, and facial landmarks. These structured representations reduce noise and provide consistent inputs for sequence modeling."
+            },
+            {
+              "type": "heading",
+              "text": "Deep Learning Models"
+            },
+            {
+              "text": "Convolutional neural networks and transformer-based architectures process visual and temporal information. Convolutional networks capture spatial patterns, while temporal models learn motion dynamics across sequential frames. Attention mechanisms further enhance contextual understanding."
+            },
+            {
+              "type": "heading",
+              "text": "Sequence Modeling"
+            },
+            {
+              "text": "Since sign language relies on continuous movement, the system applies sequence modeling techniques such as recurrent neural networks, long short-term memory networks, or transformers. These models analyze frame-by-frame transitions to recognize complete sign phrases."
+            },
+            {
+              "type": "heading",
+              "text": "Natural Language Processing"
+            },
+            {
+              "text": "After gesture classification, natural language processing modules restructure predicted sign sequences into grammatically coherent text. This step ensures output readability and improves usability in real-world communication contexts."
+            },
+            {
+              "type": "heading",
+              "text": "Deployment & Infrastructure"
+            },
+            {
+              "text": "Optimized inference pipelines enable real-time performance. Techniques such as model quantization, hardware acceleration, and edge deployment strategies reduce latency while maintaining accuracy. Scalable cloud infrastructure supports dataset expansion and continuous retraining."
+            },
+            {
+              "text": "Together, these technologies form a cohesive system capable of interpreting complex human gestures into accessible digital language."
+            }
+          ]
+        },
+        "aiMachineLearning": {
+          "title": "AI & Machine Learning",
+          "blocks": [
+            {
+              "text": "Artificial intelligence forms the foundation of modern real-time sign language translation systems. Machine learning enables models to learn patterns from visual data rather than relying on explicitly programmed rules. This shift from rule-based systems to data-driven architectures has dramatically improved recognition accuracy."
+            },
+            {
+              "text": "Most sign recognition pipelines begin with computer vision preprocessing. Video frames are analyzed to extract structured representations such as hand landmarks, body pose keypoints, and facial features. These structured inputs reduce noise and allow the learning model to focus on meaningful motion patterns."
+            },
+            {
+              "text": "Early approaches relied heavily on convolutional neural networks for spatial feature extraction. While effective for static gesture recognition, these systems struggled to capture long-range temporal dependencies in continuous signing."
+            },
+            {
+              "text": "To address this limitation, sequential models such as recurrent neural networks, long short-term memory networks, and transformer architectures have been adopted. Transformers use attention mechanisms to model relationships between frames across time, significantly improving performance in continuous sign recognition tasks."
+            },
+            {
+              "text": "In addition to supervised learning, emerging research explores self-supervised and semi-supervised approaches to reduce dependency on large labeled datasets. These methods allow models to learn motion representations from unlabeled video data, which is particularly valuable given the limited availability of annotated sign language corpora."
+            },
+            {
+              "text": "Real-time deployment introduces further engineering considerations. Models must balance predictive accuracy with computational efficiency. Techniques such as model pruning, quantization, and edge inference optimization enable low-latency translation suitable for mobile and browser-based applications."
+            },
+            {
+              "text": "As AI research continues to evolve, multimodal architectures combining vision, linguistic modeling, and contextual reasoning are expected to further enhance semantic understanding in sign language translation systems."
+            }
+          ]
+        },
+        "modelTraining": {
+          "title": "Model Training",
+          "blocks": [
+            {
+              "text": "Model training is the process through which a sign language translation system learns to map visual gesture sequences to structured linguistic outputs. Rather than relying on predefined rules, the model optimizes its internal parameters by minimizing prediction error across a labeled dataset."
+            },
+            {
+              "type": "heading",
+              "text": "Dataset Collection"
+            },
+            {
+              "text": "Training begins with curated video datasets containing annotated sign sequences. Each video clip is labeled with corresponding sign glosses or textual meaning. Dataset diversity is critical to ensure that the model generalizes across different signers, dialects, and environments."
+            },
+            {
+              "type": "heading",
+              "text": "Data Preprocessing"
+            },
+            {
+              "text": "Raw video frames are transformed into structured representations such as hand landmarks, body pose coordinates, or pixel embeddings. Feature normalization and temporal alignment are applied to standardize inputs before training."
+            },
+            {
+              "type": "heading",
+              "text": "Supervised Learning Objective"
+            },
+            {
+              "text": "Most sign recognition systems use supervised learning. During training, the model predicts a sign label for each input sequence and compares it against the ground truth annotation. A loss function such as cross-entropy loss is computed to measure prediction error."
+            },
+            {
+              "text": "Optimization algorithms like stochastic gradient descent or Adam adjust the model parameters iteratively to minimize this loss. Over time, the model learns statistical patterns that associate motion sequences with linguistic meaning."
+            },
+            {
+              "type": "heading",
+              "text": "Validation & Generalization"
+            },
+            {
+              "text": "To prevent overfitting, training data is split into training and validation subsets. Performance is evaluated on unseen validation samples to assess generalization capability. Techniques such as dropout, regularization, and data augmentation further improve robustness."
+            },
+            {
+              "type": "heading",
+              "text": "Fine-Tuning & Continuous Learning"
+            },
+            {
+              "text": "After initial training, models may undergo fine-tuning using domain-specific datasets or new signer data. Continuous improvement pipelines allow periodic retraining as more annotated samples become available."
+            },
+            {
+              "text": "Effective model training requires not only large datasets and computational resources, but also careful evaluation protocols to ensure fairness, bias mitigation, and consistent performance across demographic groups."
+            }
+          ]
+        },
+        "accuracyImprovements": {
+          "title": "Accuracy & Improvements",
+          "blocks": [
+            {
+              "text": "Achieving high accuracy in real-time sign language translation is a complex challenge due to variations in signing speed, regional dialects, lighting conditions, camera angles, and individual signer differences. Unlike static image classification, sign recognition requires modeling temporal motion patterns across sequential frames."
+            },
+            {
+              "text": "One of the primary factors influencing performance is dataset quality. Larger and more diverse datasets significantly improve model generalization. Data augmentation techniques such as random rotation, brightness adjustment, and temporal scaling help models remain robust under real-world conditions."
+            },
+            {
+              "text": "Model architecture also plays a critical role. While early systems relied on convolutional neural networks, modern approaches incorporate transformer-based sequence modeling to better capture long-range temporal dependencies. Attention mechanisms allow the model to focus on relevant gesture segments rather than treating all frames equally."
+            },
+            {
+              "text": "Another major improvement comes from multimodal learning. Combining hand landmarks, body pose estimation, and facial expression analysis enhances contextual understanding. Non-manual markers such as eyebrow movements and mouth shapes often carry grammatical meaning in sign languages."
+            },
+            {
+              "text": "Latency optimization is equally important. Real-time systems must balance inference speed and prediction accuracy. Techniques such as model quantization, pruning, and edge-device optimization reduce computational cost without significantly sacrificing performance."
+            },
+            {
+              "text": "Ongoing research continues to explore self-supervised learning, cross-lingual sign adaptation, and bias mitigation strategies to ensure fair and inclusive AI systems. As datasets grow and modeling techniques evolve, real-time sign language translation systems are expected to achieve higher semantic fidelity and broader deployment capability."
+            }
+          ]
+        },
+        "useCases": {
+          "title": "Use Cases",
+          "blocks": [
+            {
+              "text": "Real-time sign language translation systems enable inclusive communication across multiple domains. The following use cases demonstrate how the technology can be applied in practical and scalable environments."
+            },
+            {
+              "type": "heading",
+              "text": "Education"
+            },
+            {
+              "text": "In classrooms and online learning environments, automated sign recognition can assist Deaf and hard-of-hearing students by providing instant text translation. The system can also support educators who are not fluent in sign language, fostering more inclusive academic participation."
+            },
+            {
+              "type": "heading",
+              "text": "Healthcare Communication"
+            },
+            {
+              "text": "Medical consultations require clear and accurate communication. Real-time translation tools can assist during patient intake, emergency situations, and routine consultations where professional interpreters may not be immediately available."
+            },
+            {
+              "type": "heading",
+              "text": "Customer Service & Public Services"
+            },
+            {
+              "text": "Service centers, banks, and government institutions can integrate sign language translation systems to improve accessibility. Kiosk-based or web-based implementations enable smoother interaction between Deaf individuals and service providers."
+            },
+            {
+              "type": "heading",
+              "text": "Remote Communication"
+            },
+            {
+              "text": "Video conferencing platforms can incorporate gesture recognition models to provide automatic subtitle generation from sign language. This enhances accessibility in remote meetings and digital collaboration."
+            },
+            {
+              "type": "heading",
+              "text": "Research & Linguistic Analysis"
+            },
+            {
+              "text": "Researchers can leverage gesture recognition systems to analyze large-scale sign language corpora. Automated annotation tools accelerate linguistic studies and improve dataset development for low-resource sign languages."
+            },
+            {
+              "text": "These applications illustrate the broad societal impact of accessible AI technologies when designed with inclusivity and real-world deployment in mind."
+            }
+          ]
+        },
+        "researchDevelopment": {
+          "title": "Research & Development",
+          "blocks": [
+            {
+              "text": "Research and development efforts focus on improving recognition accuracy, expanding linguistic coverage, and reducing latency in real-time sign language translation systems. Continuous experimentation and validation are essential to ensure scalable and inclusive deployment."
+            },
+            {
+              "type": "heading",
+              "text": "Multimodal Learning"
+            },
+            {
+              "text": "Current research explores multimodal architectures that integrate hand pose, facial expression, and upper-body movement simultaneously. Since sign language relies heavily on non-manual markers, combining these modalities improves semantic understanding and contextual accuracy."
+            },
+            {
+              "type": "heading",
+              "text": "Transformer-Based Architectures"
+            },
+            {
+              "text": "Transformer models have shown strong performance in sequential modeling tasks. By leveraging attention mechanisms, these architectures capture long-range dependencies within gesture sequences more effectively than traditional recurrent networks."
+            },
+            {
+              "type": "heading",
+              "text": "Low-Resource Sign Languages"
+            },
+            {
+              "text": "Many sign languages lack large annotated datasets. Research initiatives aim to address this through transfer learning, synthetic data generation, and self-supervised learning approaches. These techniques enable performance improvements even in data-constrained environments."
+            },
+            {
+              "type": "heading",
+              "text": "Real-Time Optimization"
+            },
+            {
+              "text": "Model compression techniques such as quantization and pruning are actively investigated to reduce computational requirements. Efficient deployment ensures that systems can operate on edge devices without sacrificing prediction reliability."
+            },
+            {
+              "type": "heading",
+              "text": "Ethical & Inclusive AI"
+            },
+            {
+              "text": "Responsible development requires evaluation across diverse signer demographics to mitigate bias. Fairness testing, transparent benchmarking, and community collaboration are essential components of long-term research strategy."
+            },
+            {
+              "text": "Ongoing development emphasizes scalability, interpretability, and accessibility, ensuring that technological progress translates into meaningful impact for Deaf and hard-of-hearing communities."
+            }
+          ]
+        },
+        "conclusion": {
+          "title": "Conclusion",
+          "blocks": [
+            {
+              "text": "This research outlines the technological foundations and societal relevance of real-time sign language translation systems. By combining computer vision, deep learning, and natural language processing, the system demonstrates how multimodal AI can transform visual gestures into meaningful linguistic output."
+            },
+            {
+              "text": "Continuous improvements in model architecture, dataset diversity, and optimization techniques have significantly enhanced recognition accuracy and real-time performance. However, ongoing research remains essential to address challenges such as low-resource sign languages, fairness evaluation, and contextual language interpretation."
+            },
+            {
+              "text": "Beyond technical innovation, the broader impact of this work lies in advancing accessibility and inclusive technology. AI-driven translation tools can reduce communication barriers and create more equitable access to education, healthcare, and professional environments."
+            },
+            {
+              "text": "Future development will focus on expanding linguistic coverage, improving contextual understanding, and deploying scalable solutions that operate efficiently across devices. By aligning technological progress with human-centered design principles, this research contributes to a more inclusive digital future."
+            }
+          ]
+        }
+      }
     },
     "terms": {
       "title": "Terms & Conditions",
       "contents": "Terms contents",
-      "plainSummary": "Plain-language summary"
+      "plainSummary": "Plain-language summary",
+      "meta": {
+        "eyebrow": "Legal",
+        "lastUpdated": "Last updated:",
+        "lastUpdatedDate": "February 18, 2026",
+        "sections": "{count} sections",
+        "readTime": "~5 min read",
+        "onThisPage": "On this page"
+      },
+      "summaryBody": "SignifyAI is an accessibility tool. We are transparent about model limits, data handling, and the fact that this product is not a certified interpreter.",
+      "sections": [
+        {
+          "id": "acceptance",
+          "title": "1. Acceptance of Terms",
+          "content": "By accessing or using SignifyAI, you agree to be bound by these Terms and Conditions. If you disagree with any part of these terms, you may not access the Service."
+        },
+        {
+          "id": "description",
+          "title": "2. Description of Service",
+          "content": "SignifyAI provides an AI-powered sign language translation platform that converts camera-captured gestures into text and synthesized speech."
+        },
+        {
+          "id": "account",
+          "title": "3. User Accounts",
+          "content": "When you create an account, you must provide accurate and current information. You are responsible for account activity and for safeguarding access to your account."
+        },
+        {
+          "id": "privacy",
+          "title": "4. Privacy & Data",
+          "content": "SignifyAI is designed around active-session video processing. Translated text may be stored in local history when users keep session records."
+        },
+        {
+          "id": "ip",
+          "title": "5. Intellectual Property",
+          "content": "The Service, including original content, features, and functionality, remains the property of SignifyAI and its licensors."
+        },
+        {
+          "id": "acceptable-use",
+          "title": "6. Acceptable Use",
+          "content": "You agree not to use the Service for unlawful activity, unauthorized access, reverse engineering, automated abuse, or harmful content distribution."
+        },
+        {
+          "id": "disclaimer",
+          "title": "7. Disclaimer of Warranties",
+          "content": "The Service is provided as is. Translation accuracy may vary based on lighting, camera quality, signing speed, and model coverage."
+        },
+        {
+          "id": "liability",
+          "title": "8. Limitation of Liability",
+          "content": "To the maximum extent permitted by law, SignifyAI shall not be liable for indirect, incidental, special, consequential, or punitive damages arising from use of the Service."
+        },
+        {
+          "id": "changes",
+          "title": "9. Changes to Terms",
+          "content": "We reserve the right to modify these Terms. Continued use after changes take effect constitutes acceptance of the revised Terms."
+        },
+        {
+          "id": "contact",
+          "title": "10. Contact Us",
+          "content": "Questions about these Terms can be sent to legal@signify.ai. We aim to respond within 5 business days."
+        }
+      ],
+      "callouts": {
+        "privacy": "Video privacy is a product boundary, not just a policy.",
+        "researchLink": "Read the research notes.",
+        "disclaimer": "For legal, medical, or official contexts, use a qualified human interpreter.",
+        "limitationsLink": "See limitations."
+      },
+      "contact": {
+        "title": "Questions about these terms?",
+        "body": "We can explain any section in plain language.",
+        "button": "Contact legal"
+      }
     }
   },
   "seo": {
@@ -395,6 +1384,69 @@
       "workspace": {
         "title": "{page} · SignifyAI",
         "description": "SignifyAI workspace for translation, practice, and progress management."
+      }
+    }
+  },
+  "dev": {
+    "button": {
+      "preview": "Preview",
+      "inventory": "Component inventory",
+      "title": "Button gallery",
+      "description": "Every Button variant, size, and state in one page so the component can be checked before it is used in another flow.",
+      "themeResolved": "Theme / resolved {theme}",
+      "themePreview": "Theme preview",
+      "home": "Home",
+      "disabled": "Disabled",
+      "loading": "Loading",
+      "iconLabel": "{label} icon",
+      "variants": {
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "outline": "Outline",
+        "success": "Success",
+        "warning": "Warning",
+        "destructive": "Destructive",
+        "signal": "Signal",
+        "highlight": "Highlight",
+        "surface": "Surface",
+        "ghost": "Ghost",
+        "link": "Link",
+        "onDark": "On dark",
+        "outlineOnDark": "Outline on dark",
+        "ghostOnDark": "Ghost on dark"
+      },
+      "sizes": {
+        "xs": "Extra small",
+        "sm": "Small",
+        "md": "Medium",
+        "lg": "Large",
+        "iconXs": "Icon XS",
+        "iconSm": "Icon SM",
+        "icon": "Icon",
+        "iconLg": "Icon LG"
+      },
+      "sections": {
+        "brandTitle": "Brand Variants",
+        "brandDescription": "Three core calls to action from DESIGN.md: primary, secondary text action, and pill outline.",
+        "semanticTitle": "Semantic & Utility Variants",
+        "semanticDescription": "Contextual variants use semantic tokens that respond to light, system, or dark themes.",
+        "darkTitle": "Dark Surface Variants",
+        "darkDescription": "Special variants for buttons placed on camera panels or permanently dark surfaces.",
+        "textSizesTitle": "Text Sizes",
+        "textSizesDescription": "Text sizes use the primary variant so height and padding differences are easy to inspect.",
+        "iconSizesTitle": "Icon Sizes",
+        "iconSizesDescription": "Icon-only buttons use firmer radius for toolbars and compact controls.",
+        "compositionTitle": "Composition",
+        "compositionDescription": "Examples combining icons, manual loading, and Button as a Link through asChild."
+      },
+      "samples": {
+        "leadingIcon": "With leading icon",
+        "exportData": "Export data",
+        "busyLabel": "Custom busy label",
+        "syncing": "Syncing",
+        "syncData": "Sync data",
+        "asChild": "asChild link",
+        "howItWorks": "How it works"
       }
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import AccuracyImprovements from "@/components/features/research/Accuracy-Improvements";
 import AIMachineLearning from "@/components/features/research/Ai-Machine-Learning";
@@ -13,41 +13,47 @@ import ResearchDevelopment from "@/components/features/research/Research-Develop
 import TechnologyBehindIt from "@/components/features/research/Technology-Behind-It";
 import UseCases from "@/components/features/research/Use-Cases";
 import WhyItMatters from "@/components/features/research/Why-It-Matters";
+import type { ResearchSectionKey } from "@/components/features/research/ResearchSectionContent";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import DocumentationHero from "../_components/DocumentationHero";
 
 const researchSections = [
-  { id: "introduction", title: "Introduction", Component: Introduction },
-  { id: "why-it-matters", title: "Why It Matters", Component: WhyItMatters },
-  { id: "how-it-works", title: "How It Works", Component: HowItWorks },
+  { id: "introduction", sectionKey: "introduction", Component: Introduction },
+  { id: "why-it-matters", sectionKey: "whyItMatters", Component: WhyItMatters },
+  { id: "how-it-works", sectionKey: "howItWorks", Component: HowItWorks },
   {
     id: "technology-behind-it",
-    title: "Technology Behind It",
+    sectionKey: "technologyBehindIt",
     Component: TechnologyBehindIt,
   },
   {
     id: "ai-machine-learning",
-    title: "AI & Machine Learning",
+    sectionKey: "aiMachineLearning",
     Component: AIMachineLearning,
   },
-  { id: "model-training", title: "Model Training", Component: ModelTraining },
+  { id: "model-training", sectionKey: "modelTraining", Component: ModelTraining },
   {
     id: "accuracy-improvements",
-    title: "Accuracy & Improvements",
+    sectionKey: "accuracyImprovements",
     Component: AccuracyImprovements,
   },
-  { id: "use-cases", title: "Use Cases", Component: UseCases },
+  { id: "use-cases", sectionKey: "useCases", Component: UseCases },
   {
     id: "research-development",
-    title: "Research & Development",
+    sectionKey: "researchDevelopment",
     Component: ResearchDevelopment,
   },
-  { id: "conclusion", title: "Conclusion", Component: Conclusion },
-];
+  { id: "conclusion", sectionKey: "conclusion", Component: Conclusion },
+] satisfies Array<{
+  id: string;
+  sectionKey: ResearchSectionKey;
+  Component: ComponentType;
+}>;
 
 export default function ResearchPage() {
   const t = useTranslations("docs.research");
+  const aboutPoints = t.raw("about.points") as string[];
   const mainRef = useRef<HTMLElement>(null);
   const [activeSection, setActiveSection] = useState(researchSections[0].id);
 
@@ -72,14 +78,16 @@ export default function ResearchPage() {
   return (
     <main ref={mainRef} id="main-content" className="pt-24 md:pt-28">
       <DocumentationHero
-        eyebrow="Research"
+        eyebrow={t("meta.eyebrow")}
         tone="accent"
         title={t("title")}
         meta={
           <>
-            <span>Signify Team</span>
-            <span>Research &amp; Development</span>
-            <span>12 min read · Updated March 2025</span>
+            <span>{t("meta.team")}</span>
+            <span>{t("meta.category")}</span>
+            <span>
+              {t("meta.readTime")} · {t("meta.updated")}
+            </span>
           </>
         }
       />
@@ -102,7 +110,7 @@ export default function ResearchPage() {
                     : "border-[var(--color-border)] text-[var(--color-text-secondary)]",
                 ].join(" ")}
               >
-                {section.title}
+                {t(`sections.${section.sectionKey}.title`)}
               </Link>
             ))}
           </nav>
@@ -128,7 +136,7 @@ export default function ResearchPage() {
                         : "border-l-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]",
                     ].join(" ")}
                   >
-                    {section.title}
+                    {t(`sections.${section.sectionKey}.title`)}
                   </Link>
                 ))}
               </nav>
@@ -157,19 +165,17 @@ export default function ResearchPage() {
           <div className="sticky top-24">
             <Card variant="product" data-animate className="gap-0">
               <p className="text-mono-label text-[12px] text-[var(--color-text-secondary)]">
-                About this research
+                {t("about.label")}
               </p>
-              <h2 className="mt-4 text-[32px] leading-[1.2]">AI for accessibility</h2>
+              <h2 className="mt-4 text-[32px] leading-[1.2]">
+                {t("about.title")}
+              </h2>
               <ul className="mt-6 border-t border-[var(--color-border)] text-[14px] leading-[1.4] text-[var(--color-text-secondary)]">
-                <li className="border-b border-[var(--color-border)] py-3">
-                  Computer vision for gesture recognition
-                </li>
-                <li className="border-b border-[var(--color-border)] py-3">
-                  Ethical AI and inclusive design
-                </li>
-                <li className="border-b border-[var(--color-border)] py-3">
-                  Community-driven data collection
-                </li>
+                {aboutPoints.map((point) => (
+                  <li key={point} className="border-b border-[var(--color-border)] py-3">
+                    {point}
+                  </li>
+                ))}
               </ul>
               <Button asChild variant="secondary" size="sm" className="mt-6 self-start">
                 <Link href="/how-it-works">{t("learnHow")}</Link>

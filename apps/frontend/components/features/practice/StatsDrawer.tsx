@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { type AlphabetLetter, type PracticeStats } from '@/lib/userData';
+import { useTranslations } from 'next-intl';
 
 interface StatsDrawerProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface StatsDrawerProps {
 }
 
 export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerProps) {
+  const t = useTranslations('workspace.practice');
   const accuracy = stats.totalAttempts === 0
     ? 0
     : Math.round((stats.correctAttempts / stats.totalAttempts) * 100);
@@ -24,7 +26,7 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
     >
       <div className="rounded-sm border border-cohere-hairline bg-cohere-canvas p-5">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-mono-label text-[12px] text-cohere-slate">Analytics Engine</p>
+          <p className="text-mono-label text-[12px] text-cohere-slate">{t('analyticsEngine')}</p>
           <div className="flex h-1 w-32 overflow-hidden bg-cohere-hairline">
              <div 
                className="h-full bg-cohere-green transition-all duration-500" 
@@ -36,10 +38,10 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
         <div className="grid grid-cols-2 gap-3">
           {(
             [
-              { label: 'Precision', value: `${accuracy}%`, color: 'text-cohere-green' as const },
-              { label: 'Samples', value: stats.totalAttempts, color: undefined },
-              { label: 'Momentum', value: stats.currentStreak, color: 'text-cohere-coral' as const },
-              { label: 'Record', value: stats.bestStreak, color: undefined },
+              { label: t('precision'), value: `${accuracy}%`, color: 'text-cohere-green' as const },
+              { label: t('samples'), value: stats.totalAttempts, color: undefined },
+              { label: t('momentum'), value: stats.currentStreak, color: 'text-cohere-coral' as const },
+              { label: t('record'), value: stats.bestStreak, color: undefined },
             ]
           ).map(({ label, value, color }) => (
             <div
@@ -54,7 +56,7 @@ export function StatsDrawer({ open, stats, weakLetters, target }: StatsDrawerPro
 
         {weakLetters.length > 0 && (
           <div className="mt-5 border-t border-cohere-hairline pt-5">
-            <p className="mb-3 text-mono-label text-[11px] text-cohere-slate">Optimization Queue</p>
+            <p className="mb-3 text-mono-label text-[11px] text-cohere-slate">{t('optimizationQueue')}</p>
             <div className="flex flex-wrap gap-2">
               {weakLetters.map((letter) => {
                 const s = stats.byLetter[letter];
