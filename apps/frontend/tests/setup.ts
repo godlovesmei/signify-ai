@@ -2,6 +2,46 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
+vi.mock("@/i18n/navigation", async () => {
+  const React = await import("react");
+
+  return {
+    Link: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode;
+      href: string;
+      locale?: string;
+      [key: string]: unknown;
+    }) => {
+      delete props.locale;
+
+      return React.createElement(
+        "a",
+        {
+          href,
+          ...props,
+        },
+        children,
+      );
+    },
+    getPathname: ({ href }: { href: string | { pathname?: string } }) =>
+      typeof href === "string" ? href : (href.pathname ?? "/"),
+    redirect: vi.fn(),
+    usePathname: () => window.location.pathname || "/",
+    useRouter: () => ({
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+    }),
+  };
+});
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

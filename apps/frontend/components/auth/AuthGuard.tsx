@@ -24,8 +24,10 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import type { Locale } from '@/i18n/config';
 import { buildLoginPath } from '@/lib/authRedirect';
 import { createClient } from '@/utils/supabase/client';
 
@@ -38,6 +40,8 @@ type AuthState = 'checking' | 'authenticated' | 'unauthenticated';
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale() as Locale;
+  const t = useTranslations('auth.guard');
   const [authState, setAuthState] = useState<AuthState>('checking');
 
   useEffect(() => {
@@ -50,7 +54,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         setAuthState('authenticated');
       } else {
         setAuthState('unauthenticated');
-        router.replace(buildLoginPath(returnPath));
+        router.replace(buildLoginPath(returnPath, locale));
       }
     });
 
@@ -59,20 +63,20 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       (_event, session) => {
         if (!session) {
           setAuthState('unauthenticated');
-          router.replace(buildLoginPath(returnPath));
+          router.replace(buildLoginPath(returnPath, locale));
         }
       },
     );
 
     return () => subscription.unsubscribe();
-  }, [pathname, router]);
+  }, [locale, pathname, router]);
 
   // Neutral loading screen — no flash of protected content
   if (authState === 'checking') {
     return (
       <div
         className="flex h-dvh w-full items-center justify-center bg-background"
-        aria-label="Checking authentication…"
+        aria-label={t('checking')}
         role="status"
       >
         <Loader2

@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -16,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { LoginModal } from "@/components/auth/LoginModal";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 
@@ -41,101 +43,6 @@ type MegaMenu = {
   };
 };
 
-const megaMenus: MegaMenu[] = [
-  {
-    key: "product",
-    label: "Product",
-    eyebrow: "SignifyAI platform",
-    title: "A focused AI workspace for BISINDO translation and practice.",
-    description:
-      "Capture gestures, translate movement, review outputs, and keep learning history in one browser-based interface.",
-    links: [
-      {
-        label: "Translate",
-        href: "/translate",
-        description: "Turn live camera input into text and speech-ready output.",
-        icon: Camera,
-      },
-      {
-        label: "Practice",
-        href: "/practice",
-        description:
-          "Train recognition accuracy with guided repetition and feedback.",
-        icon: GraduationCap,
-      },
-      {
-        label: "Reference",
-        href: "/reference",
-        description: "Browse curated BISINDO gestures and learning references.",
-        icon: BookOpen,
-      },
-      {
-        label: "History",
-        href: "/history",
-        description:
-          "Review past sessions, transcripts, and translation activity.",
-        icon: LayoutDashboard,
-      },
-    ],
-    featured: {
-      label: "New workflow",
-      title: "Gesture to text in seconds",
-      description:
-        "Designed for fast classroom demos, research testing, and independent learning.",
-      href: "/how-it-works",
-    },
-  },
-  {
-    key: "resources",
-    label: "Resources",
-    eyebrow: "Learn and validate",
-    title: "Everything needed to understand the product and its boundaries.",
-    description:
-      "Explore methodology, usage flow, privacy notes, and product references before using the workspace.",
-    links: [
-      {
-        label: "How it works",
-        href: "/how-it-works",
-        description: "Follow the full camera-to-translation pipeline.",
-        icon: Mic2,
-      },
-      {
-        label: "Research notes",
-        href: "/research",
-        description:
-          "Read the technical rationale and evaluation assumptions.",
-        icon: FileText,
-      },
-      {
-        label: "Terms",
-        href: "/terms-condition",
-        description:
-          "Review usage, privacy, and responsible AI boundaries.",
-        icon: ShieldCheck,
-      },
-      {
-        label: "Profile",
-        href: "/profile",
-        description:
-          "Manage account settings and personal learning records.",
-        icon: LayoutDashboard,
-      },
-    ],
-    featured: {
-      label: "Responsible AI",
-      title: "Clear limits, safer demos",
-      description:
-        "The interface is written to avoid overclaiming model capability or real-world coverage.",
-      href: "/terms-condition",
-    },
-  },
-];
-
-const utilityLinks = [
-  { label: "How it works", href: "/how-it-works" },
-  { label: "Research", href: "/research" },
-];
-
 function NavUnderline({ active = false }: { active?: boolean }) {
   return (
     <span
@@ -157,9 +64,11 @@ type LandingNavbarProps = {
 
 function SignInTrigger({
   onClick,
+  label,
   mobile = false,
 }: {
   onClick: () => void;
+  label: string;
   mobile?: boolean;
 }) {
   return (
@@ -174,16 +83,18 @@ function SignInTrigger({
           : "[&_[data-button-underline]]:bg-[linear-gradient(90deg,#ff7a67_0%,#c98cff_52%,#5468ff_100%)] [&_[data-button-underline]]:duration-500"
       }
     >
-      Sign in
+      {label}
     </Button>
   );
 }
 
 function RequestAccessTrigger({
   onClick,
+  label,
   mobile = false,
 }: {
   onClick: () => void;
+  label: string;
   mobile?: boolean;
 }) {
   return (
@@ -201,12 +112,14 @@ function RequestAccessTrigger({
         aria-hidden="true"
         className="pointer-events-none absolute -bottom-3 -left-3 -z-10 h-8 w-[82%] rounded-full bg-[linear-gradient(90deg,rgba(255,106,88,0.82)_0%,rgba(214,117,232,0.66)_54%,rgba(96,112,255,0.5)_100%)] opacity-0 blur-xl transition-[width,opacity,transform] duration-500 ease-[var(--ease-cohere)] group-hover/button:w-[96%] group-hover/button:opacity-80 group-focus-visible/button:w-[96%] group-focus-visible/button:opacity-70 group-active/button:opacity-40"
       />
-      <span className="relative">Request access</span>
+      <span className="relative">{label}</span>
     </Button>
   );
 }
 
 export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {}) {
+  const navT = useTranslations("navigation");
+  const commonT = useTranslations("common");
   const [loginOpen, setLoginOpen] = useState(false);
   const [nextPath, setNextPath] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -214,6 +127,92 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
   const [scrolled, setScrolled] = useState(false);
   const [navbarVisible, setNavbarVisible] = useState(true);
   const lastScrollY = useRef(0);
+
+  const megaMenus: MegaMenu[] = [
+    {
+      key: "product",
+      label: navT("landing.product.label"),
+      eyebrow: navT("landing.product.eyebrow"),
+      title: navT("landing.product.title"),
+      description: navT("landing.product.description"),
+      links: [
+        {
+          label: navT("workspace.translate"),
+          href: "/translate",
+          description: navT("landing.links.translateDescription"),
+          icon: Camera,
+        },
+        {
+          label: navT("workspace.practice"),
+          href: "/practice",
+          description: navT("landing.links.practiceDescription"),
+          icon: GraduationCap,
+        },
+        {
+          label: navT("workspace.reference"),
+          href: "/reference",
+          description: navT("landing.links.referenceDescription"),
+          icon: BookOpen,
+        },
+        {
+          label: navT("workspace.history"),
+          href: "/history",
+          description: navT("landing.links.historyDescription"),
+          icon: LayoutDashboard,
+        },
+      ],
+      featured: {
+        label: navT("landing.product.featuredLabel"),
+        title: navT("landing.product.featuredTitle"),
+        description: navT("landing.product.featuredDescription"),
+        href: "/how-it-works",
+      },
+    },
+    {
+      key: "resources",
+      label: navT("landing.resources.label"),
+      eyebrow: navT("landing.resources.eyebrow"),
+      title: navT("landing.resources.title"),
+      description: navT("landing.resources.description"),
+      links: [
+        {
+          label: navT("public.howItWorks"),
+          href: "/how-it-works",
+          description: navT("landing.links.howItWorksDescription"),
+          icon: Mic2,
+        },
+        {
+          label: navT("public.research"),
+          href: "/research",
+          description: navT("landing.links.researchDescription"),
+          icon: FileText,
+        },
+        {
+          label: navT("public.terms"),
+          href: "/terms-condition",
+          description: navT("landing.links.termsDescription"),
+          icon: ShieldCheck,
+        },
+        {
+          label: navT("workspace.profile"),
+          href: "/profile",
+          description: navT("landing.links.profileDescription"),
+          icon: LayoutDashboard,
+        },
+      ],
+      featured: {
+        label: navT("landing.resources.featuredLabel"),
+        title: navT("landing.resources.featuredTitle"),
+        description: navT("landing.resources.featuredDescription"),
+        href: "/terms-condition",
+      },
+    },
+  ];
+
+  const utilityLinks = [
+    { label: navT("public.howItWorks"), href: "/how-it-works" },
+    { label: navT("public.research"), href: "/research" },
+  ];
 
   const requestLogin = useCallback(
     (path: string | null = null) => {
@@ -313,13 +312,13 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
           <Link
             href="/"
             className="flex items-center"
-            aria-label="Go to SignifyAI homepage"
+            aria-label={navT("aria.home")}
           >
             <Logo href={false} size="md" />
           </Link>
 
           <nav
-            aria-label="Main navigation"
+            aria-label={navT("aria.main")}
             className="hidden items-center gap-1 lg:flex"
           >
             {megaMenus.map((menu) => {
@@ -372,8 +371,9 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
             className="hidden items-center justify-end gap-4 lg:flex"
             onMouseEnter={() => setActiveMenu(null)}
           >
-            <SignInTrigger onClick={() => requestLogin(null)} />
-            <RequestAccessTrigger onClick={() => requestLogin(null)} />
+            <LanguageSwitcher />
+            <SignInTrigger label={commonT("signIn")} onClick={() => requestLogin(null)} />
+            <RequestAccessTrigger label={commonT("requestAccess")} onClick={() => requestLogin(null)} />
           </div>
 
           <div className="flex justify-end lg:hidden">
@@ -381,7 +381,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
               type="button"
               onClick={() => setMobileOpen((open) => !open)}
               className="group flex h-10 w-10 flex-col items-end justify-center gap-[5px] text-cohere-ink transition-opacity hover:opacity-70"
-              aria-label="Toggle mobile menu"
+              aria-label={navT("aria.toggleMobile")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? (
@@ -468,7 +468,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                 </p>
 
                 <span className="mt-6 inline-flex items-center gap-2 text-[13px] text-white">
-                  Explore
+                  {commonT("learnMore")}
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </div>
@@ -481,7 +481,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
         <div className="max-h-[calc(100vh-68px)] overflow-y-auto border-b border-cohere-hairline bg-cohere-canvas lg:hidden">
           <nav
             className="cohere-container flex flex-col gap-6 py-6"
-            aria-label="Mobile navigation"
+            aria-label={navT("aria.mobile")}
           >
             {megaMenus.map((group) => (
               <div
@@ -522,6 +522,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
             <div className="flex flex-col gap-5 border-t border-cohere-hairline pt-6">
               <SignInTrigger
                 mobile
+                label={commonT("signIn")}
                 onClick={() => {
                   requestLogin(null);
                   setMobileOpen(false);
@@ -530,11 +531,13 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
 
               <RequestAccessTrigger
                 mobile
+                label={commonT("requestAccess")}
                 onClick={() => {
                   requestLogin(null);
                   setMobileOpen(false);
                 }}
               />
+              <LanguageSwitcher className="justify-center py-2" />
             </div>
           </nav>
         </div>

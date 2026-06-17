@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import DeleteControls from "./DeleteControls";
 import TTSButton from "@/components/tts/TTSButton";
@@ -30,6 +31,7 @@ export default function SentenceBuilder({
   variant = "panel",
   className,
 }: SentenceBuilderProps) {
+  const t = useTranslations("workspace.translate");
   const sentence = tokens.join("");
   const isEmpty = tokens.length === 0;
   const stripRef = useRef<HTMLDivElement>(null);
@@ -48,7 +50,7 @@ export default function SentenceBuilder({
 
   return (
     <div
-      aria-label="Sentence builder"
+      aria-label={t("sentenceBuilder")}
       className={cn(
         "flex flex-col border transition-all duration-300",
         "bg-cohere-canvas",
@@ -62,7 +64,7 @@ export default function SentenceBuilder({
     >
       {isSpeaking && (
         <span className="sr-only" aria-live="assertive" aria-atomic="true">
-          Speaking: {sentence}
+          {t("speaking", { sentence })}
         </span>
       )}
 
@@ -73,12 +75,12 @@ export default function SentenceBuilder({
           "flex gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           isSticky && "min-h-6 sm:min-h-7"
         )}
-        aria-label="Confirmed letter history"
+        aria-label={t("confirmedLetters")}
         role="list"
       >
         {isEmpty ? (
           <span className="select-none py-1 font-mono text-[10px] uppercase tracking-normal text-cohere-muted">
-            Belum ada huruf
+            {t("emptyLetters")}
           </span>
         ) : (
           tokens.map((token, i) => {
@@ -87,7 +89,7 @@ export default function SentenceBuilder({
               <span
                 key={i}
                 role="listitem"
-                aria-label={`Letter ${token}${isLatest ? ", latest" : ""}`}
+                aria-label={`${token}${isLatest ? ", latest" : ""}`}
                 className={cn(
                   "inline-flex shrink-0 items-center justify-center rounded-sm border font-mono text-[10px] transition-all duration-150 sm:text-xs",
                   isSticky
@@ -109,7 +111,7 @@ export default function SentenceBuilder({
       {/* Built sentence */}
       <div
         aria-live="polite"
-        aria-label="Built sentence"
+        aria-label={t("builtSentence")}
         className={cn(
           "rounded-sm border border-cohere-hairline bg-transparent",
           "break-words font-sans leading-relaxed transition-colors duration-300",
@@ -122,7 +124,7 @@ export default function SentenceBuilder({
         )}
         style={{ fontSize: sentenceFontSize }}
       >
-        {isEmpty ? "Hasil muncul di sini..." : sentence}
+        {isEmpty ? t("emptySentence") : sentence}
       </div>
 
       {/* Quick actions */}
@@ -137,7 +139,7 @@ export default function SentenceBuilder({
             <button
               type="button"
               onClick={onAddSpace}
-              aria-label="Add space"
+              aria-label={t("addSpace")}
               className={cn(
                 "flex items-center gap-1 rounded-[30px] border border-cohere-hairline transition-colors duration-200",
                 "bg-cohere-stone text-cohere-ink",
@@ -152,7 +154,7 @@ export default function SentenceBuilder({
               >
                 ⎵
               </span>
-              <span className="hidden sm:inline">Spasi</span>
+              <span className="hidden sm:inline">{t("space")}</span>
             </button>
           )}
           <DeleteControls
@@ -166,7 +168,7 @@ export default function SentenceBuilder({
         <div className="flex items-center gap-1.5 sm:gap-2">
           {!isEmpty && !isSticky && (
             <span className="hidden font-mono text-[10px] uppercase tracking-normal text-cohere-muted sm:inline">
-              {sentence.length} karakter
+              {t("characters", { count: sentence.length })}
             </span>
           )}
           <TTSButton

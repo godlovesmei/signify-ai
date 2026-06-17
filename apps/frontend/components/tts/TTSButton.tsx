@@ -1,6 +1,7 @@
 'use client';
 
 import { Volume2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import TTSSpeakingIndicator from './TTSSpeakingIndicator';
 import { motion, AnimatePresence } from 'motion/react';
@@ -24,12 +25,13 @@ export default function TTSButton({
 }: TTSButtonProps) {
   const isEmpty   = sentence.trim().length === 0;
   const isCompact = size === 'compact';
+  const t = useTranslations('workspace.translate');
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <motion.button
         type="button"
-        aria-label={isSpeaking ? 'Speaking sentence' : 'Speak sentence'}
+        aria-label={isSpeaking ? t('speakingSentence') : t('speakSentence')}
         onClick={onSpeak}
         disabled={isEmpty || isSpeaking}
         className={cn(
@@ -61,7 +63,7 @@ export default function TTSButton({
               className="flex items-center gap-2"
             >
               <Volume2 className="size-4" />
-              {!isCompact && <span className="text-[11px] font-sans font-medium">Dengar</span>}
+              {!isCompact && <span className="text-[11px] font-sans font-medium">{t('listen')}</span>}
             </motion.div>
           )}
         </AnimatePresence>
@@ -70,7 +72,7 @@ export default function TTSButton({
       {!isCompact && (
         <div className="hidden sm:flex flex-col ml-2">
            <span className="text-[10px] uppercase tracking-normal text-[var(--cohere-muted)] font-mono">
-             {isSpeaking ? "Memutar..." : "Suara Indonesia"}
+             {isSpeaking ? t('playing') : t('voiceLanguage')}
            </span>
         </div>
       )}

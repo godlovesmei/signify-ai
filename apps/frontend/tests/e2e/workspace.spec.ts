@@ -4,13 +4,13 @@ test("TC-003 logout clears the session and returns to the landing page", async (
   page,
 }) => {
   await page.goto("/history");
-  await expect(page.getByRole("heading", { name: "History" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Riwayat" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.getByRole("button", { name: "Keluar" }).click();
 
   await expect(page).toHaveURL("/");
   await page.goto("/history");
-  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Masuk untuk melanjutkan." })).toBeVisible();
   await expect(page).toHaveURL("/");
 });
 

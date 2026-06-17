@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { toast } from "sonner";
 import AppSidebar from "@/components/layout/AppSidebar";
 import type { SidebarUser } from "@/components/layout/AppSidebar";
@@ -10,6 +11,7 @@ import SettingsDrawer from "./SettingsDrawer";
 import { useTheme } from "@/hooks/useTheme";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { getAccountProfile } from "@/lib/accountData";
+import { localizePathname, type Locale } from "@/i18n/config";
 import { createClient } from "@/utils/supabase/client";
 
 const FALLBACK_WORKSPACE_USER: SidebarUser = {
@@ -29,6 +31,8 @@ export default function WorkspaceShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const locale = useLocale() as Locale;
+  const t = useTranslations("auth.errors");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [user, setUser] = useState<SidebarUser>(FALLBACK_WORKSPACE_USER);
@@ -38,10 +42,10 @@ export default function WorkspaceShell({
       .auth.signOut()
       .then(({ error }) => {
         if (error) throw error;
-        window.location.href = "/";
+        window.location.href = localizePathname("/", locale);
       })
-      .catch(() => toast.error("Sign out failed. Please try again."));
-  }, []);
+      .catch(() => toast.error(t("signOut")));
+  }, [locale, t]);
 
   useEffect(() => {
     let active = true;

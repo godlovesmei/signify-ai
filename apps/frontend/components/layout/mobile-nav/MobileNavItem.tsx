@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { BookOpen, Camera, History, Target, User, type LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { WorkspaceNavIcon, WorkspaceNavItem } from "./workspaceNavConfig";
 
@@ -31,6 +32,8 @@ export default function MobileNavItem({
   reduceMotion,
 }: MobileNavItemProps) {
   const Icon = ICON_MAP[item.icon];
+  const t = useTranslations("navigation.workspace");
+  const label = t(item.key);
 
   return (
     <li className="list-none">
@@ -38,7 +41,7 @@ export default function MobileNavItem({
         <Link
           href={item.href}
           aria-current={isActive ? "page" : undefined}
-          aria-label={item.label}
+          aria-label={label}
           className={cn(
             "relative flex h-[54px] flex-col items-center justify-center gap-0.5 rounded-sm px-1 transition-colors duration-200",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cohere-focus",
@@ -59,7 +62,7 @@ export default function MobileNavItem({
             animate={{ opacity: isActive ? 1 : 0.65 }}
             transition={createTransition(reduceMotion)}
           >
-            {item.label}
+            {label}
           </motion.span>
         </Link>
       </motion.div>

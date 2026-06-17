@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export type DetectionStatusState = "idle" | "loading" | "ready" | "detecting" | "error";
@@ -18,27 +19,12 @@ const DOT_COLORS: Record<DetectionStatusState, string> = {
   error: "bg-[#b30000]", // error
 };
 
-const STATE_LABELS: Record<DetectionStatusState, string> = {
-  idle: "Idle",
-  loading: "Warming up",
-  ready: "Ready",
-  detecting: "Active",
-  error: "Error",
-};
-
-const STATE_HINTS: Record<DetectionStatusState, string> = {
-  idle: "Camera idle",
-  loading: "Preparing model",
-  ready: "Ready to scan",
-  detecting: "Scanning hands",
-  error: "Needs attention",
-};
-
 export default function DetectionStatus({
   state,
   fps,
   showFps = true,
 }: DetectionStatusProps) {
+  const t = useTranslations("workspace.translate");
   const isDetecting = state === "detecting";
   const isLoading = state === "loading";
   const isWorking = isDetecting || isLoading;
@@ -47,7 +33,7 @@ export default function DetectionStatus({
   return (
     <div
       role="status"
-      aria-label={`Detection status: ${STATE_LABELS[state]}`}
+      aria-label={t("detectionStatus", { state: t(`states.${state}`) })}
       className={cn(
         "flex h-10 items-center justify-between gap-4 rounded-md border border-[#d9d9dd] bg-[#eeece7] px-3.5 py-1.5 transition-all duration-300"
       )}
@@ -59,10 +45,10 @@ export default function DetectionStatus({
 
         <div className="min-w-0 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
           <span className="text-[13px] font-medium text-[#212121] leading-tight">
-            {STATE_LABELS[state]}
+            {t(`states.${state}`)}
           </span>
           <span className="truncate text-[11px] text-[#616161] leading-tight opacity-80">
-            {STATE_HINTS[state]}
+            {t(`stateHints.${state}`)}
           </span>
         </div>
       </div>
@@ -71,7 +57,7 @@ export default function DetectionStatus({
         {showFps && isDetecting && fps !== undefined && (
           <span
             data-fps-counter
-            aria-label={`${fps} frames per second`}
+            aria-label={t("fps", { value: fps })}
             className="font-mono text-[11px] tabular-nums text-[#212121] border-l border-[#d9d9dd] pl-3"
           >
             {fps} <span className="text-[9px] uppercase tracking-normal opacity-40">fps</span>

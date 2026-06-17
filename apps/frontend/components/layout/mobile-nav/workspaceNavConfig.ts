@@ -1,19 +1,20 @@
+import { stripLocalePrefix } from "@/i18n/config";
+
 export type WorkspaceNavKey = 'translate' | 'practice' | 'history' | 'reference' | 'profile';
 export type WorkspaceNavIcon = 'translate' | 'practice' | 'history' | 'reference' | 'user';
 
 export interface WorkspaceNavItem {
   key: WorkspaceNavKey;
-  label: string;
   href: string;
   icon: WorkspaceNavIcon;
 }
 
 export const WORKSPACE_NAV_ITEMS: readonly WorkspaceNavItem[] = [
-  { key: 'translate', label: 'Translate', href: '/translate', icon: 'translate' },
-  { key: 'practice', label: 'Practice', href: '/practice', icon: 'practice' },
-  { key: 'history', label: 'History', href: '/history', icon: 'history' },
-  { key: 'reference', label: 'Reference', href: '/reference', icon: 'reference' },
-  { key: 'profile', label: 'Profile', href: '/profile', icon: 'user' },
+  { key: 'translate', href: '/translate', icon: 'translate' },
+  { key: 'practice', href: '/practice', icon: 'practice' },
+  { key: 'history', href: '/history', icon: 'history' },
+  { key: 'reference', href: '/reference', icon: 'reference' },
+  { key: 'profile', href: '/profile', icon: 'user' },
 ] as const;
 
 function normalizePath(input: string): string {
@@ -36,7 +37,7 @@ function normalizePath(input: string): string {
   const withoutQuery = withoutHash.split('?')[0] ?? '/';
   const withLeadingSlash = withoutQuery.startsWith('/') ? withoutQuery : `/${withoutQuery}`;
   const trimmedTrailing = withLeadingSlash.replace(/\/+$/, '');
-  return trimmedTrailing || '/';
+  return stripLocalePrefix(trimmedTrailing || '/').pathname;
 }
 
 export function isWorkspaceNavActive(href: string, currentPath: string): boolean {

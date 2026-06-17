@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import HistoryPageContent from "@/app/(workspace)/history/_content";
+import HistoryPageContent from "@/app/[locale]/(workspace)/history/_content";
 import { getHistorySessions } from "@/lib/userData";
+import messages from "@/messages/en.json";
 
 vi.mock("@/lib/userData", () => ({
   clearHistoryEntries: vi.fn(),
@@ -20,7 +22,11 @@ describe("HistoryPageContent", () => {
       .mockRejectedValueOnce(new Error("temporary failure"))
       .mockResolvedValueOnce({ sessions: [], hasMore: false });
 
-    render(<HistoryPageContent />);
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <HistoryPageContent />
+      </NextIntlClientProvider>,
+    );
 
     expect(
       await screen.findByText("History is temporarily unavailable."),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export type ConfidenceTier = "idle" | "low" | "medium" | "high";
@@ -21,6 +22,7 @@ export default function PredictionBadge({
   hasHand,
   textScale = 1,
 }: PredictionBadgeProps) {
+  const t = useTranslations("workspace.translate");
   const isNoHand = isDetecting && !hasHand;
   const isIdle = !isDetecting;
 
@@ -32,9 +34,9 @@ export default function PredictionBadge({
   const letterKey = letter ?? "__idle__";
 
   return (
-    <div role="region" aria-label="Current sign prediction" className="flex w-full flex-col gap-3 sm:gap-4">
+    <div role="region" aria-label={t("currentPrediction")} className="flex w-full flex-col gap-3 sm:gap-4">
       <span className="sr-only" aria-live="assertive" aria-atomic="true">
-        {letter ? `Detected sign: ${letter}, ${pct}% confidence` : ""}
+        {letter ? t("detectedSign", { letter, value: pct }) : ""}
       </span>
 
       {/* Badge card */}
@@ -54,13 +56,13 @@ export default function PredictionBadge({
               aria-hidden="true"
             />
             <p className="font-mono text-xs uppercase tracking-normal text-cohere-muted sm:text-[14px]">
-              Siap
+              {t("predictionIdle")}
             </p>
           </div>
         ) : isNoHand ? (
           <div className="flex flex-col items-center gap-2 select-none text-center">
             <p className="font-mono text-xs uppercase tracking-normal text-cohere-muted sm:text-[14px]">
-              Arahkan tangan
+              {t("pointHand")}
             </p>
           </div>
         ) : (
@@ -85,7 +87,7 @@ export default function PredictionBadge({
         <div className="flex flex-col gap-2 sm:gap-2.5">
           <div className="flex items-center justify-between">
             <span className="font-mono text-xs uppercase tracking-normal text-cohere-muted sm:text-[14px]">
-              {hasHand ? "Skor" : "Mencari gerakan"}
+              {hasHand ? t("score") : t("searchingGesture")}
             </span>
             {pct > 0 && hasHand && (
               <span className="font-mono text-xs tabular-nums text-cohere-ink sm:text-[14px]">
@@ -99,7 +101,7 @@ export default function PredictionBadge({
             aria-valuenow={pct}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`Detection confidence: ${pct}%`}
+            aria-label={t("confidence", { value: pct })}
             className="h-[1px] w-full bg-cohere-hairline"
           >
             <div

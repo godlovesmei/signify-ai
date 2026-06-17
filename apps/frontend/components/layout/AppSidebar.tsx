@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import {
   BookOpen,
   Camera,
@@ -76,6 +77,9 @@ export default function AppSidebar({
 }: AppSidebarProps) {
   const activeUser = user || FALLBACK_USER;
   const profileActive = isWorkspaceNavActive("/profile", pathname);
+  const navT = useTranslations("navigation.workspace");
+  const ariaT = useTranslations("navigation.aria");
+  const commonT = useTranslations("common");
 
   const SidebarContent = (
     <div className="flex h-full w-56 flex-col bg-cohere-canvas">
@@ -85,9 +89,10 @@ export default function AppSidebar({
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Workspace navigation">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label={ariaT("workspace")}>
         {SIDEBAR_NAV_ITEMS.map((item) => {
           const active = isWorkspaceNavActive(item.href, pathname);
+          const label = navT(item.key);
           return (
             <Link
               key={item.key}
@@ -118,7 +123,7 @@ export default function AppSidebar({
                 {ICON_MAP[item.key]}
               </span>
               <span className="relative z-10 truncate text-sm font-medium text-unica-ui">
-                {item.label}
+                {label}
               </span>
               {active && (
                 <ChevronRight className="relative z-10 ml-auto size-3.5 shrink-0 opacity-40" />
@@ -136,7 +141,7 @@ export default function AppSidebar({
           className="group flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-cohere-muted transition-colors hover:bg-cohere-stone hover:text-cohere-ink"
         >
           <Settings className="size-4 shrink-0" />
-          <span className="text-sm font-medium text-unica-ui">Settings</span>
+          <span className="text-sm font-medium text-unica-ui">{commonT("settings")}</span>
         </button>
 
         <div className="h-px bg-cohere-hairline" />
@@ -179,13 +184,13 @@ export default function AppSidebar({
           </Link>
           <button
             type="button"
-            aria-label="Sign out"
+            aria-label={commonT("signOut")}
             onClick={(e) => {
               e.preventDefault();
               onLogout();
             }}
             className="flex size-7 shrink-0 items-center justify-center rounded-sm text-cohere-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
-            title="Sign out"
+            title={commonT("signOut")}
           >
             <LogOut className="size-3.5" />
           </button>
@@ -197,7 +202,7 @@ export default function AppSidebar({
   return (
     <aside
       className="hidden h-full shrink-0 border-r border-cohere-hairline lg:block"
-      aria-label="Sidebar"
+      aria-label={ariaT("sidebar")}
     >
       {SidebarContent}
     </aside>

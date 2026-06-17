@@ -1,67 +1,14 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   ArrowRight,
-  ChevronDown,
   Linkedin,
   Mail,
   MessageCircle,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Logo } from "@/components/ui/Logo";
-
-const footerGroups = [
-  {
-    heading: "Products",
-    withArrow: true,
-    links: [
-      { label: "Translate", href: "/translate" },
-      { label: "Practice", href: "/practice" },
-      { label: "Reference", href: "/reference" },
-      { label: "Gesture Library", href: "/reference" },
-      { label: "Learning Path", href: "/practice" },
-      { label: "History", href: "/history" },
-      { label: "Profile", href: "/profile" },
-    ],
-  },
-  {
-    heading: "Solutions",
-    withArrow: true,
-    links: [
-      { label: "Education", href: "/how-it-works" },
-      { label: "Accessibility", href: "/how-it-works" },
-      { label: "Public Services", href: "/research" },
-      { label: "Community Learning", href: "/practice" },
-      { label: "Research Teams", href: "/research" },
-      { label: "Browser Deployment", href: "/how-it-works" },
-      { label: "Local-first AI", href: "/research" },
-      { label: "Sign Language Dataset", href: "/research" },
-    ],
-  },
-  {
-    heading: "Resources",
-    links: [
-      { label: "Blog", href: "/research" },
-      { label: "Research", href: "/research" },
-      { label: "Documentation", href: "/how-it-works" },
-      { label: "Release Notes", href: "/research" },
-      { label: "Model Overview", href: "/how-it-works" },
-      { label: "BISINDO Guide", href: "/reference" },
-      { label: "Accessibility Notes", href: "/terms-condition" },
-      { label: "Developer Preview", href: "/research" },
-    ],
-  },
-  {
-    heading: "Company",
-    links: [
-      { label: "About", href: "/how-it-works" },
-      { label: "Research", href: "/research" },
-      { label: "Security", href: "/terms-condition" },
-      { label: "Trust Center", href: "/terms-condition" },
-      { label: "Legal Center", href: "/terms-condition" },
-      { label: "Contact", href: "mailto:hello@signify.ai" },
-    ],
-  },
-];
 
 const socialLinks = [
   { label: "LinkedIn", href: "https://www.linkedin.com", icon: Linkedin },
@@ -71,6 +18,62 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const navT = useTranslations("navigation");
+
+  const footerGroups = [
+    {
+      heading: navT("footer.groups.products"),
+      withArrow: true,
+      links: [
+        { label: navT("workspace.translate"), href: "/translate" },
+        { label: navT("workspace.practice"), href: "/practice" },
+        { label: navT("workspace.reference"), href: "/reference" },
+        { label: "Gesture Library", href: "/reference" },
+        { label: "Learning Path", href: "/practice" },
+        { label: navT("workspace.history"), href: "/history" },
+        { label: navT("workspace.profile"), href: "/profile" },
+      ],
+    },
+    {
+      heading: navT("footer.groups.solutions"),
+      withArrow: true,
+      links: [
+        { label: "Education", href: "/how-it-works" },
+        { label: "Accessibility", href: "/how-it-works" },
+        { label: "Public Services", href: "/research" },
+        { label: "Community Learning", href: "/practice" },
+        { label: "Research Teams", href: "/research" },
+        { label: "Browser Deployment", href: "/how-it-works" },
+        { label: "Local-first AI", href: "/research" },
+        { label: "Sign Language Dataset", href: "/research" },
+      ],
+    },
+    {
+      heading: navT("footer.groups.resources"),
+      links: [
+        { label: "Blog", href: "/research" },
+        { label: navT("public.research"), href: "/research" },
+        { label: "Documentation", href: "/how-it-works" },
+        { label: "Release Notes", href: "/research" },
+        { label: "Model Overview", href: "/how-it-works" },
+        { label: "BISINDO Guide", href: "/reference" },
+        { label: "Accessibility Notes", href: "/terms-condition" },
+        { label: "Developer Preview", href: "/research" },
+      ],
+    },
+    {
+      heading: navT("footer.groups.company"),
+      links: [
+        { label: "About", href: "/how-it-works" },
+        { label: navT("public.research"), href: "/research" },
+        { label: "Security", href: "/terms-condition" },
+        { label: "Trust Center", href: "/terms-condition" },
+        { label: "Legal Center", href: "/terms-condition" },
+        { label: "Contact", href: "mailto:hello@signify.ai" },
+      ],
+    },
+  ];
+
   return (
     <footer className="relative overflow-hidden bg-[#111116] text-white">
       <div className="cohere-container flex min-h-[680px] flex-col justify-between py-14 md:py-20">
@@ -80,35 +83,33 @@ export default function Footer() {
 
             <div className="mt-10">
               <p className="text-[18px] font-medium tracking-[-0.02em] text-[#ff8b82]">
-                AI moves fast
+                {navT("footer.tagline")}
               </p>
 
               <h2 className="mt-2 max-w-sm text-[24px] font-semibold leading-[1.15] tracking-[-0.035em] text-white md:text-[28px]">
-                We’ll keep you up to date with SignifyAI.
+                {navT("footer.title")}
               </h2>
 
               <p className="mt-5 max-w-[380px] text-[14px] leading-[1.55] text-white/45">
-                Enter your email below to receive updates about BISINDO recognition,
-                accessibility research, and product improvements. You can unsubscribe
-                at any time.
+                {navT("footer.description")}
               </p>
 
               <form className="mt-12 max-w-[430px]" action="#">
                 <label htmlFor="footer-email" className="sr-only">
-                  Email address
+                  {navT("footer.emailLabel")}
                 </label>
 
                 <div className="group flex items-center border-b border-white/65 pb-4 transition-colors duration-300 focus-within:border-white hover:border-white">
                   <input
                     id="footer-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={navT("footer.emailPlaceholder")}
                     className="min-w-0 flex-1 bg-transparent text-[16px] font-medium text-white outline-none placeholder:text-white/45"
                   />
 
                   <button
                     type="submit"
-                    aria-label="Subscribe to updates"
+                    aria-label={navT("footer.subscribe")}
                     className="ml-4 flex size-9 items-center justify-center text-white/45 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white"
                   >
                     <ArrowRight className="size-5" />
@@ -119,7 +120,7 @@ export default function Footer() {
           </section>
 
           <nav
-            aria-label="Footer navigation"
+            aria-label={navT("aria.footer")}
             className="grid gap-10 sm:grid-cols-2 xl:grid-cols-4"
           >
             {footerGroups.map((group) => (
@@ -173,24 +174,18 @@ export default function Footer() {
             <p>SignifyAI © 2026</p>
 
             <Link href="/terms-condition" className="transition-colors hover:text-white">
-              Privacy
+              {navT("footer.privacy")}
             </Link>
 
             <Link href="/terms-condition" className="transition-colors hover:text-white">
-              Terms of Use
+              {navT("footer.terms")}
             </Link>
 
             <button type="button" className="text-left transition-colors hover:text-white">
-              Manage Cookies
+              {navT("footer.cookies")}
             </button>
 
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 transition-colors hover:text-white"
-            >
-              English
-              <ChevronDown className="size-4" />
-            </button>
+            <LanguageSwitcher variant="footer" />
           </div>
         </div>
       </div>

@@ -1,0 +1,401 @@
+{
+  "common": {
+    "brand": "SignifyAI",
+    "language": "Language",
+    "indonesian": "Indonesia",
+    "english": "English",
+    "skipToContent": "Skip to content",
+    "close": "Close",
+    "loading": "Loading",
+    "copy": "Copy",
+    "share": "Share",
+    "download": "Download",
+    "delete": "Delete",
+    "clear": "Clear",
+    "retry": "Retry",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "signIn": "Sign in",
+    "requestAccess": "Request access",
+    "learnMore": "Learn more",
+    "start": "Start"
+  },
+  "navigation": {
+    "aria": {
+      "main": "Main navigation",
+      "mobile": "Mobile navigation",
+      "workspace": "Workspace navigation",
+      "sidebar": "Sidebar",
+      "footer": "Footer navigation",
+      "home": "Go to SignifyAI homepage",
+      "toggleMobile": "Toggle mobile menu"
+    },
+    "workspace": {
+      "translate": "Translate",
+      "practice": "Practice",
+      "history": "History",
+      "reference": "Reference",
+      "profile": "Profile"
+    },
+    "public": {
+      "howItWorks": "How it works",
+      "research": "Research",
+      "terms": "Terms"
+    },
+    "landing": {
+      "product": {
+        "label": "Product",
+        "eyebrow": "SignifyAI platform",
+        "title": "A focused AI workspace for BISINDO translation and practice.",
+        "description": "Capture gestures, translate movement, review outputs, and keep learning history in one browser-based interface.",
+        "featuredLabel": "New workflow",
+        "featuredTitle": "Gesture to text in seconds",
+        "featuredDescription": "Designed for fast classroom demos, research testing, and independent learning."
+      },
+      "resources": {
+        "label": "Resources",
+        "eyebrow": "Learn and validate",
+        "title": "Everything needed to understand the product and its boundaries.",
+        "description": "Explore methodology, usage flow, privacy notes, and product references before using the workspace.",
+        "featuredLabel": "Responsible AI",
+        "featuredTitle": "Clear limits, safer demos",
+        "featuredDescription": "The interface is written to avoid overclaiming model capability or real-world coverage."
+      },
+      "links": {
+        "translateDescription": "Turn live camera input into text and speech-ready output.",
+        "practiceDescription": "Train recognition accuracy with guided repetition and feedback.",
+        "referenceDescription": "Browse curated BISINDO gestures and learning references.",
+        "historyDescription": "Review past sessions, transcripts, and translation activity.",
+        "howItWorksDescription": "Follow the full camera-to-translation pipeline.",
+        "researchDescription": "Read the technical rationale and evaluation assumptions.",
+        "termsDescription": "Review usage, privacy, and responsible AI boundaries.",
+        "profileDescription": "Manage account settings and personal learning records."
+      }
+    },
+    "footer": {
+      "tagline": "AI moves fast",
+      "title": "We’ll keep you up to date with SignifyAI.",
+      "description": "Enter your email to receive updates about BISINDO recognition, accessibility research, and product improvements. You can unsubscribe at any time.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "Subscribe to updates",
+      "privacy": "Privacy",
+      "terms": "Terms of Use",
+      "cookies": "Manage Cookies",
+      "groups": {
+        "products": "Products",
+        "solutions": "Solutions",
+        "resources": "Resources",
+        "company": "Company"
+      }
+    }
+  },
+  "auth": {
+    "modal": {
+      "close": "Close sign in",
+      "eyebrow": "Secure workspace",
+      "title": "Sign in to continue.",
+      "description": "Access history, practice analytics, and saved preferences without changing the local camera workflow.",
+      "google": "Continue with Google",
+      "openingGoogle": "Opening Google...",
+      "error": "Sign-in failed. Please try again.",
+      "benefits": {
+        "videoTitle": "Local-first video",
+        "videoBody": "Camera frames stay constrained to the active session.",
+        "practiceTitle": "Practice continuity",
+        "practiceBody": "Keep alphabet progress and weak-letter queues.",
+        "accountTitle": "Account boundary",
+        "accountBody": "Authentication is handled through Supabase and Google."
+      }
+    },
+    "guard": {
+      "checking": "Checking authentication..."
+    },
+    "errors": {
+      "signOut": "Sign out failed. Please try again."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Configure camera, appearance, accessibility, audio, and account settings.",
+    "camera": "Camera",
+    "cameraDevice": "Camera device",
+    "mirrorCamera": "Mirror camera",
+    "mirrorCameraHelp": "Flip horizontally for natural view",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "system": "System",
+      "dark": "Dark"
+    },
+    "highContrast": "High contrast",
+    "highContrastHelp": "Increases text and border contrast",
+    "textSize": "Prediction text size",
+    "textSizeAria": "Text size",
+    "tts": "Text-to-Speech",
+    "voiceFeedback": "Voice feedback",
+    "voiceFeedbackHelp": "Speak detected letters automatically",
+    "speed": "Speed",
+    "volume": "Volume",
+    "language": "Language",
+    "audioLanguage": "English",
+    "account": "Account",
+    "confirmSignOut": "Tap again to confirm",
+    "confirmSignOutAria": "Tap again to confirm sign out",
+    "googleAccountNote": "Password and account changes are managed via your Google account."
+  },
+  "workspace": {
+    "translate": {
+      "title": "Translate",
+      "cameraLabel": "Translation camera",
+      "enableCamera": "Enable camera",
+      "syncError": "A translated letter could not be synced.",
+      "sentenceBuilder": "Sentence builder",
+      "confirmedLetters": "Confirmed letter history",
+      "emptyLetters": "No letters yet",
+      "builtSentence": "Built sentence",
+      "emptySentence": "Result appears here...",
+      "addSpace": "Add space",
+      "space": "Space",
+      "characters": "{count} characters",
+      "speaking": "Speaking: {sentence}",
+      "speakSentence": "Speak sentence",
+      "speakingSentence": "Speaking sentence",
+      "listen": "Listen",
+      "playing": "Playing...",
+      "voiceLanguage": "English voice",
+      "transcriptEmpty": "No history yet.",
+      "transcriptEmptyHelp": "Start the camera, then frame your hand.",
+      "downloadTranscript": "Download translation transcript",
+      "download": "Download",
+      "shareTranscript": "Share translation transcript",
+      "share": "Share",
+      "shareTitle": "SignifyAI Transcript",
+      "speakEntry": "Speak transcript entry {text}",
+      "copyEntry": "Copy transcript entry {text}",
+      "currentPrediction": "Current sign prediction",
+      "confidence": "Detection confidence: {value}%",
+      "confidenceShort": "Confidence",
+      "resultTab": "Result",
+      "sentenceTab": "Sentence",
+      "historyTab": "History",
+      "buildSentence": "Build sentence",
+      "deleteControls": "Text editing controls",
+      "deleteLast": "Delete last letter",
+      "clearSentence": "Clear sentence",
+      "confirmClear": "Confirm clear sentence",
+      "detectionStatus": "Detection status: {state}",
+      "fps": "{value} frames per second"
+      ,"cameraHeader": "Camera",
+      "enterFullscreen": "Enter fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "handDetected": "Gesture detected",
+      "connectionLost": "Connection lost",
+      "startCameraTitle": "Start camera",
+      "startCameraBody": "Allow camera access to start translating BISINDO.",
+      "preparingCamera": "Preparing camera",
+      "permissionDenied": "Camera permission denied",
+      "cameraMissing": "Camera not found",
+      "permissionHelp": "Allow camera access in your browser, then try again.",
+      "cameraMissingHelp": "Make sure the camera is connected and not being used by another app.",
+      "startTranslation": "Start translation",
+      "pauseTranslation": "Pause translation",
+      "reset": "Reset",
+      "switchCamera": "Switch camera",
+      "retry": "Try again",
+      "states": {
+        "idle": "Idle",
+        "loading": "Warming up",
+        "ready": "Ready",
+        "detecting": "Active",
+        "error": "Error"
+      },
+      "stateHints": {
+        "idle": "Camera idle",
+        "loading": "Preparing model",
+        "ready": "Ready to scan",
+        "detecting": "Scanning hands",
+        "error": "Needs attention"
+      },
+      "predictionIdle": "Ready",
+      "pointHand": "Frame your hand",
+      "score": "Score",
+      "searchingGesture": "Searching for movement",
+      "detectedSign": "Detected sign: {letter}, {value}% confidence"
+    },
+    "history": {
+      "title": "History",
+      "loadError": "Translation history could not be loaded.",
+      "deleteSuccess": "Translation session deleted.",
+      "deleteError": "Session deletion failed. Restored the session.",
+      "clearSuccess": "Translation history cleared.",
+      "clearError": "History could not be cleared.",
+      "loadMoreError": "More history could not be loaded.",
+      "loading": "Loading history",
+      "startTranslation": "Start translation",
+      "copySession": "Copy session from {date}",
+      "expandSession": "Expand session from {date}",
+      "collapseSession": "Collapse session from {date}",
+      "deleteSession": "Delete session from {date}"
+      ,"summary": "{count} saved sessions",
+      "clearAll": "Clear all",
+      "unavailable": "History is temporarily unavailable.",
+      "emptyTitle": "No history yet",
+      "emptyBody": "Real-time decoded signs will appear here once a translation session starts.",
+      "session": "Session {date}",
+      "entries": "{count} entries",
+      "confidenceValue": "{value}% confidence",
+      "emptyTranscript": "Empty transcript",
+      "loadMore": "Load more"
+    },
+    "practice": {
+      "title": "Practice",
+      "loadError": "Practice progress could not be loaded.",
+      "syncError": "Practice attempt could not be synced.",
+      "resetSuccess": "Practice progress reset.",
+      "resetError": "Practice progress could not be reset.",
+      "loading": "Loading practice progress",
+      "retry": "Retry loading practice progress",
+      "sessionConfig": "Session configuration"
+      ,"target": "Target",
+      "performance": "Performance",
+      "samples": "Samples",
+      "precision": "Precision",
+      "streak": "Streak",
+      "focusQueue": "Focus queue",
+      "holdProgress": "Hold progress",
+      "maintainGesture": "Maintain gesture focus",
+      "controls": "Controls",
+      "skipTarget": "Skip target",
+      "sessionConfigShort": "Session config",
+      "sessionConfigDescription": "Configure the practice session, guide overlay, insight metrics, and reset practice progress.",
+      "guideOverlay": "Guide overlay",
+      "insightMetrics": "Insight metrics",
+      "resetProgress": "Reset practice progress",
+      "resetCamera": "Reset camera",
+      "hideGuide": "Hide guide overlay",
+      "showGuide": "Show guide overlay"
+    },
+    "reference": {
+      "title": "Reference",
+      "loadError": "Reference progress could not be loaded.",
+      "loading": "Loading progress",
+      "practiceNow": "Practice now"
+      ,"description": "BISINDO alphabet cards with synced practice performance for each letter.",
+      "globalAccuracy": "Global accuracy",
+      "totalAttempts": "Total attempts",
+      "verifiedSigns": "Verified signs",
+      "letterAlt": "Reference for letter {letter}",
+      "verified": "{correct} / {attempts} verified"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Account details, translation history, practice analytics, and workspace preferences.",
+      "loadError": "Profile analytics could not be loaded.",
+      "loading": "Loading profile",
+      "primaryLanguage": "Primary language",
+      "initializeTranslate": "Initialize translate",
+      "signingOut": "Signing out..."
+    }
+  },
+  "landing": {
+    "capabilities": {
+      "cameraTitle": "Browser camera",
+      "cameraBody": "Open a session from desktop or mobile and keep the interface focused on the live camera feed.",
+      "alphabetTitle": "BISINDO alphabet",
+      "alphabetBody": "Frame-by-frame prediction turns hand shapes into a clean sequence of letters.",
+      "ttsTitle": "Text to speech",
+      "ttsBody": "Read the built sentence aloud in English when a user needs spoken output."
+    },
+    "products": {
+      "translateTitle": "Translate workspace",
+      "translateBody": "A dark product field for camera input, confidence scoring, sentence assembly, and session logs.",
+      "practiceTitle": "Practice studio",
+      "practiceBody": "Targeted alphabet drills with adaptive weak-letter queues and local progress tracking.",
+      "researchTitle": "Research library",
+      "researchBody": "A publishing surface for explaining the model, limitations, and accessibility decisions.",
+      "checks": {
+        "realtime": "Real-time prediction",
+        "buffer": "Editable sentence buffer",
+        "export": "Session export",
+        "hold": "Hold-to-confirm flow",
+        "overlays": "Reference overlays",
+        "accuracy": "Accuracy history",
+        "readable": "Readable sections",
+        "limits": "Clear limitations",
+        "context": "Model context"
+      }
+    },
+    "trust": ["Community", "Education", "Research", "Public Access", "Accessibility", "BISINDO"],
+    "cta": {
+      "start": "Start translating",
+      "explore": "Explore the system",
+      "research": "Read the research"
+    }
+  },
+  "docs": {
+    "howItWorks": {
+      "title": "From camera frame to spoken sentence.",
+      "lead": "A plain-language breakdown of the recognition loop, the sentence builder, and the limits users should understand before relying on the tool.",
+      "faqQuestion": "What sign languages are supported?",
+      "faqAnswer": "The workspace focuses on BISINDO alphabet recognition and related learning flows."
+    },
+    "research": {
+      "title": "What is a real-time sign language translator?",
+      "contents": "Research contents",
+      "learnHow": "Learn how it works"
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "contents": "Terms contents",
+      "plainSummary": "Plain-language summary"
+    }
+  },
+  "seo": {
+    "siteName": "SignifyAI",
+    "defaultTitle": "SignifyAI - Real-Time BISINDO Sign Language Translator",
+    "titleTemplate": "%s · SignifyAI",
+    "description": "Translate BISINDO hand gestures into text and speech in real time with AI. Designed for Deaf communities, educators, and researchers.",
+    "keywords": [
+      "BISINDO",
+      "Indonesian sign language",
+      "sign language translator",
+      "accessibility AI",
+      "real-time translation",
+      "computer vision"
+    ],
+    "imageAlt": "SignifyAI - Real-Time BISINDO Sign Language Translator",
+    "jsonLdDescription": "AI and computer-vision powered real-time BISINDO sign language translator.",
+    "features": [
+      "Real-time BISINDO sign language recognition",
+      "Text-to-Speech output",
+      "Browser camera capture with API-based inference",
+      "Practice mode with feedback",
+      "Developer panel with inference metrics"
+    ],
+    "pages": {
+      "home": {
+        "title": "SignifyAI - Real-Time BISINDO Sign Language Translator",
+        "description": "Translate BISINDO gestures into text and speech directly from the browser."
+      },
+      "howItWorks": {
+        "title": "How SignifyAI Works",
+        "description": "Learn the SignifyAI flow from camera capture to model inference, sentence building, and voice output."
+      },
+      "research": {
+        "title": "SignifyAI Research",
+        "description": "Research notes on real-time sign language recognition, model limitations, and accessibility."
+      },
+      "terms": {
+        "title": "SignifyAI Terms and Conditions",
+        "description": "Usage terms, privacy notes, and responsible boundaries for SignifyAI."
+      },
+      "workspace": {
+        "title": "{page} · SignifyAI",
+        "description": "SignifyAI workspace for translation, practice, and progress management."
+      }
+    }
+  }
+}

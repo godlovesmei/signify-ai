@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Lock, Shield, Sparkles, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { sanitizeRelativePath } from "@/lib/authRedirect";
 import { createClient } from "@/utils/supabase/client";
 import { Logo } from "@/components/ui/Logo";
@@ -17,6 +18,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const t = useTranslations("auth.modal");
 
   useEffect(() => {
     if (!open) return;
@@ -67,7 +69,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
     });
 
     if (oauthError) {
-      setError("Sign-in failed. Please try again.");
+      setError(t("error"));
       setLoading(false);
     }
   }
@@ -95,7 +97,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            aria-label="Close sign in"
+            aria-label={t("close")}
             className="flex size-9 items-center justify-center rounded-sm border border-cohere-hairline text-cohere-slate transition-colors hover:bg-cohere-stone hover:text-cohere-ink"
           >
             <X className="size-4" />
@@ -103,26 +105,25 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
         </div>
 
         <div className="px-6 py-8 sm:px-8">
-          <p className="text-mono-label text-[12px] text-cohere-coral">Secure workspace</p>
+          <p className="text-mono-label text-[12px] text-cohere-coral">{t("eyebrow")}</p>
           <h1
             id="sign-in-title"
             className="mt-3 max-w-sm font-display text-[42px] leading-none text-cohere-ink sm:text-[48px]"
           >
-            Sign in to continue.
+            {t("title")}
           </h1>
           <p
             id="sign-in-description"
             className="mt-5 max-w-md text-[16px] leading-[1.5] text-cohere-body-muted"
           >
-            Access history, practice analytics, and saved preferences without changing the
-            local camera workflow.
+            {t("description")}
           </p>
 
           <div className="mt-8 grid gap-3">
             {[
-              { icon: Shield, title: "Local-first video", body: "Camera frames stay constrained to the active session." },
-              { icon: Sparkles, title: "Practice continuity", body: "Keep alphabet progress and weak-letter queues." },
-              { icon: Lock, title: "Account boundary", body: "Authentication is handled through Supabase and Google." },
+              { icon: Shield, title: t("benefits.videoTitle"), body: t("benefits.videoBody") },
+              { icon: Sparkles, title: t("benefits.practiceTitle"), body: t("benefits.practiceBody") },
+              { icon: Lock, title: t("benefits.accountTitle"), body: t("benefits.accountBody") },
             ].map((item) => (
               <div key={item.title} className="flex gap-4 border-t border-cohere-hairline pt-4">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-cohere-stone text-cohere-ink">
@@ -147,7 +148,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
             ) : (
               <GoogleMark />
             )}
-            {loading ? "Opening Google..." : "Continue with Google"}
+            {loading ? t("openingGoogle") : t("google")}
           </button>
 
           {error && (

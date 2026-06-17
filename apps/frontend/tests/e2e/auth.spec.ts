@@ -7,8 +7,18 @@ test("TC-004 unauthenticated protected route redirects and preserves a safe retu
 }) => {
   await page.goto("/history?page=2");
 
-  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Masuk untuk melanjutkan." })).toBeVisible();
   await expect(page).toHaveURL("/");
+  await expect(page.getByRole("button", { name: "Tutup masuk" })).toBeFocused();
+});
+
+test("TC-004 English protected route keeps locale in login redirect", async ({
+  page,
+}) => {
+  await page.goto("/en/history?page=2");
+
+  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page).toHaveURL("/en");
   await expect(page.getByRole("button", { name: "Close sign in" })).toBeFocused();
 });
 
@@ -17,9 +27,9 @@ test("TC-004 landing start translating opens login without a redirect query", as
 }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Start translating" }).click();
+  await page.getByRole("button", { name: "Mulai terjemahkan" }).click();
 
-  await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Masuk untuk melanjutkan." })).toBeVisible();
   await expect(page).toHaveURL("/");
 });
 

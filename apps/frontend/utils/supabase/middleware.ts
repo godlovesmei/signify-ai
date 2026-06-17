@@ -9,8 +9,11 @@ import type { Database } from '@/utils/supabase/database.types';
 // NextResponse — so that Set-Cookie headers on the session are forwarded.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const createClient = (request: NextRequest) => {
-  let supabaseResponse = NextResponse.next({ request });
+export const createClient = (
+  request: NextRequest,
+  response: NextResponse = NextResponse.next({ request }),
+) => {
+  const supabaseResponse = response;
   const { url, publishableKey } = getSupabaseConfig();
 
   const supabase = createServerClient<Database>(
@@ -26,8 +29,6 @@ export const createClient = (request: NextRequest) => {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          // Re-create response so Set-Cookie headers are included
-          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );

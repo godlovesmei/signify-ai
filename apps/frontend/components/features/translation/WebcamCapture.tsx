@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslations } from "next-intl";
 import {
   Camera,
   FlipHorizontal,
@@ -99,6 +100,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     },
     ref
   ) => {
+    const t = useTranslations("workspace.translate");
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -131,7 +133,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     return (
       <section
         ref={sectionRef}
-        aria-label="Kamera penerjemah"
+        aria-label={t("cameraLabel")}
         className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-md border border-white/10 bg-cohere-primary sm:rounded-lg lg:rounded-[22px]"
       >
         {/* Header */}
@@ -142,7 +144,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
               aria-hidden="true"
             />
             <span className="text-[10px] font-medium sm:text-[11px]">
-              Kamera
+              {t("cameraHeader")}
             </span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -153,7 +155,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
               onClick={handleFullscreen}
               className="size-6 sm:size-7"
               aria-label={
-                isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                isFullscreen ? t("exitFullscreen") : t("enterFullscreen")
               }
             >
               {isFullscreen ? (
@@ -198,7 +200,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                   >
                     <TechnicalBadge
                       icon={Hand}
-                      label="Gerakan terdeteksi"
+                      label={t("handDetected")}
                       variant="active"
                     />
                   </motion.div>
@@ -217,7 +219,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
               >
                 <div className="flex items-center gap-2 rounded-sm bg-cohere-error px-3 py-2 text-[11px] font-medium text-cohere-canvas sm:gap-3 sm:px-4 sm:py-2.5 sm:text-xs">
                   <ShieldAlert className="size-3 sm:size-3.5" />
-                  Koneksi terputus
+                  {t("connectionLost")}
                 </div>
               </motion.div>
             )}
@@ -240,10 +242,10 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     </div>
                     <div className="space-y-1.5 sm:space-y-2">
                       <h3 className="text-sm font-medium text-white sm:text-base">
-                        Mulai kamera
+                        {t("startCameraTitle")}
                       </h3>
                       <p className="text-xs leading-relaxed text-white/45 sm:text-sm">
-                        Izinkan akses kamera untuk mulai menerjemahkan BISINDO.
+                        {t("startCameraBody")}
                       </p>
                     </div>
                     <Button
@@ -252,7 +254,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                       variant="onDark"
                       size="sm"
                     >
-                      Aktifkan kamera
+                      {t("enableCamera")}
                     </Button>
                   </div>
                 )}
@@ -261,7 +263,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                   <div className="flex flex-col items-center gap-4 sm:gap-6">
                     <Loader2 className="size-6 animate-spin text-white/10 sm:size-8" />
                     <span className="text-[11px] text-white/45 sm:text-xs">
-                      Menyiapkan kamera
+                      {t("preparingCamera")}
                     </span>
                   </div>
                 )}
@@ -274,13 +276,13 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     <div className="space-y-2 sm:space-y-3">
                       <h3 className="text-sm font-medium text-white sm:text-base">
                         {state === "error-permission"
-                          ? "Izin kamera ditolak"
-                          : "Kamera tidak ditemukan"}
+                          ? t("permissionDenied")
+                          : t("cameraMissing")}
                       </h3>
                       <p className="text-xs leading-relaxed text-white/30 sm:text-[13px]">
                         {state === "error-permission"
-                          ? "Beri izin kamera dari browser, lalu coba lagi."
-                          : "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain."}
+                          ? t("permissionHelp")
+                          : t("cameraMissingHelp")}
                       </p>
                     </div>
                     <Button
@@ -289,7 +291,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                       variant="outlineOnDark"
                       size="sm"
                     >
-                      Coba lagi
+                      {t("retry")}
                     </Button>
                   </div>
                 )}
@@ -310,7 +312,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                   size="sm"
                   className="min-h-10 flex-1 py-2 text-[13px] sm:min-h-11 sm:py-2.5"
                 >
-                  Mulai terjemah
+                  {t("startTranslation")}
                 </Button>
               ) : (
                 <Button
@@ -320,17 +322,17 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                   size="sm"
                   className="min-h-10 flex-1 py-2 text-[13px] sm:min-h-11 sm:py-2.5"
                 >
-                  Jeda terjemah
+                  {t("pauseTranslation")}
                 </Button>
               )}
 
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <ControlIconBtn onClick={onReset} label="Mulai ulang">
+                <ControlIconBtn onClick={onReset} label={t("reset")}>
                   <RotateCcw className="size-3.5 sm:size-4" />
                 </ControlIconBtn>
                 <ControlIconBtn
                   onClick={onFlipCamera}
-                  label="Ganti kamera"
+                  label={t("switchCamera")}
                   disabled={!hasMultipleCameras}
                 >
                   <FlipHorizontal className="size-3.5 sm:size-4" />

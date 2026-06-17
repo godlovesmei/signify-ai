@@ -11,6 +11,9 @@ describe("auth redirect safety", () => {
     expect(buildLoginPath("/history?page=2")).toBe(
       "/?login=1&next=%2Fhistory%3Fpage%3D2",
     );
+    expect(buildLoginPath("/en/history?page=2", "en")).toBe(
+      "/en?login=1&next=%2Fen%2Fhistory%3Fpage%3D2",
+    );
   });
 
   it.each([

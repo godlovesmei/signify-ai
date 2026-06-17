@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   LogOut,
   Monitor,
@@ -23,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AutoAvatar } from "@/components/ui/AutoAvatar";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 import { TEXT_SCALE_OPTIONS } from "@/hooks/useAccessibilityPrefs";
 import type { ThemeMode } from "@/hooks/useTheme";
@@ -212,22 +214,18 @@ function LabelledSlider({
    ═══════════════════════════════════════════════════════════════ */
 const THEME_OPTIONS: {
   value: ThemeMode;
-  label: string;
   icon: React.ReactNode;
 }[] = [
   {
     value: "light",
-    label: "Light",
     icon: <Sun className="h-3.5 w-3.5" aria-hidden="true" />,
   },
   {
     value: "system",
-    label: "System",
     icon: <Monitor className="h-3.5 w-3.5" aria-hidden="true" />,
   },
   {
     value: "dark",
-    label: "Dark",
     icon: <Moon className="h-3.5 w-3.5" aria-hidden="true" />,
   },
 ];
@@ -239,10 +237,13 @@ function ThemeSegmentedControl({
   value: ThemeMode;
   onChange: (mode: ThemeMode) => void;
 }) {
+  const t = useTranslations("settings.themeOptions");
+  const settingsT = useTranslations("settings");
+
   return (
     <div
       role="radiogroup"
-      aria-label="Theme"
+      aria-label={settingsT("theme")}
       className="relative flex w-full gap-1 rounded-md bg-cohere-stone p-1 border border-cohere-hairline"
     >
       {THEME_OPTIONS.map((opt) => {
@@ -253,7 +254,7 @@ function ThemeSegmentedControl({
             type="button"
             role="radio"
             aria-checked={isActive}
-            aria-label={`${opt.label} theme`}
+            aria-label={t(opt.value)}
             onClick={() => onChange(opt.value)}
             className={cn(
               "relative flex flex-1 items-center justify-center gap-1.5 rounded-sm py-2 text-xs font-semibold transition-all duration-200",
@@ -264,7 +265,7 @@ function ThemeSegmentedControl({
           >
             <span className="relative z-10 flex items-center gap-1.5 text-unica-ui">
               {opt.icon}
-              {opt.label}
+              {t(opt.value)}
             </span>
           </button>
         );
@@ -283,10 +284,12 @@ function TextScaleSelector({
   value: number;
   onChange: (scale: number) => void;
 }) {
+  const t = useTranslations("settings");
+
   return (
     <div
       role="radiogroup"
-      aria-label="Text size"
+      aria-label={t("textSizeAria")}
       className="flex w-full gap-1.5"
     >
       {(
@@ -342,6 +345,8 @@ export default function SettingsDrawer({
   onLogout,
 }: SettingsDrawerProps) {
   const [logoutConfirming, setLogoutConfirming] = useState(false);
+  const t = useTranslations("settings");
+  const commonT = useTranslations("common");
 
   function handleLogoutClick() {
     if (logoutConfirming) {
@@ -357,7 +362,7 @@ export default function SettingsDrawer({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
         className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-none flex-col gap-0 overflow-hidden rounded-md border border-cohere-hairline bg-cohere-canvas p-0 text-cohere-ink shadow-none top-4 translate-y-0 sm:top-[50%] sm:max-h-[calc(100dvh-4rem)] sm:-translate-y-1/2 sm:w-[540px] sm:max-w-[540px]"
-        aria-label="App settings"
+        aria-label={t("title")}
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-cohere-hairline px-6 py-5 pr-14">
@@ -366,10 +371,10 @@ export default function SettingsDrawer({
               <Sliders className="h-4 w-4 text-cohere-ink" aria-hidden="true" />
             </div>
             <DialogTitle className="text-base font-display font-medium tracking-normal text-cohere-ink">
-              Settings
+              {t("title")}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Configure camera, appearance, accessibility, audio, and account settings.
+              {t("description")}
             </DialogDescription>
           </div>
         </DialogHeader>
@@ -380,7 +385,7 @@ export default function SettingsDrawer({
           <section aria-labelledby="settings-camera">
             <SectionHeading
               icon={<Camera className="h-3.5 w-3.5" />}
-              label="Camera"
+              label={t("camera")}
             />
             <SettingsCard className="overflow-hidden">
               {devices.length > 0 && (
@@ -389,7 +394,7 @@ export default function SettingsDrawer({
                     htmlFor="camera-device"
                     className="text-sm font-medium text-cohere-ink block mb-2 text-unica-ui"
                   >
-                    Camera device
+                    {t("cameraDevice")}
                   </label>
                   <div className="relative">
                     <select
@@ -416,15 +421,15 @@ export default function SettingsDrawer({
               )}
               <div className="flex items-center justify-between gap-4 px-4 py-3.5">
                 <div>
-                  <p className="text-sm font-medium text-cohere-ink text-unica-ui">Mirror camera</p>
-                  <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
-                    Flip horizontally for natural view
+                    <p className="text-sm font-medium text-cohere-ink text-unica-ui">{t("mirrorCamera")}</p>
+                    <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
+                    {t("mirrorCameraHelp")}
                   </p>
                 </div>
                 <Toggle
                   checked={isMirrored}
                   onChange={onMirrorToggle}
-                  label="Mirror camera"
+                  label={t("mirrorCamera")}
                 />
               </div>
             </SettingsCard>
@@ -434,11 +439,11 @@ export default function SettingsDrawer({
           <section aria-labelledby="settings-appearance">
             <SectionHeading
               icon={<Sparkles className="h-3.5 w-3.5" />}
-              label="Appearance"
+              label={t("appearance")}
             />
             <div className="flex flex-col gap-2.5">
               <SettingsCard className="p-4">
-                <p className="text-sm font-medium text-cohere-ink mb-3 text-unica-ui">Theme</p>
+                <p className="text-sm font-medium text-cohere-ink mb-3 text-unica-ui">{t("theme")}</p>
                 <ThemeSegmentedControl
                   value={theme}
                   onChange={onThemeChange}
@@ -451,16 +456,16 @@ export default function SettingsDrawer({
                     <Contrast className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-cohere-ink text-unica-ui">High contrast</p>
+                    <p className="text-sm font-medium text-cohere-ink text-unica-ui">{t("highContrast")}</p>
                     <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
-                      Increases text and border contrast
+                      {t("highContrastHelp")}
                     </p>
                   </div>
                 </div>
                 <Toggle
                   checked={highContrast}
                   onChange={onHighContrastToggle}
-                  label="High contrast mode"
+                  label={t("highContrast")}
                 />
               </SettingsCard>
 
@@ -469,7 +474,7 @@ export default function SettingsDrawer({
                   <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cohere-stone border border-cohere-hairline">
                     <Type className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                   </div>
-                  <p className="text-sm font-medium text-cohere-ink text-unica-ui">Prediction text size</p>
+                  <p className="text-sm font-medium text-cohere-ink text-unica-ui">{t("textSize")}</p>
                 </div>
                 <TextScaleSelector
                   value={textScale}
@@ -483,7 +488,7 @@ export default function SettingsDrawer({
           <section aria-labelledby="settings-tts">
             <SectionHeading
               icon={<Volume2 className="h-3.5 w-3.5" />}
-              label="Text-to-Speech"
+              label={t("tts")}
             />
             <SettingsCard className="p-4 space-y-4">
               {onVoiceEnabledChange && (
@@ -494,16 +499,16 @@ export default function SettingsDrawer({
                         <Volume2 className="h-3.5 w-3.5 text-cohere-ink" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-cohere-ink text-unica-ui">Voice feedback</p>
+                        <p className="text-sm font-medium text-cohere-ink text-unica-ui">{t("voiceFeedback")}</p>
                         <p className="mt-0.5 text-[11px] text-cohere-muted font-mono lowercase">
-                          Speak detected letters automatically
+                          {t("voiceFeedbackHelp")}
                         </p>
                       </div>
                     </div>
                     <Toggle
                       checked={voiceEnabled}
                       onChange={onVoiceEnabledChange}
-                      label="Voice feedback"
+                      label={t("voiceFeedback")}
                     />
                   </div>
                   <div className="h-px bg-cohere-hairline" />
@@ -511,7 +516,7 @@ export default function SettingsDrawer({
               )}
 
               <LabelledSlider
-                label="Speed"
+                label={t("speed")}
                 value={ttsSpeed}
                 min={0.5}
                 max={2.0}
@@ -523,7 +528,7 @@ export default function SettingsDrawer({
               <div className="h-px bg-cohere-hairline" />
 
               <LabelledSlider
-                label="Volume"
+                label={t("volume")}
                 value={ttsVolume}
                 min={0}
                 max={1}
@@ -535,11 +540,21 @@ export default function SettingsDrawer({
               <div className="h-px bg-cohere-hairline" />
 
               <div className="flex items-center justify-between pt-0.5">
-                <p className="text-[11px] text-cohere-muted font-mono lowercase">Language</p>
+                <p className="text-[11px] text-cohere-muted font-mono lowercase">{t("language")}</p>
                 <span className="rounded-sm bg-cohere-stone px-2.5 py-1 text-[10px] font-bold text-cohere-ink border border-cohere-hairline lowercase font-mono">
-                  Bahasa Indonesia
+                  {t("audioLanguage")}
                 </span>
               </div>
+            </SettingsCard>
+          </section>
+
+          <section aria-labelledby="settings-language">
+            <SectionHeading
+              icon={<Sliders className="h-3.5 w-3.5" />}
+              label={commonT("language")}
+            />
+            <SettingsCard className="p-4">
+              <LanguageSwitcher variant="settings" />
             </SettingsCard>
           </section>
 
@@ -547,7 +562,7 @@ export default function SettingsDrawer({
           <section aria-labelledby="settings-account" className="mt-auto">
             <SectionHeading
               icon={<Gauge className="h-3.5 w-3.5" />}
-              label="Account"
+              label={t("account")}
             />
 
             {user && (
@@ -577,8 +592,8 @@ export default function SettingsDrawer({
               onClick={handleLogoutClick}
               aria-label={
                 logoutConfirming
-                  ? "Tap again to confirm sign out"
-                  : "Sign out"
+                  ? t("confirmSignOutAria")
+                  : commonT("signOut")
               }
               className={cn(
                 "flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5",
@@ -590,20 +605,11 @@ export default function SettingsDrawer({
               )}
             >
               <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {logoutConfirming ? "Tap again to confirm" : "Sign out"}
+              {logoutConfirming ? t("confirmSignOut") : commonT("signOut")}
             </button>
 
             <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/35">
-              Password and account changes are managed via your{" "}
-              <a
-                href="https://myaccount.google.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-muted-foreground/60 transition-colors"
-              >
-                Google account
-              </a>
-              .
+              {t("googleAccountNote")}
             </p>
           </section>
         </div>

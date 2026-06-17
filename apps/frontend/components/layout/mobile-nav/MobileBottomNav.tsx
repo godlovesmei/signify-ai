@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import MobileNavItem from "./MobileNavItem";
 import {
   getActiveWorkspaceNavItem,
@@ -22,6 +23,7 @@ export default function MobileBottomNav({
 }: MobileBottomNavProps) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("navigation.aria");
 
   const activeItem = getActiveWorkspaceNavItem(pathname);
   const isWorkspace = isWorkspaceRoute(pathname);
@@ -61,7 +63,7 @@ export default function MobileBottomNav({
 
       {/* Mobile and tablet use the bottom nav; desktop uses the sidebar. */}
       <motion.nav
-        aria-label="Workspace mobile navigation"
+        aria-label={t("workspace")}
         className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
         initial={reduceMotion ? undefined : { y: 16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

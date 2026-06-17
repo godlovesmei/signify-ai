@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 type SignCard = {
   id: string;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Check,
   Copy,
@@ -12,6 +13,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { getLocaleConfig, type Locale } from "@/i18n/config";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TYPES
@@ -79,6 +81,9 @@ export function PredictionDisplay({
   transcript,
   onSpeakEntry,
 }: PredictionDisplayProps) {
+  const locale = useLocale() as Locale;
+  const localeConfig = getLocaleConfig(locale);
+  const t = useTranslations("workspace.translate");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -116,7 +121,7 @@ export function PredictionDisplay({
     const text = transcript.map((e) => e.text).join(" ");
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Signify AI Transcript", text });
+        await navigator.share({ title: t("shareTitle"), text });
       } catch {}
     }
   };
@@ -142,10 +147,10 @@ export function PredictionDisplay({
               />
               <div className="space-y-1.5 text-center sm:space-y-2">
                 <p className="text-sm text-cohere-muted sm:text-base">
-                  Belum ada riwayat.
+                  {t("transcriptEmpty")}
                 </p>
                 <p className="text-xs text-cohere-slate sm:text-sm">
-                  Mulai kamera, lalu arahkan tangan.
+                  {t("transcriptEmptyHelp")}
                 </p>
               </div>
             </motion.div>
@@ -160,7 +165,7 @@ export function PredictionDisplay({
                 <div className="flex items-center justify-between border-b border-cohere-hairline pb-2 mb-4 sm:pb-3 sm:mb-6">
                   <div className="flex items-center gap-4 sm:gap-8">
                     <TechnicalLabel>
-                      {entry.timestamp.toLocaleTimeString([], {
+                      {entry.timestamp.toLocaleTimeString(localeConfig.intlLocale, {
                         hour12: false,
                         hour: "2-digit",
                         minute: "2-digit",
@@ -173,7 +178,7 @@ export function PredictionDisplay({
                   <div className="flex items-center gap-2 opacity-100 transition-opacity duration-300 sm:gap-4 sm:opacity-0 sm:group-hover:opacity-100">
                     <button
                       type="button"
-                      aria-label={`Speak transcript entry ${entry.text}`}
+                      aria-label={t("speakEntry", { text: entry.text })}
                       onClick={() => onSpeakEntry?.(entry.text)}
                       className="p-1.5 text-cohere-slate transition-opacity hover:opacity-60 sm:p-1"
                     >
@@ -181,7 +186,7 @@ export function PredictionDisplay({
                     </button>
                     <button
                       type="button"
-                      aria-label={`Copy transcript entry ${entry.text}`}
+                      aria-label={t("copyEntry", { text: entry.text })}
                       onClick={() => handleCopy(entry.text, entry.id)}
                       className="p-1.5 text-cohere-slate transition-opacity hover:opacity-60 sm:p-1"
                     >
@@ -208,25 +213,25 @@ export function PredictionDisplay({
         <div className="flex justify-center gap-2 sm:gap-2.5">
           <Button
             type="button"
-            aria-label="Download translation transcript"
+            aria-label={t("downloadTranscript")}
             onClick={handleExport}
             disabled={transcript.length === 0}
             variant="outline"
             className="!h-9 min-w-[118px] !px-4 !py-0 text-[13px] sm:min-w-[132px]"
           >
             <Download className="size-3.5" />
-            <span>Unduh</span>
+            <span>{t("download")}</span>
           </Button>
 
           <Button
             type="button"
-            aria-label="Share translation transcript"
+            aria-label={t("shareTranscript")}
             onClick={handleShare}
             disabled={transcript.length === 0}
             className="!h-9 min-w-[118px] !px-4 !py-0 text-[13px] sm:min-w-[132px]"
           >
             <Share2 className="size-3.5" />
-            <span>Bagikan</span>
+            <span>{t("share")}</span>
           </Button>
         </div>
       </footer>

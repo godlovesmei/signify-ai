@@ -18,6 +18,10 @@ vi.mock("@/utils/supabase/middleware", () => ({
   }),
 }));
 
+vi.mock("@/i18n/middleware", () => ({
+  handleI18nRouting: () => ({ headers: new Headers() }),
+}));
+
 vi.mock("@/utils/supabase/server", () => ({
   createClient: async (
     onCookiesSet?: (cookiesToSet: typeof authCookies) => void,
@@ -51,6 +55,20 @@ describe("auth route integration", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(
       "https://signify.local/?login=1&next=%2Fhistory%3Fpage%3D2",
+    );
+  });
+
+  it("TC-004 redirects unauthenticated English workspace access with locale", async () => {
+    getUser.mockResolvedValue({ data: { user: null } });
+    const { proxy } = await import("@/proxy");
+
+    const response = await proxy(
+      new NextRequest("https://signify.local/en/history?page=2"),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://signify.local/en?login=1&next=%2Fen%2Fhistory%3Fpage%3D2",
     );
   });
 

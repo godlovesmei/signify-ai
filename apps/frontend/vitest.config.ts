@@ -40,6 +40,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
+      'next/navigation': 'next/navigation.js',
+      'next/server': 'next/server.js',
     },
   },
 });

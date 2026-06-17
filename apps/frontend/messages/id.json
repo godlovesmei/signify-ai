@@ -1,0 +1,401 @@
+{
+  "common": {
+    "brand": "SignifyAI",
+    "language": "Bahasa",
+    "indonesian": "Indonesia",
+    "english": "English",
+    "skipToContent": "Lewati ke konten",
+    "close": "Tutup",
+    "loading": "Memuat",
+    "copy": "Salin",
+    "share": "Bagikan",
+    "download": "Unduh",
+    "delete": "Hapus",
+    "clear": "Bersihkan",
+    "retry": "Coba lagi",
+    "profile": "Profil",
+    "settings": "Pengaturan",
+    "signOut": "Keluar",
+    "signIn": "Masuk",
+    "requestAccess": "Minta akses",
+    "learnMore": "Pelajari",
+    "start": "Mulai"
+  },
+  "navigation": {
+    "aria": {
+      "main": "Navigasi utama",
+      "mobile": "Navigasi seluler",
+      "workspace": "Navigasi workspace",
+      "sidebar": "Sidebar",
+      "footer": "Navigasi footer",
+      "home": "Buka beranda SignifyAI",
+      "toggleMobile": "Buka atau tutup menu seluler"
+    },
+    "workspace": {
+      "translate": "Terjemahkan",
+      "practice": "Latihan",
+      "history": "Riwayat",
+      "reference": "Referensi",
+      "profile": "Profil"
+    },
+    "public": {
+      "howItWorks": "Cara kerja",
+      "research": "Riset",
+      "terms": "Ketentuan"
+    },
+    "landing": {
+      "product": {
+        "label": "Produk",
+        "eyebrow": "Platform SignifyAI",
+        "title": "Workspace AI terarah untuk terjemahan dan latihan BISINDO.",
+        "description": "Tangkap gestur, terjemahkan gerakan, tinjau hasil, dan simpan riwayat belajar dalam satu antarmuka browser.",
+        "featuredLabel": "Alur baru",
+        "featuredTitle": "Gestur ke teks dalam hitungan detik",
+        "featuredDescription": "Dirancang untuk demo kelas, pengujian riset, dan pembelajaran mandiri."
+      },
+      "resources": {
+        "label": "Sumber daya",
+        "eyebrow": "Pelajari dan validasi",
+        "title": "Semua yang diperlukan untuk memahami produk dan batasannya.",
+        "description": "Pelajari metodologi, alur penggunaan, catatan privasi, dan referensi produk sebelum memakai workspace.",
+        "featuredLabel": "AI bertanggung jawab",
+        "featuredTitle": "Batas jelas, demo lebih aman",
+        "featuredDescription": "Antarmuka ditulis agar tidak melebih-lebihkan kemampuan model atau cakupan dunia nyata."
+      },
+      "links": {
+        "translateDescription": "Ubah input kamera langsung menjadi teks dan keluaran siap suara.",
+        "practiceDescription": "Latih akurasi pengenalan dengan pengulangan dan umpan balik.",
+        "referenceDescription": "Jelajahi gestur BISINDO dan referensi belajar terkurasi.",
+        "historyDescription": "Tinjau sesi, transkrip, dan aktivitas terjemahan sebelumnya.",
+        "howItWorksDescription": "Ikuti alur lengkap dari kamera ke terjemahan.",
+        "researchDescription": "Baca alasan teknis dan asumsi evaluasi.",
+        "termsDescription": "Tinjau penggunaan, privasi, dan batas AI yang bertanggung jawab.",
+        "profileDescription": "Kelola pengaturan akun dan rekam belajar pribadi."
+      }
+    },
+    "footer": {
+      "tagline": "AI bergerak cepat",
+      "title": "Kami akan memberi Anda kabar terbaru dari SignifyAI.",
+      "description": "Masukkan email untuk menerima kabar tentang pengenalan BISINDO, riset aksesibilitas, dan peningkatan produk. Anda bisa berhenti kapan saja.",
+      "emailLabel": "Alamat email",
+      "emailPlaceholder": "Masukkan email",
+      "subscribe": "Berlangganan pembaruan",
+      "privacy": "Privasi",
+      "terms": "Ketentuan Penggunaan",
+      "cookies": "Kelola Cookie",
+      "groups": {
+        "products": "Produk",
+        "solutions": "Solusi",
+        "resources": "Sumber daya",
+        "company": "Perusahaan"
+      }
+    }
+  },
+  "auth": {
+    "modal": {
+      "close": "Tutup masuk",
+      "eyebrow": "Workspace aman",
+      "title": "Masuk untuk melanjutkan.",
+      "description": "Akses riwayat, analitik latihan, dan preferensi tersimpan tanpa mengubah alur kamera lokal.",
+      "google": "Lanjutkan dengan Google",
+      "openingGoogle": "Membuka Google...",
+      "error": "Masuk gagal. Silakan coba lagi.",
+      "benefits": {
+        "videoTitle": "Video tetap lokal",
+        "videoBody": "Frame kamera dibatasi pada sesi aktif.",
+        "practiceTitle": "Latihan berlanjut",
+        "practiceBody": "Simpan progres alfabet dan antrean huruf lemah.",
+        "accountTitle": "Batas akun",
+        "accountBody": "Autentikasi dikelola melalui Supabase dan Google."
+      }
+    },
+    "guard": {
+      "checking": "Memeriksa autentikasi..."
+    },
+    "errors": {
+      "signOut": "Keluar gagal. Silakan coba lagi."
+    }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "description": "Konfigurasikan kamera, tampilan, aksesibilitas, audio, dan akun.",
+    "camera": "Kamera",
+    "cameraDevice": "Perangkat kamera",
+    "mirrorCamera": "Cerminkan kamera",
+    "mirrorCameraHelp": "Balik horizontal agar tampilan terasa alami",
+    "appearance": "Tampilan",
+    "theme": "Tema",
+    "themeOptions": {
+      "light": "Terang",
+      "system": "Sistem",
+      "dark": "Gelap"
+    },
+    "highContrast": "Kontras tinggi",
+    "highContrastHelp": "Meningkatkan kontras teks dan border",
+    "textSize": "Ukuran teks prediksi",
+    "textSizeAria": "Ukuran teks",
+    "tts": "Text-to-Speech",
+    "voiceFeedback": "Umpan balik suara",
+    "voiceFeedbackHelp": "Ucapkan huruf yang terdeteksi secara otomatis",
+    "speed": "Kecepatan",
+    "volume": "Volume",
+    "language": "Bahasa",
+    "audioLanguage": "Bahasa Indonesia",
+    "account": "Akun",
+    "confirmSignOut": "Ketuk lagi untuk konfirmasi",
+    "confirmSignOutAria": "Ketuk lagi untuk konfirmasi keluar",
+    "googleAccountNote": "Perubahan kata sandi dan akun dikelola melalui akun Google Anda."
+  },
+  "workspace": {
+    "translate": {
+      "title": "Terjemahkan",
+      "cameraLabel": "Kamera penerjemah",
+      "enableCamera": "Aktifkan kamera",
+      "syncError": "Huruf terjemahan gagal disinkronkan.",
+      "sentenceBuilder": "Penyusun kalimat",
+      "confirmedLetters": "Riwayat huruf terkonfirmasi",
+      "emptyLetters": "Belum ada huruf",
+      "builtSentence": "Kalimat tersusun",
+      "emptySentence": "Hasil muncul di sini...",
+      "addSpace": "Tambah spasi",
+      "space": "Spasi",
+      "characters": "{count} karakter",
+      "speaking": "Sedang memutar: {sentence}",
+      "speakSentence": "Dengarkan kalimat",
+      "speakingSentence": "Sedang membacakan kalimat",
+      "listen": "Dengar",
+      "playing": "Memutar...",
+      "voiceLanguage": "Suara Indonesia",
+      "transcriptEmpty": "Belum ada riwayat.",
+      "transcriptEmptyHelp": "Mulai kamera, lalu arahkan tangan.",
+      "downloadTranscript": "Unduh transkrip terjemahan",
+      "download": "Unduh",
+      "shareTranscript": "Bagikan transkrip terjemahan",
+      "share": "Bagikan",
+      "shareTitle": "Transkrip SignifyAI",
+      "speakEntry": "Dengarkan entri transkrip {text}",
+      "copyEntry": "Salin entri transkrip {text}",
+      "currentPrediction": "Prediksi isyarat saat ini",
+      "confidence": "Keyakinan deteksi: {value}%",
+      "confidenceShort": "Keyakinan",
+      "resultTab": "Hasil",
+      "sentenceTab": "Kalimat",
+      "historyTab": "Riwayat",
+      "buildSentence": "Susun kalimat",
+      "deleteControls": "Kontrol penyuntingan teks",
+      "deleteLast": "Hapus huruf terakhir",
+      "clearSentence": "Bersihkan kalimat",
+      "confirmClear": "Konfirmasi bersihkan kalimat",
+      "detectionStatus": "Status deteksi: {state}",
+      "fps": "{value} frame per detik"
+      ,"cameraHeader": "Kamera",
+      "enterFullscreen": "Masuk layar penuh",
+      "exitFullscreen": "Keluar layar penuh",
+      "handDetected": "Gerakan terdeteksi",
+      "connectionLost": "Koneksi terputus",
+      "startCameraTitle": "Mulai kamera",
+      "startCameraBody": "Izinkan akses kamera untuk mulai menerjemahkan BISINDO.",
+      "preparingCamera": "Menyiapkan kamera",
+      "permissionDenied": "Izin kamera ditolak",
+      "cameraMissing": "Kamera tidak ditemukan",
+      "permissionHelp": "Beri izin kamera dari browser, lalu coba lagi.",
+      "cameraMissingHelp": "Pastikan kamera terhubung dan tidak sedang dipakai aplikasi lain.",
+      "startTranslation": "Mulai terjemah",
+      "pauseTranslation": "Jeda terjemah",
+      "reset": "Mulai ulang",
+      "switchCamera": "Ganti kamera",
+      "retry": "Coba lagi",
+      "states": {
+        "idle": "Diam",
+        "loading": "Memanaskan",
+        "ready": "Siap",
+        "detecting": "Aktif",
+        "error": "Error"
+      },
+      "stateHints": {
+        "idle": "Kamera diam",
+        "loading": "Menyiapkan model",
+        "ready": "Siap memindai",
+        "detecting": "Memindai tangan",
+        "error": "Perlu perhatian"
+      },
+      "predictionIdle": "Siap",
+      "pointHand": "Arahkan tangan",
+      "score": "Skor",
+      "searchingGesture": "Mencari gerakan",
+      "detectedSign": "Isyarat terdeteksi: {letter}, keyakinan {value}%"
+    },
+    "history": {
+      "title": "Riwayat",
+      "loadError": "Riwayat terjemahan tidak dapat dimuat.",
+      "deleteSuccess": "Sesi terjemahan dihapus.",
+      "deleteError": "Penghapusan sesi gagal. Sesi dipulihkan.",
+      "clearSuccess": "Riwayat terjemahan dibersihkan.",
+      "clearError": "Riwayat tidak dapat dibersihkan.",
+      "loadMoreError": "Riwayat tambahan tidak dapat dimuat.",
+      "loading": "Memuat riwayat",
+      "startTranslation": "Mulai terjemahan",
+      "copySession": "Salin sesi dari {date}",
+      "expandSession": "Buka sesi dari {date}",
+      "collapseSession": "Tutup sesi dari {date}",
+      "deleteSession": "Hapus sesi dari {date}"
+      ,"summary": "{count} sesi tersimpan",
+      "clearAll": "Bersihkan semua",
+      "unavailable": "Riwayat sementara tidak tersedia.",
+      "emptyTitle": "Belum ada riwayat",
+      "emptyBody": "Isyarat yang diterjemahkan real-time akan muncul di sini setelah sesi terjemahan dimulai.",
+      "session": "Sesi {date}",
+      "entries": "{count} entri",
+      "confidenceValue": "keyakinan {value}%",
+      "emptyTranscript": "Transkrip kosong",
+      "loadMore": "Muat lagi"
+    },
+    "practice": {
+      "title": "Latihan",
+      "loadError": "Progres latihan tidak dapat dimuat.",
+      "syncError": "Percobaan latihan tidak dapat disinkronkan.",
+      "resetSuccess": "Progres latihan direset.",
+      "resetError": "Progres latihan tidak dapat direset.",
+      "loading": "Memuat progres latihan",
+      "retry": "Coba muat ulang progres latihan",
+      "sessionConfig": "Konfigurasi sesi"
+      ,"target": "Target",
+      "performance": "Performa",
+      "samples": "Sampel",
+      "precision": "Presisi",
+      "streak": "Runtun",
+      "focusQueue": "Antrean fokus",
+      "holdProgress": "Progres tahan",
+      "maintainGesture": "Pertahankan fokus gestur",
+      "controls": "Kontrol",
+      "skipTarget": "Lewati target",
+      "sessionConfigShort": "Konfigurasi sesi",
+      "sessionConfigDescription": "Konfigurasikan sesi latihan, overlay panduan, metrik insight, dan reset progres latihan.",
+      "guideOverlay": "Overlay panduan",
+      "insightMetrics": "Metrik insight",
+      "resetProgress": "Reset progres latihan",
+      "resetCamera": "Reset kamera",
+      "hideGuide": "Sembunyikan overlay panduan",
+      "showGuide": "Tampilkan overlay panduan"
+    },
+    "reference": {
+      "title": "Referensi",
+      "loadError": "Progres referensi tidak dapat dimuat.",
+      "loading": "Memuat progres",
+      "practiceNow": "Latihan sekarang"
+      ,"description": "Kartu alfabet BISINDO dengan performa latihan tersinkron untuk tiap huruf.",
+      "globalAccuracy": "Akurasi global",
+      "totalAttempts": "Total percobaan",
+      "verifiedSigns": "Isyarat terverifikasi",
+      "letterAlt": "Referensi untuk huruf {letter}",
+      "verified": "{correct} / {attempts} terverifikasi"
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Detail akun, riwayat terjemahan, analitik latihan, dan preferensi workspace.",
+      "loadError": "Analitik profil tidak dapat dimuat.",
+      "loading": "Memuat profil",
+      "primaryLanguage": "Bahasa utama",
+      "initializeTranslate": "Mulai terjemahkan",
+      "signingOut": "Sedang keluar..."
+    }
+  },
+  "landing": {
+    "capabilities": {
+      "cameraTitle": "Kamera browser",
+      "cameraBody": "Mulai sesi dari desktop atau mobile dan tetap fokus pada feed kamera langsung.",
+      "alphabetTitle": "Alfabet BISINDO",
+      "alphabetBody": "Prediksi frame demi frame mengubah bentuk tangan menjadi urutan huruf yang rapi.",
+      "ttsTitle": "Teks ke suara",
+      "ttsBody": "Bacakan kalimat tersusun dalam Bahasa Indonesia saat pengguna membutuhkan keluaran suara."
+    },
+    "products": {
+      "translateTitle": "Workspace terjemahan",
+      "translateBody": "Area produk gelap untuk input kamera, skor keyakinan, penyusunan kalimat, dan log sesi.",
+      "practiceTitle": "Studio latihan",
+      "practiceBody": "Drill alfabet bertarget dengan antrean huruf lemah adaptif dan progres lokal.",
+      "researchTitle": "Pustaka riset",
+      "researchBody": "Ruang publikasi untuk menjelaskan model, batasan, dan keputusan aksesibilitas.",
+      "checks": {
+        "realtime": "Prediksi real-time",
+        "buffer": "Buffer kalimat dapat diedit",
+        "export": "Ekspor sesi",
+        "hold": "Alur tahan untuk konfirmasi",
+        "overlays": "Overlay referensi",
+        "accuracy": "Riwayat akurasi",
+        "readable": "Bagian mudah dibaca",
+        "limits": "Batasan jelas",
+        "context": "Konteks model"
+      }
+    },
+    "trust": ["Komunitas", "Edukasi", "Riset", "Akses Publik", "Aksesibilitas", "BISINDO"],
+    "cta": {
+      "start": "Mulai menerjemahkan",
+      "explore": "Jelajahi sistem",
+      "research": "Baca riset"
+    }
+  },
+  "docs": {
+    "howItWorks": {
+      "title": "Dari frame kamera ke kalimat bersuara.",
+      "lead": "Penjelasan sederhana tentang loop pengenalan, penyusun kalimat, dan batas yang perlu dipahami pengguna sebelum mengandalkan alat ini.",
+      "faqQuestion": "Bahasa isyarat apa yang didukung?",
+      "faqAnswer": "Workspace berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait."
+    },
+    "research": {
+      "title": "Apa itu penerjemah bahasa isyarat real-time?",
+      "contents": "Daftar isi riset",
+      "learnHow": "Pelajari cara kerjanya"
+    },
+    "terms": {
+      "title": "Syarat & Ketentuan",
+      "contents": "Daftar isi ketentuan",
+      "plainSummary": "Ringkasan bahasa sederhana"
+    }
+  },
+  "seo": {
+    "siteName": "SignifyAI",
+    "defaultTitle": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
+    "titleTemplate": "%s · SignifyAI",
+    "description": "Terjemahkan gerakan tangan BISINDO menjadi teks dan suara secara real-time menggunakan AI. Dirancang untuk komunitas Tuli, pendidik, dan peneliti.",
+    "keywords": [
+      "BISINDO",
+      "bahasa isyarat Indonesia",
+      "penerjemah isyarat",
+      "AI aksesibilitas",
+      "terjemahan real-time",
+      "computer vision"
+    ],
+    "imageAlt": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
+    "jsonLdDescription": "Penerjemah Bahasa Isyarat BISINDO real-time berbasis AI dan computer vision.",
+    "features": [
+      "Pengenalan bahasa isyarat BISINDO real-time",
+      "Keluaran Text-to-Speech dalam Bahasa Indonesia",
+      "Kamera browser dengan inferensi API",
+      "Mode latihan dengan umpan balik",
+      "Panel pengembang dengan metrik inferensi"
+    ],
+    "pages": {
+      "home": {
+        "title": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
+        "description": "Terjemahkan gestur BISINDO menjadi teks dan suara langsung dari browser."
+      },
+      "howItWorks": {
+        "title": "Cara Kerja SignifyAI",
+        "description": "Pelajari alur kamera, inferensi model, penyusun kalimat, dan keluaran suara SignifyAI."
+      },
+      "research": {
+        "title": "Riset SignifyAI",
+        "description": "Catatan riset tentang pengenalan bahasa isyarat real-time, batasan model, dan aksesibilitas."
+      },
+      "terms": {
+        "title": "Syarat dan Ketentuan SignifyAI",
+        "description": "Ketentuan penggunaan, privasi, dan batas pemakaian SignifyAI."
+      },
+      "workspace": {
+        "title": "{page} · SignifyAI",
+        "description": "Workspace SignifyAI untuk terjemahan, latihan, dan pengelolaan progres."
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
 describe('workspaceNavConfig', () => {
   it('TC-026 matches active workspace routes including querystring input', () => {
     expect(isWorkspaceNavActive('/translate', '/translate')).toBe(true);
+    expect(isWorkspaceNavActive('/translate', '/en/translate')).toBe(true);
     expect(isWorkspaceNavActive('/translate', '/translate?mode=word')).toBe(true);
     expect(isWorkspaceNavActive('/practice', '/practice')).toBe(true);
     expect(isWorkspaceNavActive('/history', '/history')).toBe(true);

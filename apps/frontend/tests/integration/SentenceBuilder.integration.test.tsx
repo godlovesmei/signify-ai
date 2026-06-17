@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 import SentenceBuilder from "@/components/features/translation/SentenceBuilder";
+import messages from "@/messages/en.json";
 
 function renderBuilder(tokens: string[] = []) {
   const actions = {
@@ -11,7 +13,9 @@ function renderBuilder(tokens: string[] = []) {
     onAddSpace: vi.fn(),
   };
   render(
-    <SentenceBuilder tokens={tokens} isSpeaking={false} {...actions} />,
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <SentenceBuilder tokens={tokens} isSpeaking={false} {...actions} />
+    </NextIntlClientProvider>,
   );
   return actions;
 }
@@ -19,7 +23,7 @@ function renderBuilder(tokens: string[] = []) {
 describe("SentenceBuilder", () => {
   it("TC-010 exposes empty state and disables unavailable actions", () => {
     renderBuilder();
-    expect(screen.getByText("Hasil muncul di sini...")).toBeVisible();
+    expect(screen.getByText("Result appears here...")).toBeVisible();
     expect(
       screen.getByRole("button", { name: "Delete last letter" }),
     ).toBeDisabled();

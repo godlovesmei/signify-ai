@@ -1,3 +1,5 @@
+import { defaultLocale, localizePathname, type Locale } from "@/i18n/config";
+
 export const DEFAULT_AUTH_DESTINATION = "/translate";
 
 export function sanitizeRelativePath(
@@ -25,7 +27,11 @@ export function sanitizeRelativePath(
   }
 }
 
-export function buildLoginPath(nextPath: string | null | undefined): string {
+export function buildLoginPath(
+  nextPath: string | null | undefined,
+  locale: Locale = defaultLocale,
+): string {
   const safeNext = sanitizeRelativePath(nextPath);
-  return `/?login=1&next=${encodeURIComponent(safeNext)}`;
+  const loginPath = localizePathname("/", locale);
+  return `${loginPath}?login=1&next=${encodeURIComponent(safeNext)}`;
 }

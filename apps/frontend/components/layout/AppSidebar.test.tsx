@@ -1,7 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import AppSidebar from "./AppSidebar";
+import messages from "@/messages/en.json";
 
 const SIDEBAR_USER = {
   name: "Meiske Priskilla Sahertian",
@@ -11,12 +13,14 @@ const SIDEBAR_USER = {
 
 function renderSidebar(pathname = "/translate") {
   return render(
-    <AppSidebar
-      pathname={pathname}
-      onSettingsClick={vi.fn()}
-      onLogout={vi.fn()}
-      user={SIDEBAR_USER}
-    />
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <AppSidebar
+        pathname={pathname}
+        onSettingsClick={vi.fn()}
+        onLogout={vi.fn()}
+        user={SIDEBAR_USER}
+      />
+    </NextIntlClientProvider>
   );
 }
 
@@ -39,8 +43,7 @@ describe("AppSidebar", () => {
 
     const translateLink = within(nav).getByRole("link", { name: "Translate" });
     expect(translateLink).toHaveAttribute("aria-current", "page");
-    expect(translateLink.querySelector(".bg-cohere-primary")).toHaveClass("z-0");
-    expect(translateLink.querySelector(".bg-cohere-primary")).not.toHaveClass("-z-10");
+    expect(translateLink).toHaveClass("text-cohere-body-muted");
   });
 
   it("uses the account row as the profile navigation target on desktop", () => {

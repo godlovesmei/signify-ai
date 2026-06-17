@@ -17,6 +17,11 @@ test("TC-025 @a11y landing and login dialog have no serious axe violations", asy
   await page.goto("/");
   await expectNoSeriousViolations(page);
 
+  await page.getByRole("button", { name: "Masuk" }).first().click();
+  await expect(page.getByRole("dialog", { name: "Masuk untuk melanjutkan." })).toBeVisible();
+  await expectNoSeriousViolations(page);
+
+  await page.goto("/en");
   await page.getByRole("button", { name: "Sign in" }).first().click();
   await expect(page.getByRole("dialog", { name: "Sign in to continue." })).toBeVisible();
   await expectNoSeriousViolations(page);
@@ -26,7 +31,7 @@ test("TC-025 @a11y login dialog supports keyboard focus and Escape", async ({
   page,
 }) => {
   await page.goto("/?login=1&next=%2Fhistory");
-  const closeButton = page.getByRole("button", { name: "Close sign in" });
+  const closeButton = page.getByRole("button", { name: "Tutup masuk" });
   await expect(closeButton).toBeFocused();
   await expect(page).toHaveURL("/");
   await page.keyboard.press("Escape");

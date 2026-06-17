@@ -1,9 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LoginModal } from "@/components/auth/LoginModal";
+import messages from "@/messages/en.json";
 
 const signInWithOAuth = vi.fn();
+
+function renderModal(ui: ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
 
 vi.mock("@/utils/supabase/client", () => ({
   createClient: () => ({
@@ -18,7 +29,7 @@ describe("LoginModal", () => {
 
   it("TC-002 starts Google OAuth with a safe return destination", async () => {
     signInWithOAuth.mockResolvedValue({ error: null });
-    render(<LoginModal open onClose={vi.fn()} nextPath="/history?page=2" />);
+    renderModal(<LoginModal open onClose={vi.fn()} nextPath="/history?page=2" />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Continue with Google" }),
@@ -35,7 +46,7 @@ describe("LoginModal", () => {
 
   it("TC-001 displays an accessible error when OAuth initialization fails", async () => {
     signInWithOAuth.mockResolvedValue({ error: new Error("failed") });
-    render(<LoginModal open onClose={vi.fn()} />);
+    renderModal(<LoginModal open onClose={vi.fn()} />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Continue with Google" }),
@@ -48,7 +59,7 @@ describe("LoginModal", () => {
 
   it("TC-025 closes with Escape and initially focuses a dialog control", async () => {
     const onClose = vi.fn();
-    render(<LoginModal open onClose={onClose} />);
+    renderModal(<LoginModal open onClose={onClose} />);
 
     expect(screen.getByRole("button", { name: "Close sign in" })).toHaveFocus();
     await userEvent.keyboard("{Escape}");

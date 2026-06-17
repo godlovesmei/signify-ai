@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Delete, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -18,6 +19,7 @@ export default function DeleteControls({
   disabled = false,
   size = "default",
 }: DeleteControlsProps) {
+  const t = useTranslations("workspace.translate");
   const [confirming, setConfirming] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,10 +50,10 @@ export default function DeleteControls({
   const isCompact = size === "compact";
 
   return (
-    <div className="flex items-center gap-2" role="group" aria-label="Text editing controls">
+    <div className="flex items-center gap-2" role="group" aria-label={t("deleteControls")}>
       <button
         type="button"
-        aria-label="Delete last letter"
+        aria-label={t("deleteLast")}
         onClick={onDeleteLast}
         disabled={disabled}
         className={cn(
@@ -67,7 +69,7 @@ export default function DeleteControls({
 
       <button
         type="button"
-        aria-label={confirming ? "Confirm clear sentence" : "Clear sentence"}
+        aria-label={confirming ? t("confirmClear") : t("clearSentence")}
         onClick={handleClearClick}
         disabled={disabled}
         className={cn(
@@ -89,7 +91,7 @@ export default function DeleteControls({
               className="flex items-center gap-2"
             >
               <X className="size-4" />
-              <span className="text-[10px]">Yakin?</span>
+              <span className="text-[10px]">{t("confirmClear")}</span>
             </motion.div>
           ) : (
             <motion.div
@@ -100,7 +102,7 @@ export default function DeleteControls({
               className="flex items-center gap-2"
             >
               <X className="size-4" />
-              <span className="text-[10px]">Hapus</span>
+              <span className="text-[10px]">{t("clearSentence")}</span>
             </motion.div>
           )}
         </AnimatePresence>
