@@ -514,19 +514,6 @@ export default function TranslatePageContent() {
           <div className="hidden min-h-0 flex-1 flex-col lg:flex">
             {/* Hasil Saat Ini */}
             <div className="border-b border-cohere-hairline p-5 lg:p-6">
-              <header className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Terminal className="size-3.5 text-cohere-slate" />
-                  <h3 className="text-mono-label text-[11px] text-cohere-slate">
-                    Hasil saat ini
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="size-1 bg-cohere-hairline" />
-                  <div className="size-1 bg-cohere-hairline" />
-                  <div className="size-1 bg-cohere-ink" />
-                </div>
-              </header>
               <div className="flex min-h-[132px] flex-col items-center justify-center">
                 <PredictionBadge
                   letter={currentLetter}

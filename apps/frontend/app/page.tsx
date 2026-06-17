@@ -17,8 +17,6 @@ import {
   FlaskConical,
   GraduationCap,
   Hand,
-  Lock,
-  MessageSquare,
   Shield,
   Sparkles,
   Volume2,
@@ -375,9 +373,12 @@ function PageMotionStyles() {
       .horizontal-feature-card,
       .horizontal-cta-card {
         display: block !important;
-        height: auto !important;
-        min-height: unset !important;
+        width: 100%;
+        height: fit-content !important;
+        min-height: 0 !important;
+        max-height: none !important;
         aspect-ratio: auto !important;
+        justify-content: flex-start !important;
       }
 
       .horizontal-feature-card {
@@ -962,7 +963,7 @@ function HeroSection({ onStartTranslating }: { onStartTranslating: ProtectedNavi
 /* ── TRUST STRIP ── */
 function TrustStrip() {
   return (
-    <section className="border-y border-[var(--border-subtle)] bg-[var(--surface-0)] py-14 md:py-16">
+    <section className="border-b border-[var(--border-subtle)] bg-[var(--surface-0)] py-8 md:py-10">
       <div className="cohere-container text-center">
         <Reveal delay={120} variant="clip">
           <div className="signify-marquee text-[12px] font-medium tracking-[0.08em] uppercase text-[var(--ink-secondary)]">
@@ -983,7 +984,7 @@ function TrustStrip() {
 /* ── CAPABILITY SECTION ── */
 function CapabilitySection() {
   return (
-    <section id="how-it-works" className="bg-[var(--surface-0)] py-20 md:py-28">
+    <section id="how-it-works" className="bg-[var(--surface-0)] pt-12 pb-20 md:pt-14 md:pb-28">
       <div className="cohere-container">
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1.5fr] lg:items-end">
           <div>
@@ -1040,40 +1041,23 @@ function DarkFeatureBand() {
       <div className="cohere-container">
         <Reveal variant="fade-left">
           <Card
-            data-parallax="0.08"
-            data-spotlight
-            className="horizontal-feature-card sticky-band noise-overlay relative w-full overflow-hidden gap-0 rounded-[24px] border-transparent bg-[var(--color-bg-product)] text-white"
+            variant="hero"
+            className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
           >
-            {/* Decorative elements */}
-            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/[0.04] blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[color-mix(in_srgb,var(--accent-warm)_12%,transparent)] blur-3xl" />
-
-            <div className="relative grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-white/50">
-                  Privacy architecture
-                </p>
-                <h2 className="mt-4 font-display text-[40px] leading-[1.1] text-white md:text-[56px]">
-                  Camera work stays controlled.
-                </h2>
-              </div>
-              <div className="grid gap-3 md:grid-cols-3">
+            <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
+              Privacy architecture
+            </p>
+            <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+              <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
+                Camera work stays controlled.
+              </h2>
+              <div className="max-w-md space-y-3 text-[16px] leading-[1.5] text-[var(--color-text-on-dark)] opacity-75 lg:max-w-sm">
                 {[
-                  { icon: Shield, text: "Video frames are processed for the active recognition flow." },
-                  { icon: Lock, text: "Saved history stores translated text, not raw camera footage." },
-                  { icon: MessageSquare, text: "Users can clear logs and rebuild sentences at any time." },
-                ].map((item, index) => (
-                  <div
-                    key={item.text}
-                    data-animate="fade-left"
-                    style={motionStyle(index * 100)}
-                    className="flex gap-3 rounded-xl border border-white/[0.12] bg-white/[0.04] p-4"
-                  >
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.08]">
-                      <item.icon className="size-4 text-white/80" />
-                    </div>
-                    <p className="text-[16px] leading-[1.5] text-white/75">{item.text}</p>
-                  </div>
+                  "Video frames are processed for the active recognition flow.",
+                  "Saved history stores translated text, not raw camera footage.",
+                  "Users can clear logs and rebuild sentences at any time.",
+                ].map((item) => (
+                  <p key={item}>{item}</p>
                 ))}
               </div>
             </div>
@@ -1270,29 +1254,24 @@ function CtaSection({ onOpenWorkspace }: { onOpenWorkspace: ProtectedNavigateHan
       <div className="cohere-container">
         <Reveal variant="fade-left">
           <Card
-            data-spotlight
-            className="horizontal-cta-card cta-glow relative w-full gap-0 overflow-hidden rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-2)] text-[var(--ink-primary)]"
+            variant="hero"
+            className="gap-0 border-transparent bg-[var(--color-bg-product)] p-7 text-[var(--color-text-on-dark)] [--color-bg-inverse:var(--color-text-on-dark)] [--color-text-inverse:var(--color-bg-product)] md:p-12"
           >
-            {/* Decorative background */}
-            <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[color-mix(in_srgb,var(--accent-warm)_8%,transparent)] blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[color-mix(in_srgb,var(--accent-green)_8%,transparent)] blur-3xl" />
-
-            <div className="relative">
-              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                <h2 className="max-w-4xl font-display text-[40px] leading-[1.08] text-[var(--ink-primary)] md:text-[56px] lg:max-w-none">
-                  Translate, practice, and review in one calm workspace.
-                </h2>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  data-arrow-link
-                  onClick={() => onOpenWorkspace("/translate")}
-                  className="magnetic-btn h-12 shrink-0 px-7"
-                >
-                  Open SignifyAI
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
+            <p className="text-mono-label text-[12px] text-[var(--color-text-on-dark)] opacity-60">
+              Try the workspace
+            </p>
+            <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+              <h2 className="max-w-3xl text-[44px] leading-[1.05] md:text-[60px]">
+                Translate, practice, and review in one calm workspace.
+              </h2>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => onOpenWorkspace("/translate")}
+              >
+                Open SignifyAI
+                <ArrowRight className="size-4" />
+              </Button>
             </div>
           </Card>
         </Reveal>

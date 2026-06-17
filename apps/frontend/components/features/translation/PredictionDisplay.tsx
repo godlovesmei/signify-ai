@@ -204,17 +204,17 @@ export function PredictionDisplay({
       </div>
 
       {/* Footer Actions */}
-      <footer className="shrink-0 border-t border-cohere-hairline bg-cohere-stone p-3 sm:p-4 md:p-6">
-        <div className="flex gap-2 sm:gap-3">
+      <footer className="shrink-0 border-t border-cohere-hairline bg-cohere-stone px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="flex justify-center gap-2 sm:gap-2.5">
           <Button
             type="button"
             aria-label="Download translation transcript"
             onClick={handleExport}
             disabled={transcript.length === 0}
             variant="outline"
-            className="h-10 flex-1 sm:h-12"
+            className="!h-9 min-w-[118px] !px-4 !py-0 text-[13px] sm:min-w-[132px]"
           >
-            <Download size={13} className="sm:size-[14px]" />
+            <Download className="size-3.5" />
             <span>Unduh</span>
           </Button>
 
@@ -223,9 +223,9 @@ export function PredictionDisplay({
             aria-label="Share translation transcript"
             onClick={handleShare}
             disabled={transcript.length === 0}
-            className="h-10 flex-1 sm:h-12"
+            className="!h-9 min-w-[118px] !px-4 !py-0 text-[13px] sm:min-w-[132px]"
           >
-            <Share2 size={13} className="sm:size-[14px]" />
+            <Share2 className="size-3.5" />
             <span>Bagikan</span>
           </Button>
         </div>

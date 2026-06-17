@@ -353,7 +353,7 @@ function DevicePreview({ device, className }: DevicePreviewProps) {
 /* ── Main Showcase Component ── */
 export function LandingDeviceShowcase() {
   return (
-    <section className="overflow-hidden bg-[var(--color-bg-base)] py-20 md:py-28">
+    <section className="overflow-hidden bg-[var(--color-bg-base)] pt-20 pb-10 md:pt-28 md:pb-12">
       <div className="cohere-container">
         <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
           <div>
