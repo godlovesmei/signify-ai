@@ -1316,7 +1316,9 @@ export default function HomePage() {
     <div className="landing-page min-h-screen overflow-x-clip bg-[var(--surface-0)] text-[var(--ink-primary)]">
       <PageMotionStyles />
       <div className="scroll-progress" aria-hidden="true" />
-      <LandingNavbar onLoginRequest={openLogin} />
+      <LandingNavbar
+        onLoginRequest={(nextPath) => void navigateProtected(nextPath ?? "/translate")}
+      />
       <main id="main-content">
         <HeroSection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
         <LandingDeviceShowcase />

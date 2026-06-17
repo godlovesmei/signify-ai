@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
@@ -20,6 +20,11 @@ import { LoginModal } from "@/components/auth/LoginModal";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
+import {
+  DEFAULT_AUTH_DESTINATION,
+  sanitizeRelativePath,
+} from "@/lib/authRedirect";
+import { createClient } from "@/utils/supabase/client";
 
 type MegaLink = {
   label: string;
@@ -118,6 +123,7 @@ function RequestAccessTrigger({
 }
 
 export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {}) {
+  const router = useRouter();
   const navT = useTranslations("navigation");
   const commonT = useTranslations("common");
   const [loginOpen, setLoginOpen] = useState(false);
@@ -215,18 +221,28 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
   ];
 
   const requestLogin = useCallback(
-    (path: string | null = null) => {
-      setNextPath(path);
+    async (path: string | null = DEFAULT_AUTH_DESTINATION) => {
+      const safeNextPath = sanitizeRelativePath(path);
+      setNextPath(safeNextPath);
       setActiveMenu(null);
 
       if (onLoginRequest) {
-        onLoginRequest(path);
+        onLoginRequest(safeNextPath);
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
+
+      if (session?.user) {
+        router.push(safeNextPath);
         return;
       }
 
       setLoginOpen(true);
     },
-    [onLoginRequest],
+    [onLoginRequest, router],
   );
 
   useEffect(() => {
@@ -235,7 +251,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
       const next = url.searchParams.get("next");
 
       if (url.searchParams.get("login") === "1") {
-        requestLogin(next);
+        void requestLogin(next);
         url.searchParams.delete("login");
         url.searchParams.delete("next");
 
@@ -372,8 +388,14 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
             onMouseEnter={() => setActiveMenu(null)}
           >
             <LanguageSwitcher />
-            <SignInTrigger label={commonT("signIn")} onClick={() => requestLogin(null)} />
-            <RequestAccessTrigger label={commonT("requestAccess")} onClick={() => requestLogin(null)} />
+            <SignInTrigger
+              label={commonT("signIn")}
+              onClick={() => void requestLogin()}
+            />
+            <RequestAccessTrigger
+              label={commonT("requestAccess")}
+              onClick={() => void requestLogin()}
+            />
           </div>
 
           <div className="col-start-3 flex justify-end justify-self-end lg:hidden">
@@ -555,7 +577,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  requestLogin(null);
+                  void requestLogin();
                   setMobileOpen(false);
                 }}
                 className="justify-start"
@@ -568,7 +590,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                 variant="primary"
                 size="sm"
                 onClick={() => {
-                  requestLogin(null);
+                  void requestLogin();
                   setMobileOpen(false);
                 }}
               >

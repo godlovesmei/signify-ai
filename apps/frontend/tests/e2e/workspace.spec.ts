@@ -23,3 +23,22 @@ test("TC-006 authenticated translation workspace exposes its initial camera stat
   await expect(page.getByText("Kecepatan")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Aktifkan kamera" })).toBeVisible();
 });
+
+test("TC-002 authenticated landing auth CTAs open the workspace", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Masuk" }).first().click();
+  await expect(page).toHaveURL(/\/translate$/);
+  await expect(
+    page.getByRole("dialog", { name: "Masuk untuk melanjutkan." }),
+  ).toHaveCount(0);
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Minta akses" }).first().click();
+  await expect(page).toHaveURL(/\/translate$/);
+  await expect(
+    page.getByRole("dialog", { name: "Masuk untuk melanjutkan." }),
+  ).toHaveCount(0);
+});
