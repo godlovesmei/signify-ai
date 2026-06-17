@@ -15,8 +15,7 @@ import {
   type TranscriptEntry,
 } from "@/components/features/translation";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { captureFrame } from "@/lib/imagePreprocess";
-import { predictFromBlob, type TranslateDetection } from "@/lib/translateApi";
+import { predictFromVideoFrame, type TranslateDetection } from "@/lib/translateApi";
 import {
   createLetterAccumulatorState,
   reduceLetterAccumulator,
@@ -24,11 +23,9 @@ import {
 } from "@/lib/translateState";
 import { appendHistoryEntry, type AlphabetLetter } from "@/lib/userData";
 import PracticeGuide from "@/components/features/translation/PracticeGuide";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { getLocaleConfig, type Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const MODEL_INIT_MS = 2400;
 const IS_MOBILE = typeof navigator !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent);
 const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200;
@@ -81,7 +78,6 @@ export default function TranslatePageContent() {
 
   const languageRef = useRef(language);
   const voiceEnabledRef = useRef(voiceEnabled);
-  const accessTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     languageRef.current = language;
@@ -89,19 +85,6 @@ export default function TranslatePageContent() {
   useEffect(() => {
     voiceEnabledRef.current = voiceEnabled;
   }, [voiceEnabled]);
-
-  useEffect(() => {
-    const supabase = createSupabaseClient();
-    supabase.auth.getSession().then(({ data }) => {
-      accessTokenRef.current = data.session?.access_token ?? null;
-    });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      accessTokenRef.current = session?.access_token ?? null;
-    });
-    return () => {
-      data.subscription.unsubscribe();
-    };
-  }, []);
 
   const commitLetter = useCallback((letter: string, confidence: number) => {
     const committedEntry: TranscriptEntry = {
@@ -262,20 +245,7 @@ export default function TranslatePageContent() {
 
         isBusy.current = true;
         try {
-          const frameBlob = await captureFrame(video, canvas, 640);
-          if (frameBlob === null) return;
-
-          let accessToken = accessTokenRef.current ?? undefined;
-          if (!accessToken) {
-            const { data } = await createSupabaseClient().auth.getSession();
-            accessToken = data.session?.access_token ?? undefined;
-            accessTokenRef.current = accessToken ?? null;
-          }
-
-          const yoloResult = await predictFromBlob(frameBlob, {
-            baseUrl: API_BASE_URL,
-            accessToken,
-          });
+          const yoloResult = await predictFromVideoFrame(video, canvas);
 
           if (yoloResult === null) {
             setApiError(true);

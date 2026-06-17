@@ -23,8 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { captureFrame } from "@/lib/imagePreprocess";
-import { predictFromBlob, type TranslateDetection } from "@/lib/translateApi";
+import { predictFromVideoFrame, type TranslateDetection } from "@/lib/translateApi";
 import {
   ALPHABET_LETTERS,
   type AlphabetLetter,
@@ -44,9 +43,7 @@ import { SuccessOverlay } from "@/components/features/practice/SuccessOverlay";
 import { TargetBlock, TargetCompact } from "@/components/features/practice/TargetBlock";
 import { StatsDrawer } from "@/components/features/practice/StatsDrawer";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const PRACTICE_WS_URL = process.env.NEXT_PUBLIC_PRACTICE_WS_URL;
-const PRACTICE_WS_PATH = "/api/v1/translate/stream";
 const MODEL_INIT_MS = 2400;
 const IS_MOBILE = typeof navigator !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent);
 const DETECTION_INTERVAL = IS_MOBILE ? 300 : 200;
@@ -212,16 +209,7 @@ function parsePracticeMessage(raw: unknown): MicroFeedbackPayload | null {
 }
 
 function resolvePracticeWsUrl(): string | null {
-  if (PRACTICE_WS_URL) return PRACTICE_WS_URL;
-  try {
-    const url = new URL(API_BASE_URL);
-    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    url.pathname = PRACTICE_WS_PATH;
-    url.search = "";
-    return url.toString();
-  } catch {
-    return null;
-  }
+  return PRACTICE_WS_URL?.trim() || null;
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
@@ -555,10 +543,7 @@ export default function PracticePageContent() {
 
       isBusy.current = true;
       try {
-        const frameBlob = await captureFrame(video, canvas, 640);
-        if (frameBlob === null) return;
-
-        const result = await predictFromBlob(frameBlob, { baseUrl: API_BASE_URL });
+        const result = await predictFromVideoFrame(video, canvas);
         if (result === null) {
           setApiError(true);
           setDetections([]);

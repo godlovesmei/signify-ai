@@ -44,6 +44,9 @@ describe("AppSidebar", () => {
     const translateLink = within(nav).getByRole("link", { name: "Translate" });
     expect(translateLink).toHaveAttribute("aria-current", "page");
     expect(translateLink).toHaveClass("text-cohere-body-muted");
+    const activeBackground = translateLink.querySelector(".absolute.inset-0");
+    expect(activeBackground).toHaveClass("z-0", "bg-cohere-stone/80");
+    expect(activeBackground).not.toHaveClass("-z-10");
   });
 
   it("uses the account row as the profile navigation target on desktop", () => {

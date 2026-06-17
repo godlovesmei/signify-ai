@@ -32,7 +32,6 @@ export default defineConfig({
         ...process.env,
         NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-publishable-key",
-        NEXT_PUBLIC_API_URL: "http://127.0.0.1:8000",
       },
     },
   ],

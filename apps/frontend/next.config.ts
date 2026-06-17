@@ -11,6 +11,24 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: "/models/bisindo-yolo11n/manifest.json",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
+        ],
+      },
+      {
+        source: "/models/bisindo-yolo11n/v1/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/ort/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },

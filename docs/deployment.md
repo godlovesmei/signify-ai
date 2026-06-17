@@ -2,167 +2,115 @@
 
 ## Recommended Production Shape
 
-- Frontend: Vercel, root directory `apps/frontend`.
-- Backend: Azure Container Apps, image built from `apps/backend/Dockerfile`.
-- Container registry: Azure Container Registry.
-- Auth and database: Supabase hosted project.
+- App hosting: Vercel, root directory `apps/frontend`.
+- Inference: YOLO11n exported to ONNX and executed in the browser with ONNX Runtime Web.
+- Model assets: public, versioned static files under `apps/frontend/public/models/bisindo-yolo11n/v1/`.
+- Runtime assets: ONNX Runtime WebAssembly files under `apps/frontend/public/ort/`.
+- Auth and database: hosted Supabase project.
 
-This keeps the Next.js app on the platform with the best framework integration, while the FastAPI inference service runs as a normal container with CPU, memory, health checks, and secrets controlled in Azure.
+There is no production FastAPI inference service in this browser-only shape. The
+browser downloads `best.onnx`, captures webcam frames locally, runs inference on
+device, and persists user data through Supabase.
 
-## Required Secrets And Environment Variables
+## Public Model Artifact
 
-Backend, set in Azure Container Apps:
+The ONNX model is public by design. Anyone with browser access can download:
 
-```bash
-APP_DEBUG=false
-MODEL_PATH=models/exports/bisindo_yolo/best.pt
-INPUT_SIZE=640
-CONFIDENCE_THRESHOLD=0.5
-INFERENCE_TIMEOUT_SECONDS=5
-CORS_ORIGINS=https://your-vercel-domain.vercel.app,https://your-custom-domain.com
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_JWT_SECRET=<store-as-azure-secret>
-REQUIRE_AUTH=true
+```text
+/models/bisindo-yolo11n/v1/best.onnx
 ```
 
-Frontend, set in Vercel Project Settings:
+Current artifact:
+
+```text
+source: models/exports/bisindo_yolo/best.pt
+export: apps/frontend/public/models/bisindo-yolo11n/v1/best.onnx
+sha256: 259b08a8ba30ebd7e94ac48e533ccb97ac831501723c8edd4041b1e7cb213929
+input: images [1, 3, 640, 640]
+output: output0 [1, 30, 8400]
+```
+
+Re-export command:
 
 ```bash
-NEXT_PUBLIC_API_URL=https://your-azure-container-app-url
+conda run -n signify-yolo yolo export \
+  model=models/exports/bisindo_yolo/best.pt \
+  format=onnx \
+  imgsz=640 \
+  batch=1 \
+  dynamic=False \
+  nms=False \
+  simplify=True
+```
+
+After export, copy the artifact into the frontend public model version:
+
+```bash
+cp models/exports/bisindo_yolo/best.onnx \
+  apps/frontend/public/models/bisindo-yolo11n/v1/best.onnx
+```
+
+## Required Vercel Environment Variables
+
+Set these in Vercel Project Settings for Preview and Production:
+
+```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<your-publishable-key>
 ```
 
-Never put `SUPABASE_JWT_SECRET` in `.env.example`, Vercel frontend env, Dockerfile, or container image layers.
-
-## Local Docker Smoke Test
-
-Create a local backend env file:
-
-```bash
-cp apps/backend/.env.example apps/backend/.env
-```
-
-For local unauthenticated testing, keep `REQUIRE_AUTH=false` and leave
-`SUPABASE_JWT_SECRET` empty. The backend will treat frontend `Authorization`
-headers as anonymous in this mode. For production parity, set
-`REQUIRE_AUTH=true`, `SUPABASE_URL`, and `SUPABASE_JWT_SECRET`.
-
-Build and run:
-
-```bash
-docker compose up --build
-```
-
-Check health:
-
-```bash
-curl http://localhost:8000/health
-```
-
-The Docker image includes only `models/exports/bisindo_yolo/best.pt`, not the full `models/` directory.
-
-## Azure Container Apps Deployment
-
-Use these names as placeholders:
-
-```bash
-RG=signify-ai-prod-rg
-LOCATION=southeastasia
-ACR=signifyairegistry
-ACA_ENV=signify-ai-env
-APP=signify-ai-backend
-TAG=$(git rev-parse --short HEAD)
-```
-
-Create the resource group and registry:
-
-```bash
-az group create --name "$RG" --location "$LOCATION"
-az acr create --resource-group "$RG" --name "$ACR" --sku Basic
-```
-
-Build the backend image in ACR:
-
-```bash
-az acr build \
-  --registry "$ACR" \
-  --image "signify-backend:$TAG" \
-  --file apps/backend/Dockerfile \
-  .
-```
-
-Create a Container Apps environment:
-
-```bash
-az containerapp env create \
-  --name "$ACA_ENV" \
-  --resource-group "$RG" \
-  --location "$LOCATION"
-```
-
-Create the container app:
-
-```bash
-az containerapp create \
-  --name "$APP" \
-  --resource-group "$RG" \
-  --environment "$ACA_ENV" \
-  --image "$ACR.azurecr.io/signify-backend:$TAG" \
-  --registry-server "$ACR.azurecr.io" \
-  --registry-identity system \
-  --target-port 8000 \
-  --ingress external \
-  --cpu 1 \
-  --memory 2Gi \
-  --min-replicas 0 \
-  --max-replicas 1 \
-  --secrets supabase-jwt-secret="<your-supabase-jwt-secret>" \
-  --env-vars \
-    APP_DEBUG=false \
-    MODEL_PATH=models/exports/bisindo_yolo/best.pt \
-    INPUT_SIZE=640 \
-    CONFIDENCE_THRESHOLD=0.5 \
-    INFERENCE_TIMEOUT_SECONDS=5 \
-    REQUIRE_AUTH=true \
-    SUPABASE_URL=https://your-project.supabase.co \
-    SUPABASE_JWT_SECRET=secretref:supabase-jwt-secret \
-    CORS_ORIGINS=https://your-vercel-domain.vercel.app
-```
-
-The `--registry-identity system` flag uses a managed identity for ACR pulls instead of long-lived registry credentials. If your Azure account cannot auto-create the `AcrPull` role assignment, create that role assignment on the ACR scope manually, then rerun the container app command.
-
-Get the backend URL:
-
-```bash
-az containerapp show \
-  --name "$APP" \
-  --resource-group "$RG" \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv
-```
-
-Then set Vercel `NEXT_PUBLIC_API_URL` to `https://<that-fqdn>` and redeploy the frontend.
+Do not set `NEXT_PUBLIC_API_URL` for production browser inference. Do not place
+`SUPABASE_JWT_SECRET` in Vercel frontend env variables.
 
 ## Vercel Deployment
 
-In Vercel:
-
-1. Import the Git repository.
+1. Import the Git repository into Vercel.
 2. Set Root Directory to `apps/frontend`.
-3. Add the frontend environment variables listed above for Production and Preview.
-4. Deploy.
+3. Keep the framework preset as Next.js.
+4. Let Vercel use the committed `pnpm-lock.yaml`; build command remains `pnpm build`.
+5. Deploy a Preview first.
+6. Validate camera permission and model loading on HTTPS.
+7. Promote the validated Preview to Production.
 
-After the first deploy, copy the production Vercel domain back into Azure `CORS_ORIGINS`, then restart or redeploy the backend revision.
+The app serves the versioned ONNX and ORT WASM assets with immutable cache
+headers. The model manifest is served with short cache headers so future model
+versions can be discovered without forcing users to clear browser cache.
 
-## Production Checklist
+## Local Verification
 
-- Rotate the Supabase JWT secret if it was ever committed, pasted, or stored in an example file.
-- Set `REQUIRE_AUTH=true` on Azure.
-- Keep `SUPABASE_JWT_SECRET` only in Azure secrets.
-- Keep frontend Vercel env limited to public values: API URL, Supabase URL, Supabase publishable key.
-- Set `CORS_ORIGINS` to exact Vercel/custom domains, not `*`.
-- Use `--min-replicas 0` while saving credits; switch to `1` for demos that must avoid cold starts.
-- Keep `--max-replicas 1` unless the model can handle concurrent replicas and cost is acceptable.
-- Enable Supabase leaked password protection if your Supabase plan supports it.
-- Add a custom domain only after both health checks pass.
+Frontend only:
+
+```bash
+cd apps/frontend
+pnpm install
+pnpm dev
+```
+
+Quality gates:
+
+```bash
+cd apps/frontend
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:e2e
+```
+
+Manual browser checks on a Vercel Preview:
+
+- `/translate` requests camera access and starts detection.
+- DevTools Network shows no calls to `/api/v1/translate/predict`.
+- The browser downloads `/models/bisindo-yolo11n/v1/best.onnx` and `/ort/*.wasm`.
+- Detections update the translate and practice UI.
+- Translation history and practice stats still persist through Supabase.
+- Reloading the page reuses cached model/runtime assets.
+
+## Legacy Backend
+
+`apps/backend` remains useful for local parity checks, backend contract tests,
+and future server-side experiments. It is not required for the production
+browser-only Vercel deployment.
+
+If a future requirement says the model must remain private, this architecture is
+not sufficient; inference must move back to a server-side runtime.

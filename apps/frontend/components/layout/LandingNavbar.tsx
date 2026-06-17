@@ -376,22 +376,22 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
             <RequestAccessTrigger label={commonT("requestAccess")} onClick={() => requestLogin(null)} />
           </div>
 
-          <div className="flex justify-end lg:hidden">
+          <div className="col-start-3 flex justify-end justify-self-end lg:hidden">
             <button
               type="button"
               onClick={() => setMobileOpen((open) => !open)}
-              className="group flex h-10 w-10 flex-col items-end justify-center gap-[5px] text-cohere-ink transition-opacity hover:opacity-70"
+              className="group flex size-11 items-center justify-center rounded-full text-cohere-ink transition-colors hover:bg-cohere-stone"
               aria-label={navT("aria.toggleMobile")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? (
                 <X className="size-6" />
               ) : (
-                <>
+                <span className="flex flex-col items-end gap-[5px]" aria-hidden="true">
                   <span className="block h-[2px] w-8 rounded-full bg-current" />
                   <span className="block h-[2px] w-8 rounded-full bg-current" />
                   <span className="block h-[2px] w-8 rounded-full bg-current" />
-                </>
+                </span>
               )}
             </button>
           </div>
@@ -478,67 +478,105 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
       )}
 
       {mobileOpen && (
-        <div className="max-h-[calc(100vh-68px)] overflow-y-auto border-b border-cohere-hairline bg-cohere-canvas lg:hidden">
+        <div className="border-b border-cohere-hairline bg-cohere-canvas/98 shadow-[0_28px_80px_rgba(23,23,28,0.08)] backdrop-blur-xl lg:hidden">
           <nav
-            className="cohere-container flex flex-col gap-6 py-6"
+            className="cohere-container max-h-[calc(100dvh-68px)] overflow-y-auto py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
             aria-label={navT("aria.mobile")}
           >
-            {megaMenus.map((group) => (
-              <div
-                key={group.key}
-                className="rounded-lg border border-cohere-hairline bg-cohere-stone p-4"
-              >
+            <div className="rounded-[28px] border border-cohere-hairline bg-cohere-canvas p-3">
+              <div className="px-1 pb-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-cohere-blue">
-                  {group.label}
+                  {megaMenus[0].label}
                 </p>
-
-                <div className="mt-3 grid gap-1">
-                  {group.links.map((item) => {
-                    const Icon = item.icon;
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-3 rounded-sm px-2 py-3 text-cohere-ink transition-colors hover:bg-cohere-canvas"
-                      >
-                        <Icon className="size-4 text-cohere-blue" />
-                        <span>
-                          <span className="block text-[16px] leading-none">
-                            {item.label}
-                          </span>
-                          <span className="mt-1 block text-[12px] text-cohere-muted">
-                            {item.description}
-                          </span>
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
               </div>
-            ))}
 
-            <div className="flex flex-col gap-5 border-t border-cohere-hairline pt-6">
-              <SignInTrigger
-                mobile
-                label={commonT("signIn")}
-                onClick={() => {
-                  requestLogin(null);
-                  setMobileOpen(false);
-                }}
-              />
+              <div className="grid grid-cols-2 gap-2">
+                {megaMenus[0].links.map((item) => {
+                  const Icon = item.icon;
 
-              <RequestAccessTrigger
-                mobile
-                label={commonT("requestAccess")}
-                onClick={() => {
-                  requestLogin(null);
-                  setMobileOpen(false);
-                }}
-              />
-              <LanguageSwitcher className="justify-center py-2" />
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="group flex min-h-[76px] flex-col justify-between rounded-[18px] bg-cohere-stone/70 p-3 text-cohere-ink transition-colors hover:bg-cohere-stone"
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="flex size-9 items-center justify-center rounded-full bg-cohere-canvas text-cohere-blue">
+                          <Icon className="size-4" />
+                        </span>
+                        <ArrowRight className="size-3.5 text-cohere-muted opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100" />
+                      </span>
+                      <span className="text-[15px] font-medium leading-none">
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="my-4 h-px bg-cohere-hairline" />
+
+              <div className="px-1 pb-1">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-cohere-blue">
+                  {megaMenus[1].label}
+                </p>
+              </div>
+
+              <div className="grid gap-1">
+                {megaMenus[1].links.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="group flex items-center justify-between gap-3 rounded-[16px] px-3 py-3 text-cohere-ink transition-colors hover:bg-cohere-stone/80"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="flex size-9 items-center justify-center rounded-full bg-cohere-stone text-cohere-blue">
+                          <Icon className="size-4" />
+                        </span>
+                        <span className="text-[15px] font-medium leading-none">
+                          {item.label}
+                        </span>
+                      </span>
+                      <ArrowRight className="size-3.5 text-cohere-muted transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
+
+            <div className="mt-3 grid grid-cols-1 items-center gap-3 rounded-[24px] border border-cohere-hairline bg-cohere-stone/70 p-3 sm:grid-cols-[1fr_auto]">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  requestLogin(null);
+                  setMobileOpen(false);
+                }}
+                className="justify-start"
+              >
+                {commonT("signIn")}
+              </Button>
+
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  requestLogin(null);
+                  setMobileOpen(false);
+                }}
+              >
+                {commonT("requestAccess")}
+                <ArrowRight className="size-4" />
+              </Button>
+            </div>
+            <LanguageSwitcher className="mt-3 justify-center py-2" />
           </nav>
         </div>
       )}

@@ -1,0 +1,46 @@
+export const YOLO_MODEL_MANIFEST = {
+  modelName: 'bisindo',
+  modelVersion: 'v1',
+  architecture: 'yolo11n',
+  modelFile: 'best.onnx',
+  artifactPath: '/models/bisindo-yolo11n/v1/best.onnx',
+  inputName: 'images',
+  outputName: 'output0',
+  inputSize: 640,
+  confidenceThreshold: 0.5,
+  iouThreshold: 0.45,
+  maxDetections: 20,
+  labels: [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+  ],
+} as const;
+
+export const ORT_WASM_PATH = '/ort/';
+export const YOLO_MODEL_CACHE_NAME = 'signify:yolo11n:v1';
+
+export type YoloModelManifest = typeof YOLO_MODEL_MANIFEST;

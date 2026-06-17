@@ -1,8 +1,8 @@
 # Signify AI
 
-> Real-time Indonesian Sign Language (BISINDO) recognition — webcam to text, in the browser.
+> Real-time Indonesian Sign Language (BISINDO) recognition - webcam to text, in the browser.
 
-Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text in real time. A Next.js frontend captures raw webcam frames and sends them to a FastAPI backend that runs inference with a fine-tuned **YOLO11** object detection model. Bounding boxes and class labels are streamed back and rendered directly on the video feed.
+Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text in real time. A Next.js frontend captures webcam frames and runs a fine-tuned **YOLO11n** object detection model directly in the browser with ONNX Runtime Web. Frames stay on device; class labels and confidence scores feed the translate and practice workflows.
 
 ---
 
@@ -18,13 +18,13 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 
 ## Features
 
-- **Real-time detection** — captures frames every 200 ms (300 ms on mobile) and returns YOLO bounding boxes with confidence scores
-- **No MediaPipe** — hand detection and classification are both handled by YOLO11 on the backend; the browser sends raw frames
-- **Confidence-weighted voting** — 3-frame weighted vote buffer plus high-confidence fast-commit (≥ 0.92) reduces flickering
-- **Sentence builder** — accumulates predicted letters into words/sentences with TTS playback
-- **Page Visibility API** — detection loop pauses when the tab is hidden to save CPU/GPU
-- **Optional auth** — Supabase JWT gating on `/predict` (toggle with `REQUIRE_AUTH=true`)
-- **Accessibility** — dark / light / system theme, high contrast, text scale, TTS speed/volume controls
+- **Real-time browser detection** - captures frames every 200 ms (300 ms on mobile) and runs YOLO11n ONNX locally
+- **No frame upload** - inference runs on device with ONNX Runtime Web; the production app does not call `/api/v1/translate/predict`
+- **Confidence-weighted voting** - 3-frame weighted vote buffer plus high-confidence fast-commit (>= 0.92) reduces flickering
+- **Sentence builder** - accumulates predicted letters into words/sentences with TTS playback
+- **Page Visibility API** - detection loop pauses when the tab is hidden to save CPU/GPU
+- **Supabase persistence** - auth, translation history, and practice stats stay backed by Supabase RLS
+- **Accessibility** - dark / light / system theme, high contrast, text scale, TTS speed/volume controls
 
 ---
 
@@ -40,16 +40,17 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 | Tailwind CSS | 4 | Styling |
 | Radix UI | 1.4 | Component primitives |
 | Supabase JS | 2 | Auth (SSR-safe client) |
+| ONNX Runtime Web | 1.26 | Browser-side YOLO inference |
 | Motion | 12 | Animations |
 | Sonner | 2 | Toast notifications |
 
-### Backend
+### Backend (local/parity only)
 
 | Library | Version | Purpose |
 |---|---|---|
 | FastAPI | latest | REST API framework |
 | Uvicorn | latest | ASGI server |
-| Ultralytics | ≥ 8.3 | YOLO11 inference |
+| Ultralytics | >= 8.3 | YOLO11 training, local inference, and ONNX export |
 | PyTorch | 2.12 | ML runtime |
 | OpenCV | latest | Image decode |
 | PyJWT | 2.13 | Supabase JWT validation |
@@ -61,6 +62,7 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 |---|---|
 | YOLO11n | Detection model (26 BISINDO letters) |
 | Ultralytics | Training & export framework |
+| ONNX | Browser deployment artifact |
 | CUDA 12 + cuDNN | GPU acceleration |
 | WandB | Experiment tracking (optional) |
 
@@ -84,8 +86,8 @@ Trained on the BISINDO dataset (26 letters A–Z) using YOLO11n for 84 epochs (e
 | mAP50-95 | **0.926** |
 | Input size | 640 × 640 |
 | Output classes | 26 (A–Z) |
-| Inference latency (GPU) | ~15–25 ms |
-| Inference latency (CPU) | ~80–150 ms |
+| Browser runtime | ONNX Runtime WebGPU when available, WASM fallback |
+| Inference latency | Device/browser dependent |
 
 ---
 
@@ -107,9 +109,12 @@ signify-ai/
 │   │   │   ├── tts/                    # Text-to-speech button + indicator
 │   │   │   └── ui/                     # Radix/shadcn primitives
 │   │   ├── hooks/                  # useTheme, useAccessibilityPrefs
-│   │   └── lib/                    # translateApi.ts, imagePreprocess.ts, supabase.ts
+│   │   ├── public/
+│   │   │   ├── models/bisindo-yolo11n/v1/best.onnx
+│   │   │   └── ort/                # ONNX Runtime Web WASM assets
+│   │   └── lib/                    # translateApi.ts, yolo*.ts, supabase.ts
 │   │
-│   └── backend/                    # FastAPI inference service
+│   └── backend/                    # Local/parity FastAPI inference service
 │       ├── app/
 │       │   ├── api/v1/endpoints/   # translation.py (predict, classes)
 │       │   ├── api/deps.py         # JWT auth dependency
@@ -238,14 +243,17 @@ cp runs/train/bisindo_v1/weights/best.pt models/exports/bisindo_yolo/best.pt
 
 ### Development
 
-**Backend** — runs on `http://localhost:8000`
+**Backend (optional local parity)** - runs on `http://localhost:8000`
 
 ```bash
 conda activate signify-backend
 uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Frontend** — runs on `http://localhost:3000`
+The production inference path does not need this backend. Use it only for local
+backend tests, parity checks, or server-side inference experiments.
+
+**Frontend** - runs on `http://localhost:3000`
 
 ```bash
 cd apps/frontend
@@ -260,9 +268,9 @@ docker-compose up --build
 
 ### Production
 
-```bash
-docker-compose -f infrastructure/docker-compose.prod.yml up -d
-```
+Deploy the Next.js app to Vercel with Root Directory `apps/frontend`. The ONNX
+model and ONNX Runtime Web WASM assets are served as public static files from
+the same Vercel deployment. See [`docs/deployment.md`](docs/deployment.md).
 
 ### Testing and quality gates
 
@@ -292,13 +300,37 @@ Staging performance profiles live in `tests/performance/locustfile.py`.
 
 ---
 
-## API Reference
+## Browser Inference Contract
 
-Interactive Swagger docs are available at `http://localhost:8000/docs` after starting the backend.
+Production inference is a browser-only contract exposed by
+`apps/frontend/lib/translateApi.ts`:
+
+```ts
+predictFromVideoFrame(video, canvas) => Promise<{
+  detections: Array<{
+    class: string;
+    confidence: number;
+    box: { x1: number; y1: number; x2: number; y2: number };
+  }>;
+  inference_ms: number;
+  model: "best.onnx";
+} | null>
+```
+
+The browser pipeline loads `/models/bisindo-yolo11n/v1/best.onnx`, converts a
+640 x 640 canvas frame to a `1x3x640x640` tensor, runs ONNX Runtime Web, applies
+confidence filtering and class-aware NMS, then returns the same detection shape
+that the UI previously received from FastAPI.
+
+## Legacy API Reference
+
+Interactive Swagger docs are available at `http://localhost:8000/docs` after
+starting the optional local backend. These endpoints are not used by the
+production Vercel browser inference path.
 
 ### `POST /api/v1/translate/predict`
 
-Run YOLO11 inference on a single image frame.
+Run YOLO11 inference on a single image frame in the optional local backend.
 
 **Request:** `multipart/form-data`
 
@@ -355,7 +387,7 @@ Returns all 26 recognizable BISINDO letter classes.
 
 ## Configuration
 
-### Backend (`apps/backend/.env`)
+### Backend (`apps/backend/.env`, optional local parity)
 
 ```dotenv
 # Model
@@ -363,10 +395,10 @@ MODEL_PATH=models/exports/bisindo_yolo/best.pt
 INPUT_SIZE=640
 CONFIDENCE_THRESHOLD=0.5
 
-# CORS — comma-separated allowed origins
+# CORS - comma-separated allowed origins
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
-# Auth — Supabase JWT.
+# Auth - Supabase JWT.
 # Keep SUPABASE_JWT_SECRET empty when REQUIRE_AUTH=false for local dev.
 # Set both SUPABASE_JWT_SECRET and REQUIRE_AUTH=true for auth enforcement.
 SUPABASE_URL=https://your-project.supabase.co
@@ -377,7 +409,6 @@ REQUIRE_AUTH=false
 ### Frontend (`apps/frontend/.env.local`)
 
 ```dotenv
-NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
@@ -388,16 +419,16 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 
 ```
 Browser (webcam)
-  └─ captureFrame()        — draws video to 640×640 canvas → JPEG blob
-      └─ POST /api/v1/translate/predict
-          └─ FastAPI
-              └─ cv2.imdecode()
-                  └─ YOLOService.predict()   — YOLO11 inference
+  └─ captureImageData()            - draws video to 640 x 640 canvas
+      └─ yoloPreprocess.ts         - converts RGBA to normalized RGB BCHW tensor
+          └─ ONNX Runtime Web      - WebGPU when available, WASM fallback
+              └─ yoloPostprocess.ts
+                  └─ confidence filter + class-aware NMS
                       └─ { detections, inference_ms }
-Browser
-  └─ WebcamCapture.tsx     — renders bounding boxes as CSS divs over video
-  └─ Weighted vote buffer  — 3-frame quorum before committing a letter
-  └─ SentenceBuilder       — accumulates committed letters
+Browser UI
+  └─ WebcamCapture.tsx             - shows live detection status
+  └─ Weighted vote buffer          - 3-frame quorum before committing a letter
+  └─ SentenceBuilder               - accumulates committed letters
 ```
 
 ---
@@ -426,8 +457,9 @@ See `docs/database-erd.md` for the full entity-relationship diagram.
 
 - [ ] Expand to dynamic gestures (words / phrases beyond alphabet)
 - [ ] Support two-hand BISINDO signs
-- [ ] Offline PWA mode (ONNX in browser via ONNX Runtime Web)
-- [ ] Improve inference speed with TensorRT / CoreML export
+- [x] Browser inference with ONNX Runtime Web
+- [ ] Offline PWA shell for cached model/runtime assets
+- [ ] Improve browser inference speed with quantized or ORT-optimized artifacts
 - [ ] User contribution flow with active-learning review queue
 - [ ] CI/CD pipeline with automated test and deploy
 - [ ] Docker Compose full-stack setup with GPU passthrough
@@ -449,6 +481,7 @@ All rights reserved. No open-source license is currently applied.
 ## Acknowledgements
 
 - [Ultralytics YOLO](https://github.com/ultralytics/ultralytics) — YOLO11 training & inference
+- [ONNX Runtime Web](https://onnxruntime.ai/) — browser inference runtime
 - [Supabase](https://supabase.com/) — open-source auth and database
 - [Radix UI](https://www.radix-ui.com/) — accessible component primitives
 - [shadcn/ui](https://ui.shadcn.com/) — component library

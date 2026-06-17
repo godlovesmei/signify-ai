@@ -17,6 +17,8 @@ export default defineConfig({
         'lib/translateApi.ts',
         'lib/translateState.ts',
         'lib/userData.ts',
+        'lib/yoloPostprocess.ts',
+        'lib/yoloPreprocess.ts',
         'components/auth/LoginModal.tsx',
         'components/features/translation/DeleteControls.tsx',
         'components/features/translation/SentenceBuilder.tsx',
