@@ -2,7 +2,6 @@
 
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { locales, type Locale } from "@/i18n/config";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -20,17 +19,18 @@ export function LanguageSwitcher({
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations("common");
 
   const nextLocale = locale === "id" ? "en" : "id";
-  const search = searchParams.toString();
-  const href = search ? `${pathname}?${search}` : pathname;
+
+  function currentHref() {
+    return `${pathname}${window.location.search}`;
+  }
 
   function switchLocale() {
     startTransition(() => {
-      router.replace(href, { locale: nextLocale });
+      router.replace(currentHref(), { locale: nextLocale });
     });
   }
 
@@ -58,7 +58,7 @@ export function LanguageSwitcher({
               key={item}
               type="button"
               onClick={() => {
-                startTransition(() => router.replace(href, { locale: item }));
+                startTransition(() => router.replace(currentHref(), { locale: item }));
               }}
               disabled={isPending || active}
               className={cn(
@@ -83,7 +83,7 @@ export function LanguageSwitcher({
       onClick={switchLocale}
       disabled={isPending}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-cohere-hairline px-3 py-1.5 text-xs font-semibold text-cohere-slate transition-colors hover:bg-cohere-stone hover:text-cohere-ink",
+        "inline-flex items-center gap-1.5 rounded-full border border-cohere-hairline px-3 py-1.5 text-xs font-semibold text-cohere-body-muted transition-colors hover:bg-cohere-stone hover:text-cohere-ink",
         className
       )}
       aria-label={`${t("language")}: ${nextLocale === "id" ? t("indonesian") : t("english")}`}

@@ -27,7 +27,7 @@ test("TC-004 landing start translating opens login without a redirect query", as
 }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Mulai terjemahkan" }).click();
+  await page.getByRole("button", { name: "Mulai menerjemahkan" }).click();
 
   await expect(page.getByRole("dialog", { name: "Masuk untuk melanjutkan." })).toBeVisible();
   await expect(page).toHaveURL("/");

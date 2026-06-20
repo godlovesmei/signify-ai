@@ -45,30 +45,46 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [authState, setAuthState] = useState<AuthState>('checking');
 
   useEffect(() => {
+    let active = true;
     const supabase = createClient();
     const returnPath = `${pathname}${window.location.search}`;
+    const redirectToLogin = () => {
+      setAuthState('unauthenticated');
+      router.replace(buildLoginPath(returnPath, locale));
+    };
 
     // Initial session check
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!active) return;
       if (user) {
         setAuthState('authenticated');
       } else {
-        setAuthState('unauthenticated');
-        router.replace(buildLoginPath(returnPath, locale));
+        redirectToLogin();
       }
+    }).catch(() => {
+      if (active) redirectToLogin();
     });
 
     // Also listen for auth state changes (sign-out mid-session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!session) {
-          setAuthState('unauthenticated');
-          router.replace(buildLoginPath(returnPath, locale));
+      (event, session) => {
+        if (!active || event === 'INITIAL_SESSION') return;
+
+        if (session?.user) {
+          setAuthState('authenticated');
+          return;
+        }
+
+        if (event === 'SIGNED_OUT') {
+          redirectToLogin();
         }
       },
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, [locale, pathname, router]);
 
   // Neutral loading screen — no flash of protected content

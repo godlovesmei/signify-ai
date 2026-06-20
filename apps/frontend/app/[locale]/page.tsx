@@ -76,8 +76,8 @@ function PageMotionStyles() {
         --surface-3: var(--color-bg-tertiary);
         --ink-primary: var(--color-text-primary);
         --ink-secondary: var(--color-text-secondary);
-        --ink-tertiary: var(--color-text-muted);
-        --ink-muted: color-mix(in srgb, var(--color-text-muted) 68%, transparent);
+        --ink-tertiary: var(--color-text-secondary);
+        --ink-muted: var(--color-text-secondary);
         --accent-warm: var(--color-accent);
         --accent-warm-light: color-mix(in srgb, var(--color-accent) 16%, var(--color-bg-base));
         --accent-green: var(--color-bg-product);
@@ -115,16 +115,12 @@ function PageMotionStyles() {
 
       /* ── Core Animation System ── */
       [data-animate] {
-        opacity: 0;
         transform: translate3d(0, 52px, 0);
-        filter: blur(10px);
         transition:
-          opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1),
           transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
-          filter 1100ms cubic-bezier(0.16, 1, 0.3, 1),
           clip-path 1100ms cubic-bezier(0.16, 1, 0.3, 1);
         transition-delay: var(--delay, 0ms);
-        will-change: opacity, transform, filter;
+        will-change: transform;
       }
 
       [data-animate="fade-down"] {
@@ -151,9 +147,7 @@ function PageMotionStyles() {
       }
 
       [data-animate].is-visible {
-        opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
-        filter: blur(0);
       }
 
       [data-animate="clip"].is-visible {
@@ -777,7 +771,10 @@ function MacSignScannerCard() {
           </div>
 
           {/* side diagnostic panel */}
-          <div className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
+          <div
+            className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden"
+            tabIndex={0}
+          >
             <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
               <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">
                 {t("sessionLabel")}
@@ -1151,8 +1148,8 @@ function ResearchRows() {
   const rowStyles = [
     {
       icon: FlaskConical,
-      iconClassName: "bg-[var(--accent-warm-light)] text-[var(--accent-warm)]",
-      badgeClassName: "bg-[var(--accent-warm-light)] text-[var(--accent-warm)]",
+      iconClassName: "bg-[var(--accent-warm-light)] text-[#8f321f]",
+      badgeClassName: "bg-[var(--accent-warm-light)] text-[#8f321f]",
     },
     {
       icon: Shield,

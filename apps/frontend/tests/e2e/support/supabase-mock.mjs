@@ -36,8 +36,20 @@ const session = {
 function headers(extra = {}) {
   return {
     "access-control-allow-origin": "*",
-    "access-control-allow-headers": "authorization, apikey, content-type, x-client-info",
+    "access-control-allow-headers": [
+      "authorization",
+      "apikey",
+      "content-type",
+      "x-client-info",
+      "x-supabase-api-version",
+      "prefer",
+      "range",
+      "accept-profile",
+      "content-profile",
+    ].join(", "),
     "access-control-allow-methods": "GET,POST,PATCH,DELETE,OPTIONS",
+    "access-control-expose-headers": "content-range",
+    "cross-origin-resource-policy": "cross-origin",
     "content-type": "application/json",
     ...extra,
   };

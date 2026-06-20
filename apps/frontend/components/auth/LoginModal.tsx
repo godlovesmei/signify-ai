@@ -86,11 +86,11 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 cursor-default bg-black/45 animate-in fade-in duration-200"
+        className="absolute inset-0 cursor-default bg-black/45"
         onClick={onClose}
       />
 
-      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-[520px] overflow-y-auto rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-[520px] overflow-y-auto rounded-[22px] border border-cohere-hairline bg-cohere-canvas text-cohere-ink">
         <div className="flex items-center justify-between border-b border-cohere-hairline px-6 py-5">
           <Logo href={false} size="md" />
           <button
@@ -98,14 +98,14 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
             type="button"
             onClick={onClose}
             aria-label={t("close")}
-            className="flex size-9 items-center justify-center rounded-sm border border-cohere-hairline text-cohere-slate transition-colors hover:bg-cohere-stone hover:text-cohere-ink"
+            className="flex size-9 items-center justify-center rounded-sm border border-cohere-hairline text-cohere-ink transition-colors hover:bg-cohere-stone"
           >
             <X className="size-4" />
           </button>
         </div>
 
         <div className="px-6 py-8 sm:px-8">
-          <p className="text-mono-label text-[12px] text-cohere-coral">{t("eyebrow")}</p>
+          <p className="text-mono-label text-[12px] text-cohere-ink">{t("eyebrow")}</p>
           <h1
             id="sign-in-title"
             className="mt-3 max-w-sm font-display text-[42px] leading-none text-cohere-ink sm:text-[48px]"
@@ -131,7 +131,7 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-cohere-ink">{item.title}</p>
-                  <p className="mt-1 text-[13px] leading-[1.4] text-cohere-slate">{item.body}</p>
+                  <p className="mt-1 text-[13px] leading-[1.4] text-cohere-ink">{item.body}</p>
                 </div>
               </div>
             ))}

@@ -10,7 +10,15 @@ import {
 // We exchange the code for a session, then send the user to their destination.
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const host =
+    request.headers.get('x-forwarded-host') ??
+    request.headers.get('host') ??
+    request.nextUrl.host;
+  const protocol =
+    request.headers.get('x-forwarded-proto') ??
+    request.nextUrl.protocol.replace(/:$/, '');
+  const requestOrigin = `${protocol}://${host}`;
 
   const code = searchParams.get('code');
   // `next` is set by middleware when redirecting to login — preserves destination
@@ -24,7 +32,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const response = NextResponse.redirect(new URL(next, origin));
+      const response = NextResponse.redirect(new URL(next, requestOrigin));
       cookiesToSet.forEach(({ name, value, options }) => {
         response.cookies.set(name, value, options);
       });
@@ -34,6 +42,6 @@ export async function GET(request: NextRequest) {
 
   // Exchange failed — redirect back to login with a plain error signal
   return NextResponse.redirect(
-    `${origin}/?error=auth_callback_failed`,
+    `${requestOrigin}/?error=auth_callback_failed`,
   );
 }

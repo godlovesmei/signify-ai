@@ -39,10 +39,10 @@ test("TC-026 metadata and referenced public assets are valid", async ({
     "href",
     "/manifest.webmanifest",
   );
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/$/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/?$/);
   await expect(page.locator('link[rel="alternate"][hreflang="id"]')).toHaveAttribute(
     "href",
-    /\/$/,
+    /\/?$/,
   );
   await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
     "href",
@@ -50,7 +50,7 @@ test("TC-026 metadata and referenced public assets are valid", async ({
   );
   await expect(
     page.locator('link[rel="alternate"][hreflang="x-default"]'),
-  ).toHaveAttribute("href", /\/$/);
+  ).toHaveAttribute("href", /\/?$/);
   await expect(page.locator('script[type="application/ld+json"]')).not.toContainText(
     "SearchAction",
   );

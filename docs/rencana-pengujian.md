@@ -5,10 +5,21 @@
 | Atribut | Nilai |
 |---|---|
 | Nama proyek | Signify AI |
-| Tim pengujian | Tim QA Signify AI |
+| Tim pengujian | Meiske Priskilla Sahertian (3312401001) dan Bunga Citra Lestari Situmorang (3312401034) |
 | Klien | PBL Project |
 | Tanggal dokumen | 5 Juni 2026 |
 | Tujuan | Memastikan aplikasi siap produksi melalui pengujian fungsional, keamanan, reliabilitas, aksesibilitas, performa, usability, dan quality gate CI. |
+
+### Pembagian peran tester dan developer
+
+Berdasarkan kesepakatan dengan dosen pengujian, test case dibagi silang antara dua anggota tim. Meiske menguji modul yang di-PIC-kan Bunga, sedangkan Bunga menguji modul yang di-PIC-kan Meiske. Riwayat commit dipakai sebagai acuan umum: Meiske lebih dominan pada auth, Supabase/data, backend/legacy, model boundary, CI, dan hardening; Bunga lebih dominan pada UI, i18n, navigasi, translate/practice polish, dan reference/workspace experience.
+
+| Anggota | NIM | Peran Testing | Peran Development/PIC |
+|---|---|---|---|
+| Meiske Priskilla Sahertian | 3312401001 | Menguji 14 system test dan 6 UAT case | PIC modul yang diuji Bunga |
+| Bunga Citra Lestari Situmorang | 3312401034 | Menguji 13 system test dan 6 UAT case | PIC modul yang diuji Meiske |
+
+Pembagian detail per test case dicatat pada `docs/test-report/TestManagement.md`.
 
 ### 1.1 Hasil audit codebase
 
