@@ -931,9 +931,8 @@ function TrustStrip() {
 }
 
 /* ── CAPABILITY SECTION ── */
-function CapabilitySection({ onStartTranslating }: { onStartTranslating: ProtectedNavigateHandler }) {
+function CapabilitySection() {
   const t = useTranslations("landing.capabilities");
-  const ctaT = useTranslations("landing.cta");
   const capabilities = [
     {
       icon: Camera,
@@ -997,20 +996,6 @@ function CapabilitySection({ onStartTranslating }: { onStartTranslating: Protect
             </article>
           ))}
         </div>
-
-        <Reveal delay={400} variant="fade-up" className="mt-10 text-center md:mt-14">
-          <Button
-            asChild
-            variant="primary"
-            size="lg"
-            className="rounded-full"
-          >
-            <Link href="/translate" onClick={(e) => { e.preventDefault(); onStartTranslating("/translate"); }}>
-              {ctaT("start")}
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </Reveal>
       </div>
     </section>
   );
@@ -1333,7 +1318,7 @@ export default function HomePage() {
         <HeroSection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
         <LandingDeviceShowcase />
         <TrustStrip />
-        <CapabilitySection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
+        <CapabilitySection />
         <DarkFeatureBand />
         <ProductCards />
         <ResearchRows />

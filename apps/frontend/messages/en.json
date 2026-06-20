@@ -709,8 +709,7 @@
       "title": "Camera work stays controlled.",
       "bullets": [
         "Video frames are processed for the active recognition flow.",
-        "Saved history stores translated text, not raw camera footage.",
-        "Users can clear logs and rebuild sentences at any time."
+        "Saved history stores translated text, not raw camera footage."
       ]
     },
     "researchRows": {

@@ -709,8 +709,7 @@
       "title": "Kerja kamera tetap terkendali.",
       "bullets": [
         "Bingkai video diproses untuk alur pengenalan aktif.",
-        "Riwayat tersimpan berisi teks terjemahan, bukan rekaman kamera mentah.",
-        "Pengguna dapat membersihkan log dan menyusun ulang kalimat kapan saja."
+        "Riwayat tersimpan berisi teks terjemahan, bukan rekaman kamera mentah."
       ]
     },
     "researchRows": {
