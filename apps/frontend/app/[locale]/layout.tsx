@@ -208,14 +208,14 @@ export default async function RootLayout({
           description={t('jsonLdDescription')}
           features={t.raw('features') as string[]}
         />
-      </head>
-      <body className="font-sans antialiased">
         {/* Critical theme script — must run before any paint */}
         <Script
           id="signify-theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
+      </head>
+      <body className="font-sans antialiased">
         <NextIntlClientProvider>
           <PreferencesProvider>
             {children}

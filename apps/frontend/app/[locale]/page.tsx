@@ -777,7 +777,7 @@ function MacSignScannerCard() {
           </div>
 
           {/* side diagnostic panel */}
-          <div className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-hidden">
+          <div className="flex min-h-[320px] flex-col bg-[#111218] p-4 md:min-h-[380px] lg:min-h-0 lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
             <div className="rounded-[18px] border border-white/[0.06] bg-white/[0.025] p-4">
               <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">
                 {t("sessionLabel")}
@@ -807,18 +807,18 @@ function MacSignScannerCard() {
               </div>
             </div>
 
-            <div className="mt-3 rounded-[18px] border border-emerald-400/12 bg-emerald-400/[0.04] p-4">
+            <div className="mt-3 rounded-[18px] border border-emerald-400/12 bg-emerald-400/[0.04] px-4 py-3">
               <div className="flex items-center justify-between">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-emerald-300/80">
                   {t("intentLabel")}
                 </p>
-                <span className="flex items-center gap-1.5 rounded-full bg-emerald-300/10 px-2.5 py-1 text-[10px] font-medium text-emerald-300">
+                <span className="flex items-center gap-1.5 rounded-full bg-emerald-300/10 px-2.5 py-0.5 text-[10px] font-medium text-emerald-300">
                   <span className="size-1 rounded-full bg-emerald-300 pulse-soft" />
                   {t("live")}
                 </span>
               </div>
-              <p className="mt-3 text-[16px] font-medium text-white">{t("intentTitle")}</p>
-              <p className="mt-2 text-[13px] leading-[1.45] text-white/50">
+              <p className="mt-1.5 text-[15px] font-medium text-white">{t("intentTitle")}</p>
+              <p className="mt-1 text-[12px] leading-[1.4] text-white/50">
                 {t("intentBody")}
               </p>
             </div>
@@ -934,8 +934,9 @@ function TrustStrip() {
 }
 
 /* ── CAPABILITY SECTION ── */
-function CapabilitySection() {
+function CapabilitySection({ onStartTranslating }: { onStartTranslating: ProtectedNavigateHandler }) {
   const t = useTranslations("landing.capabilities");
+  const ctaT = useTranslations("landing.cta");
   const capabilities = [
     {
       icon: Camera,
@@ -999,6 +1000,20 @@ function CapabilitySection() {
             </article>
           ))}
         </div>
+
+        <Reveal delay={400} variant="fade-up" className="mt-10 text-center md:mt-14">
+          <Button
+            asChild
+            variant="primary"
+            size="lg"
+            className="rounded-full"
+          >
+            <Link href="/translate" onClick={(e) => { e.preventDefault(); onStartTranslating("/translate"); }}>
+              {ctaT("start")}
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </Reveal>
       </div>
     </section>
   );
@@ -1321,7 +1336,7 @@ export default function HomePage() {
         <HeroSection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
         <LandingDeviceShowcase />
         <TrustStrip />
-        <CapabilitySection />
+        <CapabilitySection onStartTranslating={(nextPath) => void navigateProtected(nextPath)} />
         <DarkFeatureBand />
         <ProductCards />
         <ResearchRows />

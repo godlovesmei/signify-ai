@@ -26,7 +26,7 @@ export const localeConfigs: Record<
     routePrefix: "",
   },
   en: {
-    label: "ENG",
+    label: "EN",
     name: "English",
     htmlLang: "en",
     intlLocale: "en-US",

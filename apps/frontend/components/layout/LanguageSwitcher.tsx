@@ -43,7 +43,7 @@ export function LanguageSwitcher({
         className={cn("inline-flex items-center gap-1 transition-colors hover:text-white", className)}
         aria-label={`${t("language")}: ${nextLocale === "id" ? t("indonesian") : t("english")}`}
       >
-        {nextLocale === "id" ? "ID" : "ENG"}
+        {nextLocale === "id" ? "ID" : "EN"}
       </button>
     );
   }
@@ -69,7 +69,7 @@ export function LanguageSwitcher({
               )}
               aria-current={active ? "true" : undefined}
             >
-              {item === "id" ? "ID" : "ENG"}
+              {item === "id" ? "ID" : "EN"}
             </button>
           );
         })}
@@ -89,7 +89,7 @@ export function LanguageSwitcher({
       aria-label={`${t("language")}: ${nextLocale === "id" ? t("indonesian") : t("english")}`}
     >
       <Languages className="size-3.5" aria-hidden="true" />
-      {nextLocale === "id" ? "ID" : "ENG"}
+      {nextLocale === "id" ? "ID" : "EN"}
     </button>
   );
 }
