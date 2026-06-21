@@ -24,6 +24,28 @@ test("TC-006 authenticated translation workspace exposes its initial camera stat
   await expect(page.getByRole("button", { name: "Aktifkan kamera" })).toBeVisible();
 });
 
+test("TC-028 mobile workspace exposes Settings in the bottom navigation", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/translate");
+
+  await page.getByRole("button", { name: "Pengaturan" }).click();
+
+  await expect(page.getByRole("dialog", { name: "Pengaturan" })).toBeVisible();
+});
+
+test("TC-028 tablet workspace exposes Settings in the bottom navigation", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 820, height: 1180 });
+  await page.goto("/translate");
+
+  await page.getByRole("button", { name: "Pengaturan" }).click();
+
+  await expect(page.getByRole("dialog", { name: "Pengaturan" })).toBeVisible();
+});
+
 test("TC-002 authenticated landing auth CTAs open the workspace", async ({
   page,
 }) => {

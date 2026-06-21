@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { Settings } from "lucide-react";
 import { usePathname } from "@/i18n/navigation";
-import MobileNavItem from "./MobileNavItem";
+import MobileNavItem, { MobileNavActionItem } from "./MobileNavItem";
 import {
   getActiveWorkspaceNavItem,
   isWorkspaceRoute,
@@ -12,6 +13,7 @@ import {
 } from "./workspaceNavConfig";
 
 interface MobileBottomNavProps {
+  onSettingsClick: () => void;
   reserveSpace?: boolean;
 }
 
@@ -19,11 +21,13 @@ const BOTTOM_NAV_HEIGHT_PX = 64;
 const BOTTOM_NAV_OFFSET_VALUE = `calc(${BOTTOM_NAV_HEIGHT_PX}px + env(safe-area-inset-bottom, 0px))`;
 
 export default function MobileBottomNav({
+  onSettingsClick,
   reserveSpace = true,
 }: MobileBottomNavProps) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const t = useTranslations("navigation.aria");
+  const commonT = useTranslations("common");
 
   const activeItem = getActiveWorkspaceNavItem(pathname);
   const isWorkspace = isWorkspaceRoute(pathname);
@@ -74,7 +78,7 @@ export default function MobileBottomNav({
         }
       >
         <div className="border-t border-cohere-hairline bg-cohere-canvas pb-[env(safe-area-inset-bottom,0px)] pt-1">
-          <ul className="grid grid-cols-5 gap-0 px-1">
+          <ul className="grid grid-cols-6 gap-0 px-1">
             {WORKSPACE_NAV_ITEMS.map((item) => (
               <MobileNavItem
                 key={item.key}
@@ -83,6 +87,12 @@ export default function MobileBottomNav({
                 reduceMotion={reduceMotion}
               />
             ))}
+            <MobileNavActionItem
+              label={commonT("settings")}
+              icon={Settings}
+              reduceMotion={reduceMotion}
+              onClick={onSettingsClick}
+            />
           </ul>
         </div>
       </motion.nav>

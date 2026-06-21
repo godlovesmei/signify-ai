@@ -94,7 +94,7 @@ export default function WorkspaceShell({
       </div>
 
       {/* Mobile bottom nav (renders only on workspace routes) */}
-      <MobileBottomNav />
+      <MobileBottomNav onSettingsClick={() => setSettingsOpen(true)} />
 
       <SettingsDrawer
         open={settingsOpen}

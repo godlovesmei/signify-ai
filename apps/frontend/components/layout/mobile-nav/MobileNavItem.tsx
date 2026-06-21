@@ -13,6 +13,13 @@ interface MobileNavItemProps {
   reduceMotion: boolean | null;
 }
 
+interface MobileNavActionItemProps {
+  label: string;
+  icon: LucideIcon;
+  reduceMotion: boolean | null;
+  onClick: () => void;
+}
+
 const ICON_MAP: Record<WorkspaceNavIcon, LucideIcon> = {
   translate: Camera,
   practice: Target,
@@ -24,6 +31,29 @@ const ICON_MAP: Record<WorkspaceNavIcon, LucideIcon> = {
 function createTransition(reduceMotion: boolean | null) {
   if (reduceMotion) return { duration: 0 };
   return { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const };
+}
+
+const itemClassName =
+  "relative flex h-[54px] w-full flex-col items-center justify-center gap-0.5 rounded-sm px-0.5 text-cohere-slate transition-colors duration-200 hover:bg-cohere-stone hover:text-cohere-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cohere-focus sm:px-1";
+
+function MobileNavLabel({
+  label,
+  isActive,
+  reduceMotion,
+}: {
+  label: string;
+  isActive: boolean;
+  reduceMotion: boolean | null;
+}) {
+  return (
+    <motion.span
+      className="max-w-full truncate text-center font-mono text-[8px] uppercase leading-none tracking-[0.04em] min-[390px]:text-[9px] min-[390px]:tracking-wide"
+      animate={{ opacity: isActive ? 1 : 0.65 }}
+      transition={createTransition(reduceMotion)}
+    >
+      {label}
+    </motion.span>
+  );
 }
 
 export default function MobileNavItem({
@@ -43,11 +73,10 @@ export default function MobileNavItem({
           aria-current={isActive ? "page" : undefined}
           aria-label={label}
           className={cn(
-            "relative flex h-[54px] flex-col items-center justify-center gap-0.5 rounded-sm px-1 transition-colors duration-200",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cohere-focus",
+            itemClassName,
             isActive
               ? "bg-cohere-primary text-white dark:bg-cohere-ink dark:text-cohere-canvas"
-              : "text-cohere-slate hover:bg-cohere-stone hover:text-cohere-ink"
+              : ""
           )}
         >
           <motion.span
@@ -57,14 +86,46 @@ export default function MobileNavItem({
           >
             <Icon className="size-[18px]" strokeWidth={1.8} />
           </motion.span>
+          <MobileNavLabel
+            label={label}
+            isActive={isActive}
+            reduceMotion={reduceMotion}
+          />
+        </Link>
+      </motion.div>
+    </li>
+  );
+}
+
+export function MobileNavActionItem({
+  label,
+  icon: Icon,
+  reduceMotion,
+  onClick,
+}: MobileNavActionItemProps) {
+  return (
+    <li className="list-none">
+      <motion.div whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
+        <button
+          type="button"
+          aria-label={label}
+          aria-haspopup="dialog"
+          onClick={onClick}
+          className={itemClassName}
+        >
           <motion.span
-            className="text-[9px] font-mono tracking-wide uppercase leading-none"
-            animate={{ opacity: isActive ? 1 : 0.65 }}
+            className="flex items-center justify-center"
+            animate={{ y: 0 }}
             transition={createTransition(reduceMotion)}
           >
-            {label}
+            <Icon className="size-[18px]" strokeWidth={1.8} />
           </motion.span>
-        </Link>
+          <MobileNavLabel
+            label={label}
+            isActive={false}
+            reduceMotion={reduceMotion}
+          />
+        </button>
       </motion.div>
     </li>
   );

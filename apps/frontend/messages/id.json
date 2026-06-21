@@ -668,7 +668,7 @@
       "titleBefore": "Komunikasi hening,",
       "titleAccent": "jelas",
       "titleAfter": "dipahami.",
-      "body": "Ruang kerja AI terkendali untuk menerjemahkan gestur bahasa isyarat Indonesia menjadi teks dan suara tanpa menjadikan aksesibilitas sebagai tontonan.",
+      "body": "Ruang kerja AI terkendali untuk mengenali bentuk tangan alfabet BISINDO dan mengubah huruf terkonfirmasi menjadi teks serta suara tanpa menjadikan aksesibilitas sebagai tontonan.",
       "phrases": [
         "Halo, nama saya Rina.",
         "Saya butuh bantuan.",
@@ -684,19 +684,19 @@
       "outputLabel": "Keluaran dikenali",
       "sessionLabel": "Sesi",
       "sessionTitle": "Pengenalan BISINDO",
-      "sessionBody": "Pemahaman kamera waktu nyata yang disesuaikan untuk pose tangan dan keluaran yang mudah dipakai.",
+      "sessionBody": "Pengenalan kamera peramban waktu nyata yang disesuaikan untuk bentuk tangan alfabet BISINDO dan keluaran teks yang mudah dipakai.",
       "modelLabel": "Model",
-      "modelValue": "YOLOv11 + titik acuan",
+      "modelValue": "YOLO11n ONNX",
       "latencyLabel": "Latensi",
       "latencyValue": "Di bawah satu detik",
       "privacyLabel": "Privasi",
       "privacyValue": "Mengutamakan lokal",
       "intentLabel": "Tujuan aktif",
       "live": "Langsung",
-      "intentTitle": "Terjemahan siap",
-      "intentBody": "Rangkaian gestur tangan telah dikenali dan diubah menjadi keluaran Bahasa Indonesia yang alami.",
+      "intentTitle": "Pengenalan alfabet siap",
+      "intentBody": "Deteksi huruf yang stabil dapat ditinjau dan disusun menjadi teks.",
       "pipelineLabel": "Alur",
-      "pipelineFlow": "Kamera -> Deteksi -> Urai -> Suara",
+      "pipelineFlow": "Kamera -> ONNX -> Decode -> Teks",
       "pipelineItems": [
         "Pengambilan bingkai stabil",
         "Tangan terisolasi",
@@ -799,66 +799,66 @@
   },
   "docs": {
     "howItWorks": {
-      "title": "Dari bingkai kamera ke kalimat bersuara.",
-      "lead": "Penjelasan sederhana tentang alur pengenalan, penyusun kalimat, dan batas yang perlu dipahami pengguna sebelum mengandalkan alat ini.",
+      "title": "Pengenalan BISINDO berbasis peramban, dari bingkai kamera ke kalimat.",
+      "lead": "Tur teknis yang tetap mudah dibaca tentang cara SignifyAI menangkap bingkai kamera, menjalankan YOLO11n ONNX di peramban, mengunci prediksi alfabet BISINDO yang stabil, dan mengubah huruf terkonfirmasi menjadi teks yang dapat disunting.",
       "faqQuestion": "Bahasa isyarat apa yang didukung?",
-      "faqAnswer": "Workspace berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait.",
+      "faqAnswer": "Model produksi saat ini berfokus pada pengenalan alfabet BISINDO dari A sampai Z.",
       "steps": [
         {
           "step": "01",
-          "title": "Buka kamera",
-          "desc": "SignifyAI berjalan di peramban dan meminta akses kamera hanya untuk sesi aktif.",
+          "title": "Mulai sesi kamera lokal",
+          "desc": "Workspace meminta akses kamera dari peramban dan menjaga stream video langsung tetap berada di sesi halaman yang aktif.",
           "details": [
             "Kamera depan atau belakang",
             "Tanpa unduh aplikasi",
-            "Ruang kerja responsif"
+            "Tanpa dependency FastAPI produksi"
           ]
         },
         {
           "step": "02",
-          "title": "Jalankan pengenalan",
-          "desc": "Model membaca bentuk tangan bingkai demi bingkai dan menghasilkan prediksi dengan skor keyakinan.",
+          "title": "Normalisasi tiap bingkai",
+          "desc": "Bingkai digambar ke canvas 640 x 640, diubah dari data gambar RGBA menjadi tensor RGB, lalu dikirim ke model sesuai bentuk input ONNX yang dikonfigurasi.",
           "details": [
-            "Prapemrosesan gambar",
-            "Inferensi YOLO",
-            "Penyaringan keyakinan"
+            "Input 640 x 640",
+            "Normalisasi RGB",
+            "Manifest model"
           ]
         },
         {
           "step": "03",
-          "title": "Susun kalimat",
-          "desc": "Huruf yang terkonfirmasi dimasukkan ke penyangga kalimat yang bisa disunting atau dibersihkan.",
+          "title": "Jalankan YOLO11n ONNX di peramban",
+          "desc": "ONNX Runtime Web menjalankan artifact BISINDO YOLO11n melalui worker bila memungkinkan, fallback ke main thread saat diperlukan, dan memakai WebGPU atau WASM sesuai dukungan peramban.",
           "details": [
-            "Hapus terakhir",
-            "Tambah spasi",
-            "Ekspor sesi"
+            "Artifact best.onnx",
+            "WebGPU atau WASM",
+            "Confidence dan NMS"
           ]
         },
         {
           "step": "04",
-          "title": "Bacakan dengan suara",
-          "desc": "Teks-ke-suara dapat membacakan kalimat yang dibuat dalam Bahasa Indonesia ketika keluaran suara dibutuhkan.",
+          "title": "Kunci huruf menjadi teks",
+          "desc": "Deteksi teratas disaring melalui ambang keyakinan dan accumulator weighted-vote kecil sebelum huruf terkonfirmasi ditambahkan ke penyusun kalimat, disimpan sebagai riwayat teks, dan dapat dibacakan.",
           "details": [
-            "Kecepatan dapat diatur",
-            "Kontrol volume",
-            "Pemutaran manual"
+            "Fast commit",
+            "Weighted vote",
+            "Kontrol TTS"
           ]
         }
       ],
       "limitationsLabel": "Batasan jujur",
-      "limitationsTitle": "Produk ini berguna karena batasnya terlihat jelas.",
+      "limitationsTitle": "Jalur yang berguna sengaja dibuat sempit: cepat, terlihat, dan berbatas jelas.",
       "limitations": [
         {
-          "title": "Pencahayaan berpengaruh",
-          "desc": "Ruangan yang sangat redup atau membelakangi cahaya dapat menurunkan kualitas prediksi. Pastikan tangan terlihat dan berada di tengah."
-        },
-        {
           "title": "Cakupan alfabet",
-          "desc": "Rilis ini berfokus pada pengenalan alfabet BISINDO, bukan penafsiran tersertifikasi penuh."
+          "desc": "Rilis ini mengenali kelas alfabet BISINDO A-Z. Aplikasi ini tidak mengklaim penafsiran kalimat penuh atau terjemahan tersertifikasi."
         },
         {
-          "title": "Bukan juru bahasa legal",
-          "desc": "Gunakan SignifyAI sebagai alat bantu komunikasi, bukan sebagai juru bahasa tersertifikasi untuk konteks penting."
+          "title": "Kondisi perangkat berpengaruh",
+          "desc": "Kualitas kamera, pencahayaan, posisi tangan, dukungan peramban, dan performa WebGPU atau WASM memengaruhi kualitas prediksi."
+        },
+        {
+          "title": "Riwayat teks, bukan penyimpanan video",
+          "desc": "Inferensi produksi berjalan di peramban. Riwayat tersimpan mencatat entri teks dan metadata, bukan video kamera mentah."
         }
       ],
       "faqLabel": "Tanya jawab",
@@ -866,43 +866,43 @@
       "faqs": [
         {
           "question": "Bahasa isyarat apa yang didukung?",
-          "answer": "Ruang kerja berfokus pada pengenalan alfabet BISINDO dan alur belajar terkait."
+          "answer": "Model produksi saat ini berfokus pada pengenalan alfabet BISINDO dari A sampai Z."
+        },
+        {
+          "question": "Apakah inferensi produksi membutuhkan FastAPI?",
+          "answer": "Tidak. Alur translate dan practice produksi menjalankan model ONNX di peramban. FastAPI tetap menjadi batas legacy atau dev-only untuk contract testing dan parity testing."
         },
         {
           "question": "Apakah video saya disimpan?",
-          "answer": "Produk ini dirancang untuk pemrosesan sesi aktif. Riwayat tersimpan hanya menyimpan entri teks terjemahan."
-        },
-        {
-          "question": "Perangkat apa yang bisa digunakan?",
-          "answer": "Peramban desktop dan seluler modern yang memiliki akses kamera didukung."
+          "answer": "Stream kamera diproses untuk sesi peramban aktif. Riwayat tersimpan berisi huruf terkonfirmasi, teks kalimat, data confidence, dan metadata waktu."
         },
         {
           "question": "Seberapa akurat hasilnya?",
-          "answer": "Akurasi bergantung pada kualitas kamera, pencahayaan, kecepatan berisyarat, dan apakah isyarat ada dalam cakupan pelatihan."
+          "answer": "Akurasi bergantung pada cakupan alfabet yang dilatih, framing kamera, pencahayaan, variasi pengguna, performa perangkat, dan ambang confidence."
         }
       ],
       "ctaLabel": "Coba ruang kerja",
-      "ctaTitle": "Buka sesi kamera dan uji alur pengenalan.",
+      "ctaTitle": "Buka sesi kamera dan uji alur inferensi peramban.",
       "ctaButton": "Mulai menerjemahkan"
     },
     "research": {
-      "title": "Apa itu penerjemah bahasa isyarat waktu nyata?",
+      "title": "Pengenalan alfabet BISINDO berbasis peramban di SignifyAI.",
       "contents": "Daftar isi riset",
       "learnHow": "Pelajari cara kerjanya",
       "meta": {
         "eyebrow": "Riset",
         "team": "Tim Signify",
-        "category": "Riset & Pengembangan",
-        "readTime": "12 menit baca",
-        "updated": "Diperbarui Maret 2025"
+        "category": "AI Peramban Terapan",
+        "readTime": "10 menit baca",
+        "updated": "Diperbarui Juni 2026"
       },
       "about": {
         "label": "Tentang riset ini",
-        "title": "AI untuk aksesibilitas",
+        "title": "AI peramban untuk belajar BISINDO",
         "points": [
-          "Visi komputer untuk pengenalan gestur",
-          "AI etis dan desain inklusif",
-          "Pengumpulan data berbasis komunitas"
+          "Inferensi YOLO11n ONNX di peramban",
+          "Deteksi alfabet BISINDO dengan batas yang terlihat",
+          "Alur belajar aksesibel tanpa FastAPI produksi"
         ]
       },
       "sections": {
@@ -910,16 +910,16 @@
           "title": "Pendahuluan",
           "blocks": [
             {
-              "text": "Penerjemah bahasa isyarat waktu nyata adalah sistem kecerdasan buatan yang dirancang untuk menafsirkan gestur tangan, ekspresi wajah, dan gerakan tubuh menjadi keluaran bahasa terstruktur seperti teks atau suara."
+              "text": "SignifyAI paling tepat dipahami sebagai sistem pengenalan alfabet BISINDO berbasis peramban. Aplikasi memakai kamera untuk membaca bentuk tangan, menjalankan model object detection ONNX secara lokal di frontend, lalu mengubah prediksi A-Z yang stabil menjadi teks yang dapat disunting."
             },
             {
-              "text": "Berbeda dari sistem terjemahan biasa yang mengubah satu bahasa lisan ke bahasa lain, penerjemahan bahasa isyarat membutuhkan pemahaman multimodal. Bahasa isyarat adalah bahasa alami yang lengkap dengan tata bahasa, struktur ruang, dan penanda nonmanualnya sendiri."
+              "text": "Pembedaan ini penting. Aplikasi tidak mengklaim terjemahan bahasa isyarat semantik penuh, penafsiran tersertifikasi, atau perapihan bahasa natural otomatis. Cakupan produksinya lebih sempit dan lebih mudah diverifikasi: mengenali kelas alfabet BISINDO, menampilkan confidence, dan membantu pengguna menyusun kalimat dari huruf yang terkonfirmasi."
             },
             {
-              "text": "Sistem modern mengandalkan alur visi komputer untuk mendeteksi titik acuan tangan dan tubuh. Titik kunci tersebut kemudian diproses dengan arsitektur pembelajaran mendalam yang mampu memodelkan keterkaitan waktu dalam rangkaian gerak."
+              "text": "Arsitektur produksinya sengaja frontend-first. Bingkai kamera melewati prapemrosesan, ONNX Runtime Web, postprocessing YOLO, dan accumulator huruf tanpa memanggil endpoint prediksi FastAPI legacy."
             },
             {
-              "text": "Tujuan sistem terjemahan waktu nyata adalah menekan latensi sambil menjaga ketepatan makna, sehingga komunikasi antara komunitas Tuli dan pendengar dapat berlangsung lebih alami dan inklusif."
+              "text": "Pertanyaan risetnya praktis: sejauh mana aplikasi web dapat berjalan ketika eksekusi model, umpan balik interaksi, dan batas privasi dijaga sedekat mungkin dengan perangkat pengguna?"
             }
           ]
         },
@@ -927,38 +927,38 @@
           "title": "Mengapa Ini Penting",
           "blocks": [
             {
-              "text": "Komunikasi adalah dasar pendidikan, layanan kesehatan, pekerjaan, dan partisipasi sosial. Bagi komunitas Tuli dan sulit dengar, hambatan komunikasi sering membatasi akses setara terhadap informasi dan layanan. Teknologi yang menjembatani hambatan ini dapat memberi dampak sosial yang nyata."
+              "text": "Alat belajar BISINDO membutuhkan lebih dari sekadar skor model. Pengguna membutuhkan umpan balik cepat, status yang jelas, dan batas yang jujur agar antarmuka dapat mendukung latihan tanpa berpura-pura menggantikan juru bahasa terlatih."
             },
             {
               "type": "heading",
-              "text": "Mengurangi Hambatan Komunikasi"
+              "text": "Aksesibilitas Transparan"
             },
             {
-              "text": "Terjemahan bahasa isyarat waktu nyata memungkinkan interaksi langsung antara pengguna isyarat dan nonpengguna isyarat tanpa selalu bergantung pada juru bahasa. Juru bahasa profesional tetap penting, sementara alat berbantuan AI dapat menambah akses ketika dukungan langsung belum tersedia."
-            },
-            {
-              "type": "heading",
-              "text": "Mendorong Teknologi Inklusif"
-            },
-            {
-              "text": "Desain AI inklusif memastikan kemajuan teknologi bermanfaat bagi beragam kelompok. Dengan memasukkan fitur aksesibilitas ke sistem utama, pengembang membantu menciptakan lingkungan digital yang adil dan mudah digunakan semua orang."
+              "text": "Skor confidence, status kamera, dan penyusun kalimat yang terlihat membantu pengguna memahami apa yang terdeteksi sistem dan bagian mana yang masih membutuhkan penilaian manusia."
             },
             {
               "type": "heading",
-              "text": "Mendukung Pendidikan & Pekerjaan"
+              "text": "Deployment Lebih Ringan"
             },
             {
-              "text": "Alat komunikasi yang aksesibel memperluas peluang di lingkungan akademik dan profesional. Siswa memperoleh akses lebih baik ke kuliah dan sumber belajar, sementara tempat kerja dapat mendukung kolaborasi dan partisipasi yang lebih inklusif."
+              "text": "Menjalankan inferensi di peramban menghilangkan dependency produksi pada backend model-serving. Demo kelas, pilot berbiaya rendah, dan akses mobile menjadi lebih mudah direncanakan."
             },
             {
               "type": "heading",
-              "text": "Memajukan AI untuk Dampak Sosial"
+              "text": "Umpan Balik untuk Belajar"
             },
             {
-              "text": "Riset pengenalan bahasa isyarat berkontribusi pada kemajuan pembelajaran multimodal, pemodelan rangkaian, dan AI berpusat pada manusia. Perkembangan ini melampaui aplikasi aksesibilitas dan memperkuat ekosistem AI secara umum."
+              "text": "Halaman translate dan practice berbagi batas pengenalan yang sama. Translate mengunci huruf menjadi teks, sementara practice meminta pengguna menahan huruf target sampai pengenalan cukup stabil."
             },
             {
-              "text": "Pada akhirnya, pentingnya riset ini bukan hanya pada peningkatan teknis, tetapi juga pada potensinya untuk mendukung martabat, kemandirian, dan akses komunikasi yang setara di berbagai tempat."
+              "type": "heading",
+              "text": "Klaim yang Bertanggung Jawab"
+            },
+            {
+              "text": "Pengenal alfabet yang terarah tetap bernilai ketika produk menyatakan secara tepat apa yang bisa dan belum bisa dilakukan. Klaim berlebihan akan membuat alat ini kurang aman, bukan lebih hebat."
+            },
+            {
+              "text": "Pekerjaan ini teknis, tetapi standar produknya berpusat pada manusia: alurnya harus dapat dipahami, dapat dipulihkan, dan menghormati komunitas yang ingin didukung."
             }
           ]
         },
@@ -966,45 +966,45 @@
           "title": "Cara Kerjanya",
           "blocks": [
             {
-              "text": "Sistem terjemahan bahasa isyarat waktu nyata bekerja melalui alur bertahap yang mengubah masukan visual menjadi keluaran bahasa terstruktur. Proses ini memadukan visi komputer, pemodelan rangkaian, dan penafsiran bahasa dalam kerangka latensi rendah."
+              "text": "Loop produksi adalah pipeline inferensi peramban yang ringkas. Alurnya dimulai dari kamera dan berakhir pada huruf yang terkunci, bukan layanan terjemahan server-side yang tersembunyi."
             },
             {
               "type": "heading",
-              "text": "1. Pengambilan Video"
+              "text": "1. Pengambilan Kamera"
             },
             {
-              "text": "Sistem dimulai dengan menangkap masukan video langsung dari kamera. Bingkai diproses terus-menerus untuk mendukung analisis gerak yang mulus. Kestabilan laju bingkai penting untuk menjaga pelacakan gerak tetap akurat."
-            },
-            {
-              "type": "heading",
-              "text": "2. Deteksi Titik Acuan"
-            },
-            {
-              "text": "Model visi komputer mendeteksi titik acuan pada tangan, tubuh, dan wajah. Titik acuan ini mewakili koordinat sendi dan fitur wajah. Ekstraksi titik kunci terstruktur mengurangi gangguan latar dan menyeragamkan masukan visual untuk model berikutnya."
+              "text": "Peramban memperoleh stream video langsung setelah pengguna memberi izin. Saat deteksi berjalan, bingkai diambil dengan interval yang disesuaikan antara perangkat mobile dan desktop."
             },
             {
               "type": "heading",
-              "text": "3. Pemodelan Rangkaian Waktu"
+              "text": "2. Prapemrosesan Bingkai"
             },
             {
-              "text": "Karena bahasa isyarat bersifat dinamis, sistem menganalisis rangkaian bingkai, bukan gambar tunggal. Model temporal seperti jaringan saraf berulang atau arsitektur transformer mempelajari pola gerak dan keterkaitan konteks dari waktu ke waktu."
-            },
-            {
-              "type": "heading",
-              "text": "4. Klasifikasi Gestur"
-            },
-            {
-              "text": "Rangkaian yang telah diproses diteruskan ke lapisan klasifikasi yang memprediksi label isyarat paling mungkin. Untuk isyarat berkelanjutan, algoritma segmentasi mengenali batas antar-isyarat."
+              "text": "Setiap bingkai digambar ke canvas 640 x 640. Buffer piksel RGBA diubah menjadi tensor RGB ternormalisasi yang sesuai dengan input model ONNX."
             },
             {
               "type": "heading",
-              "text": "5. Keluaran Bahasa"
+              "text": "3. Inferensi YOLO11n ONNX"
             },
             {
-              "text": "Terakhir, rangkaian isyarat yang diprediksi diubah menjadi teks yang mudah dibaca atau suara sintetis. Beberapa sistem memakai modul pemrosesan bahasa alami untuk merapikan keluaran menjadi bahasa lisan yang koheren."
+              "text": "ONNX Runtime Web memuat artifact BISINDO YOLO11n dari path model publik. Runtime mencoba jalur worker lebih dulu, memakai byte model dari cache bila tersedia, dan fallback ke main thread jika inferensi worker gagal."
             },
             {
-              "text": "Seluruh alur harus berjalan dalam hitungan milidetik agar tetap responsif. Inferensi efisien, ukuran model yang ringkas, dan akselerasi perangkat keras karena itu menjadi penting untuk penerapan praktis."
+              "type": "heading",
+              "text": "4. Decode Deteksi"
+            },
+            {
+              "text": "Tensor keluaran didekode menjadi deteksi A-Z dengan bounding box dan nilai confidence. Kandidat ber-confidence rendah disaring, lalu non-maximum suppression per kelas mempertahankan kotak terkuat."
+            },
+            {
+              "type": "heading",
+              "text": "5. Penguncian Huruf"
+            },
+            {
+              "text": "UI memilih deteksi dengan confidence tertinggi dan mengirimnya ke accumulator huruf. Confidence sangat tinggi dapat dikunci cepat; confidence lebih rendah harus menang dalam weighted vote singkat sebelum huruf masuk ke kalimat."
+            },
+            {
+              "text": "Pendekatan ini menjaga pengalaman tetap responsif sekaligus mengurangi commit berulang dari gestur yang ditahan. Riwayat yang tersimpan berisi entri teks dan metadata, bukan video kamera mentah."
             }
           ]
         },
@@ -1012,45 +1012,45 @@
           "title": "Teknologi di Baliknya",
           "blocks": [
             {
-              "text": "Sistem terjemahan bahasa isyarat ditopang oleh gabungan teknologi visi komputer, pembelajaran mendalam, dan pemrosesan bahasa alami. Setiap komponen berperan mengubah gestur visual menjadi keluaran bahasa yang terstruktur dan bermakna."
+              "text": "SignifyAI menggabungkan workspace Next.js, ONNX Runtime Web, artifact model YOLO11n, dan data pengguna berbasis Supabase. Pilihan arsitektur terpenting adalah lokasi inferensi: di peramban."
             },
             {
               "type": "heading",
-              "text": "Visi Komputer"
+              "text": "Manifest Model"
             },
             {
-              "text": "Model visi komputer mengekstrak fitur ruang dari masukan video langsung. Algoritma deteksi titik kunci mengenali sendi tangan, pose tubuh, dan titik acuan wajah. Representasi terstruktur ini mengurangi gangguan dan menyediakan masukan yang konsisten untuk pemodelan rangkaian."
-            },
-            {
-              "type": "heading",
-              "text": "Model Pembelajaran Mendalam"
-            },
-            {
-              "text": "Jaringan saraf konvolusional dan arsitektur berbasis transformer memproses informasi visual serta temporal. Jaringan konvolusional menangkap pola ruang, sementara model temporal mempelajari dinamika gerak antarbingkai. Mekanisme perhatian semakin memperkuat pemahaman konteks."
+              "text": "Frontend mendeklarasikan manifest model BISINDO dengan arsitektur yolo11n, file model best.onnx, ukuran input 640, confidence threshold 0.5, IoU threshold 0.45, dan label A sampai Z."
             },
             {
               "type": "heading",
-              "text": "Pemodelan Rangkaian"
+              "text": "Eksekusi Runtime"
             },
             {
-              "text": "Karena bahasa isyarat bergantung pada gerak berkelanjutan, sistem menerapkan teknik pemodelan rangkaian seperti jaringan saraf berulang, jaringan memori jangka pendek panjang, atau transformer. Model ini menganalisis transisi bingkai demi bingkai untuk mengenali frasa isyarat utuh."
-            },
-            {
-              "type": "heading",
-              "text": "Pemrosesan Bahasa Alami"
-            },
-            {
-              "text": "Setelah klasifikasi gestur, modul pemrosesan bahasa alami menyusun ulang rangkaian isyarat yang diprediksi menjadi teks yang koheren. Langkah ini membuat keluaran lebih mudah dibaca dan lebih berguna dalam konteks komunikasi nyata."
+              "text": "ONNX Runtime Web dikonfigurasi dengan asset WASM lokal. Jika WebGPU tersedia, runtime mencoba WebGPU dengan fallback WASM; jika tidak, runtime berjalan dengan WASM."
             },
             {
               "type": "heading",
-              "text": "Penerapan & Infrastruktur"
+              "text": "Jalur Worker dan Main Thread"
             },
             {
-              "text": "Alur inferensi yang dioptimalkan memungkinkan kinerja waktu nyata. Teknik seperti kuantisasi model, akselerasi perangkat keras, dan strategi penerapan di perangkat tepi mengurangi latensi tanpa mengorbankan akurasi. Infrastruktur awan yang dapat diskalakan mendukung perluasan dataset dan pelatihan ulang berkala."
+              "text": "Predictor berbasis worker menjaga eksekusi model agar tidak membebani UI thread bila memungkinkan. Jika pembuatan worker atau inferensi worker gagal, aplikasi fallback ke predictor main thread alih-alih memutus sesi."
             },
             {
-              "text": "Bersama-sama, teknologi ini membentuk sistem terpadu yang mampu menafsirkan gestur manusia yang kompleks menjadi bahasa digital yang aksesibel."
+              "type": "heading",
+              "text": "Caching"
+            },
+            {
+              "text": "Model diminta dari peramban dengan force-cache dan Cache API bila tersedia. Ini mengurangi biaya unduh model berulang pada peramban yang mendukungnya."
+            },
+            {
+              "type": "heading",
+              "text": "Batas Data"
+            },
+            {
+              "text": "Supabase mendukung autentikasi, riwayat, profil, progres, dan preferensi. Supabase bukan jalur model-serving produksi untuk inferensi translate dan practice."
+            },
+            {
+              "text": "Arsitektur ini menjaga eksekusi model dekat dengan sesi kamera, tetapi tetap memungkinkan data pengguna disinkronkan melalui layanan backend aplikasi yang memang diperlukan."
             }
           ]
         },
@@ -1058,25 +1058,25 @@
           "title": "AI & Pembelajaran Mesin",
           "blocks": [
             {
-              "text": "Kecerdasan buatan menjadi fondasi sistem terjemahan bahasa isyarat waktu nyata modern. Pembelajaran mesin memungkinkan model mempelajari pola dari data visual tanpa bergantung pada aturan yang diprogram secara eksplisit. Peralihan dari sistem berbasis aturan ke arsitektur berbasis data telah meningkatkan akurasi pengenalan secara besar."
+              "text": "Lapisan AI pada aplikasi produksi saat ini adalah model object detection, bukan model bahasa umum. Model memprediksi kelas alfabet BISINDO dari bingkai gambar dan mengembalikan bounding box dengan skor confidence."
             },
             {
-              "text": "Sebagian besar alur pengenalan isyarat dimulai dari prapemrosesan visi komputer. Bingkai video dianalisis untuk mengekstrak representasi terstruktur seperti titik acuan tangan, titik kunci pose tubuh, dan fitur wajah. Masukan terstruktur ini mengurangi gangguan dan membantu model belajar berfokus pada pola gerak yang bermakna."
+              "text": "Deteksi bergaya YOLO berguna karena UI membutuhkan label kelas sekaligus bukti spasial bahwa bentuk tangan hadir. Postprocessor mendecode keluaran ONNX menjadi kandidat deteksi."
             },
             {
-              "text": "Pendekatan awal banyak mengandalkan jaringan saraf konvolusional untuk ekstraksi fitur ruang. Meskipun efektif untuk pengenalan gestur statis, sistem ini kesulitan menangkap keterkaitan waktu jarak jauh dalam isyarat berkelanjutan."
+              "text": "Keluaran model tidak langsung diterima begitu saja. Deteksi di bawah ambang confidence dibuang, bounding box dikunci ke ukuran gambar input, dan kotak yang tumpang tindih pada kelas yang sama dikurangi melalui non-maximum suppression."
             },
             {
-              "text": "Untuk mengatasi keterbatasan tersebut, model berurutan seperti jaringan saraf berulang, jaringan memori jangka pendek panjang, dan arsitektur transformer mulai digunakan. Transformer memakai mekanisme perhatian untuk memodelkan hubungan antarbingkai sepanjang waktu, sehingga kinerja tugas pengenalan isyarat berkelanjutan meningkat."
+              "text": "Stabilitas temporal ditangani di lapisan produk. Accumulator huruf mencegah isyarat yang ditahan terkunci berulang kali dan memakai weighted voting ketika prediksi cukup masuk akal tetapi belum cukup tinggi untuk fast commit."
             },
             {
-              "text": "Selain pembelajaran terawasi, riset baru mengeksplorasi pendekatan swaterawasi dan semiterawasi untuk mengurangi ketergantungan pada dataset berlabel besar. Metode ini memungkinkan model mempelajari representasi gerak dari video tanpa label, sesuatu yang sangat berharga karena korpus bahasa isyarat beranotasi masih terbatas."
+              "text": "Desain ini memisahkan confidence model dari komitmen yang terlihat pengguna. Sebuah deteksi dapat muncul di UI sebelum menjadi bagian dari kalimat, sehingga sistem lebih mudah diperiksa saat pengujian."
             },
             {
-              "text": "Penerapan waktu nyata menghadirkan pertimbangan rekayasa tambahan. Model harus menyeimbangkan akurasi prediksi dengan efisiensi komputasi. Teknik seperti pemangkasan model, kuantisasi, dan optimasi inferensi tepi memungkinkan terjemahan berlatensi rendah yang sesuai untuk aplikasi seluler dan peramban."
+              "text": "Riset model berikutnya tetap dapat mengeksplorasi arsitektur yang lebih kuat atau pemilihan banyak model, tetapi perilaku yang dikirim saat ini harus dievaluasi terhadap kontrak ONNX A-Z yang benar-benar ada di codebase."
             },
             {
-              "text": "Seiring berkembangnya riset AI, arsitektur multimodal yang menggabungkan visi, pemodelan bahasa, dan penalaran konteks diharapkan semakin meningkatkan pemahaman makna dalam sistem terjemahan bahasa isyarat."
+              "text": "Kontrak itulah yang menjaga produk tetap jujur: model mengenali kelas alfabet; antarmuka membantu pengguna mengubah deteksi stabil menjadi teks."
             }
           ]
         },
@@ -1084,48 +1084,48 @@
           "title": "Pelatihan Model",
           "blocks": [
             {
-              "text": "Pelatihan model adalah proses ketika sistem terjemahan bahasa isyarat belajar memetakan rangkaian gestur visual ke keluaran bahasa terstruktur. Alih-alih mengandalkan aturan baku, model mengoptimalkan parameter internalnya dengan meminimalkan kesalahan prediksi pada dataset berlabel."
+              "text": "Pelatihan berlangsung di luar sesi peramban live, tetapi aplikasi yang dideploy membuat asumsi pelatihannya terlihat. Artifact model adalah export ONNX bernama best.onnx dan label aktifnya adalah alfabet BISINDO A-Z."
             },
             {
               "type": "heading",
-              "text": "Pengumpulan Dataset"
+              "text": "Cakupan Dataset"
             },
             {
-              "text": "Pelatihan dimulai dari dataset video terkurasi yang memuat rangkaian isyarat beranotasi. Setiap klip video diberi label glos isyarat atau makna tekstual yang sesuai. Keragaman dataset sangat penting agar model dapat bekerja untuk berbagai pengguna, dialek, dan lingkungan."
-            },
-            {
-              "type": "heading",
-              "text": "Prapemrosesan Data"
-            },
-            {
-              "text": "Bingkai video mentah diubah menjadi representasi terstruktur seperti titik acuan tangan, koordinat pose tubuh, atau embedding piksel. Normalisasi fitur dan penyelarasan waktu diterapkan untuk menyeragamkan masukan sebelum pelatihan."
+              "text": "Pengenal alfabet yang andal membutuhkan contoh dari berbagai pengguna, ukuran tangan, warna kulit, pencahayaan, posisi kamera, dan latar. Tanpa keragaman itu, confidence di peramban dapat terlihat presisi tetapi tetap gagal pada pengguna nyata."
             },
             {
               "type": "heading",
-              "text": "Tujuan Pembelajaran Terawasi"
+              "text": "Kontrak Anotasi"
             },
             {
-              "text": "Sebagian besar sistem pengenalan isyarat memakai pembelajaran terawasi. Saat pelatihan, model memprediksi label isyarat untuk setiap rangkaian masukan dan membandingkannya dengan anotasi kebenaran dasar. Fungsi rugi seperti rugi entropi silang dihitung untuk mengukur kesalahan prediksi."
-            },
-            {
-              "text": "Algoritma optimasi seperti penurunan gradien stokastik atau Adam menyesuaikan parameter model secara iteratif untuk meminimalkan rugi tersebut. Seiring waktu, model mempelajari pola statistik yang menghubungkan rangkaian gerak dengan makna bahasa."
+              "text": "Runtime mengharapkan keluaran bergaya object detection: skor kelas dan bounding box. Artinya data pelatihan perlu dilabeli konsisten dengan daftar kelas A-Z dan kotak area tangan."
             },
             {
               "type": "heading",
-              "text": "Validasi & Generalisasi"
+              "text": "Batas Export"
             },
             {
-              "text": "Untuk mencegah overfitting, data pelatihan dibagi menjadi subset pelatihan dan validasi. Kinerja dievaluasi pada sampel validasi yang belum pernah dilihat untuk menilai kemampuan generalisasi. Teknik seperti dropout, regularisasi, dan augmentasi data turut meningkatkan ketahanan model."
+              "text": "Artifact yang dideploy dimuat sebagai ONNX di frontend. Setiap perubahan pelatihan berikutnya harus menjaga kompatibilitas nama input, bentuk output, ukuran gambar, label, dan ekspektasi postprocessing."
+            },
+            {
+              "text": "Repository juga memisahkan test backend legacy dan parity dari inferensi produksi. Pemeriksaan itu berguna untuk membandingkan artifact model, tetapi tidak menjadikan FastAPI dependency produksi."
             },
             {
               "type": "heading",
-              "text": "Penyelarasan Lanjut & Pembelajaran Berkelanjutan"
+              "text": "Validasi"
             },
             {
-              "text": "Setelah pelatihan awal, model dapat menjalani penyelarasan lanjut menggunakan dataset khusus domain atau data pengguna baru. Alur peningkatan berkelanjutan memungkinkan pelatihan ulang berkala ketika sampel beranotasi bertambah."
+              "text": "Validasi perlu mencakup pengguna yang tidak ada di data latih, kamera mobile, lingkungan minim cahaya, dan pemeriksaan runtime peramban. Unit test dapat membuktikan decode tensor dan transisi state; hanya pengujian perangkat yang membuktikan perilaku kamera nyata."
             },
             {
-              "text": "Pelatihan model yang efektif membutuhkan dataset besar dan sumber daya komputasi, sekaligus protokol evaluasi yang cermat untuk memastikan keadilan, mitigasi bias, dan kinerja konsisten pada berbagai kelompok demografis."
+              "type": "heading",
+              "text": "Peningkatan Berkelanjutan"
+            },
+            {
+              "text": "Ketika data bertambah, retraining perlu dipasangkan dengan regression check untuk kalibrasi confidence, false positive, latensi, dan threshold weighted-vote yang dipakai antarmuka."
+            },
+            {
+              "text": "Tujuannya bukan hanya skor yang lebih tinggi; tujuannya adalah model yang tetap dapat dipahami dan digunakan saat tertanam dalam workflow peramban nyata."
             }
           ]
         },
@@ -1133,22 +1133,22 @@
           "title": "Akurasi & Peningkatan",
           "blocks": [
             {
-              "text": "Mencapai akurasi tinggi dalam terjemahan bahasa isyarat waktu nyata adalah tantangan kompleks karena variasi kecepatan berisyarat, dialek daerah, kondisi pencahayaan, sudut kamera, dan perbedaan tiap pengguna. Berbeda dari klasifikasi gambar statis, pengenalan isyarat harus memodelkan pola gerak temporal dalam rangkaian bingkai."
+              "text": "Akurasi di SignifyAI adalah gabungan masalah model dan interaksi. Model dapat mengembalikan kelas dan confidence, tetapi produk yang menentukan kapan prediksi itu menjadi huruf terkonfirmasi."
             },
             {
-              "text": "Salah satu faktor utama yang memengaruhi kinerja adalah kualitas dataset. Dataset yang lebih besar dan beragam secara signifikan meningkatkan generalisasi model. Teknik augmentasi data seperti rotasi acak, penyesuaian kecerahan, dan penskalaan waktu membantu model tetap tangguh dalam kondisi nyata."
+              "text": "Jalur peningkatan pertama adalah kualitas dataset. Contoh yang lebih beragam untuk tiap huruf BISINDO mengurangi risiko model hanya bekerja untuk kelompok pengguna atau setup kamera yang sempit."
             },
             {
-              "text": "Arsitektur model juga berperan penting. Sistem awal mengandalkan jaringan saraf konvolusional, sementara pendekatan modern memakai pemodelan rangkaian berbasis transformer untuk menangkap keterkaitan waktu jarak jauh dengan lebih baik. Mekanisme perhatian memungkinkan model berfokus pada segmen gestur yang relevan."
+              "text": "Jalur kedua adalah kalibrasi. Threshold confidence, IoU, fast commit, dan weighted vote harus diukur terhadap false positive, commit berulang, dan isyarat yang terlewat, bukan ditentukan berdasarkan perasaan."
             },
             {
-              "text": "Peningkatan besar lain datang dari pembelajaran multimodal. Penggabungan titik acuan tangan, estimasi pose tubuh, dan analisis ekspresi wajah memperkuat pemahaman konteks. Penanda nonmanual seperti gerak alis dan bentuk mulut sering membawa makna gramatikal dalam bahasa isyarat."
+              "text": "Jalur ketiga adalah pengukuran runtime. WebGPU, WASM, eksekusi worker, dan peramban mobile dapat menghasilkan profil latensi yang berbeda, sehingga performa perlu diamati pada perangkat nyata."
             },
             {
-              "text": "Optimasi latensi sama pentingnya. Sistem waktu nyata harus menyeimbangkan kecepatan inferensi dan akurasi prediksi. Teknik seperti kuantisasi model, pemangkasan, dan optimasi perangkat tepi mengurangi biaya komputasi tanpa banyak mengorbankan kinerja."
+              "text": "Jalur keempat adalah umpan balik UX. Jika antarmuka menampilkan status ready, detecting, confidence, dan error dengan jelas, pengguna dapat memperbaiki posisi tangan atau pencahayaan sebelum menyimpulkan model salah."
             },
             {
-              "text": "Riset berkelanjutan terus mengeksplorasi pembelajaran swaterawasi, adaptasi lintas bahasa isyarat, dan strategi mitigasi bias agar sistem AI tetap adil dan inklusif. Seiring bertambahnya dataset dan berkembangnya teknik pemodelan, sistem terjemahan bahasa isyarat waktu nyata diharapkan mencapai ketepatan makna yang lebih tinggi dan cakupan penerapan yang lebih luas."
+              "text": "Model masa depan yang lebih kuat perlu dikirim bersama bukti evaluasi yang lebih kuat: keragaman pengguna, keragaman perangkat, angka latensi, dan mode gagal yang terdokumentasi."
             }
           ]
         },
@@ -1156,45 +1156,45 @@
           "title": "Contoh Penggunaan",
           "blocks": [
             {
-              "text": "Sistem terjemahan bahasa isyarat waktu nyata memungkinkan komunikasi inklusif di berbagai bidang. Contoh berikut menunjukkan bagaimana teknologi ini dapat diterapkan dalam lingkungan yang praktis dan dapat diskalakan."
+              "text": "Cakupan SignifyAI saat ini cocok untuk kasus ketika pengenalan alfabet, umpan balik, dan latihan memang berguna. Aplikasi ini tidak seharusnya diposisikan sebagai pengganti juru bahasa tersertifikasi."
             },
             {
               "type": "heading",
-              "text": "Pendidikan"
+              "text": "Demo Kelas"
             },
             {
-              "text": "Di kelas dan lingkungan belajar daring, pengenalan isyarat otomatis dapat membantu siswa Tuli dan sulit dengar dengan menyediakan terjemahan teks langsung. Sistem ini juga dapat mendukung pendidik yang belum fasih bahasa isyarat, sehingga partisipasi akademik menjadi lebih inklusif."
-            },
-            {
-              "type": "heading",
-              "text": "Komunikasi Layanan Kesehatan"
-            },
-            {
-              "text": "Konsultasi medis membutuhkan komunikasi yang jelas dan akurat. Alat terjemahan waktu nyata dapat membantu saat penerimaan pasien, situasi darurat, dan konsultasi rutin ketika juru bahasa profesional belum segera tersedia."
+              "text": "Pengajar dapat memakai workspace peramban untuk menunjukkan bagaimana framing kamera, confidence, dan batas model memengaruhi pengenalan huruf BISINDO."
             },
             {
               "type": "heading",
-              "text": "Layanan Pelanggan & Layanan Publik"
+              "text": "Latihan Mandiri"
             },
             {
-              "text": "Pusat layanan, bank, dan lembaga pemerintah dapat mengintegrasikan sistem terjemahan bahasa isyarat untuk meningkatkan aksesibilitas. Penerapan berbasis kios atau web memungkinkan interaksi yang lebih lancar antara individu Tuli dan penyedia layanan."
-            },
-            {
-              "type": "heading",
-              "text": "Komunikasi Jarak Jauh"
-            },
-            {
-              "text": "Platform konferensi video dapat memasukkan model pengenalan gestur untuk menghasilkan takarir otomatis dari bahasa isyarat. Hal ini meningkatkan aksesibilitas dalam rapat jarak jauh dan kolaborasi digital."
+              "text": "Pembelajar dapat melatih huruf target, menahan isyarat sampai dikenali, dan meninjau progres tanpa memasang aplikasi native."
             },
             {
               "type": "heading",
-              "text": "Riset & Analisis Linguistik"
+              "text": "Prototipe Aksesibilitas"
             },
             {
-              "text": "Peneliti dapat memanfaatkan sistem pengenalan gestur untuk menganalisis korpus bahasa isyarat berskala besar. Alat anotasi otomatis mempercepat kajian linguistik dan meningkatkan pengembangan dataset untuk bahasa isyarat dengan sumber daya terbatas."
+              "text": "Tim dapat mengevaluasi apakah eksekusi model berbasis peramban cocok untuk prototipe aksesibilitas yang ringan sebelum berinvestasi pada infrastruktur yang lebih berat."
             },
             {
-              "text": "Aplikasi ini menunjukkan dampak sosial luas dari teknologi AI yang aksesibel ketika dirancang dengan inklusivitas dan penerapan nyata sebagai landasan."
+              "type": "heading",
+              "text": "Evaluasi Riset"
+            },
+            {
+              "text": "Peneliti dapat memeriksa bagaimana thresholding, postprocessing, dan aturan commit UI membentuk pengalaman akhir pengguna di luar keluaran mentah model."
+            },
+            {
+              "type": "heading",
+              "text": "Development dan Parity Testing"
+            },
+            {
+              "text": "Developer dapat menjaga parity test backend legacy tetap terpisah sambil memakai jalur ONNX peramban sebagai perilaku produksi yang harus divalidasi."
+            },
+            {
+              "text": "Contoh penggunaan ini sengaja berbatas. Nilainya berasal dari membuat workflow yang spesifik menjadi andal, dapat dipahami, dan dapat diuji."
             }
           ]
         },
@@ -1202,45 +1202,45 @@
           "title": "Riset & Pengembangan",
           "blocks": [
             {
-              "text": "Upaya riset dan pengembangan berfokus pada peningkatan akurasi pengenalan, perluasan cakupan bahasa, dan pengurangan latensi dalam sistem terjemahan bahasa isyarat waktu nyata. Eksperimen dan validasi berkelanjutan penting untuk memastikan penerapan yang dapat diskalakan dan inklusif."
+              "text": "Riset dan pengembangan perlu memperluas SignifyAI tanpa melemahkan batas saat ini. Jalur produksi adalah inferensi ONNX peramban untuk pengenalan alfabet BISINDO; pekerjaan masa depan harus menjaga kejelasan itu atau mendokumentasikan scope baru secara eksplisit."
             },
             {
               "type": "heading",
-              "text": "Pembelajaran Multimodal"
+              "text": "Varian Model"
             },
             {
-              "text": "Riset saat ini mengeksplorasi arsitektur multimodal yang menggabungkan pose tangan, ekspresi wajah, dan gerakan tubuh bagian atas secara bersamaan. Karena bahasa isyarat sangat bergantung pada penanda nonmanual, penggabungan modalitas ini meningkatkan pemahaman makna dan akurasi konteks."
-            },
-            {
-              "type": "heading",
-              "text": "Arsitektur Berbasis Transformer"
-            },
-            {
-              "text": "Model transformer menunjukkan kinerja kuat dalam tugas pemodelan rangkaian. Dengan memanfaatkan mekanisme perhatian, arsitektur ini menangkap keterkaitan jarak jauh dalam rangkaian gestur lebih efektif daripada jaringan berulang tradisional."
+              "text": "Varian YOLO tambahan atau arsitektur masa depan dapat dievaluasi lewat registry model yang eksplisit dan kontrol admin atau developer. Pergantian backend diam-diam akan membuat hasil sulit diaudit."
             },
             {
               "type": "heading",
-              "text": "Bahasa Isyarat Bersumber Daya Terbatas"
+              "text": "Perluasan Dataset"
             },
             {
-              "text": "Banyak bahasa isyarat belum memiliki dataset beranotasi besar. Inisiatif riset berupaya mengatasinya melalui transfer learning, pembuatan data sintetis, dan pendekatan pembelajaran swaterawasi. Teknik ini memungkinkan peningkatan kinerja bahkan dalam lingkungan dengan data terbatas."
-            },
-            {
-              "type": "heading",
-              "text": "Optimasi Waktu Nyata"
-            },
-            {
-              "text": "Teknik kompresi model seperti kuantisasi dan pemangkasan aktif diteliti untuk mengurangi kebutuhan komputasi. Penerapan yang efisien memastikan sistem dapat berjalan di perangkat tepi tanpa mengorbankan keandalan prediksi."
+              "text": "Data alfabet BISINDO yang lebih beragam adalah jalur paling langsung menuju pengenalan yang lebih adil. Perluasan perlu melacak demografi pengguna, tipe perangkat, pencahayaan, dan kualitas anotasi."
             },
             {
               "type": "heading",
-              "text": "AI Etis & Inklusif"
+              "text": "Performa Peramban"
             },
             {
-              "text": "Pengembangan bertanggung jawab membutuhkan evaluasi pada beragam demografi pengguna isyarat untuk memitigasi bias. Pengujian keadilan, tolok ukur transparan, dan kolaborasi komunitas adalah komponen penting strategi riset jangka panjang."
+              "text": "Runtime perlu diukur pada jalur WebGPU dan WASM, peramban desktop dan mobile, serta perangkat dengan kemampuan CPU dan GPU yang berbeda."
             },
             {
-              "text": "Pengembangan berkelanjutan menekankan skalabilitas, keterjelasan, dan aksesibilitas, sehingga kemajuan teknologi benar-benar menjadi dampak bermakna bagi komunitas Tuli dan sulit dengar."
+              "type": "heading",
+              "text": "Metrik Interaksi"
+            },
+            {
+              "text": "Akurasi model perlu dipasangkan dengan metrik produk seperti waktu sampai deteksi pertama, tingkat commit berulang, pemulihan dari frame kosong, dan keberhasilan hold pada practice."
+            },
+            {
+              "type": "heading",
+              "text": "Batas Etis"
+            },
+            {
+              "text": "Produk harus terus menyatakan bahwa ia adalah alat bantu belajar dan komunikasi, bukan juru bahasa tersertifikasi. Tinjauan komunitas penting sebelum klaim diperluas."
+            },
+            {
+              "text": "Roadmap yang hati-hati dapat meningkatkan kualitas model sambil menjaga janji pengguna tetap presisi dan dapat diuji."
             }
           ]
         },
@@ -1248,16 +1248,16 @@
           "title": "Kesimpulan",
           "blocks": [
             {
-              "text": "Riset ini menjelaskan fondasi teknologi dan relevansi sosial sistem terjemahan bahasa isyarat waktu nyata. Dengan menggabungkan visi komputer, pembelajaran mendalam, dan pemrosesan bahasa alami, sistem ini menunjukkan bagaimana AI multimodal dapat mengubah gestur visual menjadi keluaran bahasa yang bermakna."
+              "text": "SignifyAI menunjukkan pendekatan browser-first yang praktis untuk pengenalan alfabet BISINDO. Sistem menangkap bingkai kamera, menjalankan YOLO11n ONNX secara lokal, mendecode deteksi, dan mengunci huruf stabil menjadi teks."
             },
             {
-              "text": "Peningkatan berkelanjutan pada arsitektur model, keragaman dataset, dan teknik optimasi telah memperkuat akurasi pengenalan serta kinerja waktu nyata. Namun, riset lanjutan tetap penting untuk mengatasi tantangan seperti bahasa isyarat bersumber daya rendah, evaluasi keadilan, dan penafsiran bahasa berbasis konteks."
+              "text": "Kekuatannya bukan karena aplikasi ini menyelesaikan seluruh penerjemahan bahasa isyarat. Kekuatannya adalah batas implementasinya terlihat: kelas alfabet A-Z, deteksi dengan confidence, inferensi peramban, dan keluaran yang dapat disunting."
             },
             {
-              "text": "Di luar inovasi teknis, dampak lebih luas dari pekerjaan ini adalah memajukan aksesibilitas dan teknologi inklusif. Alat terjemahan berbasis AI dapat mengurangi hambatan komunikasi dan menciptakan akses yang lebih setara ke pendidikan, layanan kesehatan, dan lingkungan profesional."
+              "text": "Batas itu membuat produk lebih mudah diuji, lebih mudah dijelaskan, dan lebih aman untuk ditingkatkan. Pengguna dapat melihat kapan model yakin, kapan model ragu, dan kapan penilaian manusia tetap diperlukan."
             },
             {
-              "text": "Pengembangan berikutnya akan berfokus pada perluasan cakupan bahasa, peningkatan pemahaman konteks, dan penerapan solusi yang dapat diskalakan serta efisien di berbagai perangkat. Dengan menyelaraskan kemajuan teknologi dan prinsip desain berpusat pada manusia, riset ini berkontribusi pada masa depan digital yang lebih inklusif."
+              "text": "Pekerjaan berikutnya boleh memperluas kemampuan hanya jika disertai bukti evaluasi yang sepadan, terutama pada perangkat nyata, pengguna yang beragam, dan kebutuhan aksesibilitas yang diinformasikan komunitas."
             }
           ]
         }
@@ -1345,7 +1345,7 @@
     "siteName": "SignifyAI",
     "defaultTitle": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
     "titleTemplate": "%s · SignifyAI",
-    "description": "Terjemahkan gerakan tangan BISINDO menjadi teks dan suara secara waktu nyata menggunakan AI. Dirancang untuk komunitas Tuli, pendidik, dan peneliti.",
+    "description": "Kenali bentuk tangan alfabet BISINDO secara waktu nyata dengan inferensi YOLO11n ONNX berbasis peramban. Dirancang untuk belajar, demo, dan riset aksesibilitas.",
     "keywords": [
       "BISINDO",
       "bahasa isyarat Indonesia",
@@ -1355,26 +1355,26 @@
       "visi komputer"
     ],
     "imageAlt": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
-    "jsonLdDescription": "Penerjemah Bahasa Isyarat BISINDO waktu nyata berbasis AI dan visi komputer.",
+    "jsonLdDescription": "Workspace AI berbasis peramban untuk pengenalan alfabet BISINDO waktu nyata dengan ONNX Runtime Web.",
     "features": [
-      "Pengenalan bahasa isyarat BISINDO waktu nyata",
+      "Pengenalan alfabet BISINDO waktu nyata",
       "Keluaran teks-ke-suara dalam Bahasa Indonesia",
-      "Kamera peramban dengan inferensi API",
+      "Kamera peramban dengan inferensi ONNX Runtime Web",
       "Mode latihan dengan umpan balik",
-      "Panel pengembang dengan konteks model"
+      "Confidence dan batas model yang terlihat"
     ],
     "pages": {
       "home": {
-        "title": "SignifyAI - Penerjemah Bahasa Isyarat BISINDO Real-Time",
-        "description": "Terjemahkan gestur BISINDO menjadi teks dan suara langsung dari peramban."
+        "title": "SignifyAI - Pengenalan Alfabet BISINDO Berbasis Peramban",
+        "description": "Kenali bentuk tangan alfabet BISINDO dan susun teks langsung di peramban."
       },
       "howItWorks": {
         "title": "Cara Kerja SignifyAI",
-        "description": "Pelajari alur kamera, inferensi model, penyusun kalimat, dan keluaran suara SignifyAI."
+        "description": "Pelajari alur SignifyAI dari kamera peramban ke inferensi YOLO11n ONNX, penguncian huruf, penyusun kalimat, dan keluaran suara."
       },
       "research": {
-        "title": "Riset SignifyAI",
-        "description": "Catatan riset tentang pengenalan bahasa isyarat waktu nyata, batasan model, dan aksesibilitas."
+        "title": "Riset AI Peramban SignifyAI",
+        "description": "Catatan riset tentang pengenalan alfabet BISINDO, inferensi ONNX di peramban, batasan model, dan aksesibilitas."
       },
       "terms": {
         "title": "Syarat dan Ketentuan SignifyAI",
