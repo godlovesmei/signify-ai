@@ -31,6 +31,13 @@ alter function public.upsert_user_preferences(text, boolean, numeric, numeric, n
 
 grant select, insert, update on public.user_preferences to authenticated;
 
+grant select on public.profiles to authenticated;
+grant select, insert, update on public.translation_sessions to authenticated;
+grant select, insert on public.translation_entries to authenticated;
+grant select, insert, delete on public.practice_attempts to authenticated;
+grant select on public.model_versions to authenticated;
+grant select on public.letters to authenticated;
+
 revoke all on function public.upsert_user_preferences(text, boolean, numeric, numeric, numeric)
   from public, anon, authenticated;
 
