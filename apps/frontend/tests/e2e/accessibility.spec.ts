@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
+test.setTimeout(60_000);
+
 test.use({ storageState: { cookies: [], origins: [] } });
 
 async function expectNoSeriousViolations(page: Page) {

@@ -11,7 +11,7 @@
 | Nama Klien | PBL Project |
 | Target Aplikasi | Signify AI - Aplikasi web penerjemah BISINDO real-time |
 | Tim Pengujian | Meiske Priskilla Sahertian dan Bunga Citra Lestari Situmorang |
-| Tanggal Dokumen | 20 Juni 2026 |
+| Tanggal Dokumen | 22 Juni 2026 |
 
 | Anggota | ID | Email | Posisi |
 | --- | --- | --- | --- |
@@ -70,9 +70,8 @@ Tujuan spesifik pengujian:
 
 ## 1.3 Batasan dan Kendala
 
-- Verifikasi lokal pada 20 Juni 2026 berhasil untuk frontend lint, typecheck, Vitest, dan coverage, tetapi `pnpm build` gagal pada fase static page generation dengan pesan `Next.js build worker exited with code: 1`.
-- Backend pytest tidak dapat dijalankan di environment Python aktif karena dependency `ultralytics` belum tersedia. Backend membutuhkan environment conda `signify-backend` sesuai `apps/backend/environment.yml`.
-- UAT belum dapat dinyatakan selesai karena dokumen sign-off, daftar responden, foto/screenshot pelaksanaan, dan approval belum tersedia di repo.
+- Verifikasi lokal pada 22 Juni 2026 berhasil untuk frontend lint, typecheck, Vitest, coverage, production build, Chromium E2E, accessibility, Playwright UAT evidence, dan backend legacy pytest pada conda env `signify-backend`.
+- UAT evidence sudah tersedia sebagai Playwright report attachment untuk 12/12 skenario. Sign-off formal tetap membutuhkan tanda tangan stakeholder/manajer proyek/dosen pengujian.
 - Performance testing Locust belum dapat dinyatakan selesai tanpa URL staging dan konfigurasi target test.
 - Supabase local reset/pgTAP membutuhkan Supabase CLI dan Docker; hasilnya perlu diverifikasi pada environment yang menyediakan tool tersebut.
 - Hasil real browser camera dan model runtime dapat berbeda per device karena ONNX Runtime Web memakai WebGPU jika tersedia dan fallback WASM jika tidak tersedia.
@@ -94,7 +93,7 @@ Bug dikelola dengan alur: ditemukan, dicatat pada test case/issue, diperbaiki, d
 
 ## 1.5 Tanggal Pelaksanaan
 
-Pengujian dan penyusunan dokumen mengacu pada rencana pengujian 5 Juni 2026 dan verifikasi lokal ulang pada 20 Juni 2026.
+Pengujian dan penyusunan dokumen mengacu pada rencana pengujian 5 Juni 2026 dan verifikasi lokal ulang pada 22 Juni 2026.
 
 | No | Aktivitas | Durasi pelaksanaan |
 | --- | --- | --- |
@@ -102,7 +101,8 @@ Pengujian dan penyusunan dokumen mengacu pada rencana pengujian 5 Juni 2026 dan 
 | 2 | Penyusunan rencana pengujian dan traceability test case | 1 minggu |
 | 3 | Implementasi dan eksekusi automated system testing | 1 minggu |
 | 4 | Verifikasi lokal ulang lint, typecheck, unit/integration test, dan coverage | 1 hari |
-| 5 | UAT, performance testing staging, dan usability testing | Perlu dilengkapi setelah pelaksanaan |
+| 5 | UAT automated evidence | 1 hari |
+| 6 | Performance testing staging dan usability testing | Perlu dilengkapi setelah pelaksanaan |
 
 # 2. Kebutuhan Fungsional dan Non Fungsional
 
@@ -138,46 +138,48 @@ Pengujian dan penyusunan dokumen mengacu pada rencana pengujian 5 Juni 2026 dan 
 
 # 3. Executive Summary
 
-Berdasarkan audit codebase dan verifikasi lokal 20 Juni 2026, jalur pengujian yang benar untuk Signify AI adalah jalur browser inference menggunakan ONNX Runtime Web. Hal ini sesuai dengan arsitektur produksi aplikasi: frame kamera diproses lokal di browser, model YOLO11n dijalankan sebagai artifact ONNX, dan hasil deteksi diteruskan ke fitur translate/practice. Legacy FastAPI tidak boleh dijadikan dependency produksi frontend.
+Berdasarkan audit codebase dan verifikasi lokal 22 Juni 2026, jalur pengujian yang benar untuk Signify AI adalah jalur browser inference menggunakan ONNX Runtime Web. Hal ini sesuai dengan arsitektur produksi aplikasi: frame kamera diproses lokal di browser, model YOLO11n dijalankan sebagai artifact ONNX, dan hasil deteksi diteruskan ke fitur translate/practice. Legacy FastAPI tidak boleh dijadikan dependency produksi frontend.
 
-Hasil automated test frontend menunjukkan kondisi code-level yang baik: lint lulus, typecheck lulus, 23 test file Vitest lulus dengan 103 test, dan coverage melebihi target minimum. Coverage aktual adalah statements 91,42%, branches 80,95%, functions 91,01%, dan lines 96,74%.
+Hasil automated test menunjukkan kondisi code-level yang baik: lint lulus, typecheck lulus, 25 test file Vitest lulus dengan 107 test, dan coverage frontend melebihi target minimum. Coverage frontend aktual adalah statements 91,42%, branches 80,95%, functions 91,01%, dan lines 96,74%. Production build juga lulus dengan static generation 27/27, Chromium E2E lulus 27/27 test, dan backend legacy contract test lulus 23 passed, 1 skipped pada conda env `signify-backend`.
 
-Namun, aplikasi belum direkomendasikan untuk rilis final sebelum beberapa gate dilengkapi. Production build lokal pada 20 Juni 2026 masih gagal pada fase static page generation. Backend legacy pytest juga belum dapat diverifikasi ulang pada environment aktif karena dependency `ultralytics` belum tersedia. Selain itu, UAT, performance testing staging, dan usability testing membutuhkan bukti pelaksanaan, data responden, hasil Locust/SUS, serta sign-off.
+Playwright UAT evidence pada 22 Juni 2026 lulus 12/12 skenario dengan screenshot attachment untuk authentication, protected route, public route, translate camera, browser inference, recovery, sentence builder, TTS, history, practice/reference, preferences/profile, dan logout. Perbaikan penting yang dilakukan adalah menampilkan bounding box pada overlay kamera ketika deteksi tersedia.
 
-Status rekomendasi: layak lanjut ke staging dan UAT setelah masalah build production diselesaikan. Belum layak dinyatakan final release sampai build, UAT, performance testing, usability testing, dan lampiran sign-off selesai.
+Status rekomendasi: layak lanjut ke deployment/staging dengan kondisi. Final release formal masih menunggu tanda tangan stakeholder, performance testing Locust bila diwajibkan, usability testing SUS, Supabase pgTAP/Docker bila area database ikut dinilai, serta model parity `.pt` versus ONNX bila diperlukan.
 
 # 4. Hasil Pengujian
 
 ## 4.1 Hasil System Testing
 
-### Ringkasan Eksekusi Lokal 20 Juni 2026
+### Ringkasan Eksekusi Lokal 22 Juni 2026
 
 | Quality Gate | Command | Hasil | Catatan |
 | --- | --- | --- | --- |
 | Frontend lint | `pnpm lint` dari `apps/frontend` | SUCCESS | ESLint lulus dengan `--max-warnings=0`. |
 | Frontend typecheck | `pnpm typecheck` dari `apps/frontend` | SUCCESS | TypeScript `tsc --noEmit` lulus. |
-| Frontend unit/integration | `pnpm test` dari `apps/frontend` | SUCCESS | 23 test file lulus, 103 test lulus. |
+| Frontend unit/integration | `pnpm test` dari `apps/frontend` | SUCCESS | 25 test file lulus, 107 test lulus. |
 | Frontend coverage | `pnpm test:coverage` dari `apps/frontend` | SUCCESS | Statements 91,42%; branches 80,95%; functions 91,01%; lines 96,74%. |
-| Frontend production build | `pnpm build` dari `apps/frontend` | FAIL | Compile dan TypeScript selesai, tetapi static page generation gagal: `Next.js build worker exited with code: 1`. |
-| Backend legacy pytest | `python -m pytest tests -q` dari `apps/backend` | BLOCKED | Environment aktif tidak memiliki `ultralytics`; perlu conda env `signify-backend`. |
+| Frontend production build | `pnpm build` dari `apps/frontend` | SUCCESS | Compile, TypeScript, dan static generation 27/27 lulus. |
+| Frontend Chromium E2E/accessibility | `pnpm test:e2e` dari `apps/frontend` | SUCCESS | 27/27 Playwright test lulus; axe serious/critical 0. |
+| UAT evidence | `pnpm exec playwright test --project=chromium tests/e2e/uat.spec.ts` | SUCCESS | 12/12 UAT scenario lulus dengan attachment screenshot. |
+| Backend legacy pytest/coverage | `conda run -n signify-backend python -m pytest -q --cov=app --cov-branch --cov-report=json:coverage.json` dari `apps/backend` | SUCCESS | 23 passed, 1 skipped; coverage lines 99% dan branches 100%. |
 
 ### Ringkasan Persentase
 
-Untuk quality gate yang dapat dijalankan lokal pada 20 Juni 2026:
+Untuk quality gate yang dapat dijalankan lokal pada 22 Juni 2026:
 
 | Status | Jumlah | Persentase |
 | --- | ---: | ---: |
-| SUCCESS | 4 | 66,67% |
-| FAIL | 1 | 16,67% |
-| BLOCKED | 1 | 16,67% |
-| Total | 6 | 100% |
+| SUCCESS | 8 | 100% |
+| FAIL | 0 | 0,00% |
+| BLOCKED | 0 | 0,00% |
+| Total | 8 | 100% |
 
 Untuk test frontend yang dieksekusi oleh Vitest:
 
 | Metrik | Hasil |
 | --- | ---: |
-| Test file lulus | 23/23 |
-| Test case lulus | 103/103 |
+| Test file lulus | 25/25 |
+| Test case lulus | 107/107 |
 | Success rate test case | 100% |
 
 ### Coverage Frontend
@@ -203,20 +205,20 @@ Legacy backend tetap relevan untuk:
 
 UAT dilakukan untuk memvalidasi apakah alur Signify AI dapat dipahami dan diterima oleh pengguna akhir, terutama pengguna yang membutuhkan dukungan komunikasi BISINDO, pelajar/pengajar, dan evaluator aksesibilitas. Fitur yang perlu diuji pada UAT adalah login, membuka translate workspace, mengaktifkan kamera, membaca hasil deteksi, membangun kalimat, memakai TTS, melihat history, menjalankan practice, mengubah preferences, dan logout.
 
-Status saat dokumen ini dibuat: hasil UAT belum dapat dinyatakan final karena belum tersedia bukti pelaksanaan, dokumentasi foto/screenshot, statistik scenario success/fail, saran tester, dan dokumen sign-off yang disetujui. Tester UAT yang disiapkan adalah Meiske Priskilla Sahertian (3312401001) dan Bunga Citra Lestari Situmorang (3312401034) dengan pembagian silang sesuai `docs/test-report/TestManagement.md`.
+Status saat dokumen ini dibuat: Playwright UAT evidence pada 22 Juni 2026 lulus 12/12 skenario. Setiap skenario membuat screenshot attachment pada Playwright report. Tester UAT yang disiapkan adalah Meiske Priskilla Sahertian (3312401001) dan Bunga Citra Lestari Situmorang (3312401034) dengan pembagian silang sesuai `docs/test-report/TestManagement.md`. Approval formal tetap perlu tanda tangan stakeholder pada `docs/test-report/SignoffUAT.md`.
 
-Rencana statistik UAT yang perlu diisi setelah pelaksanaan:
+Statistik UAT 22 Juni 2026:
 
 | Metrik UAT | Nilai |
 | --- | --- |
-| Tanggal pelaksanaan | [Isi tanggal UAT] |
-| Lokasi/media | [Offline/Zoom/Google Meet] |
+| Tanggal pelaksanaan | 22 Juni 2026 |
+| Lokasi/media | Local automated UAT evidence, Playwright Chromium |
 | Jumlah tester | 2 tester: Meiske Priskilla Sahertian dan Bunga Citra Lestari Situmorang |
-| Jumlah scenario | 12 planned UAT scenario |
-| Scenario berhasil | [Isi jumlah berhasil] |
-| Scenario gagal | [Isi jumlah gagal] |
-| Success rate | [Isi persentase] |
-| Saran utama tester | [Isi ringkasan saran] |
+| Jumlah scenario | 12 UAT scenario |
+| Scenario berhasil | 12 |
+| Scenario gagal | 0 |
+| Success rate | 100% |
+| Saran utama tester | Lanjutkan ke staging dan lengkapi tanda tangan approval, performance Locust, dan usability SUS bila diwajibkan. |
 
 ## 4.3 Hasil Performance Testing
 
@@ -253,25 +255,24 @@ Tabel hasil yang perlu diisi setelah pelaksanaan:
 
 # 5. Kesimpulan
 
-Pengujian menunjukkan bahwa jalur frontend produksi Signify AI sudah memiliki automated test dan coverage yang kuat. Lint, typecheck, unit test, integration test, dan coverage frontend lulus pada verifikasi lokal 20 Juni 2026. Jalur inference produksi juga sudah dipisahkan dari legacy backend: aplikasi menggunakan ONNX Runtime Web di browser, bukan FastAPI, untuk memproses frame kamera.
+Pengujian menunjukkan bahwa jalur frontend produksi Signify AI sudah memiliki automated test dan coverage yang kuat. Lint, typecheck, unit test, integration test, coverage, production build, Chromium E2E, accessibility, UAT evidence, dan backend legacy contract test lulus pada verifikasi lokal 22 Juni 2026. Jalur inference produksi juga sudah dipisahkan dari legacy backend: aplikasi menggunakan ONNX Runtime Web di browser, bukan FastAPI, untuk memproses frame kamera.
 
 Kesimpulan utama:
 
 - ONNX Runtime Web adalah jalur testing utama untuk produksi.
 - Legacy/dev-only FastAPI hanya digunakan untuk contract/parity testing dan tidak boleh menjadi syarat deploy frontend produksi.
-- Frontend automated test lulus 103/103 test dengan coverage di atas target.
-- Production build lokal masih gagal dan harus diperbaiki sebelum rilis.
-- Backend legacy test perlu dijalankan ulang pada conda environment yang memiliki `ultralytics`.
-- UAT, performance testing staging, usability testing, dan lampiran sign-off belum lengkap.
+- Frontend automated test lulus 107/107 Vitest dan 27/27 Playwright Chromium test dengan coverage di atas target.
+- Production build lokal lulus dengan static generation 27/27.
+- UAT evidence lulus 12/12 skenario dengan screenshot attachment.
+- Backend legacy contract test lulus 23 passed, 1 skipped pada conda env `signify-backend` dengan coverage lines 99% dan branches 100%.
+- Performance testing staging, usability testing, dan tanda tangan sign-off formal belum lengkap.
 
 Rekomendasi:
 
-- Perbaiki kegagalan `pnpm build` pada static page generation.
-- Jalankan backend pytest pada environment `signify-backend` untuk memverifikasi legacy contract test.
-- Jalankan Playwright E2E/accessibility pada environment CI atau host yang memiliki dependency browser lengkap.
-- Laksanakan UAT dengan skenario yang sudah disiapkan dan kumpulkan sign-off.
+- Simpan/lampirkan Playwright report UAT sebagai bukti screenshot pass.
 - Jalankan Locust terhadap staging URL dan lampirkan grafik/CSV hasil.
 - Lakukan usability testing SUS dan lampirkan tabel nilai serta interpretasi.
+- Jalankan Supabase pgTAP/Docker dan parity `.pt` versus ONNX bila area database/model internal ikut dinilai.
 
 # LAMPIRAN A. SOURCE CODE
 
@@ -300,10 +301,10 @@ Dokumen rencana pengujian:
 
 # LAMPIRAN C: DOKUMEN UAT
 
-Template sign-off UAT:
+Dokumen sign-off UAT:
 
-- `docs/test-report/TemplateSignoffUAT.md`
-- Draft sign-off UAT: `docs/test-report/SignoffUAT.md`
+- Draft/hasil sign-off UAT: `docs/test-report/SignoffUAT.md`
+- Screenshot UAT: attachment Playwright report dari `apps/frontend/tests/e2e/uat.spec.ts`
 
 Dokumen UAT yang sudah disetujui:
 
@@ -317,14 +318,17 @@ Spreadsheet system testing:
 - Draft markdown terisi: `docs/test-report/TestManagement.md`
 - Link spreadsheet system testing: [Isi link Drive/OneDrive]
 
-Ringkasan hasil automated system testing lokal 20 Juni 2026:
+Ringkasan hasil automated system testing lokal 22 Juni 2026:
 
 - `pnpm lint`: SUCCESS
 - `pnpm typecheck`: SUCCESS
-- `pnpm test`: SUCCESS, 23 test file dan 103 test lulus
+- `pnpm test`: SUCCESS, 25 test file dan 107 test lulus
 - `pnpm test:coverage`: SUCCESS, statements 91,42%, branches 80,95%, functions 91,01%, lines 96,74%
-- `pnpm build`: FAIL pada static page generation
-- `python -m pytest tests -q`: BLOCKED karena `ultralytics` belum tersedia di environment aktif
+- `pnpm build`: SUCCESS, static generation 27/27
+- `pnpm test:e2e`: SUCCESS, 27 Playwright test lulus
+- `pnpm exec playwright test --project=chromium tests/e2e/uat.spec.ts`: SUCCESS, 12 UAT scenario lulus dengan screenshot attachment
+- `conda run -n signify-backend python -m pytest tests -q`: SUCCESS, 23 passed dan 1 skipped
+- `conda run -n signify-backend python -m pytest -q --cov=app --cov-branch --cov-report=json:coverage.json`: SUCCESS, coverage lines 99% dan branches 100%
 
 # LAMPIRAN E: PROSES PERFORMANCE TESTING
 

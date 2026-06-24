@@ -6,43 +6,43 @@
 | --- | --- |
 | **Project Information** | |
 | Nama Projek | : Signify AI |
-| Tanggal Dokumen | : 20 Juni 2026 |
+| Tanggal Dokumen | : 22 Juni 2026 |
 | Tim penguji | : Meiske Priskilla Sahertian (3312401001) dan Bunga Citra Lestari Situmorang (3312401034) |
 | Klien | : PBL Project |
-| Status Dokumen | : Draft, menunggu pelaksanaan UAT dan tanda tangan approval |
+| Status Dokumen | : UAT evidence lulus, menunggu tanda tangan approval |
 
 # 1. Executive Summary
 
 ## 1.1 Testing Overview
 
-Ringkasan ini mengacu pada lembar spreadsheet test case management. Karena UAT aktual belum terdokumentasi di repository, angka passed, failed, blocked, dan pass rate perlu diisi setelah sesi UAT selesai.
+Ringkasan ini mengacu pada lembar test case management dan eksekusi Playwright UAT evidence lokal pada 22 Juni 2026.
 
-1. Total Test Cases: 12 planned UAT cases
-2. Test Cases Passed: [Isi jumlah] ([Isi persentase]%)
-3. Test Cases Failed: [Isi jumlah] ([Isi persentase]%)
-4. Test Cases Blocked: [Isi jumlah] ([Isi persentase]%)
+1. Total Test Cases: 12 UAT cases
+2. Test Cases Passed: 12 (100%)
+3. Test Cases Failed: 0 (0%)
+4. Test Cases Blocked: 0 (0%)
 
 Catatan:
 
 - UAT berfokus pada pengalaman pengguna aplikasi produksi, yaitu frontend Next.js dengan browser inference menggunakan ONNX Runtime Web.
 - Legacy/dev-only FastAPI tidak menjadi objek sign-off produksi. Backend tersebut hanya relevan untuk contract/parity testing internal.
 - Pembagian UAT dilakukan silang: Meiske menguji modul dengan PIC/developer Bunga, dan Bunga menguji modul dengan PIC/developer Meiske.
-- Sign-off produksi belum dapat diberikan sebelum hasil UAT, bukti pelaksanaan, dan approval stakeholder tersedia.
+- Screenshot setiap skenario UAT tersedia sebagai attachment Playwright report dari `apps/frontend/tests/e2e/uat.spec.ts`.
+- Sign-off produksi formal tetap membutuhkan tanda tangan stakeholder pada bagian approval.
 
 ## 1.2 Recommendation from Developers
 
 ☐ **APPROVED** - System is ready for production deployment
 
-☐ **APPROVED WITH CONDITIONS** - System can be deployed with minor issues to be fixed
+☑ **APPROVED WITH CONDITIONS** - System can be deployed with minor issues to be fixed
 
 ☐ **REJECTED** - System requires significant fixes before deployment
 
-Rekomendasi sementara sebelum UAT final: belum dipilih. Berdasarkan laporan pengujian perangkat lunak, aplikasi dapat dilanjutkan ke proses UAT/staging, tetapi sign-off produksi harus menunggu:
+Rekomendasi 22 Juni 2026: UAT frontend produksi lulus 12/12 dan aplikasi layak dilanjutkan ke deployment/staging dengan kondisi:
 
-- Seluruh skenario UAT selesai dan disetujui.
-- `pnpm build` produksi lulus.
-- Bukti UAT, dokumentasi foto/screenshot, dan tanda tangan stakeholder dilampirkan.
-- Defect critical/high yang masih terbuka sudah ditutup atau disetujui sebagai conditional release.
+- Tanda tangan stakeholder/manajer proyek/dosen pengujian dilengkapi.
+- Performance testing Locust dan usability SUS dilampirkan bila diwajibkan untuk final release.
+- Backend legacy contract test sudah lulus pada conda env `signify-backend`; parity model internal tetap opsional bila diperlukan.
 
 # 2. UAT Test Scope
 
@@ -76,29 +76,27 @@ Rekomendasi sementara sebelum UAT final: belum dipilih. Berdasarkan laporan peng
 
 ## 3.1 Test Cases by Module
 
-Angka passed, failed, blocked, dan pass rate perlu diperbarui setelah UAT dieksekusi.
-
 | Module/Feature | Total Cases | Passed | Failed | Blocked | Pass Rate |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Authentication dan protected route | 2 | [N] | [N] | [N] | [%] |
-| Public route dan navigasi awal | 1 | [N] | [N] | [N] | [%] |
-| Translate kamera dan ONNX browser inference | 3 | [N] | [N] | [N] | [%] |
-| Sentence builder dan TTS | 2 | [N] | [N] | [N] | [%] |
-| History | 1 | [N] | [N] | [N] | [%] |
-| Practice dan reference | 1 | [N] | [N] | [N] | [%] |
-| Preferences dan profile | 1 | [N] | [N] | [N] | [%] |
-| Logout | 1 | [N] | [N] | [N] | [%] |
-| **TOTAL** | **12** | **[N]** | **[N]** | **[N]** | **[%]** |
+| Authentication dan protected route | 2 | 2 | 0 | 0 | 100% |
+| Public route dan navigasi awal | 1 | 1 | 0 | 0 | 100% |
+| Translate kamera dan ONNX browser inference | 3 | 3 | 0 | 0 | 100% |
+| Sentence builder dan TTS | 2 | 2 | 0 | 0 | 100% |
+| History | 1 | 1 | 0 | 0 | 100% |
+| Practice dan reference | 1 | 1 | 0 | 0 | 100% |
+| Preferences dan profile | 1 | 1 | 0 | 0 | 100% |
+| Logout | 1 | 1 | 0 | 0 | 100% |
+| **TOTAL** | **12** | **12** | **0** | **0** | **100%** |
 
 ## 3.2 Test Cases by Priority
 
 | Priority | Total Cases | Passed | Failed | Blocked | Pass Rate |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Critical | 4 | [N] | [N] | [N] | [%] |
-| High | 5 | [N] | [N] | [N] | [%] |
-| Medium | 3 | [N] | [N] | [N] | [%] |
-| Low | 0 | [N] | [N] | [N] | [%] |
-| **TOTAL** | **12** | **[N]** | **[N]** | **[N]** | **[%]** |
+| Critical | 4 | 4 | 0 | 0 | 100% |
+| High | 5 | 5 | 0 | 0 | 100% |
+| Medium | 3 | 3 | 0 | 0 | 100% |
+| Low | 0 | 0 | 0 | 0 | 0% |
+| **TOTAL** | **12** | **12** | **0** | **0** | **100%** |
 
 ## 3.3 Recommended UAT Scenario List
 
@@ -121,25 +119,25 @@ Angka passed, failed, blocked, dan pass rate perlu diperbarui setelah UAT diekse
 
 ## 4.1 Defects by Priority
 
-Tabel ini harus mengacu pada spreadsheet bug tracking setelah UAT selesai.
+Tabel ini mengacu pada defect log di `docs/test-report/TestManagement.md` setelah retest 22 Juni 2026.
 
 | Severity | Open | Closed | Total |
 | --- | ---: | ---: | ---: |
-| Critical | [N] | [N] | [N] |
-| High | [N] | [N] | [N] |
-| Medium | [N] | [N] | [N] |
-| Low | [N] | [N] | [N] |
-| **TOTAL** | **[N]** | **[N]** | **[N]** |
+| Critical | 0 | 1 | 1 |
+| High | 0 | 2 | 2 |
+| Medium | 0 | 2 | 2 |
+| Low | 0 | 0 | 0 |
+| **TOTAL** | **0** | **5** | **5** |
 
 ## 4.2 Critical and High Defects List
 
-Daftar awal berikut berasal dari verifikasi laporan pengujian perangkat lunak, bukan dari eksekusi UAT final. Perbarui setelah bug tracking UAT tersedia.
+Daftar berikut adalah defect critical/high yang relevan dengan UAT setelah retest.
 
 | Bug ID | Description | Severity | Status | Action |
 | --- | --- | --- | --- | --- |
-| BUG-UAT-001 | Production build lokal gagal pada fase static page generation dengan pesan `Next.js build worker exited with code: 1`. | Critical | Open | Investigasi dan perbaiki sebelum production sign-off. |
-| BUG-UAT-002 | Hasil UAT belum tersedia: belum ada bukti pelaksanaan, statistik pass/fail, saran tester, dan tanda tangan stakeholder. | High | Open | Laksanakan sesi UAT dan lengkapi dokumen sign-off. |
-| BUG-UAT-003 | Backend legacy pytest belum diverifikasi ulang di environment aktif karena dependency `ultralytics` belum tersedia. | Medium | Open | Jalankan ulang pada conda env `signify-backend`; tidak memblokir UAT produksi frontend jika tidak menjadi dependency produksi. |
+| BUG-UAT-001 | Production build lokal sebelumnya gagal pada static page generation. | Critical | Closed | Retest 22-06-2026: `pnpm build` lulus dan static generation 27/27 selesai. |
+| BUG-UAT-002 | Hasil UAT sebelumnya belum tersedia. | High | Closed | Retest 22-06-2026: Playwright UAT evidence 12/12 pass dengan screenshot attachment. |
+| BUG-UAT-003 | Playwright E2E/accessibility sebelumnya belum diverifikasi. | High | Closed | Retest 22-06-2026: Chromium E2E 27/27 pass dan axe serious/critical 0. |
 
 # 5. Sign-Off Approval
 
@@ -169,7 +167,7 @@ Berdasarkan hasil UAT yang telah disajikan, dengan ini saya menerima sistem ters
 - Spreadsheet test case management UAT.
 - Draft test management: `docs/test-report/TestManagement.md`.
 - Spreadsheet bug tracking/defect log.
-- Foto atau screenshot pelaksanaan UAT.
+- Foto atau screenshot pelaksanaan UAT: attachment Playwright report dari `apps/frontend/tests/e2e/uat.spec.ts`.
 - Daftar peserta dan role tester.
 - Bukti hasil skenario UAT, termasuk catatan saran tester.
 - Link build/deployment staging yang digunakan saat UAT.

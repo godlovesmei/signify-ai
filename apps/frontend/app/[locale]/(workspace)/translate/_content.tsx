@@ -42,6 +42,16 @@ const LETTER_ACCUMULATOR_CONFIG: LetterAccumulatorConfig = {
 
 type Language = "ASL" | "BISINDO";
 type MobileTab = "hasil" | "kalimat" | "riwayat";
+type TranslateTestApi = {
+  showMockDetection: (letter?: string, confidence?: number) => void;
+  setMockSentence: (sentence: string) => void;
+  setCameraState: (state: CameraState) => void;
+  setApiError: (value: boolean) => void;
+};
+type TranslateTestWindow = Window & {
+  __SIGNIFY_E2E__?: boolean;
+  __SIGNIFY_TRANSLATE_TEST_API__?: TranslateTestApi;
+};
 
 function uid() {
   return crypto.randomUUID();
@@ -137,6 +147,50 @@ export default function TranslatePageContent() {
       captureCanvasRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const targetWindow = window as TranslateTestWindow;
+    if (!targetWindow.__SIGNIFY_E2E__) return;
+
+    targetWindow.__SIGNIFY_TRANSLATE_TEST_API__ = {
+      showMockDetection(letter = "A", confidence = 0.96) {
+        setAppState("detecting");
+        setApiError(false);
+        setCurrentLetter(letter);
+        setCurrentConfidence(confidence);
+        setDetections([
+          {
+            class: letter,
+            confidence,
+            box: { x1: 112, y1: 96, x2: 452, y2: 520 },
+          },
+        ]);
+        setTranscript([
+          {
+            id: uid(),
+            text: letter,
+            confidence,
+            timestamp: new Date(),
+            language,
+          },
+        ]);
+        setTokens([letter]);
+      },
+      setMockSentence(sentence: string) {
+        setTokens([...sentence]);
+      },
+      setCameraState(state: CameraState) {
+        setAppState(state);
+      },
+      setApiError(value: boolean) {
+        setApiError(value);
+      },
+    };
+
+    return () => {
+      delete targetWindow.__SIGNIFY_TRANSLATE_TEST_API__;
+    };
+  }, [language]);
 
   useEffect(() => {
     return () => {

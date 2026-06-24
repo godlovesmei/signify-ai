@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import type { TranslateDetection } from "@/lib/translateApi";
+import { YOLO_MODEL_MANIFEST } from "@/lib/yoloModel";
 import { cn } from "@/lib/utils";
 
 export type CameraFacingMode = "user" | "environment";
@@ -129,6 +130,7 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
     const isActive = state === "detecting";
     const isError = state === "error-permission" || state === "error-device";
     const isLoading = state === "requesting" || state === "loading";
+    const detectionBoxSize = YOLO_MODEL_MANIFEST.inputSize;
 
     return (
       <section
@@ -205,6 +207,37 @@ const WebcamCapture = forwardRef<WebcamCaptureHandle, WebcamCaptureProps>(
                     />
                   </motion.div>
                 )}
+
+                {detections.map((detection, index) => {
+                  const left = (detection.box.x1 / detectionBoxSize) * 100;
+                  const top = (detection.box.y1 / detectionBoxSize) * 100;
+                  const right = (detection.box.x2 / detectionBoxSize) * 100;
+                  const bottom = (detection.box.y2 / detectionBoxSize) * 100;
+                  const visualLeft = isMirrored ? 100 - right : left;
+                  const width = Math.max(2, right - left);
+                  const height = Math.max(2, bottom - top);
+
+                  return (
+                    <motion.div
+                      key={`${detection.class}-${index}-${detection.confidence}`}
+                      data-detection-box
+                      aria-label={`${detection.class} ${Math.round(detection.confidence * 100)}%`}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute rounded-sm border border-cohere-green bg-cohere-green/10 shadow-[0_0_0_1px_rgba(255,255,255,0.25)]"
+                      style={{
+                        left: `${visualLeft}%`,
+                        top: `${top}%`,
+                        width: `${width}%`,
+                        height: `${height}%`,
+                      }}
+                    >
+                      <span className="absolute left-0 top-0 -translate-y-full rounded-sm bg-cohere-green px-2 py-1 font-mono text-[10px] text-cohere-canvas">
+                        {detection.class} {Math.round(detection.confidence * 100)}%
+                      </span>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>

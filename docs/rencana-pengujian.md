@@ -16,7 +16,7 @@ Berdasarkan kesepakatan dengan dosen pengujian, test case dibagi silang antara d
 
 | Anggota | NIM | Peran Testing | Peran Development/PIC |
 |---|---|---|---|
-| Meiske Priskilla Sahertian | 3312401001 | Menguji 14 system test dan 6 UAT case | PIC modul yang diuji Bunga |
+| Meiske Priskilla Sahertian | 3312401001 | Menguji 15 system test dan 6 UAT case | PIC modul yang diuji Bunga |
 | Bunga Citra Lestari Situmorang | 3312401034 | Menguji 13 system test dan 6 UAT case | PIC modul yang diuji Meiske |
 
 Pembagian detail per test case dicatat pada `docs/test-report/TestManagement.md`.
@@ -111,6 +111,7 @@ Semua nama test otomatis menyertakan Test Case ID agar kegagalan dapat dilacak l
 | TC-025 | Aksesibilitas | Akses UI | Keyboard/screen-reader user | Browser test aktif | Landing, dialog, buttons | Scan axe dan navigasi keyboard | Tidak ada serious/critical; fokus/nama kontrol benar | Automated | `apps/frontend/tests/e2e/accessibility.spec.ts`, `tests/integration/LoginModal.integration.test.tsx`, `components/ui/Button.test.ts` |
 | TC-026 | Route/metadata/assets smoke | Navigasi/SEO | Semua pengguna | Frontend berjalan | Route, manifest, hero, icon | Buka route dan aset metadata | Route/aset 200; manifest valid; tidak ada klaim `/search` | Automated | `apps/frontend/tests/e2e/routes.spec.ts`, `components/layout/mobile-nav/workspaceNavConfig.test.ts` |
 | TC-027 | Parity `.pt` vs ONNX | Legacy/parity inference | Developer/QA | Model lokal dan runtime tersedia | `MODEL_PARITY_IMAGE`, `best.pt`, `best.onnx` | Jalankan parity opt-in | Top detection `.pt` dan ONNX sekelas dan box cukup dekat | Optional | `apps/backend/tests/test_model_parity.py` |
+| TC-028 | Responsive workspace settings | Workspace/settings | Pengguna login | Frontend berjalan di viewport mobile/tablet | 390x844, 820x1180 | Buka workspace lalu klik Pengaturan dari bottom navigation | Dialog Pengaturan tampil dan kontrol preferences dapat diakses | Automated | `apps/frontend/tests/e2e/workspace.spec.ts`, `apps/frontend/tests/e2e/uat.spec.ts` |
 
 ### 4.1 Kasus tidak berlaku
 
@@ -222,20 +223,21 @@ supabase db lint --level warning
 - Script TensorFlow/ML legacy masih stale dan dipisahkan dari quality gate aplikasi utama.
 - Load test auth hanya boleh dijalankan pada Supabase test project yang dikonfigurasi.
 
-### 5.8 Hasil verifikasi implementasi pada 5 Juni 2026
+### 5.8 Hasil verifikasi implementasi pada 22 Juni 2026
 
 | Verifikasi | Hasil |
 |---|---|
 | `pnpm install --frozen-lockfile` | Lulus |
 | `pnpm lint` | Lulus |
 | `pnpm typecheck` | Lulus |
-| `pnpm test` | Lulus, 81 test |
-| `pnpm test:unit` | Lulus |
-| `pnpm test:integration` | Lulus |
-| `pnpm test:coverage` | Lulus: statements 91,19%; branches 80,87%; functions 89,87%; lines 96,77% |
-| `pnpm build` | Lulus; 15 static/dynamic route berhasil dibuat |
-| Backend pytest | Lulus, 21 test |
-| Backend coverage | Lulus: lines 98,32%; branches 100% |
-| `pnpm test:e2e` lokal | Suite dan server mulai, tetapi browser tidak dapat diluncurkan karena host tidak memiliki `libnspr4` dan interactive sudo tidak tersedia. CI memasang dependency melalui `playwright install --with-deps`. |
+| `pnpm test` | Lulus, 25 test file dan 107 test |
+| `pnpm test:unit` | Lulus, 20 test file dan 88 test |
+| `pnpm test:integration` | Lulus, 5 test file dan 19 test |
+| `pnpm test:coverage` | Lulus: statements 91,42%; branches 80,95%; functions 91,01%; lines 96,74% |
+| `pnpm build` | Lulus; compile, TypeScript, dan static generation 27/27 berhasil |
+| `pnpm test:e2e` lokal | Lulus, 27 Playwright Chromium test termasuk auth, route, accessibility, workspace, responsive settings, dan UAT evidence |
+| `pnpm exec playwright test --project=chromium tests/e2e/uat.spec.ts` | Lulus, 12/12 UAT scenario dengan attachment screenshot |
+| Backend pytest | Lulus pada conda env `signify-backend`: 23 passed, 1 skipped |
+| Backend coverage | Lulus pada conda env `signify-backend`: lines 99% dan branches 100% |
 | Supabase reset/pgTAP/lint lokal | Belum dapat dijalankan karena Supabase CLI dan Docker tidak tersedia pada host; quality gate CI telah dikonfigurasi. |
 | Locust staging | Belum dijalankan karena URL staging belum dikonfigurasi; workflow manual/terjadwal telah tersedia. |
