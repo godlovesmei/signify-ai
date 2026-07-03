@@ -4,19 +4,54 @@
 
 Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text in real time. A Next.js frontend captures webcam frames and runs a fine-tuned **YOLO11n** object detection model directly in the browser with ONNX Runtime Web. Frames stay on device; class labels and confidence scores feed the translate and practice workflows.
 
+This repository is the PBL project workspace for Signify AI, a web-based BISINDO alphabet recognition application at Politeknik Negeri Batam. It contains the production Next.js app, browser ONNX model artifact, optional legacy FastAPI parity service, Supabase schema, testing assets, and academic documentation.
+
 ---
 
-## Demo / Preview
+## Demo / Presentation
 
 | Translate Page | Detection |
 |---|---|
 | Real-time gesture → letter detection | YOLO11 bounding box overlay |
 
-> Live demo: coming soon.
+| Item | Status |
+|---|---|
+| Live demo | Coming soon |
+| Product demonstration video | Not published in this repository |
+| Presentation video | Not published in this repository |
+| Local UAT evidence | See [`docs/test-report/TestManagement.md`](docs/test-report/TestManagement.md) and [`apps/frontend/tests/e2e/uat.spec.ts`](apps/frontend/tests/e2e/uat.spec.ts) |
 
 ---
 
-## Features
+## Documentation
+
+| Document | Path |
+|---|---|
+| Complete PBL document drive | [Open Google Drive folder](https://drive.google.com/drive/folders/1lEY4Bf0wVn92iAfq4gAmZT3Mme-SHRc6?usp=sharing) |
+| User manual | [`docs/manual-book/Manual-Book-Signify-AI.md`](docs/manual-book/Manual-Book-Signify-AI.md) |
+| Deployment guide | [`docs/deployment.md`](docs/deployment.md) |
+| Test plan | [`docs/rencana-pengujian.md`](docs/rencana-pengujian.md) |
+| Software testing report | [`docs/test-report/LaporanPengujianPerangkatLunak.md`](docs/test-report/LaporanPengujianPerangkatLunak.md) |
+| Test management | [`docs/test-report/TestManagement.md`](docs/test-report/TestManagement.md) |
+| UAT sign-off | [`docs/test-report/SignoffUAT.md`](docs/test-report/SignoffUAT.md) |
+| Black-box testing report | [`docs/test-report/BlackBoxTesting.md`](docs/test-report/BlackBoxTesting.md) |
+| System architecture diagram | [`docs/architecture/system-architecture-e2e.excalidraw`](docs/architecture/system-architecture-e2e.excalidraw) |
+| AI pipeline diagram | [`docs/architecture/ai-pipeline.excalidraw`](docs/architecture/ai-pipeline.excalidraw) |
+
+---
+
+## Project Developers
+
+This application is developed as part of a PBL Project. Repository testing documents identify the active student team as:
+
+| Name | Student ID | Role |
+|---|---|---|
+| Meiske Priskilla Sahertian | 3312401001 | Project PIC, QA, and developer |
+| Bunga Citra Lestari Situmorang | 3312401034 | QA and developer |
+
+---
+
+## Key Features
 
 - **Real-time browser detection** - captures frames every 200 ms (300 ms on mobile) and runs YOLO11n ONNX locally
 - **No frame upload** - inference runs on device with ONNX Runtime Web; the production app does not call `/api/v1/translate/predict`
@@ -25,6 +60,42 @@ Signify AI translates BISINDO (Bahasa Isyarat Indonesia) hand gestures into text
 - **Page Visibility API** - detection loop pauses when the tab is hidden to save CPU/GPU
 - **Supabase persistence** - auth, translation history, and practice stats stay backed by Supabase RLS
 - **Accessibility** - dark / light / system theme, high contrast, text scale, TTS speed/volume controls
+
+---
+
+## Functional Requirements
+
+| ID | Requirement |
+|---|---|
+| KF-01 | Users can start Google OAuth, receive safe error handling, and sign out. |
+| KF-02 | Anonymous users are redirected from workspace routes to login and returned only to a validated safe path. |
+| KF-03 | Users can access public routes: landing page, how it works, research, and terms condition. |
+| KF-04 | Authenticated users can access workspace routes: translate, practice, history, reference, and profile. |
+| KF-05 | Browser inference can process webcam frames with YOLO11n ONNX through ONNX Runtime Web without production FastAPI. |
+| KF-06 | Users can build sentences, add spaces, delete characters, clear text, and use text-to-speech. |
+| KF-07 | The app handles successful inference, runtime/model errors, loading, empty state, retry, and recovery UI. |
+| KF-08 | Users can read, paginate, delete, and clear translation history. |
+| KF-09 | Users can run practice sessions, save progress, reset progress, and view reference statistics. |
+| KF-10 | Users can save accessibility preferences such as theme, contrast, text scale, and TTS settings. |
+| KF-11 | Supabase RLS restricts data access by owner and role. |
+| KF-12 | The legacy backend contract validates image input, optional/required auth, health/classes, and error responses for parity/dev-only workflows. |
+
+For detailed traceability, see [`docs/rencana-pengujian.md`](docs/rencana-pengujian.md).
+
+---
+
+## Non-Functional Requirements
+
+| ID | Requirement |
+|---|---|
+| KNF-01 | Frontend automated test coverage targets at least 70% statements/functions/lines and 60% branches. |
+| KNF-02 | ESLint and TypeScript typecheck must pass without warnings or errors. |
+| KNF-03 | Production build must succeed before release. |
+| KNF-04 | Production inference must not depend on the legacy FastAPI backend. |
+| KNF-05 | The app must prevent active open redirect, XSS, unauthorized API access, and sensitive production stack traces. |
+| KNF-06 | Main flows must have no serious/critical axe accessibility violations. |
+| KNF-07 | Staging mixed/read performance target: average <= 2.8 s, P95 <= 4.5 s, failure <= 1%, and >= 50 RPS. |
+| KNF-08 | Usability testing targets SUS >= 70, with 78-85 as the recommended range. |
 
 ---
 
@@ -101,11 +172,10 @@ signify-ai/
 ├── apps/
 │   ├── frontend/                   # Next.js web application
 │   │   ├── app/
-│   │   │   ├── translate/          # Main translation workspace
-│   │   │   ├── practice/           # Practice mode
-│   │   │   ├── history/            # Translation history
-│   │   │   ├── reference/          # BISINDO alphabet reference
-│   │   │   └── auth/               # Login / Supabase callback
+│   │   │   ├── [locale]/
+│   │   │   │   ├── (workspace)/    # translate, practice, history, reference, profile
+│   │   │   │   └── (documentation)/ # how-it-works, research, terms-condition
+│   │   │   └── auth/callback/      # Supabase callback
 │   │   ├── components/
 │   │   │   ├── features/translation/   # WebcamCapture, PredictionDisplay, SentenceBuilder
 │   │   │   ├── layout/                 # Navbar, Footer, SettingsDrawer
@@ -130,7 +200,8 @@ signify-ai/
 │
 ├── models/
 │   └── exports/bisindo_yolo/
-│       └── best.pt                 # YOLO11 trained weights (gitignored)
+│       ├── best.pt                 # YOLO11 trained source weights
+│       └── best.onnx               # Local/export ONNX artifact
 │
 ├── data/
 │   └── bisindo/
@@ -142,12 +213,13 @@ signify-ai/
 │   └── migrations/
 │       └── 20260422090000_init_signify_erd.sql  # Full schema + RLS
 │
-├── infrastructure/
-│   ├── docker-compose.prod.yml
-│   └── nginx/
-│
 ├── docs/
-│   └── database-erd.md
+│   ├── architecture/               # Excalidraw system and AI pipeline diagrams
+│   ├── manual-book/                # User manual and screenshots
+│   ├── test-report/                # Test report, UAT, and test management docs
+│   ├── deployment.md
+│   ├── praktikum_week2.md
+│   └── rencana-pengujian.md
 │
 ├── docker-compose.yml              # Local development stack
 └── README.md
@@ -236,9 +308,9 @@ supabase db push
 
 ### 6. Model weights
 
-The trained YOLO11 weights are **not committed to git** (`.pt` files are in `.gitignore`).
+The repository includes the trained YOLO11 checkpoint at `models/exports/bisindo_yolo/best.pt` and the production browser model at `apps/frontend/public/models/bisindo-yolo11n/v1/best.onnx`. The export copy at `models/exports/bisindo_yolo/best.onnx` is a local intermediate artifact.
 
-If the weights already exist locally at `models/exports/bisindo_yolo/best.pt`, no action needed.
+If those artifacts already exist locally, no action is needed.
 
 To re-train from scratch:
 ```bash
@@ -307,7 +379,7 @@ the same Vercel deployment. See [`docs/deployment.md`](docs/deployment.md).
 
 ### Testing and quality gates
 
-The complete production-readiness plan and TC-001 through TC-027 traceability
+The complete production-readiness plan and TC-001 through TC-028 traceability
 matrix are documented in [`docs/rencana-pengujian.md`](docs/rencana-pengujian.md).
 
 ```bash
@@ -487,7 +559,7 @@ The versioned Supabase schema lives in `supabase/migrations/`.
 
 All tables have Row Level Security — users can only access their own data.
 
-See `docs/database-erd.md` for the full entity-relationship diagram.
+The schema source of truth is the timestamped SQL migration set in `supabase/migrations/`.
 
 ---
 
@@ -499,20 +571,21 @@ See `docs/database-erd.md` for the full entity-relationship diagram.
 - [ ] Offline PWA shell for cached model/runtime assets
 - [ ] Improve browser inference speed with quantized or ORT-optimized artifacts
 - [ ] User contribution flow with active-learning review queue
-- [ ] CI/CD pipeline with automated test and deploy
+- [x] CI/CD pipeline with automated test and deploy workflows
 - [ ] Docker Compose full-stack setup with GPU passthrough
 
 ---
 
 ## License
 
-All rights reserved. No open-source license is currently applied.
+This project is created for academic PBL use. All rights reserved. No open-source license is currently applied.
 
 ---
 
-## Author
+## Project Team
 
-**Meiske Priskilla Sahertian**
+- **Meiske Priskilla Sahertian** - 3312401001
+- **Bunga Citra Lestari Situmorang** - 3312401034
 
 ---
 
