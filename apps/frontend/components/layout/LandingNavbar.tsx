@@ -10,6 +10,7 @@ import {
   Camera,
   ChevronDown,
   FileText,
+  Github,
   GraduationCap,
   LayoutDashboard,
   Mic2,
@@ -67,6 +68,9 @@ type LandingNavbarProps = {
   onLoginRequest?: (nextPath: string | null) => void;
 };
 
+const GITHUB_REPOSITORY_URL = "https://github.com/godlovesmei/signify-ai";
+const GITHUB_REPOSITORY_LABEL = "GitHub repository godlovesmei/signify-ai";
+
 function SignInTrigger({
   onClick,
   label,
@@ -93,31 +97,29 @@ function SignInTrigger({
   );
 }
 
-function RequestAccessTrigger({
-  onClick,
-  label,
-  mobile = false,
-}: {
-  onClick: () => void;
-  label: string;
-  mobile?: boolean;
-}) {
+function RepositoryLink({ onClick }: { onClick?: () => void }) {
   return (
     <Button
-      type="button"
+      asChild
       variant="primary"
-      size={mobile ? "lg" : "md"}
-      onClick={onClick}
+      size="icon-sm"
+      aria-label={GITHUB_REPOSITORY_LABEL}
       className={[
-        mobile ? "w-full" : "",
-        "overflow-visible transition-[transform,translate,scale,opacity,background-color,border-color,color] data-[disabled=false]:hover:-translate-y-0.5 data-[disabled=false]:hover:opacity-100 data-[disabled=false]:active:scale-[0.97]",
+        "overflow-visible rounded-full transition-[transform,translate,scale,opacity,background-color,border-color,color] data-[disabled=false]:hover:-translate-y-0.5 data-[disabled=false]:hover:opacity-100 data-[disabled=false]:active:scale-[0.97]",
       ].join(" ")}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-3 -left-3 -z-10 h-8 w-[82%] rounded-full bg-[linear-gradient(90deg,rgba(255,106,88,0.82)_0%,rgba(214,117,232,0.66)_54%,rgba(96,112,255,0.5)_100%)] opacity-0 blur-xl transition-[width,opacity,transform] duration-500 ease-[var(--ease-cohere)] group-hover/button:w-[96%] group-hover/button:opacity-80 group-focus-visible/button:w-[96%] group-focus-visible/button:opacity-70 group-active/button:opacity-40"
-      />
-      <span className="relative">{label}</span>
+      <a
+        href={GITHUB_REPOSITORY_URL}
+        target="_blank"
+        rel="noreferrer"
+        onClick={onClick}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-3 left-1/2 -z-10 h-8 w-[82%] -translate-x-1/2 rounded-full bg-[linear-gradient(90deg,rgba(255,106,88,0.82)_0%,rgba(214,117,232,0.66)_54%,rgba(96,112,255,0.5)_100%)] opacity-0 blur-xl transition-[width,opacity,transform] duration-500 ease-[var(--ease-cohere)] group-hover/button:w-[96%] group-hover/button:opacity-80 group-focus-visible/button:w-[96%] group-focus-visible/button:opacity-70 group-active/button:opacity-40"
+        />
+        <Github aria-hidden="true" className="size-[18px]" />
+      </a>
     </Button>
   );
 }
@@ -392,10 +394,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
               label={commonT("signIn")}
               onClick={() => void requestLogin()}
             />
-            <RequestAccessTrigger
-              label={commonT("requestAccess")}
-              onClick={() => void requestLogin()}
-            />
+            <RepositoryLink />
           </div>
 
           <div className="col-start-3 flex justify-end justify-self-end lg:hidden">
@@ -571,7 +570,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 items-center gap-3 rounded-[24px] border border-cohere-hairline bg-cohere-stone/70 p-3 sm:grid-cols-[1fr_auto]">
+            <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-3 rounded-[24px] border border-cohere-hairline bg-cohere-stone/70 p-3">
               <Button
                 type="button"
                 variant="secondary"
@@ -585,18 +584,7 @@ export default function LandingNavbar({ onLoginRequest }: LandingNavbarProps = {
                 {commonT("signIn")}
               </Button>
 
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  void requestLogin();
-                  setMobileOpen(false);
-                }}
-              >
-                {commonT("requestAccess")}
-                <ArrowRight className="size-4" />
-              </Button>
+              <RepositoryLink onClick={() => setMobileOpen(false)} />
             </div>
             <LanguageSwitcher className="mt-3 justify-center py-2" />
           </nav>

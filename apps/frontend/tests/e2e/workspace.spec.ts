@@ -46,7 +46,7 @@ test("TC-028 tablet workspace exposes Settings in the bottom navigation", async 
   await expect(page.getByRole("dialog", { name: "Pengaturan" })).toBeVisible();
 });
 
-test("TC-002 authenticated landing auth CTAs open the workspace", async ({
+test("TC-002 authenticated landing sign-in CTA opens the workspace and exposes the repository link", async ({
   page,
 }) => {
   await page.goto("/");
@@ -58,9 +58,16 @@ test("TC-002 authenticated landing auth CTAs open the workspace", async ({
   ).toHaveCount(0);
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Minta akses" }).first().click();
-  await expect(page).toHaveURL(/\/translate$/);
-  await expect(
-    page.getByRole("dialog", { name: "Masuk untuk melanjutkan." }),
-  ).toHaveCount(0);
+  const repositoryLink = page
+    .getByRole("link", {
+      name: "GitHub repository godlovesmei/signify-ai",
+    })
+    .first();
+
+  await expect(repositoryLink).toHaveAttribute(
+    "href",
+    "https://github.com/godlovesmei/signify-ai",
+  );
+  await expect(repositoryLink).toHaveAttribute("target", "_blank");
+  await expect(page.getByRole("button", { name: "Minta akses" })).toHaveCount(0);
 });
