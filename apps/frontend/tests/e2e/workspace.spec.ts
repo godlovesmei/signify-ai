@@ -4,7 +4,9 @@ test("TC-003 logout clears the session and returns to the landing page", async (
   page,
 }) => {
   await page.goto("/history");
-  await expect(page.getByRole("heading", { name: "Riwayat" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Riwayat", exact: true }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Keluar" }).click();
 

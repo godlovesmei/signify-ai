@@ -167,7 +167,9 @@ test.describe("UAT Acceptance Evidence", () => {
   }, testInfo) => {
     await page.goto("/history");
 
-    await expect(page.getByRole("heading", { name: "Riwayat" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Riwayat", exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Belum ada riwayat")).toBeVisible();
     await attachScreenshot(page, testInfo, "UAT-009-history");
   });
@@ -206,7 +208,9 @@ test.describe("UAT Acceptance Evidence", () => {
     page,
   }, testInfo) => {
     await page.goto("/history");
-    await expect(page.getByRole("heading", { name: "Riwayat" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Riwayat", exact: true }),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "Keluar" }).click();
     await expect(page).toHaveURL("/");

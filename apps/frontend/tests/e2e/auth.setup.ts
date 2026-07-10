@@ -32,7 +32,9 @@ setup("TC-002 authenticated Supabase state opens protected routes", async ({
   await page.goto("/auth/callback?code=valid-test-code&next=%2Fhistory%3Ffrom%3De2e");
 
   await expect(page).toHaveURL(/\/history\?from=e2e$/);
-  await expect(page.getByRole("heading", { name: "Riwayat" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Riwayat", exact: true }),
+  ).toBeVisible();
 
   await mkdir(dirname(authState), { recursive: true });
   await page.context().storageState({ path: authState });

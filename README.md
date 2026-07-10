@@ -16,9 +16,8 @@ This repository is the PBL project workspace for Signify AI, a web-based BISINDO
 
 | Item | Status |
 |---|---|
-| Live demo | Coming soon |
-| Product demonstration video | Not published in this repository |
-| Presentation video | Not published in this repository |
+| Product demonstration video | [Watch on YouTube](https://youtu.be/Uafofx84rjM) |
+| Presentation video | [Watch on YouTube](https://www.youtube.com/watch?v=KFaegt5ekbU) |
 | Local UAT evidence | See [`docs/test-report/TestManagement.md`](docs/test-report/TestManagement.md) and [`apps/frontend/tests/e2e/uat.spec.ts`](apps/frontend/tests/e2e/uat.spec.ts) |
 
 ---
