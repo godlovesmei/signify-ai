@@ -1,0 +1,352 @@
+{
+  "generated_at_utc": "2026-09-07T16:25:48.270481+00:00",
+  "opencv_version": "4.13.0",
+  "alphabet": {
+    "train": {
+      "image_count": 9169,
+      "label_file_count": 9168,
+      "image_count_by_class": {
+        "A": 350,
+        "B": 351,
+        "C": 343,
+        "D": 348,
+        "E": 352,
+        "F": 357,
+        "G": 360,
+        "H": 348,
+        "I": 360,
+        "J": 360,
+        "K": 348,
+        "L": 357,
+        "M": 355,
+        "N": 350,
+        "O": 357,
+        "P": 357,
+        "Q": 348,
+        "R": 350,
+        "S": 343,
+        "T": 360,
+        "U": 355,
+        "V": 357,
+        "W": 360,
+        "X": 355,
+        "Y": 328,
+        "Z": 360
+      },
+      "annotation_count_by_class": {
+        "A": 350,
+        "B": 350,
+        "C": 343,
+        "D": 348,
+        "E": 352,
+        "F": 357,
+        "G": 360,
+        "H": 348,
+        "I": 360,
+        "J": 360,
+        "K": 348,
+        "L": 356,
+        "M": 355,
+        "N": 350,
+        "O": 357,
+        "P": 357,
+        "Q": 348,
+        "R": 350,
+        "S": 343,
+        "T": 360,
+        "U": 355,
+        "V": 357,
+        "W": 360,
+        "X": 355,
+        "Y": 328,
+        "Z": 360
+      },
+      "missing_label_images": [
+        "data/bisindo/images/train/B/flip077 - Copy.jpg"
+      ],
+      "invalid_annotation_files": [],
+      "unique_box_coordinate_strings": 8588,
+      "most_common_box_coordinates": [
+        [
+          [
+            "0.500781",
+            "0.621875",
+            "0.998437",
+            "0.756250"
+          ],
+          13
+        ],
+        [
+          [
+            "0.500781",
+            "0.627344",
+            "0.998437",
+            "0.745313"
+          ],
+          12
+        ],
+        [
+          [
+            "0.500781",
+            "0.681250",
+            "0.998437",
+            "0.637500"
+          ],
+          11
+        ]
+      ]
+    },
+    "val": {
+      "image_count": 2301,
+      "label_file_count": 2301,
+      "image_count_by_class": {
+        "A": 88,
+        "B": 88,
+        "C": 86,
+        "D": 87,
+        "E": 89,
+        "F": 90,
+        "G": 90,
+        "H": 87,
+        "I": 90,
+        "J": 90,
+        "K": 87,
+        "L": 90,
+        "M": 89,
+        "N": 88,
+        "O": 90,
+        "P": 90,
+        "Q": 87,
+        "R": 88,
+        "S": 86,
+        "T": 90,
+        "U": 89,
+        "V": 90,
+        "W": 90,
+        "X": 89,
+        "Y": 83,
+        "Z": 90
+      },
+      "annotation_count_by_class": {
+        "A": 88,
+        "B": 88,
+        "C": 86,
+        "D": 87,
+        "E": 89,
+        "F": 90,
+        "G": 90,
+        "H": 87,
+        "I": 90,
+        "J": 90,
+        "K": 87,
+        "L": 90,
+        "M": 89,
+        "N": 88,
+        "O": 90,
+        "P": 90,
+        "Q": 87,
+        "R": 88,
+        "S": 86,
+        "T": 90,
+        "U": 89,
+        "V": 90,
+        "W": 90,
+        "X": 89,
+        "Y": 83,
+        "Z": 90
+      },
+      "missing_label_images": [],
+      "invalid_annotation_files": [],
+      "unique_box_coordinate_strings": 2245,
+      "most_common_box_coordinates": [
+        [
+          [
+            "0.500781",
+            "0.681250",
+            "0.998437",
+            "0.637500"
+          ],
+          7
+        ],
+        [
+          [
+            "0.500781",
+            "0.682813",
+            "0.998437",
+            "0.634375"
+          ],
+          4
+        ],
+        [
+          [
+            "0.500781",
+            "0.621094",
+            "0.998437",
+            "0.757812"
+          ],
+          3
+        ]
+      ]
+    },
+    "test": {
+      "image_count": 0,
+      "label_file_count": 0,
+      "image_count_by_class": {},
+      "annotation_count_by_class": {},
+      "missing_label_images": [],
+      "invalid_annotation_files": [],
+      "unique_box_coordinate_strings": 0,
+      "most_common_box_coordinates": []
+    },
+    "cross_split_byte_duplicates": {
+      "sha256_group_count": 75,
+      "affected_file_count": 1539,
+      "affected_files_by_split": {
+        "train": 1201,
+        "val": 338
+      },
+      "cross_class_group_count": 0,
+      "examples": [
+        [
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_12.jpg"
+          },
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_61.jpg"
+          },
+          {
+            "split": "val",
+            "path": "data/bisindo/images/val/A/augmented_image_92.jpg"
+          }
+        ],
+        [
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_22.jpg"
+          },
+          {
+            "split": "val",
+            "path": "data/bisindo/images/val/A/augmented_image_23.jpg"
+          }
+        ],
+        [
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_42.jpg"
+          },
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_7.jpg"
+          },
+          {
+            "split": "val",
+            "path": "data/bisindo/images/val/A/augmented_image_86.jpg"
+          }
+        ],
+        [
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_54.jpg"
+          },
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_64.jpg"
+          },
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_68.jpg"
+          },
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_88.jpg"
+          },
+          {
+            "split": "val",
+            "path": "data/bisindo/images/val/A/augmented_image_89.jpg"
+          }
+        ],
+        [
+          {
+            "split": "train",
+            "path": "data/bisindo/images/train/A/augmented_image_67.jpg"
+          },
+          {
+            "split": "val",
+            "path": "data/bisindo/images/val/A/augmented_image_98.jpg"
+          }
+        ]
+      ]
+    },
+    "limits": "No perceptual duplicate, signer, augmentation lineage, or semantic bounding-box validation."
+  },
+  "words": {
+    "class_count": 40,
+    "video_count": 2000,
+    "video_count_by_class": {
+      "Apa": 50,
+      "Apa Kabar": 50,
+      "Bagaimana": 50,
+      "Baik": 50,
+      "Belajar": 50,
+      "Berapa": 50,
+      "Berdiri": 50,
+      "Bingung": 50,
+      "Dia": 50,
+      "Dimana": 50,
+      "Duduk": 50,
+      "Halo": 50,
+      "Kalian": 50,
+      "Kami": 50,
+      "Kamu": 50,
+      "Kapan": 50,
+      "Kemana": 50,
+      "Kita": 50,
+      "Makan": 50,
+      "Mandi": 50,
+      "Marah": 50,
+      "Melihat": 50,
+      "Membaca": 50,
+      "Menulis": 50,
+      "Mereka": 50,
+      "Minum": 50,
+      "Pendek": 50,
+      "Ramah": 50,
+      "Sabar": 50,
+      "Saya": 50,
+      "Sedih": 50,
+      "Selamat Malam": 50,
+      "Selamat Pagi": 50,
+      "Selamat Siang": 50,
+      "Selamat Sore": 50,
+      "Senang": 50,
+      "Siapa": 50,
+      "Terima Kasih": 50,
+      "Tidur": 50,
+      "Tinggi": 50
+    },
+    "total_bytes": 957408451,
+    "duration_seconds": {
+      "min": 1.468133,
+      "median": 2.3023,
+      "max": 3.8038
+    },
+    "frame_count": {
+      "min": 44,
+      "median": 69.0,
+      "max": 114
+    },
+    "total_container_frames": 142023,
+    "fps_counts": {
+      "29.97003": 2000
+    },
+    "resolution_counts": {
+      "400x300": 2000
+    },
+    "metadata_or_first_frame_failures": [],
+    "byte_duplicate_group_count": 0,
+    "byte_duplicate_examples": [],
+    "limits": "Only first-frame decoding; no complete video integrity check, identity inference, label validation, or near-duplicate detection."
+  }
+}

@@ -2,7 +2,6 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WITH_ML="${WITH_ML:-0}"
 
 log() {
 	printf '[setup-dev] %s\n' "$*"
@@ -56,11 +55,6 @@ main() {
 
 	sync_conda_env "signify-backend" "$ROOT_DIR/apps/backend/environment.yml"
 
-	if [[ "$WITH_ML" == "1" ]]; then
-		sync_conda_env "signify-ml" "$ROOT_DIR/packages/ml/environment.yml"
-	else
-		log "Skipping ML environment setup. Set WITH_ML=1 to enable."
-	fi
 
 	log "Installing frontend dependencies (apps/frontend)..."
 	pushd "$ROOT_DIR/apps/frontend" >/dev/null
@@ -80,9 +74,6 @@ Next steps:
 
 	3) Backend tests:
 		 conda run -n signify-backend python -m pytest apps/backend/tests -q
-
-Optional ML environment:
-	WITH_ML=1 bash scripts/setup-dev.sh
 EOF
 }
 
