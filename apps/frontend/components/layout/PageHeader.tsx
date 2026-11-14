@@ -24,7 +24,7 @@ export default function PageHeader({
       <div className="min-w-0">
         <h1
           className={cn(
-            "break-words font-display leading-none text-cohere-ink",
+            "break-words font-display font-normal leading-none text-cohere-ink",
             "text-[24px] sm:text-[28px] md:text-[32px] lg:text-[36px]"
           )}
         >

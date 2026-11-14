@@ -1,0 +1,3 @@
+# Private local dataset journals, locks, and development credentials.
+.dataset-runtime/
+.env.dataset.local

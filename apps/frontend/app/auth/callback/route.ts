@@ -32,7 +32,19 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const response = NextResponse.redirect(new URL(next, requestOrigin));
+      let destination = next;
+      // Preserve explicit return paths; use the curator panel for the default landing.
+      if (next === '/translate' || next === '/en/translate') {
+        try {
+          const { data: access } = await supabase.rpc('dataset_access_info');
+          if (access?.is_curator === true) {
+            destination = next.startsWith('/en/') ? '/en/curator' : '/curator';
+          }
+        } catch {
+          // A role lookup outage must not discard a successfully created session.
+        }
+      }
+      const response = NextResponse.redirect(new URL(destination, requestOrigin));
       cookiesToSet.forEach(({ name, value, options }) => {
         response.cookies.set(name, value, options);
       });

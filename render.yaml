@@ -1,0 +1,35 @@
+# Optional backend: creating this Blueprint provisions a PAID service and disk.
+# Vercel still hosts the frontend; this uses hosted Supabase.
+services:
+  - type: web
+    name: signify-dataset-api
+    runtime: docker
+    plan: standard
+    numInstances: 1
+    dockerfilePath: ./apps/backend/Dockerfile.dataset
+    dockerContext: ./apps/backend
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    disk:
+      name: dataset-operations
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATASET_ENVIRONMENT
+        value: production
+      - key: DATASET_SUPABASE_URL
+        sync: false
+      - key: DATASET_ANON_KEY
+        sync: false
+      - key: DATASET_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATASET_ALLOWED_ORIGINS
+        sync: false
+      - key: DATASET_IDEMPOTENCY_SECRET
+        generateValue: true
+      - key: DATASET_WORK_DIR
+        value: /var/data/dataset
+      - key: DATASET_PROCESS_MEMORY_MIB
+        value: "512"
+      - key: DATASET_MAX_PARALLEL_UPLOADS
+        value: "1"

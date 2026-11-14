@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { BookOpen, Camera, History, Target, User, type LucideIcon } from "lucide-react";
+import { BookOpen, FileVideo, Video, Camera, History, Target, User, type LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,8 @@ const ICON_MAP: Record<WorkspaceNavIcon, LucideIcon> = {
   practice: Target,
   history: History,
   reference: BookOpen,
+  contributions: Video,
+  collection: FileVideo,
   user: User,
 };
 
@@ -87,7 +89,7 @@ export default function MobileNavItem({
             <Icon className="size-[18px]" strokeWidth={1.8} />
           </motion.span>
           <MobileNavLabel
-            label={label}
+            label={t(item.key === "contributions" ? "contributionsShort" : item.key === "collection" ? "collectionShort" : item.key)}
             isActive={isActive}
             reduceMotion={reduceMotion}
           />

@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { sanitizeRelativePath } from "@/lib/authRedirect";
 import { createClient } from "@/utils/supabase/client";
 import { Logo } from "@/components/ui/Logo";
+import { DevelopmentLogin } from "./DevelopmentLogin";
 
 interface LoginModalProps {
   open: boolean;
@@ -150,6 +151,8 @@ export function LoginModal({ open, onClose, nextPath }: LoginModalProps) {
             )}
             {loading ? t("openingGoogle") : t("google")}
           </button>
+
+          <DevelopmentLogin nextPath={nextPath} />
 
           {error && (
             <p className="mt-4 text-center text-[13px] text-cohere-error" role="alert">
