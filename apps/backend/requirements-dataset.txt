@@ -2,7 +2,7 @@
 # Match the existing backend versions verified by its regression suite.
 fastapi==0.136.0
 starlette==0.52.1
-anyio==4.12.1
+anyio==4.13.0
 uvicorn[standard]>=0.34,<1
 python-multipart>=0.0.20,<1
 pydantic-settings>=2.7,<3

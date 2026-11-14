@@ -118,8 +118,11 @@ select lives_ok($$update storage.objects set name='tampered' where bucket_id='da
 select is((select count(*)::integer from storage.objects where name='tampered'), 0, 'A user cannot replace registered video bytes or paths through UPDATE');
 
 select lives_ok(
-  $$delete from storage.objects where bucket_id='dataset-contribution-videos'$$,
-  'Direct video DELETE filters protected rows without deleting them');
+  $$do $delete$ begin
+    delete from storage.objects where bucket_id='dataset-contribution-videos';
+  exception when insufficient_privilege then null;
+  end $delete$;$$,
+  'Direct video DELETE is denied by Storage or filters protected rows');
 
 select is((select count(*)::integer from storage.objects where bucket_id='dataset-contribution-videos'), 2, 'Direct deletion leaves the user''s registered videos intact');
 
