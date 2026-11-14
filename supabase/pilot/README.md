@@ -47,8 +47,8 @@ consent frontend masih kosong. FFmpeg/FFprobe belum tersedia; prlimit tersedia.
 | Field | Nilai pilot | Alasan pengujian |
 | --- | --- | --- |
 | version | dev-local-pilot-v1 | Snapshot terpisah dari konfigurasi final |
-| min_duration_ms | 1000 | Uji batas bawah dan klip yang terlalu singkat |
-| max_duration_ms | 10000 | Ruang uji mulai/stop kata dan ungkapan; bukan durasi BISINDO tervalidasi |
+| min_duration_ms | 3000 | Batas bawah perekaman sesuai constraint database |
+| max_duration_ms | 7000 | Batas atas perekaman sesuai constraint database; bukan durasi BISINDO tervalidasi |
 | min_short_side_px | 240 | Mencakup uji kamera beresolusi rendah; bukan ambang keterbacaan isyarat |
 | max_long_side_px | 1280 | Membatasi beban decoding lokal untuk pilot awal |
 | max_size_bytes | 16777216 (16 MiB) | Anggaran transfer/penyimpanan uji, masih perlu ukuran aktual lintas perangkat |

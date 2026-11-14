@@ -56,6 +56,8 @@ def load_manifest(path=MANIFEST, root=REPO):
     for key in fields - {"version", "allowed_mime_types"}:
         require(type(policy[key]) is int and policy[key] > 0, "invalid_policy_number")
     require(policy["min_duration_ms"] < policy["max_duration_ms"], "invalid_duration_range")
+    require(policy["min_duration_ms"] == 3000 and policy["max_duration_ms"] == 7000,
+            "recording_duration_must_be_3_7_seconds")
     require(policy["min_short_side_px"] <= policy["max_long_side_px"], "invalid_resolution_range")
     require(bool(policy["allowed_mime_types"]) and len(set(policy["allowed_mime_types"])) == len(policy["allowed_mime_types"])
             and set(policy["allowed_mime_types"]) <= {"video/webm", "video/mp4"}, "unsupported_pilot_container")
@@ -66,6 +68,7 @@ def load_manifest(path=MANIFEST, root=REPO):
     source = data["source"]
     file = (root / source["path"]).resolve()
     require(file.is_relative_to(root.resolve()) and file.suffix == ".docx", "source_outside_repository")
+    require(file.is_file(), "proposal_source_missing")
     require(hashlib.sha256(file.read_bytes()).hexdigest() == source["sha256"], "proposal_source_changed_reaudit_required")
     with ZipFile(file) as archive:
         require(archive.getinfo("word/document.xml").file_size < 8 * 1024 * 1024, "proposal_xml_too_large")

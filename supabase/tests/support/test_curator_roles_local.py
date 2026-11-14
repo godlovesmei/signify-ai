@@ -45,12 +45,11 @@ grant all on storage.objects to anon,authenticated,service_role;
         result = sql(name, bootstrap)
         if result.returncode: raise RuntimeError(result.stderr)
         for migration in sorted((ROOT / "supabase/migrations").glob("*.sql")):
-            if migration.name >= '20261112090000_curator_profile_role.sql':
-                continue
             result = sql(name, migration.read_text())
             if result.returncode: raise RuntimeError(migration.name + ": " + result.stderr)
         assertions = 0
-        for filename in ("production_data_sync.test.sql", "dataset_foundation.test.sql", "dataset_curator_roles.test.sql"):
+        for test in sorted((ROOT / "supabase/tests/database").glob("*.test.sql")):
+            filename = test.name
             result = sql(name, "set search_path=public,extensions;\n" + (ROOT / "supabase/tests/database" / filename).read_text())
             if result.returncode: raise RuntimeError(filename + ": " + result.stderr)
             failures = [line.strip() for line in result.stdout.splitlines() if "not ok " in line or "# Failed" in line or "# Looks like" in line]
@@ -58,18 +57,6 @@ grant all on storage.objects to anon,authenticated,service_role;
             if failures: raise RuntimeError(filename + ": " + " | ".join(failures))
             print(filename + ": PASS")
         print(str(assertions) + " SQL/RLS assertions passed; live application database unchanged.")
-        # Earlier suites verify their historical migration contract. Then verify
-        # the operator-managed profile role against the final schema separately.
-        for migration in sorted((ROOT / "supabase/migrations").glob("*.sql")):
-            if migration.name < '20261112090000_curator_profile_role.sql':
-                continue
-            result = sql(name, migration.read_text())
-            if result.returncode: raise RuntimeError(migration.name + ': ' + result.stderr)
-        result = sql(name, 'set search_path=public,extensions;\n' + (ROOT / 'supabase/tests/database/curator_profile_role.test.sql').read_text())
-        if result.returncode: raise RuntimeError(result.stderr)
-        failures = [line.strip() for line in result.stdout.splitlines() if 'not ok ' in line or '# Failed' in line or '# Looks like' in line]
-        if failures: raise RuntimeError(' | '.join(failures))
-        print(result.stdout)
     finally:
         if created:
             result = sql("postgres", 'drop database "' + name + '" with (force);')

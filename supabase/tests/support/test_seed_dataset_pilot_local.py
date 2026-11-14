@@ -1,9 +1,12 @@
 """Pure safety tests for the pilot plan. Never connects to PostgreSQL or runs DML."""
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
 from uuid import uuid4
+from zipfile import ZipFile
+import xml.etree.ElementTree as ET
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -14,7 +17,26 @@ ACTOR = "cb64db86-42aa-42a0-bcb8-9c7f632970ce"
 
 
 @pytest.fixture
-def draft():
+def draft(tmp_path, monkeypatch):
+    # The operator's academic DOCX is intentionally untracked. Exercise the real
+    # source/hash/XML validation with a synthetic document in the test directory.
+    data = json.loads(pilot.MANIFEST.read_text())
+    inventory = [label["display_name"] for label in data["labels"]]
+    inventory += [f"Synthetic label {index}" for index in range(40 - len(inventory))]
+    ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    document = ET.Element(ns + "document")
+    paragraph = ET.SubElement(ET.SubElement(document, ns + "body"), ns + "p")
+    ET.SubElement(ET.SubElement(paragraph, ns + "r"), ns + "t").text = (
+        data["source"]["anchor"] + " " + ", ".join(inventory) + ". Penamaan fixture."
+    )
+    source = tmp_path / "synthetic-proposal.docx"
+    with ZipFile(source, "w") as archive:
+        archive.writestr("word/document.xml", ET.tostring(document))
+    data["source"].update(path=source.name, sha256=hashlib.sha256(source.read_bytes()).hexdigest())
+    manifest = tmp_path / "pilot.json"
+    manifest.write_text(json.dumps(data))
+    load = pilot.load_manifest
+    monkeypatch.setattr(pilot, "load_manifest", lambda path=manifest, root=tmp_path: load(path, root))
     return pilot.load_manifest()
 
 
@@ -31,7 +53,7 @@ def changed_manifest(tmp_path, draft, mutate):
     return path
 
 
-def test_selected_labels_are_really_in_proposal(draft):
+def test_selected_labels_are_validated_against_synthetic_proposal(draft):
     assert [row["display_name"] for row in draft["labels"]] == ["Halo", "Apa Kabar", "Terima Kasih", "Saya", "Makan"]
 
 
@@ -41,6 +63,7 @@ def test_policy_matches_actual_backend_contract(draft):
     from app.schemas.dataset import VideoPolicy, ContributionInput
     policy = {**draft["policy"], "id": str(uuid4())}
     assert VideoPolicy.model_validate(policy).max_size_bytes == 16777216
+    assert (policy["min_duration_ms"], policy["max_duration_ms"]) == (3000, 7000)
     metadata = ContributionInput(proposed_label_id=uuid4(), consent=True, consent_version=draft["consent"]["version"])
     assert metadata.recognition_event_id is None
     assert metadata.consent_version == "dev-local-consent-draft-v1"
@@ -49,6 +72,8 @@ def test_policy_matches_actual_backend_contract(draft):
 @pytest.mark.parametrize("mutate", [
     lambda value: value.update(local_only=False),
     lambda value: value["policy"].update(min_duration_ms=0),
+    lambda value: value["policy"].update(min_duration_ms=1000),
+    lambda value: value["policy"].update(max_duration_ms=10000),
     lambda value: value["policy"].update(max_duration_ms=1),
     lambda value: value["policy"].update(max_size_bytes=True),
     lambda value: value["policy"].update(allowed_mime_types=["text/plain"]),

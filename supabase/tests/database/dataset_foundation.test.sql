@@ -21,6 +21,7 @@ insert into auth.users (id,email,raw_user_meta_data) values
 ('20000000-0000-4000-8000-000000000003','technical-admin@example.test','{}'),
 ('20000000-0000-4000-8000-000000000004','technical-admin-two@example.test','{}');
 update public.profiles set role='admin' where user_id in ('20000000-0000-4000-8000-000000000003','20000000-0000-4000-8000-000000000004');
+update public.profiles set role='curator' where user_id in ('20000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002');
 insert into private.dataset_curator_grants (user_id,granted_by,qualification_note) values
 ('20000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000003','Synthetic reviewer assignment A'),
 ('20000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000003','Synthetic reviewer assignment B'),
@@ -32,7 +33,7 @@ insert into public.dataset_labels (id,code,display_name,is_active) values
 insert into public.dataset_video_policies
 (id,version,min_duration_ms,max_duration_ms,min_short_side_px,max_long_side_px,max_size_bytes,
  allowed_mime_types,is_active,created_by,approved_at)
-values ('40000000-0000-4000-8000-000000000001','synthetic-fixture-v1',100,9000,100,1000,10000,
+values ('40000000-0000-4000-8000-000000000001','synthetic-fixture-v1',3000,7000,100,1000,10000,
 array['video/webm'],true,'20000000-0000-4000-8000-000000000003',now());
 insert into public.dataset_video_policies (id,version,created_by)
 values ('40000000-0000-4000-8000-000000000002','unconfigured-draft','20000000-0000-4000-8000-000000000003');
@@ -44,7 +45,7 @@ create function pg_temp.dataset_seed(
  insert into public.dataset_contributions
  (id,user_id,recognition_event_id,proposed_label_id,video_object_path,size_bytes,duration_ms,width,height,
  mime_type,source_sha256,video_policy_id,validated_at,consent_version,consented_at,signer_pseudonym)
- values (p_id,p_owner,p_event,'30000000-0000-4000-8000-000000000001',p_owner::text||'/'||p_id::text||'/video',p_size,1000,120,160,
+ values (p_id,p_owner,p_event,'30000000-0000-4000-8000-000000000001',p_owner::text||'/'||p_id::text||'/video',p_size,4000,120,160,
  'video/webm',repeat('a',64),p_policy,now(),'synthetic-consent-v1',now(),'synthetic-signer');
 $seed$;
 select pg_temp.dataset_seed('50000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001');
@@ -314,6 +315,7 @@ reset role;
 select throws_ok($$insert into public.dataset_export_items(export_id,contribution_id) values ('60000000-0000-4000-8000-000000000002','50000000-0000-4000-8000-000000000001')$$, '23514', null, 'Deleted contribution cannot enter a later export');
 
 update private.dataset_curator_grants set revoked_at=now() where user_id='20000000-0000-4000-8000-000000000002';
+update public.profiles set role='user' where user_id='20000000-0000-4000-8000-000000000002';
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"20000000-0000-4000-8000-000000000002","role":"authenticated"}', true);

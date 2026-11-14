@@ -50,7 +50,7 @@ async function main() {
     }
     let failures = 0;
     let assertions = 0;
-    for (const name of ['production_data_sync.test.sql', 'dataset_foundation.test.sql', 'dataset_curator_roles.test.sql']) {
+    for (const name of fs.readdirSync(path.join(repositoryRoot, 'supabase/tests/database')).filter(name => name.endsWith('.test.sql')).sort()) {
       currentFile = name;
       console.log('Suite: ' + name);
       const results = await db.exec(fs.readFileSync(path.join(repositoryRoot, 'supabase/tests/database', name), 'utf8'));

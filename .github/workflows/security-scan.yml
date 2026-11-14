@@ -25,10 +25,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify secret scan fixture filtering
+        run: python -m unittest discover -s scripts -p 'test_check_secret_scan.py'
+
       - name: Scan committed history for secrets
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --results=verified,unknown
+        env:
+          SCAN_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SCAN_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          args=(git file:///tmp/ --branch "$SCAN_HEAD" --results=verified,unknown --json --fail --no-update)
+          if [[ -n "$SCAN_BASE" && "$SCAN_BASE" != 0000000000000000000000000000000000000000 ]]; then
+            args+=(--since-commit "$SCAN_BASE")
+          fi
+          scan_exit=0
+          docker run --rm -v "$PWD:/tmp:ro" -w /tmp \
+            ghcr.io/trufflesecurity/trufflehog:3.99.9 "${args[@]}" \
+            > "$RUNNER_TEMP/secret-scan.jsonl" || scan_exit=$?
+          python scripts/check_secret_scan.py "$RUNNER_TEMP/secret-scan.jsonl" "$scan_exit"
 
   dependency-review:
     if: github.event_name == 'pull_request'
@@ -95,7 +108,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: apps/frontend/pnpm-lock.yaml
 
