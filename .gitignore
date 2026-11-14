@@ -22,6 +22,7 @@ dmypy.json
 
 # Data (mentah, olahan, augmentasi)
 data/bisindo
+data/bisindo_kata
 
 # Model checkpoints & hasil training
 models/*
