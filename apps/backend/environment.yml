@@ -21,6 +21,6 @@ dependencies:
       - PyJWT==2.15.1
       - cryptography
       - locust
-  - pytest
+  - pytest=9.0.3
   - pytest-cov
   - httpx
