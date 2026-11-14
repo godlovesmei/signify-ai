@@ -262,6 +262,10 @@ export type Database = {
       };
     };
     Functions: {
+      dataset_access_info: {
+        Args: Record<PropertyKey, never>;
+        Returns: { is_admin: boolean; is_curator: boolean; review_available: boolean };
+      };
       append_translation_entry: {
         Args: {
           p_commit_method?: string;

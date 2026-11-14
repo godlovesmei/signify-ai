@@ -1,0 +1,16 @@
+FROM python:3.11-slim-trixie
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 DATASET_ENVIRONMENT=production
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg util-linux \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 dataset \
+    && mkdir -p /var/data/dataset && chown -R dataset:dataset /var/data
+COPY requirements-dataset.txt ./
+RUN pip install --no-cache-dir -r requirements-dataset.txt
+COPY app ./app
+COPY dataset_main.py ./
+COPY scripts/start_dataset.py ./scripts/start_dataset.py
+USER dataset
+ENV DATASET_WORK_DIR=/var/data/dataset
+EXPOSE 8001
+CMD ["python", "scripts/start_dataset.py"]

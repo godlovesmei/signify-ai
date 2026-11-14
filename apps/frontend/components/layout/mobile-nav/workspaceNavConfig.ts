@@ -1,7 +1,7 @@
 import { stripLocalePrefix } from "@/i18n/config";
 
-export type WorkspaceNavKey = 'translate' | 'practice' | 'history' | 'reference' | 'profile';
-export type WorkspaceNavIcon = 'translate' | 'practice' | 'history' | 'reference' | 'user';
+export type WorkspaceNavKey = 'translate' | 'practice' | 'history' | 'reference' | 'contributions' | 'collection' | 'profile';
+export type WorkspaceNavIcon = 'translate' | 'practice' | 'history' | 'reference' | 'contributions' | 'collection' | 'user';
 
 export interface WorkspaceNavItem {
   key: WorkspaceNavKey;
@@ -14,6 +14,8 @@ export const WORKSPACE_NAV_ITEMS: readonly WorkspaceNavItem[] = [
   { key: 'practice', href: '/practice', icon: 'practice' },
   { key: 'history', href: '/history', icon: 'history' },
   { key: 'reference', href: '/reference', icon: 'reference' },
+  { key: 'contributions', href: '/contributions/new', icon: 'contributions' },
+  { key: 'collection', href: '/contributions', icon: 'collection' },
   { key: 'profile', href: '/profile', icon: 'user' },
 ] as const;
 
@@ -43,6 +45,8 @@ function normalizePath(input: string): string {
 export function isWorkspaceNavActive(href: string, currentPath: string): boolean {
   const target = normalizePath(href);
   const current = normalizePath(currentPath);
+  if (target === '/contributions' && current === '/contributions/review') return false;
+  if (target === '/contributions' && (current === '/contributions/new' || current.startsWith('/contributions/new/'))) return false;
   return current === target || current.startsWith(`${target}/`);
 }
 
@@ -51,5 +55,6 @@ export function getActiveWorkspaceNavItem(pathname: string): WorkspaceNavItem | 
 }
 
 export function isWorkspaceRoute(pathname: string): boolean {
-  return getActiveWorkspaceNavItem(pathname) !== null;
+  const path = normalizePath(pathname);
+  return getActiveWorkspaceNavItem(pathname) !== null || path === "/contributions/review" || path === "/curator" || path.startsWith("/curator/") || path === "/admin/curators";
 }

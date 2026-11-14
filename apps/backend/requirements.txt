@@ -10,3 +10,4 @@ pillow>=11,<13
 numpy>=1.26,<2.3
 PyJWT==2.13.0
 cryptography>=43,<47
+httpx>=0.28,<1

@@ -1,0 +1,64 @@
+/* Shared responsive treatment for contributions, curation, and access management. */
+.dataset-surface {
+  min-width: 0;
+  color: var(--color-text-primary);
+  color-scheme: light;
+  /* Both locales inherit the original Indonesian design tokens. Keep browser
+     text autosizing from changing the apparent weight/size of translated UI. */
+  font-family: var(--font-family-body);
+  font-size: 1rem;
+  font-weight: 400;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.dark .dataset-surface { color-scheme: dark; }
+.dataset-surface :is(button, input, select, textarea) { font-family: inherit; }
+.dataset-surface :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 1rem;
+  border-color: color-mix(in srgb, var(--color-text-secondary) 40%, var(--color-border));
+}
+.dataset-surface :is(input:not([type="checkbox"]):not([type="radio"]), select) { min-height: 44px; }
+.dataset-surface :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.dataset-surface :is(p, h1, h2, h3, label, summary, dd) { overflow-wrap: anywhere; }
+.dataset-actions > :is(button, a) { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.dataset-dialog {
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem;
+}
+.dataset-dialog [data-slot="dialog-description"] { color: var(--color-text-secondary); }
+.dataset-dialog [data-slot="dialog-title"] { padding-inline-end: 2.75rem; overflow-wrap: anywhere; }
+.dataset-dialog [data-slot="dialog-close"] {
+  top: .5rem; right: .5rem; display: flex;
+  width: 44px; height: 44px; align-items: center; justify-content: center;
+}
+@media (min-width: 40rem) {
+  .dataset-surface :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: .875rem; }
+  .dataset-dialog { padding: 1.5rem; }
+}
+.dataset-table-container { min-width: 0; container: dataset-list / inline-size; }
+.dataset-table [data-mobile-action] { display: none; }
+@container dataset-list (max-width: 55rem) {
+  .dataset-table, .dataset-table tbody { display: block; width: 100%; min-width: 0; }
+  .dataset-table thead {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+  }
+  .dataset-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .875rem; padding: 1rem; }
+  .dataset-table td { display: block; min-width: 0; max-width: none; padding: 0; text-align: start; overflow-wrap: anywhere; }
+  .dataset-table td::before { content: attr(data-label); display: block; margin-bottom: .375rem; color: var(--color-text-secondary); font-size: .75rem; font-weight: 400; }
+  .dataset-table td[data-primary], .dataset-table td[data-wide], .dataset-table td[data-actions] { grid-column: 1 / -1; }
+  .dataset-table td[data-primary] { grid-row: 1; }
+  .dataset-table td[data-primary]::before, .dataset-table td[data-actions]::before { display: none; }
+  .dataset-table td[data-actions] button { width: 100%; min-height: 44px; gap: .5rem; white-space: normal; }
+  .dataset-table td[data-primary] button { min-height: 44px; }
+  .dataset-table [data-mobile-action] { display: inline; }
+}

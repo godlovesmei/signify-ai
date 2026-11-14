@@ -49,12 +49,21 @@ PLAN.md
 *.pt
 
 # Environment variables — ignore all .env variants except example templates
-**/.env
-.env
-**/.env.local
-**/.env.*.local
-!**/.env.example
-!**/.env.local.example
+**/.env*
+!**/.env*.example
 
 # Supabase local/temp files
 supabase/.temp/
+
+# Local academic materials and generated dataset test reports
+/LaporanProyekAkhir_3312401034_BungaCitraLestariSitumorang.docx
+/docs/BAB_I_Bunga_Revisi_2026-09-22.md
+/docs/BAB_III_3_4_Bunga_Revisi_2026-09-22.md
+/docs/Panduan_Proyek_Akhir_Bunga.md
+/docs/diagrams/signify-usecase-erd/
+/supabase/tests/integration/results/
+
+# Private dataset environments, journals and hosting metadata
+**/.venv*/
+**/.dataset-runtime/
+**/.vercel/

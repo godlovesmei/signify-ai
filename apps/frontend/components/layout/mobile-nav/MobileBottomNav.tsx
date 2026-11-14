@@ -52,7 +52,7 @@ export default function MobileBottomNav({
     };
   }, [isWorkspace]);
 
-  if (!isWorkspace || !activeItem) return null;
+  if (!isWorkspace) return null;
 
   return (
     <>
@@ -78,12 +78,12 @@ export default function MobileBottomNav({
         }
       >
         <div className="border-t border-cohere-hairline bg-cohere-canvas pb-[env(safe-area-inset-bottom,0px)] pt-1">
-          <ul className="grid grid-cols-6 gap-0 px-1">
+          <ul className="grid grid-cols-8 gap-0 px-1">
             {WORKSPACE_NAV_ITEMS.map((item) => (
               <MobileNavItem
                 key={item.key}
                 item={item}
-                isActive={item.key === activeItem.key}
+                isActive={item.key === activeItem?.key}
                 reduceMotion={reduceMotion}
               />
             ))}

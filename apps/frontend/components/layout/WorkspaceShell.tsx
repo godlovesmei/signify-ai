@@ -4,6 +4,9 @@ import { useState, useCallback, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { toast } from "sonner";
+import DatasetRoleNavigation from "./DatasetRoleNavigation";
+import { datasetApi } from "@/lib/dataset/api";
+import type { DatasetAccess } from "@/lib/dataset/types";
 import AppSidebar from "@/components/layout/AppSidebar";
 import type { SidebarUser } from "@/components/layout/AppSidebar";
 import MobileBottomNav from "./mobile-nav/MobileBottomNav";
@@ -30,6 +33,7 @@ export default function WorkspaceShell({
   const locale = useLocale() as Locale;
   const t = useTranslations("auth.errors");
   const commonT = useTranslations("common");
+  const [datasetAccess, setDatasetAccess] = useState<DatasetAccess | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const fallbackWorkspaceUser: SidebarUser = {
@@ -68,6 +72,17 @@ export default function WorkspaceShell({
     };
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const refreshAccess = () => {
+      void datasetApi.access(controller.signal).then(value => { if (!controller.signal.aborted) setDatasetAccess(value); })
+        .catch(() => { if (!controller.signal.aborted) setDatasetAccess(null); });
+    };
+    refreshAccess();
+    window.addEventListener("focus", refreshAccess);
+    return () => { controller.abort(); window.removeEventListener("focus", refreshAccess); };
+  }, []);
+
   const [devices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [isMirrored, setIsMirrored] = useState(true);
@@ -81,6 +96,7 @@ export default function WorkspaceShell({
         onSettingsClick={() => setSettingsOpen(true)}
         onLogout={handleLogout}
         user={activeUser}
+        datasetAccess={datasetAccess}
       />
 
       {/* Main content area */}
@@ -89,6 +105,7 @@ export default function WorkspaceShell({
           id="workspace-main"
           className="min-h-0 flex-1 min-w-0 overflow-auto bg-cohere-canvas"
         >
+          {(datasetAccess?.is_admin || datasetAccess?.is_curator) && <div className="px-4 py-3 lg:hidden"><DatasetRoleNavigation access={datasetAccess} pathname={pathname} /></div>}
           {children}
         </main>
       </div>

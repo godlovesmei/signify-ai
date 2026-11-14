@@ -38,6 +38,8 @@ describe("AppSidebar", () => {
       "Practice",
       "History",
       "Reference",
+      "Contributions",
+      "My Collection",
     ]);
     expect(within(nav).queryByRole("link", { name: "Profile" })).not.toBeInTheDocument();
 
