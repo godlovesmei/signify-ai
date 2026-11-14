@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const getUser = vi.fn();
 const exchangeCodeForSession = vi.fn();
+const accessInfo = vi.fn();
 const authCookies = [
   {
     name: "sb-test-auth-token",
@@ -26,6 +27,7 @@ vi.mock("@/utils/supabase/server", () => ({
   createClient: async (
     onCookiesSet?: (cookiesToSet: typeof authCookies) => void,
   ) => ({
+    rpc: accessInfo,
     auth: {
       exchangeCodeForSession: async (...args: unknown[]) => {
         const result = await exchangeCodeForSession(...args);
@@ -42,6 +44,18 @@ describe("auth route integration", () => {
   beforeEach(() => {
     getUser.mockReset();
     exchangeCodeForSession.mockReset();
+    accessInfo.mockReset();
+    accessInfo.mockResolvedValue({ data: { is_curator: false }, error: null });
+  });
+
+  it.each(["/curator", "/admin/curators"])("protects role route %s behind sign in", async pathname => {
+    getUser.mockResolvedValue({ data: { user: null } });
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(new NextRequest("https://signify.local" + pathname));
+    expect(response.status).toBe(307);
+    const destination = new URL(response.headers.get("location")!);
+    expect(destination.searchParams.get("login")).toBe("1");
+    expect(destination.searchParams.get("next")).toBe(pathname);
   });
 
   it("TC-004 redirects unauthenticated workspace access and preserves return path", async () => {
@@ -129,4 +143,45 @@ describe("auth route integration", () => {
       "https://signify.local/translate",
     );
   });
+
+  it.each([['/translate', '/curator'], ['/en/translate', '/en/curator']])(
+    'sends an assigned curator from %s to %s', async (next, expected) => {
+      exchangeCodeForSession.mockResolvedValue({ error: null });
+      accessInfo.mockResolvedValue({ data: { is_curator: true }, error: null });
+      const { GET } = await import('@/app/auth/callback/route');
+      const response = await GET(new NextRequest('https://signify.local/auth/callback?code=ok&next=' + encodeURIComponent(next)));
+      expect(response.headers.get('location')).toBe('https://signify.local' + expected);
+      expect(response.headers.get('set-cookie')).toContain('sb-test-auth-token=session-cookie');
+    },
+  );
+
+  it('preserves an explicit return path for a curator', async () => {
+    exchangeCodeForSession.mockResolvedValue({ error: null });
+    accessInfo.mockResolvedValue({ data: { is_curator: true }, error: null });
+    const { GET } = await import('@/app/auth/callback/route');
+    const response = await GET(new NextRequest('https://signify.local/auth/callback?code=ok&next=/history'));
+    expect(response.headers.get('location')).toBe('https://signify.local/history');
+  });
+
+  it('keeps the login session when role lookup fails', async () => {
+    exchangeCodeForSession.mockResolvedValue({ error: null });
+    accessInfo.mockRejectedValue(new Error('Unavailable'));
+    const { GET } = await import('@/app/auth/callback/route');
+    const response = await GET(new NextRequest('https://signify.local/auth/callback?code=ok'));
+    expect(response.headers.get('location')).toBe('https://signify.local/translate');
+    expect(response.headers.get('set-cookie')).toContain('sb-test-auth-token=session-cookie');
+  });
+});
+
+describe("dataset route protection", () => {
+  it.each(["/contributions", "/contributions/new", "/contributions/bff6b03c-a794-431e-b974-a869727b0820", "/en/contributions/new"])(
+    "redirects unauthenticated access to %s", async path => {
+      getUser.mockResolvedValue({ data: { user: null } });
+      const { proxy } = await import("@/proxy");
+      const response = await proxy(new NextRequest("http://localhost:3000" + path));
+      expect(response.status).toBe(307);
+      const location = new URL(response.headers.get("location")!);
+      expect(location.searchParams.get("login")).toBe("1");
+      expect(location.searchParams.get("next")).toBe(path);
+    });
 });

@@ -10,6 +10,9 @@ const PROTECTED_PREFIXES = [
   '/history',
   '/reference',
   '/profile',
+  '/contributions',
+  '/curator',
+  '/admin',
 ];
 
 // ─── Auth-only routes ─────────────────────────────────────────────────────────

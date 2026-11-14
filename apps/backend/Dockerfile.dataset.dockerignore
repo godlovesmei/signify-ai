@@ -1,0 +1,14 @@
+# Only production runtime source enters the build context.
+*
+!requirements-dataset.txt
+!Dockerfile.dataset
+!app/
+!app/**
+!dataset_main.py
+!scripts/
+!scripts/start_dataset.py
+**/__pycache__/
+**/*.py[cod]
+**/.env*
+**/*.pem
+**/*.key

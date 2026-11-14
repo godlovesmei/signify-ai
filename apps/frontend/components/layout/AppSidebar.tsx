@@ -5,6 +5,8 @@ import { type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   BookOpen,
+  FileVideo,
+  Video,
   Camera,
   ChevronRight,
   History,
@@ -19,6 +21,8 @@ import {
 } from "./mobile-nav/workspaceNavConfig";
 import { motion } from "motion/react";
 import { Logo } from "@/components/ui/Logo";
+import DatasetRoleNavigation from "./DatasetRoleNavigation";
+import type { DatasetAccess } from "@/lib/dataset/types";
 import { AutoAvatar } from "@/components/ui/AutoAvatar";
 
 const ICON_MAP: Record<string, ReactNode> = {
@@ -26,6 +30,8 @@ const ICON_MAP: Record<string, ReactNode> = {
   practice: <Target className="size-4" />,
   history: <History className="size-4" />,
   reference: <BookOpen className="size-4" />,
+  contributions: <Video className="size-4" />,
+  collection: <FileVideo className="size-4" />,
 };
 
 const SIDEBAR_NAV_ITEMS = WORKSPACE_NAV_ITEMS.filter(
@@ -45,6 +51,7 @@ interface AppSidebarProps {
   onSettingsClick: () => void;
   onLogout: () => void;
   user?: SidebarUser | null;
+  datasetAccess?: DatasetAccess | null;
 }
 
 const FALLBACK_EMAIL = "account@signify.ai";
@@ -71,6 +78,7 @@ export default function AppSidebar({
   onSettingsClick,
   onLogout,
   user,
+  datasetAccess,
 }: AppSidebarProps) {
   const profileActive = isWorkspaceNavActive("/profile", pathname);
   const navT = useTranslations("navigation.workspace");
@@ -90,7 +98,8 @@ export default function AppSidebar({
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label={ariaT("workspace")}>
+      <div className="flex-1 overflow-y-auto p-3">
+      <nav className="space-y-0.5" aria-label={ariaT("workspace")}>
         {SIDEBAR_NAV_ITEMS.map((item) => {
           const active = isWorkspaceNavActive(item.href, pathname);
           const label = navT(item.key);
@@ -133,6 +142,8 @@ export default function AppSidebar({
           );
         })}
       </nav>
+      <div className="mt-4"><DatasetRoleNavigation access={datasetAccess} pathname={pathname} /></div>
+      </div>
 
       {/* User and actions */}
       <div className="mt-auto shrink-0 space-y-1 p-3">

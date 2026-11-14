@@ -7,7 +7,8 @@
 - Model assets: public, versioned static files under `apps/frontend/public/models/bisindo-yolo11n/v1/`.
 - Runtime assets: ONNX Runtime WebAssembly files under `apps/frontend/public/ort/`.
 - Auth and database: hosted Supabase project.
-- Backend: not deployed for production in the current browser-only architecture.
+- Inference backend: not required for browser-based recognition.
+- Dataset backend: separate Linux service for video validation and ingestion; see [Dataset production](#dataset-production).
 
 There is no production FastAPI inference service in this browser-only shape. The
 browser downloads `best.onnx`, captures webcam frames locally, runs inference on
@@ -122,9 +123,8 @@ Manual browser checks on a Vercel Preview:
 
 ## Legacy Backend
 
-`apps/backend` remains useful for local parity checks, backend contract tests,
-and future server-side experiments. It is not required for the production
-browser-only Vercel deployment.
+The legacy inference backend remains useful for parity checks and experiments.
+The separate dataset_main.py entrypoint is required for dataset contributions.
 
 If a future requirement says the model must remain private, this architecture is
 not sufficient; inference must move back to a server-side runtime.
@@ -135,3 +135,63 @@ Run it locally only when needed:
 conda activate signify-backend
 uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+## Dataset production
+
+Frontend recognition remains browser-based. Dataset ingestion additionally needs
+a backend with FFmpeg and persistent operation journals. It connects to the same
+hosted Supabase project as the existing production frontend.
+
+### One-time setup
+
+1. Apply the five dataset migrations in chronological order to the existing hosted
+   Supabase project, preserving its migration history. Check the migration diff
+   against the target before applying; do not reset the production database.
+   Start with 20261029090000_dataset_foundation.sql and finish with
+   20261112140000_dataset_contributions_realtime.sql.
+   Git push and CI database tests do not apply hosted migrations.
+2. Create the Linux backend service. The root render.yaml is an optional Render
+   Blueprint using apps/backend/Dockerfile.dataset. Render builds the image;
+   Docker Desktop and local Supabase are not needed on the developer's computer.
+   This Blueprint selects a paid service and persistent disk. Review its plan
+   in Render before creating it; committing YAML creates no account/service.
+3. Supply DATASET_SUPABASE_URL, DATASET_ANON_KEY,
+   DATASET_SERVICE_ROLE_KEY and DATASET_ALLOWED_ORIGINS in backend hosting.
+   The origin list is JSON, e.g. ["https://your-app.vercel.app"].
+   For legacy HS256 user JWTs, also add DATASET_JWT_HS256_SECRET;
+   ES256/RS256 uses the configured project's public JWKS.
+   The Blueprint generates a stable DATASET_IDEMPOTENCY_SECRET.
+4. Keep one backend instance and one worker. Mount persistent storage at
+   /var/data, writable by container user UID 10001, and use
+   DATASET_WORK_DIR=/var/data/dataset. Do not rotate the idempotency secret or
+   erase operation journals while retries are pending. Backend storage must
+   survive redeploy; an ephemeral serverless filesystem is unsuitable.
+5. Set Vercel's NEXT_PUBLIC_DATASET_API_URL to the backend HTTPS origin and
+   NEXT_PUBLIC_DATASET_LOCAL=false. Keep the current hosted Supabase URL and
+   publishable key. Supply approved NEXT_PUBLIC_DATASET_CONSENT_VERSION and
+   NEXT_PUBLIC_DATASET_CONSENT_TEXT, then rebuild.
+6. Configure an approved active video policy on hosted Supabase, with duration
+   3000-7000 ms, complete resolution/size/MIME limits and a valid creator profile.
+   The foundation migration deliberately creates no active policy. The recorder
+   stays unavailable until the policy and consent are configured. Do not use
+   the development pilot's draft consent as production consent.
+7. Assign registered reviewers through profiles.role = 'curator' as described
+   in [the curator guide](Akses_Kurator_Supabase.md), and verify Google OAuth
+   still redirects to the actual frontend domain.
+
+The private dataset buckets, RLS and Realtime publication are defined by migrations.
+Do not upload local pilot users/videos/credentials or use the local seed script
+against production.
+
+### Verification before promotion
+
+On a Preview pointing to an appropriate hosted test environment, verify Google
+login, contributor upload, exact-key upload retry, owner-only collection/playback,
+cross-account denial, curator review and Realtime updates. Use data authorized for
+that environment. GET /health only checks that the API process is available.
+
+No production credentials, hosted schema changes or live upload verification are
+performed by the repository preparation step.
+
+Render references: [Blueprint specification](https://render.com/docs/blueprint-spec)
+and [persistent disks](https://render.com/docs/disks).

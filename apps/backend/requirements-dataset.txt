@@ -1,0 +1,11 @@
+# Dataset service for production and local development; no model dependencies.
+# Match the existing backend versions verified by its regression suite.
+fastapi==0.136.0
+starlette==0.52.1
+anyio==4.12.1
+uvicorn[standard]>=0.34,<1
+python-multipart>=0.0.20,<1
+pydantic-settings>=2.7,<3
+httpx>=0.28,<1
+PyJWT==2.13.0
+cryptography>=43,<47

@@ -1,0 +1,58 @@
+{
+  "pilot_id": "signify-dataset-local-pilot",
+  "stage": "DRAFT_AWAITING_USER_APPROVAL",
+  "local_only": true,
+  "source": {
+    "path": "LaporanProyekAkhir_3312401034_BungaCitraLestariSitumorang.docx",
+    "sha256": "3b396c0d299c7070cee503b446fde85c78c6b6a82378c3de9c6353d9dd80a866",
+    "section": "3.1.1 Sumber Data",
+    "anchor": "Dataset baseline terdiri atas 40 label, yaitu"
+  },
+  "policy": {
+    "version": "dev-local-pilot-v1",
+    "min_duration_ms": 1000,
+    "max_duration_ms": 10000,
+    "min_short_side_px": 240,
+    "max_long_side_px": 1280,
+    "max_size_bytes": 16777216,
+    "allowed_mime_types": [
+      "video/webm",
+      "video/mp4"
+    ]
+  },
+  "labels": [
+    {
+      "code": "halo",
+      "display_name": "Halo"
+    },
+    {
+      "code": "apa_kabar",
+      "display_name": "Apa Kabar"
+    },
+    {
+      "code": "terima_kasih",
+      "display_name": "Terima Kasih"
+    },
+    {
+      "code": "saya",
+      "display_name": "Saya"
+    },
+    {
+      "code": "makan",
+      "display_name": "Makan"
+    }
+  ],
+  "consent": {
+    "version": "dev-local-consent-draft-v1",
+    "text": "DRAF PERSETUJUAN UJI LOKAL - BELUM DISAHKAN UNTUK PENELITIAN. Saya memahami bahwa perekaman ini ditujukan untuk menguji alur teknis kontribusi Signify AI di lingkungan development lokal. Video dapat memuat wajah, tubuh bagian atas, dan tangan; audio dinonaktifkan. Video disimpan pada bucket privat Supabase lokal. Akses diberikan kepada pemilik kontribusi, kurator yang secara khusus diberi kewenangan, dan pengelola backend lokal untuk keperluan pengujian; status admin teknis tidak membuktikan kompetensi BISINDO. Data pilot tidak diizinkan untuk pelatihan model, publikasi, ekspor, atau penggunaan penelitian melalui draf ini. Saya dapat membatalkan sebelum mengirim dan meminta pengelola menonaktifkan kontribusi setelah dikirim melalui soft delete; tautan sementara yang telah diterbitkan dapat tetap berlaku sampai kedaluwarsa. Soft delete tidak langsung menghapus berkas fisik atau jejak audit; penghapusan fisik memerlukan konfirmasi dan pemeriksaan terpisah. Setelah pengujian selesai, data pilot ditinjau untuk penonaktifan dan tindak lanjut penghapusan. Saya tidak akan merekam orang lain atau data pribadi yang tidak diperlukan. Saya memahami bahwa label yang dipilih masih berupa usulan dan rekaman belum dinyatakan benar secara semantik atau layak untuk dataset pelatihan."
+  },
+  "rationale": {
+    "duration": "Rentang sementara 1-10 detik untuk menguji mulai/stop, batas durasi, dan kata/ungkapan; bukan hasil pengukuran gerak BISINDO.",
+    "resolution": "Sisi pendek >=240 dan panjang <=1280 untuk menguji variasi kamera dan anggaran decoding lokal; bukan ambang kualitas linguistik.",
+    "max_size": "Anggaran penyimpanan/transfer uji lokal 16 MiB, bukan batas final atau bukti kecukupan seluruh perangkat.",
+    "mime": "WebM/MP4 mengikuti kandidat MediaRecorder yang sudah ada dan container validator; dukungan browser/tool tetap diuji.",
+    "fps_codec": "FPS positif/terbaca dan codec yang dapat didekode mengikuti validator existing; tidak ada batas FPS atau daftar codec baru pada schema.",
+    "audio": "Frontend meminta audio:false; schema policy belum memiliki aturan audio terpisah.",
+    "labels": "Lima label diambil persis dari inventaris proposal; code hanya slug lokal dan bukan indeks kelas model Meiske."
+  }
+}

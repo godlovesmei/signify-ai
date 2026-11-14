@@ -13,6 +13,10 @@ describe('workspaceNavConfig', () => {
     expect(isWorkspaceNavActive('/practice', '/practice')).toBe(true);
     expect(isWorkspaceNavActive('/history', '/history')).toBe(true);
     expect(isWorkspaceNavActive('/reference', '/reference')).toBe(true);
+    expect(getActiveWorkspaceNavItem('/en/contributions/new')?.key).toBe('contributions');
+    expect(getActiveWorkspaceNavItem('/en/contributions')?.key).toBe('collection');
+    expect(getActiveWorkspaceNavItem('/contributions/example-id')?.key).toBe('collection');
+    expect(isWorkspaceNavActive('/contributions', '/contributions/new')).toBe(false);
   });
 
   it('TC-026 returns false for non-workspace paths', () => {
